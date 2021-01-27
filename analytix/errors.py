@@ -4,3 +4,15 @@ class AnalytixError(Exception):
 
 class NoAuthorisedService(AnalytixError):
     pass
+
+
+class ServiceAlreadyExists(AnalytixError):
+    pass
+
+
+class IncompleteRequest(AnalytixError):
+    pass
+
+
+class InvalidRequest(AnalytixError):
+    pass
