@@ -36,7 +36,6 @@ setuptools.setup(
     ],
     project_urls={"Source": analytix.__url__},
     install_requires=[
-        "google>=3.0.0",
         "google-api-python-client>=1.12.0",
         "google-auth-oauthlib>=0.4.2",
         "pandas>=1.2.0",
