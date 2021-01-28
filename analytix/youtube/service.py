@@ -32,7 +32,11 @@ class YouTubeService:
         flow = InstalledAppFlow.from_client_config(
             self._secrets, tuple(f"https://www.googleapis.com/auth/{s}" for s in scopes)
         )
-        credentials = flow.run_local_server(open_browser=True) if not use_console else flow.run_console()
+        try:
+            credentials = flow.run_local_server(open_browser=True) if not use_console else flow.run_console()
+        except OSError:
+            print("WARNING: Using console authentication as server authentication failed.")
+            credentials = flow.run_console()
         self._service = discovery.build(
             YOUTUBE_ANALYTICS_API_SERVICE_NAME, YOUTUBE_ANALYTICS_API_VERSION, credentials=credentials
         )
