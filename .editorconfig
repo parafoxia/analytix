@@ -9,3 +9,7 @@ trim_trailing_whitespace = true
 [*.py]
 indent_size = 4
 indent_style = space
+
+[*.rst]
+indent_size = 4
+indent_style = space
