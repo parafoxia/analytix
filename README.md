@@ -41,7 +41,7 @@ The following example shows you how to save a CSV of day-by-day analytics for 20
 ```py
 import datetime as dt
 
-from analytics.youtube import TimeBasedYouTubeAnalytics, YouTubeService
+from analytix.youtube import TimeBasedYouTubeAnalytics, YouTubeService
 
 service = YouTubeService("./secrets.json")  # Load from secrets file
 service.authorise("yt-analytics.readonly", "yt-analytics-monetary.readonly")
