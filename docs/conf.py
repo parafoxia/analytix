@@ -22,7 +22,7 @@ copyright = '2021, Ethan Henderson'
 author = 'Ethan Henderson'
 
 # The full version, including alpha/beta/rc tags
-release = '0.1.0a1'
+release = '0.1.0a2'
 
 
 # -- General configuration ---------------------------------------------------
@@ -33,6 +33,8 @@ release = '0.1.0a1'
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.autosectionlabel",
+    "sphinx.ext.napoleon",
+    "sphinx.ext.intersphinx",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
