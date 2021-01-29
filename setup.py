@@ -34,7 +34,10 @@ setuptools.setup(
         "Programming Language :: Python :: 3.9",
         "Topic :: Utilities",
     ],
-    project_urls={"Source": analytix.__url__},
+    project_urls={
+        "Documentation": analytix.__docs__,
+        "Source": analytix.__url__,
+    },
     install_requires=[
         "google-api-python-client>=1.12.0",
         "google-auth-oauthlib>=0.4.2",
