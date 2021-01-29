@@ -13,7 +13,7 @@ class YouTubeService:
     """A YouTube service container to help with authorisation.
 
     Args:
-        secrets (Union[str, os.PathLike, dict]): The filepath to a secrets file or a dictionary of credentials used to authorise a YouTube service.
+        secrets (dict | os.PathLike | str]): The filepath to a secrets file or a dictionary of credentials used to authorise a YouTube service.
     """
 
     __slots__ = ("_service", "_secrets")
@@ -32,7 +32,7 @@ class YouTubeService:
         """Authorises the YouTube service.
 
         Args:
-            scopes (Tuple[str]): A series of string arguments denoting which scopes to use.
+            scopes (str *args): A series of string arguments denoting which scopes to use.
             use_console (bool): Whether to use the console authorisation method.
 
         Raises:
