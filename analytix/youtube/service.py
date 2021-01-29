@@ -41,6 +41,9 @@ class YouTubeService:
             YOUTUBE_ANALYTICS_API_SERVICE_NAME, YOUTUBE_ANALYTICS_API_VERSION, credentials=credentials
         )
 
+    def authorize(self, *scopes, use_console=False):
+        self.authorise(*scopes, use_console)
+
     def close(self):
         if not self._service:
             raise NoAuthorisedService("no authorised service currently exists")
