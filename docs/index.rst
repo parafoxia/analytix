@@ -18,7 +18,7 @@ analytix
    :alt: License
    :target: https://github.com/parafoxia/analytix/blob/main/LICENSE
 
-analytix is a simple yet powerful API wrapper to make getting analytic information from your favourite services easier than ever. Note: Only the YouTube Anaytics API is supported as this time, though more will be added over time!
+analytix is a simple yet powerful API wrapper to make getting analytical information from your favourite services easier than ever. Note: Only the YouTube Anaytics API is supported as this time, though more will be added over time!
 
 Features
 --------
