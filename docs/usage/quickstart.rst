@@ -9,7 +9,7 @@ This provides a useful set of basic examples to help you get started with analyt
 
 .. _YouTube Analytics API Docs: https://developers.google.com/youtube/reporting/v1/code_samples/python#set-up-authorization-credentials/
 
-Creating a YouTube service
+Creating a YouTube Service
 --------------------------
 
 All requests to the YouTube Analytics API need to be authorised. To make this easier, analytix provides a :code:`YouTubeService` object.
@@ -44,7 +44,7 @@ Once you have decided on the scopes you want, you can pass them into the :code:`
 
 From there, follow the authorisation flow, and you're good to go!
 
-Getting basic user activity
+Getting Basic User Activity
 ---------------------------
 
 Once you have authorised a service, you can start pulling data from the API. analytix provides a number of classes to get different types of reports, but for this example we will just grab some basic activity information using the :code:`BasicYouTubeAnalytics` class. We also need to import the :code:`datetime` module for this example:

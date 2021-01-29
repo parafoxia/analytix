@@ -7,7 +7,7 @@ This will take you through the basic steps to get analytix installed.
 
     Python 3.6 or greater is required.
 
-Install the latest version
+Install the Latest Version
 --------------------------
 
 You can install the latest version of analytix using the following command:
@@ -23,7 +23,7 @@ You can install the latest version of analytix using the following command:
     # In a virtual environment
     pip install analytix
 
-Install the development version
+Install the Development Version
 -------------------------------
 
 You can also install the development version by running the following (this example assumes you're on Linux/macOS):

@@ -28,19 +28,18 @@ Features
 - Ability to save reports to JSON and CSV formats mean you can use them at any time
 - Easy to understand errors negate the usual pain of debugging API issues
 
-User guide
+User Guide
 ----------
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
 
    usage/install
    usage/quickstart
    usage/examples
 
-API docs
---------
+Manual
+------
 
 .. toctree::
    :maxdepth: 2
