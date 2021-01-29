@@ -38,8 +38,8 @@ User Guide
    usage/quickstart
    usage/examples
 
-Manual
-------
+API Reference
+-------------
 
 .. toctree::
    :maxdepth: 2
