@@ -36,7 +36,6 @@ User Guide
 
    usage/install
    usage/quickstart
-   usage/examples
 
 API Reference
 -------------
