@@ -59,6 +59,16 @@ YOUTUBE_ANALYTICS_DEFAULT_PROVINCE_METRICS = (
     "cardClicks",
     "cardTeaserClicks",
 )
+YOUTUBE_ANALYTICS_DEFAULT_PLAYLIST_METRICS = (
+    "views",
+    "redViews",
+    "estimatedMinutesWatched",
+    "estimatedRedMinutesWatched",
+    "averageViewDuration",
+    "playlistStarts",
+    "viewsPerPlaylistStart",
+    "averageTimeInPlaylist",
+)
 
 
 class Dimensions(Features):

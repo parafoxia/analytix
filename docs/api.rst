@@ -44,3 +44,15 @@ YouTube
 .. autoclass:: youtube.GeographicYouTubeAnalytics
     :members:
     :inherited-members:
+
+.. autoclass:: youtube.BasicPlaylistYouTubeAnalytics
+    :members:
+    :inherited-members:
+
+.. autoclass:: youtube.TimeBasedPlaylistYouTubeAnalytics
+    :members:
+    :inherited-members:
+
+.. autoclass:: youtube.GeographicPlaylistYouTubeAnalytics
+    :members:
+    :inherited-members:
