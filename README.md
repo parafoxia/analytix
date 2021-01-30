@@ -55,10 +55,10 @@ report = analytics.retrieve(
 report.to_csv("./analytics.csv")
 ```
 
-You can also import the following to get all available metrics (note that some report types support different metrics):
+You can also use the `metrics` attribute to any report to use all valid metrics for a report:
 
 ```py
-from analytix.youtube.features import YOUTUBE_ANALYTICS_DEFAULT_METRICS
+analytics.metrics
 ```
 
 ## Contributing
