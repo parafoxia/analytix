@@ -40,3 +40,7 @@ YouTube
 .. autoclass:: youtube.TimeBasedYouTubeAnalytics
     :members:
     :inherited-members:
+
+.. autoclass:: youtube.GeographicYouTubeAnalytics
+    :members:
+    :inherited-members:
