@@ -1,283 +1,147 @@
 import datetime as dt
-import json
-import typing as t
 
-from analytix import InvalidRequest
-from analytix.youtube.abc import YouTubeAnalytics
-from analytix.youtube.features import (
-    YOUTUBE_ANALYTICS_DEFAULT_METRICS,
-    YOUTUBE_ANALYTICS_DEFAULT_PLAYLIST_METRICS,
-    YOUTUBE_ANALYTICS_DEFAULT_PROVINCE_METRICS,
-    Dimensions,
-    Filters,
-)
+import pandas as pd
+
+from analytix import InvalidRequest, NoAuthorisedService
+from analytix.youtube import features, reports
 
 
-class BasicYouTubeAnalytics(YouTubeAnalytics):
-    """A class to retrieve basic user activity data.
+class YouTubeAnalyticsReport:
+    """A class that provides an interface for working with data retrieved from the YouTube Analytics API.
+
+    Args:
+        data (dict): The response data from the YouTube Analytics API.
+
+    Attributes:
+        data (dict): The response data from the YouTube Analytics API.
+        ncolumns (int): The number of columns in the report.
+        nrows (int): The number of rows in the report.
+    """
+
+    __slots__ = ("data", "ncolumns", "nrows")
+
+    def __init__(self, data):
+        self.data = data
+        self.ncolumns = len(data["columnHeaders"])
+        self.nrows = len(data["rows"])
+
+    def to_dataframe(self):
+        """Returns the report as a Pandas DataFrame.
+
+        Returns:
+            pandas.DataFrame: The DataFrame object.
+        """
+        df = pd.DataFrame()
+        df = df.append(self.data["rows"])
+        df.columns = [c["name"] for c in self.data["columnHeaders"]]
+        return df
+
+    def to_json(self, file, indent=4):
+        """Exports the report to a JSON file in the same format as it was provided by the YouTube Analytics API.
+
+        Args:
+            file (str | os.PathLike): The path in which the report should be saved.
+            indent (int): The number of spaces to use for indentation.
+        """
+        if not file.endswith(".json"):
+            file += ".json"
+        with open(file, "w", encoding="utf-8") as f:
+            json.dump(self.data, f, indent=indent, ensure_ascii=False)
+
+    def to_csv(self, file):
+        """Exports the report to a CSV file.
+
+        Args:
+            file (str | os.PathLike): The path in which the report should be saved.
+        """
+        if not file.endswith(".csv"):
+            file += ".csv"
+        self.to_dataframe().to_csv(file)
+
+
+class YouTubeAnalytics:
+    """A class to retrieve data from the YouTube Analytics API.
 
     Args:
         service (YouTubeService): The YouTube service to perform the operation on.
-        by_province (bool): Whether to get data for provinces or countries. Defaults to False.
-
-    Attributes:
-        dimensions (Dimensions): An object for dimension verification.
-        metrics (tuple[str, ...]): A tuple containing all valid metrics.
-        filters (Filters): An object for filter verification.
     """
 
-    __slots__ = ("service", "dimensions", "_by_province", "metrics", "filters")
-
-    def __init__(self, service, by_province=False):
-        super().__init__(service)
-        self.dimensions = Dimensions(none=True)
-        self.by_province = by_province
-
-    @property
-    def by_province(self):
-        """A Boolean shortcut to change the list of allowed metrics, dimensions, and filters by changing whether the data is fetched by province."""
-        return self._by_province
-
-    @by_province.setter
-    def by_province(self, value):
-        if not isinstance(value, bool):
-            raise TypeError(f"expected bool for by_province, got {type(value).__name__}")
-
-        self._by_province = value
-        if not value:
-            self.metrics = YOUTUBE_ANALYTICS_DEFAULT_METRICS
-            self.filters = Filters(opt=[("country", "continent", "subContinent"), ("video", "group")])
-        else:
-            self.metrics = YOUTUBE_ANALYTICS_DEFAULT_PROVINCE_METRICS
-            self.filters = Filters(many=[("province",)], opt=[("video", "group")])
-
-    def _check_features(self, metrics, dimensions, filters):
-        if not metrics:
-            raise InvalidRequest(f"expected at least 1 metric, got 0")
-
-        for m in metrics:
-            if m not in self.metrics:
-                raise InvalidRequest(f"unexpected metric: {m}")
-
-        self.dimensions.verify(dimensions)
-        self.filters.verify(filters)
-
-
-class TimeBasedYouTubeAnalytics(YouTubeAnalytics):
-    """A class to retrieve time based analytical data.
-
-    Args:
-        service (YouTubeService): The YouTube service to perform the operation on.
-        by_province (bool): Whether to get data for provinces or countries. Defaults to False.
-
-    Attributes:
-        dimensions (Dimensions): An object for dimension verification.
-        metrics (tuple[str, ...]): A tuple containing all valid metrics.
-        filters (Filters): An object for filter verification.
-    """
-
-    def __init__(self, service, by_province=False):
-        super().__init__(service)
-        self.dimensions = Dimensions(req=[("day", "month")])
-        self.by_province = by_province
-
-    @property
-    def by_province(self):
-        """A Boolean shortcut to change the list of allowed metrics, dimensions, and filters by changing whether the data is fetched by province."""
-        return self._by_province
-
-    @by_province.setter
-    def by_province(self, value):
-        if not isinstance(value, bool):
-            raise TypeError(f"expected bool for by_province, got {type(value).__name__}")
-
-        self._by_province = value
-        if not value:
-            self.metrics = YOUTUBE_ANALYTICS_DEFAULT_METRICS
-            self.filters = Filters(opt=[("country", "continent", "subContinent"), ("video", "group")])
-        else:
-            self.metrics = YOUTUBE_ANALYTICS_DEFAULT_PROVINCE_METRICS
-            self.filters = Filters(many=[("province",)], opt=[("video", "group")])
-
-    def _check_features(self, metrics, dimensions, filters):
-        if not metrics:
-            raise InvalidRequest(f"expected at least 1 metric, got 0")
-
-        for m in metrics:
-            if m not in self.metrics:
-                raise InvalidRequest(f"unexpected metric: {m}")
-
-        self.dimensions.verify(dimensions)
-        self.filters.verify(filters)
-
-
-class GeographicYouTubeAnalytics(YouTubeAnalytics):
-    """A class to retrieve user geography analytical data.
-
-    Args:
-        service (YouTubeService): The YouTube service to perform the operation on.
-        by_province (bool): Whether to get data for provinces or countries. Defaults to False.
-
-    Attributes:
-        dimensions (Dimensions): An object for dimension verification.
-        metrics (tuple[str, ...]): A tuple containing all valid metrics.
-        filters (Filters): An object for filter verification.
-    """
-
-    def __init__(self, service, by_province=False):
-        super().__init__(service)
-        self.by_province = by_province
-
-    @property
-    def by_province(self):
-        """A Boolean shortcut to change the list of allowed metrics, dimensions, and filters by changing whether the data is fetched by province."""
-        return self._by_province
-
-    @by_province.setter
-    def by_province(self, value):
-        if not isinstance(value, bool):
-            raise TypeError(f"expected bool for by_province, got {type(value).__name__}")
-
-        self._by_province = value
-        if not value:
-            self.dimensions = Dimensions(req=[("country",)])
-            self.metrics = YOUTUBE_ANALYTICS_DEFAULT_METRICS
-            self.filters = Filters(opt=[("continent", "subContinent"), ("video", "group")])
-        else:
-            self.dimensions = Dimensions(req=[("province",)])
-            self.metrics = YOUTUBE_ANALYTICS_DEFAULT_PROVINCE_METRICS
-            self.filters = Filters(many=[("country",)], opt=[("video", "group")])
-
-    def _check_features(self, metrics, dimensions, filters):
-        if not metrics:
-            raise InvalidRequest(f"expected at least 1 metric, got 0")
-
-        for m in metrics:
-            if m not in self.metrics:
-                raise InvalidRequest(f"unexpected metric: {m}")
-
-        self.dimensions.verify(dimensions)
-        self.filters.verify(filters)
-
-
-class BasicPlaylistYouTubeAnalytics(YouTubeAnalytics):
-    """A class to retrieve basic user activity data within playlists.
-
-    Args:
-        service (YouTubeService): The YouTube service to perform the operation on.
-        by_province (bool): Whether to get data for provinces or countries. Defaults to False.
-
-    Attributes:
-        dimensions (Dimensions): An object for dimension verification.
-        metrics (tuple[str, ...]): A tuple containing all valid metrics.
-        filters (Filters): An object for filter verification.
-    """
-
-    __slots__ = ("service", "dimensions", "metrics", "filters")
+    __slots__ = ("service",)
 
     def __init__(self, service):
-        super().__init__(service)
-        self.dimensions = Dimensions(none=True)
-        self.metrics = YOUTUBE_ANALYTICS_DEFAULT_PLAYLIST_METRICS
-        self.filters = Filters(
-            req=[("isCurated",)],
-            opt=[
-                ("country", "province", "continent", "subContinent"),
-                ("playlist", "group"),
-                ("subscribedStatus", "youtubeProduct"),
-            ],
+        self.service = service
+
+    def retrieve(self, metrics="all", **kwargs):
+        """Executes an API request to pull down analytical information.
+
+        .. warning::
+
+            The :code:`start_date` and :code:`end_date` parameters do not account for delayed analytics such as revenue.
+
+        Args:
+            metrics (str | tuple[str, ...] | list[str]): The metrics (or columns) to retrieve. Defaults to "all".
+            start_date (datetime.date): The earliest date to fetch data for. Defaults to 28 days before the current date.
+            end_date (datetime.date): The latest date to fetch data for. Defaults to the current date.
+            currency (str): The currency to use for monetary analytics. This should be passed in ISO 4217 format. Defaults to USD.
+            dimensions (tuple[str, ...] | list[str]): The dimensions in which data is split. Defaults to an empty tuple.
+            filters (dict[str, str]): The filters to be applied when retrieving data. Defaults to an empty dictionary.
+            include_historical_data (bool): Whether data before the point in which the specified channel(s) were linked to the content owner. Defaults to False.
+            max_results (int | None): The maximum number of rows to fetch. Defaults to None.
+            sort_by (tuple[str, ...] | list[str]): The dimensions in which to sort the data. Defaults to an empty tuple.
+            start_index (int): The index of the first row to retrieve. Note that this is one-indexed. Defaults to 1.
+
+        Returns:
+            YouTubeAnalyticsReport: The report object containing the data fetched from the YouTube Analytics API.
+
+        Raises:
+            NoAuthorisedService: The given service has not been authorised.
+            InvalidRequest: The request was invalid.
+        """
+        if not self.service.active:
+            raise NoAuthorisedService("the YouTube service has not been authorised")
+
+        start_date = kwargs.get("start_date", dt.date.today() - dt.timedelta(days=28))
+        end_date = kwargs.get("end_date", dt.date.today())
+        currency = kwargs.get("currency", "USD")
+        dimensions = kwargs.get("dimensions", ())
+        filters = kwargs.get("filters", {})
+        include_historical_data = kwargs.get("include_historical_data", False)
+        max_results = kwargs.get("max_results", None)
+        sort_by = kwargs.get("sort_by", ())
+        start_index = kwargs.get("start_index", 1)
+
+        if not isinstance(dimensions, (tuple, list, set)):
+            raise InvalidRequest(f"expected tuple, list, or set of dimensions, got {type(dimensions).__name__}")
+
+        if not isinstance(filters, dict):
+            raise InvalidRequest(f"expected dict of filters, got {type(filters).__name__}")
+
+        rtype = reports.determine(dimensions, filters)
+        if not rtype:
+            raise InvalidRequest("a report type could not be determined")
+        r = rtype()
+        r.verify(metrics, dimensions, filters)
+
+        if metrics == "all":
+            metrics = r.metrics
+
+        if filters:
+            filters = tuple(f"{k}=={v}" for k, v in filters.items())
+
+        return YouTubeAnalyticsReport(
+            self.service.active.reports()
+            .query(
+                ids="channel==MINE",
+                metrics=",".join(metrics),
+                startDate=start_date,
+                endDate=end_date,
+                currency=currency,
+                dimensions=",".join(dimensions),
+                filters=";".join(filters),
+                includeHistoricalChannelData=include_historical_data,
+                maxResults=max_results,
+                sort=",".join(sort_by),
+                startIndex=start_index,
+            )
+            .execute()
         )
-
-    def _check_features(self, metrics, dimensions, filters):
-        if not metrics:
-            raise InvalidRequest(f"expected at least 1 metric, got 0")
-
-        for m in metrics:
-            if m not in self.metrics:
-                raise InvalidRequest(f"unexpected metric: {m}")
-
-        filters.update({"isCurated": "1"})
-        self.dimensions.verify(dimensions)
-        self.filters.verify(filters)
-
-
-class TimeBasedPlaylistYouTubeAnalytics(YouTubeAnalytics):
-    """A class to retrieve time based analytical data within playlists.
-
-    Args:
-        service (YouTubeService): The YouTube service to perform the operation on.
-        by_province (bool): Whether to get data for provinces or countries. Defaults to False.
-
-    Attributes:
-        dimensions (Dimensions): An object for dimension verification.
-        metrics (tuple[str, ...]): A tuple containing all valid metrics.
-        filters (Filters): An object for filter verification.
-    """
-
-    __slots__ = ("service", "dimensions", "metrics", "filters")
-
-    def __init__(self, service):
-        super().__init__(service)
-        self.dimensions = Dimensions(req=[("day", "month")])
-        self.metrics = YOUTUBE_ANALYTICS_DEFAULT_PLAYLIST_METRICS
-        self.filters = Filters(
-            req=[("isCurated",)],
-            opt=[
-                ("country", "province", "continent", "subContinent"),
-                ("playlist", "group"),
-                ("subscribedStatus", "youtubeProduct"),
-            ],
-        )
-
-    def _check_features(self, metrics, dimensions, filters):
-        if not metrics:
-            raise InvalidRequest(f"expected at least 1 metric, got 0")
-
-        for m in metrics:
-            if m not in self.metrics:
-                raise InvalidRequest(f"unexpected metric: {m}")
-
-        filters.update({"isCurated": "1"})
-        self.dimensions.verify(dimensions)
-        self.filters.verify(filters)
-
-
-class GeographicPlaylistYouTubeAnalytics(YouTubeAnalytics):
-    """A class to retrieve geographic analytical data within playlists.
-
-    Args:
-        service (YouTubeService): The YouTube service to perform the operation on.
-        by_province (bool): Whether to get data for provinces or countries. Defaults to False.
-
-    Attributes:
-        dimensions (Dimensions): An object for dimension verification.
-        metrics (tuple[str, ...]): A tuple containing all valid metrics.
-        filters (Filters): An object for filter verification.
-    """
-
-    __slots__ = ("service", "dimensions", "metrics", "filters")
-
-    def __init__(self, service):
-        super().__init__(service)
-        self.dimensions = Dimensions(req=[("country",)])
-        self.metrics = YOUTUBE_ANALYTICS_DEFAULT_PLAYLIST_METRICS
-        self.filters = Filters(
-            req=[("isCurated",)],
-            opt=[
-                ("country", "province", "continent", "subContinent"),
-                ("playlist", "group"),
-                ("subscribedStatus", "youtubeProduct"),
-            ],
-        )
-
-    def _check_features(self, metrics, dimensions, filters):
-        if not metrics:
-            raise InvalidRequest(f"expected at least 1 metric, got 0")
-
-        for m in metrics:
-            if m not in self.metrics:
-                raise InvalidRequest(f"unexpected metric: {m}")
-
-        filters.update({"isCurated": "1"})
-        self.dimensions.verify(dimensions)
-        self.filters.verify(filters)

@@ -5,5 +5,5 @@ YOUTUBE_ANALYTICS_SCOPES = (
     "yt-analytics-monetary.readonly",
 )
 
-from .analytics import *
+from .analytics import YouTubeAnalytics
 from .service import YouTubeService

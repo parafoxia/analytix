@@ -16,10 +16,10 @@ class YouTubeService:
         secrets (dict | os.PathLike | str]): The filepath to a secrets file or a dictionary of credentials used to authorise a YouTube service.
     """
 
-    __slots__ = ("_service", "_secrets")
+    __slots__ = ("active", "_secrets")
 
     def __init__(self, secrets):
-        self._service = None
+        self.active = None
 
         if not isinstance(secrets, (os.PathLike, str)):
             self._secrets = secrets
@@ -28,38 +28,52 @@ class YouTubeService:
         with open(secrets, "r", encoding="utf-8") as f:
             self._secrets = json.load(f)
 
-    def authorise(self, *scopes, use_console=False):
+    def authorise(self, use_console=False):
         """Authorises the YouTube service.
 
         Args:
-            scopes (str *args): A series of string arguments denoting which scopes to use.
-            use_console (bool): Whether to use the console authorisation method.
+            use_console (bool): Whether to use the console authorisation method. Defaults to False.
 
         Raises:
             IncompleteRequest: No scopes were passed.
             ServiceAlreadyExists: A service already exists, and has been authorised.
         """
-        if not scopes:
-            raise IncompleteRequest("expected 1 or more scopes, got 0")
-
-        if self._service:
+        if self.active:
             raise ServiceAlreadyExists("an authorised service already exists")
 
         flow = InstalledAppFlow.from_client_config(
-            self._secrets, tuple(f"https://www.googleapis.com/auth/{s}" for s in scopes)
+            self._secrets,
+            (
+                "https://www.googleapis.com/auth/yt-analytics.readonly",
+                "https://www.googleapis.com/auth/yt-analytics-monetary.readonly",
+            ),
         )
+
         try:
-            credentials = flow.run_local_server(open_browser=True) if not use_console else flow.run_console()
+            if use_console:
+                credentials = flow.run_console(
+                    authorization_prompt_message="You need to authorise your service. Head to the below address, and enter the code.\n{url}",
+                    authorization_code_message="> ",
+                )
+            else:
+                credentials = flow.run_local_server(
+                    open_browser=True,
+                    authorization_prompt_message="A browser window should have opened. Use this to authenticate your service.",
+                    success_message="All done -- you're ready to start pulling reports! You can close this window now.",
+                )
         except OSError:
             print("WARNING: Using console authorisation as server authorisation failed.")
-            credentials = flow.run_console()
-        self._service = discovery.build(
+            credentials = flow.run_console(
+                authorization_prompt_message="You need to authorise your service. Head to the below address, and enter the code.\n{url}",
+                authorization_code_message="> ",
+            )
+        self.active = discovery.build(
             YOUTUBE_ANALYTICS_API_SERVICE_NAME, YOUTUBE_ANALYTICS_API_VERSION, credentials=credentials
         )
 
-    def authorize(self, *scopes, use_console=False):
-        """An alias to :code:`authorize`."""
-        self.authorise(*scopes, use_console)
+    def authorize(self, use_console=False):
+        """An alias to :code:`authorise`."""
+        self.authorise(use_console)
 
     def close(self):
         """Closes a YouTube service
@@ -67,8 +81,8 @@ class YouTubeService:
         Raises:
             NoAuthorisedService: No authorised service currently exists.
         """
-        if not self._service:
+        if not self.active:
             raise NoAuthorisedService("no authorised service currently exists")
 
-        self._service.close()
-        self._service = None
+        self.active.close()
+        self.active = None
