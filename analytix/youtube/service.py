@@ -6,7 +6,11 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient import discovery
 
 from analytix import IncompleteRequest, NoAuthorisedService, ServiceAlreadyExists
-from analytix.youtube import YOUTUBE_ANALYTICS_API_SERVICE_NAME, YOUTUBE_ANALYTICS_API_VERSION
+from analytix.youtube import (
+    YOUTUBE_ANALYTICS_API_SERVICE_NAME,
+    YOUTUBE_ANALYTICS_API_VERSION,
+    YOUTUBE_ANALYTICS_SCOPES,
+)
 
 
 class YouTubeService:
@@ -41,13 +45,7 @@ class YouTubeService:
         if self.active:
             raise ServiceAlreadyExists("an authorised service already exists")
 
-        flow = InstalledAppFlow.from_client_config(
-            self._secrets,
-            (
-                "https://www.googleapis.com/auth/yt-analytics.readonly",
-                "https://www.googleapis.com/auth/yt-analytics-monetary.readonly",
-            ),
-        )
+        flow = InstalledAppFlow.from_client_config(self._secrets, YOUTUBE_ANALYTICS_SCOPES)
 
         try:
             if use_console:
