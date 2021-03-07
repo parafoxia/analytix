@@ -66,7 +66,7 @@ class YouTubeService:
             print("WARNING: Using console authorisation as server authorisation failed.")
             credentials = flow.run_console(
                 authorization_prompt_message="You need to authorise your service. Head to the below address, and enter the code.\n{url}",
-                authorization_code_message="> ",
+                authorization_code_message="CODE > ",
             )
         self.active = discovery.build(
             YOUTUBE_ANALYTICS_API_SERVICE_NAME, YOUTUBE_ANALYTICS_API_VERSION, credentials=credentials

@@ -43,24 +43,26 @@ class ReportType:
         for amount, values in self.dimensions:
             similarities = len(dimensions & values)
             if amount == FeatureAmount.REQUIRED and dimensions != values:
-                raise InvalidRequest(f"expected all dimensions from {values}, got {len(dimensions)}")
+                raise InvalidRequest(f"expected all dimensions from '{', '.join(values)}'")
             elif amount == FeatureAmount.ZERO_OR_ONE and similarities > 1:
-                raise InvalidRequest(f"expected 0 or 1 dimensions from {values}, got {len(dimensions)}")
+                raise InvalidRequest(f"expected 0 or 1 dimensions from '{', '.join(values)}', got {len(dimensions)}")
             elif amount == FeatureAmount.EXACTLY_ONE and similarities != 1:
-                raise InvalidRequest(f"expected 1 dimension from {values}, got {len(dimensions)}")
+                raise InvalidRequest(f"expected 1 dimension from '{', '.join(values)}', got {len(dimensions)}")
             elif amount == FeatureAmount.NON_ZERO and similarities == 0:
-                raise InvalidRequest(f"expected at least 1 dimension from {values}, got {len(dimensions)}")
+                raise InvalidRequest(
+                    f"expected at least 1 dimension from '{', '.join(values)}', got {len(dimensions)}"
+                )
 
         for amount, values in self.filters:
             similarities = len(filters & values)
             if amount == FeatureAmount.REQUIRED and filters != values:
-                raise InvalidRequest(f"expected all filters from {values}, got {len(filters)}")
+                raise InvalidRequest(f"expected all filters from '{', '.join(values)}'")
             elif amount == FeatureAmount.ZERO_OR_ONE and similarities > 1:
-                raise InvalidRequest(f"expected 0 or 1 filters from {values}, got {len(filters)}")
+                raise InvalidRequest(f"expected 0 or 1 filters from '{', '.join(values)}', got {len(filters)}")
             elif amount == FeatureAmount.EXACTLY_ONE and similarities != 1:
-                raise InvalidRequest(f"expected 1 filter from {values}, got {len(filters)}")
+                raise InvalidRequest(f"expected 1 filter from '{', '.join(values)}', got {len(filters)}")
             elif amount == FeatureAmount.NON_ZERO and similarities == 0:
-                raise InvalidRequest(f"expected at least 1 filter from {values}, got {len(filters)}")
+                raise InvalidRequest(f"expected at least 1 filter from '{', '.join(values)}', got {len(filters)}")
 
 
 class Generic(ReportType):
@@ -481,9 +483,7 @@ class EngagementAndContentSharing(ReportType):
             (FeatureAmount.ZERO_OR_ONE, {"subscribedStatus"}),
         ]
         self.metrics = {"shares"}
-        self.filters = [
-            (FeatureAmount.ZERO_OR_ONE, {"country", "continent", "subContinent"}),Detail
-        ]
+        self.filters = [(FeatureAmount.ZERO_OR_ONE, {"country", "continent", "subContinent"}), Detail]
 
     def __str__(self):
         return "Engagement and content sharing"
