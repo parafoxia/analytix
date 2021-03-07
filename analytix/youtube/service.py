@@ -18,6 +18,9 @@ class YouTubeService:
 
     Args:
         secrets (dict | os.PathLike | str]): The filepath to a secrets file or a dictionary of credentials used to authorise a YouTube service.
+
+    Parameters:
+        active (Resource | None): The currently authorised service. If no service is authorised, this None.
     """
 
     __slots__ = ("active", "_secrets")

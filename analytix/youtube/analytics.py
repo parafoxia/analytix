@@ -14,8 +14,10 @@ class YouTubeAnalyticsReport:
         type_ (ReportType): The type of report generated.
 
     Attributes:
+        data (dict): The response data from the YouTube Analytics API.
         ncolumns (int): The number of columns in the report.
         nrows (int): The number of rows in the report.
+        type (ReportType): The type of report generated.
     """
 
     __slots__ = ("data", "ncolumns", "nrows", "type")
@@ -42,7 +44,7 @@ class YouTubeAnalyticsReport:
 
         Args:
             file (str | os.PathLike): The path in which the report should be saved.
-            indent (int): The number of spaces to use for indentation.
+            indent (int): The number of spaces to use for indentation. Defaults to 4.
         """
         if not file.endswith(".json"):
             file += ".json"
@@ -64,6 +66,9 @@ class YouTubeAnalytics:
     """A class to retrieve data from the YouTube Analytics API.
 
     Args:
+        service (YouTubeService): The YouTube service to perform the operation on.
+
+    Attributes:
         service (YouTubeService): The YouTube service to perform the operation on.
     """
 
