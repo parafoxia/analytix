@@ -1,7 +1,5 @@
 .. analytix documentation master file, created by
    sphinx-quickstart on Thu Jan 28 01:44:50 2021.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
 
 analytix
 ====================================
@@ -23,10 +21,11 @@ analytix is a simple yet powerful API wrapper to make getting analytical informa
 Features
 --------
 
-- Pythonic syntax makes the library easy to pick up and use
-- Ability to get the report as a Pandas DataFrame means it's ideal for data analysts
-- Ability to save reports to JSON and CSV formats mean you can use them at any time
-- Easy to understand errors negate the usual pain of debugging API issues
+- Pythonic syntax lets you feel right at home
+- Dynamic error handling saves hours of troubleshooting, and makes sure only valid requests count toward your API quota
+- A clever interface allows you to make multiple requests per session without reauthorising
+- Extra support allows the native saving of CSV files and conversion to DataFrame objects
+- Easy enough for beginners, but powerful enough for advanced users
 
 User Guide
 ----------

@@ -5,32 +5,43 @@ This will take you through the basic steps to get analytix installed.
 
 .. important::
 
-    Python 3.6 or greater is required.
+    Python 3.7.1 or greater is required.
 
-Install the Latest Version
+Install the latest version
 --------------------------
 
-You can install the latest version of analytix using the following command:
+It is recommended you install analytix in a virtual environment. To do this, run the following:
 
 .. code-block:: bash
 
-    # Linux/macOS
-    python3 -m pip install -U analytix
+    # Windows
+    > py -3.9 -m venv .venv
+    > .venv\Scripts\activate
+    > pip install analytix
+
+    # Linux\macOS
+    $ python3.9 -m venv .venv
+    $ source ./.venv/bin/activate
+    $ pip install analytix
+
+To install analytix outside of a virtual environment instead, run the following:
+
+.. code-block:: bash
 
     # Windows
-    py -3 -m pip install -U analytix
+    > py -3.9 -m pip install analytix
 
-    # In a virtual environment
-    pip install analytix
+    # Linux/macOS
+    $ python3.9 -m pip install analytix
 
-Install the Development Version
+Install the development version
 -------------------------------
 
-You can also install the development version by running the following (this example assumes you're on Linux/macOS):
+You can also install the development version by running the following (this assumes you're on Linux/macOS):
 
 .. code-block:: bash
 
     $ git clone https://github.com/parafoxia/analytix
     $ cd analytix
-    $ git checkout develop
-    $ python3 -m pip install -U .
+    $ git checkout develop  # Any valid branch name can go here.
+    $ python3.9 -m pip install -U .

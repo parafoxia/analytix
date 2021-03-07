@@ -9,7 +9,7 @@ This provides a useful set of basic examples to help you get started with analyt
 
 .. _YouTube Analytics API Docs: https://developers.google.com/youtube/reporting/v1/code_samples/python#set-up-authorization-credentials/
 
-Creating a YouTube Service
+Creating a YouTube service
 --------------------------
 
 All requests to the YouTube Analytics API need to be authorised. To make this easier, analytix provides a :code:`YouTubeService` object.
@@ -24,50 +24,38 @@ You can then create the service using a secrets file (you can also pass a dictio
 
     service = YouTubeService("./secrets.json")
 
-Before the service can be authorised, you need to decide what scopes you want to use.
-
-.. list-table::
-    :widths: 25 75
-
-    * - Scope
-      - Description
-    * - yt-analytics.readonly
-      - View YouTube Analytics reports for your YouTube content. This scope provides access to user activity metrics, like view counts and rating counts.
-    * - yt-analytics-monetary.readonly
-      - View YouTube Analytics monetary reports for your YouTube content. This scope provides access to user activity metrics and to estimated revenue and ad performance metrics.
-
-Once you have decided on the scopes you want, you can pass them into the :code:`authorise` method as a series of args:
+You can authorise your service by simply doing the following:
 
 .. code-block:: py
 
-    service.authorise("yt-analytics.readonly", "yt-analytics-monetary.readonly")
+    service.authorise()
 
 From there, follow the authorisation flow, and you're good to go!
 
-Getting Basic User Activity
+Getting basic user activity
 ---------------------------
 
-Once you have authorised a service, you can start pulling data from the API. analytix provides a number of classes to get different types of reports, but for this example we will just grab some basic activity information using the :code:`BasicYouTubeAnalytics` class. We also need to import the :code:`datetime` module for this example:
+Once you have authorised a service, you can start pulling data from the API. From v1.0.0, analytix uses a single class to get any report, regardless of type. Alongside that, we also need to import the :code:`datetime` module for this example:
 
 .. code-block:: py
 
     import datetime as dt
 
-    from analytix.youtube import BasicYouTubeAnalytics
+    from analytix.youtube import YouTubeAnalytics
 
 From there, create an object to perform operations on:
 
 .. code-block:: py
 
-    analytics = BasicYouTubeAnalytics(service)
+    analytics = YouTubeAnalytics(service)
 
-Now you can actually pull data from the API. To do this, you use the :code:`retrieve` method. This method takes a number of options, but we will use the most basic (and only required) options: :code:`metrics` and :code:`start_date`. This snippet pulls the number of views, likes, and comments in the last 28 days:
+Now you can actually pull data from the API. To do this, you use the :code:`retrieve` method. This method takes a number of options, but we will use the most basic (and only required) options: :code:`metrics` and :code:`start_date`. This snippet pulls the number of views, likes, and comments in the last 90 days:
 
 .. code-block:: py
 
     report = analytics.retrieve(
-        ("views", "likes", "comments"),
-        start_date=dt.date.today() - dt.timedelta(days=28),
+        metrics=("views", "likes", "comments"),
+        start_date=dt.date.today() - dt.timedelta(days=90),
     )
 
 The :code:`retrieve` method returns a :code:`YouTubeAnalyticsReport` object, which can be exported to either the JSON or CSV format:

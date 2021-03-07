@@ -1,6 +1,29 @@
 Changelog
 =========
 
+v1.0.0rc1
+---------
+
+.. warning::
+
+    This release contains multiple breaking changes. Code written using v0.1.0 will not function from this version.
+
+- There is now just one class that caters for all report types, rather than a separate class for each one.
+- You no longer need to specify which scopes to use.
+- :code:`start_date` is now optional.
+- You can now choose to bypass request verification.
+- All available metrics are used by default if none are passed by the user.
+
+v0.1.0
+------
+
+Added support for the following report types:
+
+- Geographical data
+- Basic user data for playlists
+- Time based data for playlists
+- Geographical data for playlists
+
 v0.1.0a2
 --------
 
