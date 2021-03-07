@@ -16,8 +16,8 @@ setuptools.setup(
     license=analytix.__license__,
     classifiers=[
         # "Development Status :: 3 - Alpha",
-        "Development Status :: 4 - Beta",
-        # "Development Status :: 5 - Production/Stable",
+        # "Development Status :: 4 - Beta",
+        "Development Status :: 5 - Production/Stable",
         "Environment :: Console",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: BSD License",
@@ -28,7 +28,6 @@ setuptools.setup(
         "Operating System :: Unix",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3 :: Only",
-        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
@@ -44,6 +43,6 @@ setuptools.setup(
         "pandas>=1.2.0",
     ],
     # extras_require={},
-    python_requires=">=3.6",
+    python_requires=">=3.7.1",
     packages=setuptools.find_packages(exclude=["tests*"]),
 )
