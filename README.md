@@ -89,7 +89,7 @@ df = report.to_dataframe()
 
 fig = plt.figure()
 sns.boxplot(data=df, x="day", y="views", hue="deviceType")
-fig.savefig("./live-device-types.csv")
+fig.savefig("./live-device-types.png")
 ```
 
 To read up further, [have a look at the documentation](https://analytix.readthedocs.io/en/latest/).
