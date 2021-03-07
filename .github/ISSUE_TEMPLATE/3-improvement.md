@@ -21,5 +21,5 @@ How do you propose analytix handle this?
 
 **Contribution**
 Do you want to contribute this improvement yourself?
-[ ] Yes
-[ ] No
+- [ ] Yes
+- [ ] No

@@ -17,6 +17,6 @@ What did you do that led to the error?
 Please post the **entire** traceback here. Feel free to omit usernames should you wish, but it's not necessary.
 
 **Checklist**
-[ ] I have searched for existing issues on the matter.
-[ ] I have provided all the necessary information.
-[ ] I have not accidently shared any sensitive info, such as client secret files.
+- [ ] I have searched for existing issues on the matter.
+- [ ] I have provided all the necessary information.
+- [ ] I have not accidently shared any sensitive info, such as client secret files.
