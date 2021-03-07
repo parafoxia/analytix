@@ -59,6 +59,19 @@ class ReportType:
                 raise InvalidRequest(f"expected at least 1 filter from {values}, got {len(filters)}")
 
 
+class Generic(ReportType):
+    def __init__(self):
+        self.dimensions = []
+        self.metrics = []
+        self.filters = []
+
+    def verify(self, *args):
+        pass
+
+    def __str__(self):
+        return "Generic"
+
+
 class BasicUserActivity(ReportType):
     def __init__(self):
         self.dimensions = []
@@ -76,10 +89,7 @@ class BasicUserActivityUS(ReportType):
     def __init__(self):
         self.dimensions = []
         self.metrics = features.YOUTUBE_ANALYTICS_ALL_PROVINCE_METRICS
-        self.filters = [
-            (FeatureAmount.EXACTLY_ONE, {"province"}),
-            (FeatureAmount.ZERO_OR_ONE, {"video", "group"}),
-        ]
+        self.filters = [(FeatureAmount.EXACTLY_ONE, {"province"}), (FeatureAmount.ZERO_OR_ONE, {"video", "group"})]
 
     def __str__(self):
         return "Basic user activity (US)"
@@ -102,10 +112,7 @@ class TimeBasedActivityUS(ReportType):
     def __init__(self):
         self.dimensions = [(FeatureAmount.EXACTLY_ONE, {"day", "month"})]
         self.metrics = features.YOUTUBE_ANALYTICS_ALL_PROVINCE_METRICS
-        self.filters = [
-            (FeatureAmount.EXACTLY_ONE, {"province"}),
-            (FeatureAmount.ZERO_OR_ONE, {"video", "group"}),
-        ]
+        self.filters = [(FeatureAmount.EXACTLY_ONE, {"province"}), (FeatureAmount.ZERO_OR_ONE, {"video", "group"})]
 
     def __str__(self):
         return "Time-based activity (US)"
@@ -294,7 +301,7 @@ class PlaybackDetailsViewPercentageGeographyBasedUS(ReportType):
             (FeatureAmount.ANY, {"subscribedStatus", "youtubeProduct"}),
         ]
 
-    def verify(self, metrics, dimensions, filters, max_results, sort_by):
+    def verify(self, metrics, dimensions, filters):
         super().verify(metrics, dimensions, filters)
 
         if filters["country"] != "US":
@@ -323,9 +330,7 @@ class PlaybackLocation(ReportType):
 
 class PlaybackLocationDetail(ReportType):
     def __init__(self):
-        self.dimensions = [
-            (FeatureAmount.EXACTLY_ONE, {"insightPlaybackLocationDetail"}),
-        ]
+        self.dimensions = [(FeatureAmount.EXACTLY_ONE, {"insightPlaybackLocationDetail"})]
         self.metrics = features.YOUTUBE_ANALYTICS_LOCATION_AND_TRAFFIC_METRICS
         self.filters = [
             (FeatureAmount.EXACTLY_ONE, {"insightPlaybackLocationType"}),
@@ -334,7 +339,7 @@ class PlaybackLocationDetail(ReportType):
             (FeatureAmount.ANY, {"liveOrOnDemand", "subscribedStatus"}),
         ]
 
-    def verify(self, metrics, dimensions, filters, max_results, sort_by):
+    def verify(self, metrics, dimensions, filters):
         super().verify(metrics, dimensions, filters)
 
         if filters["insightPlaybackLocationType"] != "EMBEDDED":
@@ -363,9 +368,7 @@ class TrafficSource(ReportType):
 
 class TrafficSourceDetail(ReportType):
     def __init__(self):
-        self.dimensions = [
-            (FeatureAmount.EXACTLY_ONE, {"insightTrafficSourceDetail"}),
-        ]
+        self.dimensions = [(FeatureAmount.EXACTLY_ONE, {"insightTrafficSourceDetail"})]
         self.metrics = features.YOUTUBE_ANALYTICS_LOCATION_AND_TRAFFIC_METRICS
         self.filters = [
             (FeatureAmount.EXACTLY_ONE, {"insightTrafficSourceType"}),
@@ -415,6 +418,7 @@ class OperatingSystem(ReportType):
 class DeviceTypeAndOperatingSystem(ReportType):
     def __init__(self):
         self.dimensions = [
+            # TODO: Look at this.
             (FeatureAmount.EXACTLY_ONE, {"deviceType", "operatingSystem"}),
             (FeatureAmount.ANY, {"day", "liveOrOnDemand", "subscribedStatus", "youtubeProduct"}),
         ]
@@ -465,9 +469,7 @@ class EngagementAndContentSharing(ReportType):
 
 class AudienceRetention(ReportType):
     def __init__(self):
-        self.dimensions = [
-            (FeatureAmount.EXACTLY_ONE, {"elaspedVideoTimeRatio"}),
-        ]
+        self.dimensions = [(FeatureAmount.EXACTLY_ONE, {"elaspedVideoTimeRatio"})]
         self.metrics = {"audienceWatchRatio", "relativeRetentionPerformance"}
         self.filters = [
             (FeatureAmount.EXACTLY_ONE, {"video"}),
@@ -480,13 +482,9 @@ class AudienceRetention(ReportType):
 
 class TopVideosRegional(ReportType):
     def __init__(self):
-        self.dimensions = [
-            (FeatureAmount.EXACTLY_ONE, {"video"}),
-        ]
+        self.dimensions = [(FeatureAmount.EXACTLY_ONE, {"video"})]
         self.metrics = features.YOUTUBE_ANALYTICS_ALL_METRICS
-        self.filters = [
-            (FeatureAmount.ZERO_OR_ONE, {"country", "continent", "subContinent"}),
-        ]
+        self.filters = [(FeatureAmount.ZERO_OR_ONE, {"country", "continent", "subContinent"})]
 
     def __str__(self):
         return "Top videos by region"
@@ -494,9 +492,7 @@ class TopVideosRegional(ReportType):
 
 class TopVideosUS(ReportType):
     def __init__(self):
-        self.dimensions = [
-            (FeatureAmount.EXACTLY_ONE, {"video"}),
-        ]
+        self.dimensions = [(FeatureAmount.EXACTLY_ONE, {"video"})]
         self.metrics = features.YOUTUBE_ANALYTICS_ALL_PROVINCE_METRICS
         self.filters = [(FeatureAmount.EXACTLY_ONE, {"province"}), (FeatureAmount.ZERO_OR_ONE, {"subscribedStatus"})]
 
@@ -506,9 +502,7 @@ class TopVideosUS(ReportType):
 
 class TopVideosSubscribed(ReportType):
     def __init__(self):
-        self.dimensions = [
-            (FeatureAmount.EXACTLY_ONE, {"video"}),
-        ]
+        self.dimensions = [(FeatureAmount.EXACTLY_ONE, {"video"})]
         self.metrics = features.YOUTUBE_ANALYTICS_SUBSCRIPTION_METRICS
         self.filters = [
             (FeatureAmount.ZERO_OR_ONE, {"subscribedStatus"}),
@@ -545,12 +539,7 @@ class TopVideosPlaybackDetail(ReportType):
         return "Top videos by playback detail"
 
 
-def determine(dimensions, filters):
-    if not dimensions:
-        if "province" in filters:
-            return BasicUserActivityUS
-        return BasicUserActivity
-
+def determine(metrics, dimensions, filters):
     if "insightPlaybackLocationType" in dimensions:
         return PlaybackLocation
 
@@ -563,15 +552,7 @@ def determine(dimensions, filters):
     if "insightTrafficSourceDetail" in dimensions:
         return TrafficSourceDetail
 
-    if "deviceType" in dimensions:
-        if "operatingSystem" in dimensions:
-            return DeviceTypeAndOperatingSystem
-        return DeviceType
-
-    if "operatingSystem" in dimensions:
-        return OperatingSystem
-
-    if "ageGroup" in dimensions:
+    if "ageGroup" in dimensions or "gender" in dimensions:
         return ViewerDemographics
 
     if "sharingService" in dimensions:
@@ -580,48 +561,65 @@ def determine(dimensions, filters):
     if "elapsedVideoTimeRatio" in dimensions:
         return AudienceRetention
 
+    if "deviceType" in dimensions:
+        if "operatingSystem" in dimensions:
+            return DeviceTypeAndOperatingSystem
+        return DeviceType
+
+    if "operatingSystem" in dimensions:
+        return OperatingSystem
+
+    if "video" in dimensions:
+        if "province" in filters:
+            return TopVideosUS
+        if "subscribedStatus" not in filters:
+            return TopVideosRegional
+        if "province" not in filters and "youtubeProduct" not in filters:
+            return TopVideosSubscribed
+        if "averageViewPercentage" in metrics:
+            return TopVideosYouTubeProduct
+        return TopVideosPlaybackDetail
+
+    if "country" in dimensions:
+        if "liveOrOnDemand" in dimensions or "liveOrOnDemand" in filters:
+            return PlaybackDetailsLiveGeographyBased
+        if (
+            "subscribedStatus" in dimensions
+            or "subscribedStatus" in filters
+            or "youtubeProduct" in dimensions
+            or "youtubeProduct" in filters
+        ):
+            return PlaybackDetailsViewPercentageGeographyBased
+        return GeographyBasedActivity
+
+    if "province" in dimensions:
+        if "liveOrOnDemand" in dimensions or "liveOrOnDemand" in filters:
+            return PlaybackDetailsLiveGeographyBasedUS
+        if (
+            "subscribedStatus" in dimensions
+            or "subscribedStatus" in filters
+            or "youtubeProduct" in dimensions
+            or "youtubeProduct" in filters
+        ):
+            return PlaybackDetailsViewPercentageGeographyBasedUS
+        return GeographyBasedActivityUS
+
+    if "youtubeProduct" in dimensions or "youtubeProduct" in filters:
+        if "liveOrOnDemand" in dimensions or "liveOrOnDemand" in filters:
+            return PlaybackDetailsLiveTimeBased
+        return PlaybackDetailsViewPercentageTimeBased
+
+    if "liveOrOnDemand" in dimensions or "liveOrOnDemand" in filters:
+        return PlaybackDetailsLiveTimeBased
+
     if "subscribedStatus" in dimensions:
-        if "liveOrOnDemand" in dimensions:
-            if "country" in dimensions:
-                return PlaybackDetailsLive
-            if "province" in dimensions:
-                return PlaybackDetailsLiveUS
-            if "day" in dimensions or "month" in dimensions:
-                return PlaybackDetailsLiveTimeBased
-
-        if "youtubeProduct" in dimensions:
-            if "country" in dimensions:
-                return PlaybackDetailsViewPercentage
-            if "province" in dimensions:
-                return PlaybackDetailsViewPercentageUS
-            if "day" in dimensions or "month" in dimensions:
-                return PlaybackDetailsViewPercentageTimeBased
-
         if "province" in filters:
             return PlaybackDetailsSubscribedStatusUS
-
         return PlaybackDetailsSubscribedStatus
 
     if "day" in dimensions or "month" in dimensions:
         if "province" in filters:
             return TimeBasedActivityUS
         return TimeBasedActivity
-
-    if "country" in dimensions:
-        return GeographyBasedActivity
-
-    if "province" in dimensions:
-        return GeographyBasedActivityUS
-
-    if "video" in dimensions:
-        if "liveOrOnDemand" in filters:
-            return TopVideosPlaybackDetail
-        if "youtubeProduct" in filters:
-            return TopVideosYouTubeProduct
-        if "subscribedStatus" in filters:
-            if "province" in filters:
-                return TopVideosUS
-            return TopVideosSubscribed
-        return TopVideosRegional
 
     return None
