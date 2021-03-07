@@ -1,6 +1,15 @@
 Changelog
 =========
 
+v1.0.0
+------
+
+- Corrected some bugs in rc1.
+- Added some extra verification.
+- Made some messages look a little nicer, especially some error messages.
+- Made it impossible to install on unsupported versions.
+- Corrected some issues in the docs.
+
 v1.0.0rc1
 ---------
 
