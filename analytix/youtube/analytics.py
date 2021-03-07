@@ -130,7 +130,7 @@ class YouTubeAnalytics:
         else:
             rtype = reports.Generic
         r = rtype()
-        r.verify(metrics, dimensions, filters)
+        r.verify(metrics, dimensions, filters, max_results, sort_by)
 
         if metrics == "all":
             if not verify:

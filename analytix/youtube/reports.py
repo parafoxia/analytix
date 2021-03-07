@@ -23,7 +23,7 @@ class ReportType:
             e.extend(x[1])
         return e
 
-    def verify(self, metrics, dimensions, filters):
+    def verify(self, metrics, dimensions, filters, *args, **kwargs):
         dimensions = set(dimensions)
         filters = set(filters)
 
@@ -53,8 +53,8 @@ class ReportType:
 
         for amount, values in self.filters:
             similarities = len(filters & values)
-            if amount == FeatureAmount.REQUIRED and dimensions != values:
-                raise InvalidRequest(f"expected all dimensions from {values}, got {len(dimensions)}")
+            if amount == FeatureAmount.REQUIRED and filters != values:
+                raise InvalidRequest(f"expected all filters from {values}, got {len(filters)}")
             elif amount == FeatureAmount.ZERO_OR_ONE and similarities > 1:
                 raise InvalidRequest(f"expected 0 or 1 filters from {values}, got {len(filters)}")
             elif amount == FeatureAmount.EXACTLY_ONE and similarities != 1:
@@ -349,11 +349,17 @@ class PlaybackLocationDetail(ReportType):
             (FeatureAmount.ANY, {"liveOrOnDemand", "subscribedStatus"}),
         ]
 
-    def verify(self, metrics, dimensions, filters):
+    def verify(self, metrics, dimensions, filters, max_results, sort_by):
         super().verify(metrics, dimensions, filters)
 
         if filters["insightPlaybackLocationType"] != "EMBEDDED":
             raise InvalidRequest("the 'insightPlaybackLocationType' filter must be set to 'EMBEDDED'")
+
+        if not max_results or max_results >= 25:
+            raise InvalidRequest("the 'max_results' parameter must not be set above 25")
+
+        if not sort_by:
+            raise InvalidRequest("you must provide at least 1 sort parameter")
 
     def __str__(self):
         return "Playback locations (detailed)"
@@ -386,6 +392,15 @@ class TrafficSourceDetail(ReportType):
             (FeatureAmount.ZERO_OR_ONE, {"video", "group"}),
             (FeatureAmount.ANY, {"liveOrOnDemand", "subscribedStatus"}),
         ]
+
+    def verify(self, metrics, dimensions, filters, max_results, sort_by):
+        super().verify(metrics, dimensions, filters)
+
+        if not max_results or max_results >= 25:
+            raise InvalidRequest("the 'max_results' parameter must not be set above 25")
+
+        if not sort_by:
+            raise InvalidRequest("you must provide at least 1 sort parameter")
 
     def __str__(self):
         return "Traffic sources (detailed)"
@@ -467,9 +482,7 @@ class EngagementAndContentSharing(ReportType):
         ]
         self.metrics = {"shares"}
         self.filters = [
-            (FeatureAmount.ZERO_OR_ONE, {"country", "continent", "subContinent"}),
-            (FeatureAmount.ZERO_OR_ONE, {"video", "group"}),
-            (FeatureAmount.ZERO_OR_ONE, {"subscribedStatus"}),
+            (FeatureAmount.ZERO_OR_ONE, {"country", "continent", "subContinent"}),Detail
         ]
 
     def __str__(self):
@@ -485,6 +498,12 @@ class AudienceRetention(ReportType):
             (FeatureAmount.ANY, {"audienceType", "subscribedStatus", "youtubeProduct"}),
         ]
 
+    def verify(self, metrics, dimensions, filters):
+        super().verify(metrics, dimensions, filters)
+
+        if len(filters["video"].split(",")) > 1:
+            raise InvalidRequest("you can only specify 1 video ID")
+
     def __str__(self):
         return "Audience retention"
 
@@ -495,6 +514,15 @@ class TopVideosRegional(ReportType):
         self.metrics = features.YOUTUBE_ANALYTICS_ALL_METRICS
         self.filters = [(FeatureAmount.ZERO_OR_ONE, {"country", "continent", "subContinent"})]
 
+    def verify(self, metrics, dimensions, filters, max_results, sort_by):
+        super().verify(metrics, dimensions, filters)
+
+        if not max_results or max_results >= 200:
+            raise InvalidRequest("the 'max_results' parameter must not be set above 200")
+
+        if not sort_by:
+            raise InvalidRequest("you must provide at least 1 sort parameter")
+
     def __str__(self):
         return "Top videos by region"
 
@@ -504,6 +532,15 @@ class TopVideosUS(ReportType):
         self.dimensions = [(FeatureAmount.REQUIRED, {"video"})]
         self.metrics = features.YOUTUBE_ANALYTICS_ALL_PROVINCE_METRICS
         self.filters = [(FeatureAmount.REQUIRED, {"province"}), (FeatureAmount.ZERO_OR_ONE, {"subscribedStatus"})]
+
+    def verify(self, metrics, dimensions, filters, max_results, sort_by):
+        super().verify(metrics, dimensions, filters)
+
+        if not max_results or max_results >= 200:
+            raise InvalidRequest("the 'max_results' parameter must not be set above 200")
+
+        if not sort_by:
+            raise InvalidRequest("you must provide at least 1 sort parameter")
 
     def __str__(self):
         return "Top videos by state"
@@ -518,6 +555,15 @@ class TopVideosSubscribed(ReportType):
             (FeatureAmount.ZERO_OR_ONE, {"country", "continent", "subContinent"}),
         ]
 
+    def verify(self, metrics, dimensions, filters, max_results, sort_by):
+        super().verify(metrics, dimensions, filters)
+
+        if not max_results or max_results >= 200:
+            raise InvalidRequest("the 'max_results' parameter must not be set above 200")
+
+        if not sort_by:
+            raise InvalidRequest("you must provide at least 1 sort parameter")
+
     def __str__(self):
         return "Top videos by subscription status"
 
@@ -531,6 +577,15 @@ class TopVideosYouTubeProduct(ReportType):
             (FeatureAmount.ANY, {"subscribedStatus", "youtubeProduct"}),
         ]
 
+    def verify(self, metrics, dimensions, filters, max_results, sort_by):
+        super().verify(metrics, dimensions, filters)
+
+        if not max_results or max_results >= 200:
+            raise InvalidRequest("the 'max_results' parameter must not be set above 200")
+
+        if not sort_by:
+            raise InvalidRequest("you must provide at least 1 sort parameter")
+
     def __str__(self):
         return "Top videos by YouTube product"
 
@@ -543,6 +598,15 @@ class TopVideosPlaybackDetail(ReportType):
             (FeatureAmount.ZERO_OR_ONE, {"country", "province", "continent", "subContinent"}),
             (FeatureAmount.ANY, {"subscribedStatus", "youtubeProduct"}),
         ]
+
+    def verify(self, metrics, dimensions, filters, max_results, sort_by):
+        super().verify(metrics, dimensions, filters)
+
+        if not max_results or max_results >= 200:
+            raise InvalidRequest("the 'max_results' parameter must not be set above 200")
+
+        if not sort_by:
+            raise InvalidRequest("you must provide at least 1 sort parameter")
 
     def __str__(self):
         return "Top videos by playback detail"
