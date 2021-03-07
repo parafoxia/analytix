@@ -11,19 +11,20 @@ class YouTubeAnalyticsReport:
 
     Args:
         data (dict): The response data from the YouTube Analytics API.
+        type_ (ReportType): The type of report generated.
 
     Attributes:
-        data (dict): The response data from the YouTube Analytics API.
         ncolumns (int): The number of columns in the report.
         nrows (int): The number of rows in the report.
     """
 
-    __slots__ = ("data", "ncolumns", "nrows")
+    __slots__ = ("data", "ncolumns", "nrows", "type")
 
-    def __init__(self, data):
+    def __init__(self, data, type_):
         self.data = data
         self.ncolumns = len(data["columnHeaders"])
         self.nrows = len(data["rows"])
+        self.type = type_
 
     def to_dataframe(self):
         """Returns the report as a Pandas DataFrame.
@@ -71,7 +72,7 @@ class YouTubeAnalytics:
     def __init__(self, service):
         self.service = service
 
-    def retrieve(self, metrics="all", **kwargs):
+    def retrieve(self, metrics="all", verify=True, **kwargs):
         """Executes an API request to pull down analytical information.
 
         .. warning::
@@ -80,6 +81,7 @@ class YouTubeAnalytics:
 
         Args:
             metrics (str | tuple[str, ...] | list[str]): The metrics (or columns) to retrieve. Defaults to "all".
+            verify (bool): Whether to verify the requests before passing them to the API. Defaults to True.
             start_date (datetime.date): The earliest date to fetch data for. Defaults to 28 days before the current date.
             end_date (datetime.date): The latest date to fetch data for. Defaults to the current date.
             currency (str): The currency to use for monetary analytics. This should be passed in ISO 4217 format. Defaults to USD.
@@ -116,13 +118,18 @@ class YouTubeAnalytics:
         if not isinstance(filters, dict):
             raise InvalidRequest(f"expected dict of filters, got {type(filters).__name__}")
 
-        rtype = reports.determine(dimensions, filters)
-        if not rtype:
-            raise InvalidRequest("a report type could not be determined")
+        if verify:
+            rtype = reports.determine(metrics, dimensions, filters)
+            if not rtype:
+                raise InvalidRequest("no supported report type found for given parameters")
+        else:
+            rtype = reports.Generic
         r = rtype()
         r.verify(metrics, dimensions, filters)
 
         if metrics == "all":
+            if not verify:
+                raise InvalidRequest("you must manually specify a list of metrics when not verifying")
             metrics = r.metrics
 
         if filters:
@@ -143,5 +150,6 @@ class YouTubeAnalytics:
                 sort=",".join(sort_by),
                 startIndex=start_index,
             )
-            .execute()
+            .execute(),
+            r,
         )
