@@ -1,3 +1,9 @@
+import sys
+
+if sys.version_info < (3, 7, 1):
+    print("analytix requires Python version >= 3.7.1.", file=sys.stderr)
+    sys.exit(1)
+
 import setuptools
 
 import analytix
