@@ -110,3 +110,4 @@ class FeatureAmount(Enum):
     NON_ZERO = auto()
     ZERO_OR_ONE = auto()
     EXACTLY_ONE = auto()
+    REQUIRED = auto()

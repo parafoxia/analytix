@@ -42,20 +42,24 @@ class ReportType:
 
         for amount, values in self.dimensions:
             similarities = len(dimensions & values)
-            if amount == FeatureAmount.ZERO_OR_ONE and similarities > 1:
+            if amount == FeatureAmount.REQUIRED and dimensions != values:
+                raise InvalidRequest(f"expected all dimensions from {values}, got {len(dimensions)}")
+            elif amount == FeatureAmount.ZERO_OR_ONE and similarities > 1:
                 raise InvalidRequest(f"expected 0 or 1 dimensions from {values}, got {len(dimensions)}")
-            if amount == FeatureAmount.EXACTLY_ONE and similarities != 1:
+            elif amount == FeatureAmount.EXACTLY_ONE and similarities != 1:
                 raise InvalidRequest(f"expected 1 dimension from {values}, got {len(dimensions)}")
-            if amount == FeatureAmount.NON_ZERO and similarities == 0:
+            elif amount == FeatureAmount.NON_ZERO and similarities == 0:
                 raise InvalidRequest(f"expected at least 1 dimension from {values}, got {len(dimensions)}")
 
         for amount, values in self.filters:
             similarities = len(filters & values)
-            if amount == FeatureAmount.ZERO_OR_ONE and similarities > 1:
+            if amount == FeatureAmount.REQUIRED and dimensions != values:
+                raise InvalidRequest(f"expected all dimensions from {values}, got {len(dimensions)}")
+            elif amount == FeatureAmount.ZERO_OR_ONE and similarities > 1:
                 raise InvalidRequest(f"expected 0 or 1 filters from {values}, got {len(filters)}")
-            if amount == FeatureAmount.EXACTLY_ONE and similarities != 1:
+            elif amount == FeatureAmount.EXACTLY_ONE and similarities != 1:
                 raise InvalidRequest(f"expected 1 filter from {values}, got {len(filters)}")
-            if amount == FeatureAmount.NON_ZERO and similarities == 0:
+            elif amount == FeatureAmount.NON_ZERO and similarities == 0:
                 raise InvalidRequest(f"expected at least 1 filter from {values}, got {len(filters)}")
 
 
@@ -89,7 +93,7 @@ class BasicUserActivityUS(ReportType):
     def __init__(self):
         self.dimensions = []
         self.metrics = features.YOUTUBE_ANALYTICS_ALL_PROVINCE_METRICS
-        self.filters = [(FeatureAmount.EXACTLY_ONE, {"province"}), (FeatureAmount.ZERO_OR_ONE, {"video", "group"})]
+        self.filters = [(FeatureAmount.REQUIRED, {"province"}), (FeatureAmount.ZERO_OR_ONE, {"video", "group"})]
 
     def __str__(self):
         return "Basic user activity (US)"
@@ -112,7 +116,7 @@ class TimeBasedActivityUS(ReportType):
     def __init__(self):
         self.dimensions = [(FeatureAmount.EXACTLY_ONE, {"day", "month"})]
         self.metrics = features.YOUTUBE_ANALYTICS_ALL_PROVINCE_METRICS
-        self.filters = [(FeatureAmount.EXACTLY_ONE, {"province"}), (FeatureAmount.ZERO_OR_ONE, {"video", "group"})]
+        self.filters = [(FeatureAmount.REQUIRED, {"province"}), (FeatureAmount.ZERO_OR_ONE, {"video", "group"})]
 
     def __str__(self):
         return "Time-based activity (US)"
@@ -120,7 +124,7 @@ class TimeBasedActivityUS(ReportType):
 
 class GeographyBasedActivity(ReportType):
     def __init__(self):
-        self.dimensions = [(FeatureAmount.EXACTLY_ONE, {"country"})]
+        self.dimensions = [(FeatureAmount.REQUIRED, {"country"})]
         self.metrics = features.YOUTUBE_ANALYTICS_ALL_METRICS
         self.filters = [
             (FeatureAmount.ZERO_OR_ONE, {"continent", "subContinent"}),
@@ -133,12 +137,18 @@ class GeographyBasedActivity(ReportType):
 
 class GeographyBasedActivityUS(ReportType):
     def __init__(self):
-        self.dimensions = [(FeatureAmount.EXACTLY_ONE, {"province"})]
-        self.metrics = features.YOUTUBE_ANALYTICS_ALL_METRICS
+        self.dimensions = [(FeatureAmount.REQUIRED, {"province"})]
+        self.metrics = features.YOUTUBE_ANALYTICS_ALL_PROVINCE_METRICS
         self.filters = [
-            (FeatureAmount.ZERO_OR_ONE, {"continent", "subContinent"}),
+            (FeatureAmount.REQUIRED, {"country"}),
             (FeatureAmount.ZERO_OR_ONE, {"video", "group"}),
         ]
+
+    def verify(self, metrics, dimensions, filters):
+        super().verify(metrics, dimensions, filters)
+
+        if filters["country"] != "US":
+            raise InvalidRequest("the 'country' filter must be set to 'US'")
 
     def __str__(self):
         return "Geography-based activity (US)"
@@ -234,7 +244,7 @@ class PlaybackDetailsViewPercentageTimeBased(ReportType):
 class PlaybackDetailsLiveGeographyBased(ReportType):
     def __init__(self):
         self.dimensions = [
-            (FeatureAmount.EXACTLY_ONE, {"country"}),
+            (FeatureAmount.REQUIRED, {"country"}),
             (FeatureAmount.ANY, {"liveOrOnDemand", "subscribedStatus", "youtubeProduct"}),
         ]
         self.metrics = features.YOUTUBE_ANALYTICS_LIVE_PLAYBACK_DETAIL_METRICS
@@ -251,7 +261,7 @@ class PlaybackDetailsLiveGeographyBased(ReportType):
 class PlaybackDetailsViewPercentageGeographyBased(ReportType):
     def __init__(self):
         self.dimensions = [
-            (FeatureAmount.EXACTLY_ONE, {"country"}),
+            (FeatureAmount.REQUIRED, {"country"}),
             (FeatureAmount.ANY, {"subscribedStatus", "youtubeProduct"}),
         ]
         self.metrics = features.YOUTUBE_ANALYTICS_VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS
@@ -268,12 +278,12 @@ class PlaybackDetailsViewPercentageGeographyBased(ReportType):
 class PlaybackDetailsLiveGeographyBasedUS(ReportType):
     def __init__(self):
         self.dimensions = [
-            (FeatureAmount.EXACTLY_ONE, {"province"}),
+            (FeatureAmount.REQUIRED, {"province"}),
             (FeatureAmount.ANY, {"liveOrOnDemand", "subscribedStatus", "youtubeProduct"}),
         ]
         self.metrics = features.YOUTUBE_ANALYTICS_LIVE_PLAYBACK_DETAIL_METRICS
         self.filters = [
-            (FeatureAmount.EXACTLY_ONE, {"country"}),
+            (FeatureAmount.REQUIRED, {"country"}),
             (FeatureAmount.ZERO_OR_ONE, {"video", "group"}),
             (FeatureAmount.ANY, {"liveOrOnDemand", "subscribedStatus", "youtubeProduct"}),
         ]
@@ -291,12 +301,12 @@ class PlaybackDetailsLiveGeographyBasedUS(ReportType):
 class PlaybackDetailsViewPercentageGeographyBasedUS(ReportType):
     def __init__(self):
         self.dimensions = [
-            (FeatureAmount.EXACTLY_ONE, {"province"}),
+            (FeatureAmount.REQUIRED, {"province"}),
             (FeatureAmount.ANY, {"subscribedStatus", "youtubeProduct"}),
         ]
         self.metrics = features.YOUTUBE_ANALYTICS_VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS
         self.filters = [
-            (FeatureAmount.EXACTLY_ONE, {"country"}),
+            (FeatureAmount.REQUIRED, {"country"}),
             (FeatureAmount.ZERO_OR_ONE, {"video", "group"}),
             (FeatureAmount.ANY, {"subscribedStatus", "youtubeProduct"}),
         ]
@@ -314,7 +324,7 @@ class PlaybackDetailsViewPercentageGeographyBasedUS(ReportType):
 class PlaybackLocation(ReportType):
     def __init__(self):
         self.dimensions = [
-            (FeatureAmount.EXACTLY_ONE, {"insightPlaybackLocationType"}),
+            (FeatureAmount.REQUIRED, {"insightPlaybackLocationType"}),
             (FeatureAmount.ANY, {"day", "liveOrOnDemand", "subscribedStatus"}),
         ]
         self.metrics = features.YOUTUBE_ANALYTICS_LOCATION_AND_TRAFFIC_METRICS
@@ -330,10 +340,10 @@ class PlaybackLocation(ReportType):
 
 class PlaybackLocationDetail(ReportType):
     def __init__(self):
-        self.dimensions = [(FeatureAmount.EXACTLY_ONE, {"insightPlaybackLocationDetail"})]
+        self.dimensions = [(FeatureAmount.REQUIRED, {"insightPlaybackLocationDetail"})]
         self.metrics = features.YOUTUBE_ANALYTICS_LOCATION_AND_TRAFFIC_METRICS
         self.filters = [
-            (FeatureAmount.EXACTLY_ONE, {"insightPlaybackLocationType"}),
+            (FeatureAmount.REQUIRED, {"insightPlaybackLocationType"}),
             (FeatureAmount.ZERO_OR_ONE, {"country", "province", "continent", "subContinent"}),
             (FeatureAmount.ZERO_OR_ONE, {"video", "group"}),
             (FeatureAmount.ANY, {"liveOrOnDemand", "subscribedStatus"}),
@@ -352,7 +362,7 @@ class PlaybackLocationDetail(ReportType):
 class TrafficSource(ReportType):
     def __init__(self):
         self.dimensions = [
-            (FeatureAmount.EXACTLY_ONE, {"insightTrafficSourceType"}),
+            (FeatureAmount.REQUIRED, {"insightTrafficSourceType"}),
             (FeatureAmount.ANY, {"day", "liveOrOnDemand", "subscribedStatus"}),
         ]
         self.metrics = features.YOUTUBE_ANALYTICS_LOCATION_AND_TRAFFIC_METRICS
@@ -368,10 +378,10 @@ class TrafficSource(ReportType):
 
 class TrafficSourceDetail(ReportType):
     def __init__(self):
-        self.dimensions = [(FeatureAmount.EXACTLY_ONE, {"insightTrafficSourceDetail"})]
+        self.dimensions = [(FeatureAmount.REQUIRED, {"insightTrafficSourceDetail"})]
         self.metrics = features.YOUTUBE_ANALYTICS_LOCATION_AND_TRAFFIC_METRICS
         self.filters = [
-            (FeatureAmount.EXACTLY_ONE, {"insightTrafficSourceType"}),
+            (FeatureAmount.REQUIRED, {"insightTrafficSourceType"}),
             (FeatureAmount.ZERO_OR_ONE, {"country", "province", "continent", "subContinent"}),
             (FeatureAmount.ZERO_OR_ONE, {"video", "group"}),
             (FeatureAmount.ANY, {"liveOrOnDemand", "subscribedStatus"}),
@@ -384,7 +394,7 @@ class TrafficSourceDetail(ReportType):
 class DeviceType(ReportType):
     def __init__(self):
         self.dimensions = [
-            (FeatureAmount.EXACTLY_ONE, {"deviceType"}),
+            (FeatureAmount.REQUIRED, {"deviceType"}),
             (FeatureAmount.ANY, {"day", "liveOrOnDemand", "subscribedStatus", "youtubeProduct"}),
         ]
         self.metrics = features.YOUTUBE_ANALYTICS_LOCATION_AND_TRAFFIC_METRICS
@@ -401,7 +411,7 @@ class DeviceType(ReportType):
 class OperatingSystem(ReportType):
     def __init__(self):
         self.dimensions = [
-            (FeatureAmount.EXACTLY_ONE, {"operatingSystem"}),
+            (FeatureAmount.REQUIRED, {"operatingSystem"}),
             (FeatureAmount.ANY, {"day", "liveOrOnDemand", "subscribedStatus", "youtubeProduct"}),
         ]
         self.metrics = features.YOUTUBE_ANALYTICS_LOCATION_AND_TRAFFIC_METRICS
@@ -418,8 +428,7 @@ class OperatingSystem(ReportType):
 class DeviceTypeAndOperatingSystem(ReportType):
     def __init__(self):
         self.dimensions = [
-            # TODO: Look at this.
-            (FeatureAmount.EXACTLY_ONE, {"deviceType", "operatingSystem"}),
+            (FeatureAmount.REQUIRED, {"deviceType", "operatingSystem"}),
             (FeatureAmount.ANY, {"day", "liveOrOnDemand", "subscribedStatus", "youtubeProduct"}),
         ]
         self.metrics = features.YOUTUBE_ANALYTICS_LOCATION_AND_TRAFFIC_METRICS
@@ -453,7 +462,7 @@ class ViewerDemographics(ReportType):
 class EngagementAndContentSharing(ReportType):
     def __init__(self):
         self.dimensions = [
-            (FeatureAmount.EXACTLY_ONE, {"sharingService"}),
+            (FeatureAmount.REQUIRED, {"sharingService"}),
             (FeatureAmount.ZERO_OR_ONE, {"subscribedStatus"}),
         ]
         self.metrics = {"shares"}
@@ -469,10 +478,10 @@ class EngagementAndContentSharing(ReportType):
 
 class AudienceRetention(ReportType):
     def __init__(self):
-        self.dimensions = [(FeatureAmount.EXACTLY_ONE, {"elaspedVideoTimeRatio"})]
+        self.dimensions = [(FeatureAmount.REQUIRED, {"elaspedVideoTimeRatio"})]
         self.metrics = {"audienceWatchRatio", "relativeRetentionPerformance"}
         self.filters = [
-            (FeatureAmount.EXACTLY_ONE, {"video"}),
+            (FeatureAmount.REQUIRED, {"video"}),
             (FeatureAmount.ANY, {"audienceType", "subscribedStatus", "youtubeProduct"}),
         ]
 
@@ -482,7 +491,7 @@ class AudienceRetention(ReportType):
 
 class TopVideosRegional(ReportType):
     def __init__(self):
-        self.dimensions = [(FeatureAmount.EXACTLY_ONE, {"video"})]
+        self.dimensions = [(FeatureAmount.REQUIRED, {"video"})]
         self.metrics = features.YOUTUBE_ANALYTICS_ALL_METRICS
         self.filters = [(FeatureAmount.ZERO_OR_ONE, {"country", "continent", "subContinent"})]
 
@@ -492,9 +501,9 @@ class TopVideosRegional(ReportType):
 
 class TopVideosUS(ReportType):
     def __init__(self):
-        self.dimensions = [(FeatureAmount.EXACTLY_ONE, {"video"})]
+        self.dimensions = [(FeatureAmount.REQUIRED, {"video"})]
         self.metrics = features.YOUTUBE_ANALYTICS_ALL_PROVINCE_METRICS
-        self.filters = [(FeatureAmount.EXACTLY_ONE, {"province"}), (FeatureAmount.ZERO_OR_ONE, {"subscribedStatus"})]
+        self.filters = [(FeatureAmount.REQUIRED, {"province"}), (FeatureAmount.ZERO_OR_ONE, {"subscribedStatus"})]
 
     def __str__(self):
         return "Top videos by state"
@@ -502,7 +511,7 @@ class TopVideosUS(ReportType):
 
 class TopVideosSubscribed(ReportType):
     def __init__(self):
-        self.dimensions = [(FeatureAmount.EXACTLY_ONE, {"video"})]
+        self.dimensions = [(FeatureAmount.REQUIRED, {"video"})]
         self.metrics = features.YOUTUBE_ANALYTICS_SUBSCRIPTION_METRICS
         self.filters = [
             (FeatureAmount.ZERO_OR_ONE, {"subscribedStatus"}),
@@ -515,7 +524,7 @@ class TopVideosSubscribed(ReportType):
 
 class TopVideosYouTubeProduct(ReportType):
     def __init__(self):
-        self.dimensions = [(FeatureAmount.EXACTLY_ONE, {"video"})]
+        self.dimensions = [(FeatureAmount.REQUIRED, {"video"})]
         self.metrics = features.YOUTUBE_ANALYTICS_VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS
         self.filters = [
             (FeatureAmount.ZERO_OR_ONE, {"country", "province", "continent", "subContinent"}),
@@ -528,7 +537,7 @@ class TopVideosYouTubeProduct(ReportType):
 
 class TopVideosPlaybackDetail(ReportType):
     def __init__(self):
-        self.dimensions = [(FeatureAmount.EXACTLY_ONE, {"video"})]
+        self.dimensions = [(FeatureAmount.REQUIRED, {"video"})]
         self.metrics = features.YOUTUBE_ANALYTICS_LIVE_PLAYBACK_DETAIL_METRICS
         self.filters = [
             (FeatureAmount.ZERO_OR_ONE, {"country", "province", "continent", "subContinent"}),
