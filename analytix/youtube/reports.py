@@ -42,7 +42,7 @@ class ReportType:
 
         for amount, values in self.dimensions:
             similarities = len(dimensions & values)
-            if amount == FeatureAmount.REQUIRED and dimensions != values:
+            if amount == FeatureAmount.REQUIRED and similarities != len(values):
                 raise InvalidRequest(f"expected all dimensions from '{', '.join(values)}'")
             elif amount == FeatureAmount.ZERO_OR_ONE and similarities > 1:
                 raise InvalidRequest(f"expected 0 or 1 dimensions from '{', '.join(values)}', got {len(dimensions)}")
@@ -55,7 +55,7 @@ class ReportType:
 
         for amount, values in self.filters:
             similarities = len(filters & values)
-            if amount == FeatureAmount.REQUIRED and filters != values:
+            if amount == FeatureAmount.REQUIRED and similarities != len(values):
                 raise InvalidRequest(f"expected all filters from '{', '.join(values)}'")
             elif amount == FeatureAmount.ZERO_OR_ONE and similarities > 1:
                 raise InvalidRequest(f"expected 0 or 1 filters from '{', '.join(values)}', got {len(filters)}")
