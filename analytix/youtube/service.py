@@ -42,7 +42,6 @@ class YouTubeService:
             use_console (bool): Whether to use the console authorisation method. Defaults to False.
 
         Raises:
-            IncompleteRequest: No scopes were passed.
             ServiceAlreadyExists: A service already exists, and has been authorised.
         """
         if self.active:

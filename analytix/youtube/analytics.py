@@ -92,7 +92,7 @@ class YouTubeAnalytics:
             currency (str): The currency to use for monetary analytics. This should be passed in ISO 4217 format. Defaults to USD.
             dimensions (tuple[str, ...] | list[str]): The dimensions in which data is split. Defaults to an empty tuple.
             filters (dict[str, str]): The filters to be applied when retrieving data. Defaults to an empty dictionary.
-            include_historical_data (bool): Whether data before the point in which the specified channel(s) were linked to the content owner. Defaults to False.
+            include_historical_data (bool): Whether data before the point in which the specified channel(s) were linked to the content owner should be retrieved. Defaults to False.
             max_results (int | None): The maximum number of rows to fetch. Defaults to None.
             sort_by (tuple[str, ...] | list[str]): The dimensions in which to sort the data. Defaults to an empty tuple.
             start_index (int): The index of the first row to retrieve. Note that this is one-indexed. Defaults to 1.

@@ -35,3 +35,6 @@ YouTube
 
 .. autoclass:: youtube.YouTubeAnalytics
     :members:
+
+.. autoclass:: youtube.YouTubeAnalyticsReport
+    :members:
