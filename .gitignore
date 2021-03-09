@@ -1,6 +1,8 @@
 ### Custom ###
 *.json
+secrets
 tests
+
 
 ### Data ###
 *.csv
