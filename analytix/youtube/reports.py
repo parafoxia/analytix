@@ -612,6 +612,338 @@ class TopVideosPlaybackDetail(ReportType):
         return "Top videos by playback detail"
 
 
+class BasicUserActivityPlaylist(ReportType):
+    def __init__(self):
+        self.dimensions = []
+        self.metrics = features.YOUTUBE_ANALYTICS_ALL_PLAYLIST_METRICS
+        self.filters = (
+            (FeatureAmount.REQUIRED, {"isCurated"}),
+            (FeatureAmount.ZERO_OR_ONE, {"country", "province", "continent", "subContinent"}),
+            (FeatureAmount.ZERO_OR_ONE, {"playlist", "group"}),
+            (FeatureAmount.ANY, {"subscribedStatus", "youtubeProduct"}),
+        )
+
+    def verify(self, metrics, dimensions, filters):
+        super().verify(metrics, dimensions, filters)
+
+        if filters["isCurated"] != "1":
+            raise InvalidRequest("the 'isCurated' filter must be set to '1'")
+
+    def __str__(self):
+        return "Basic user activity for playlists"
+
+
+class TimeBasedActivityPlaylist(ReportType):
+    def __init__(self):
+        self.dimensions = (
+            (FeatureAmount.EXACTLY_ONE, {"day", "month"}),
+            (FeatureAmount.ANY, {"subscribedStatus", "youtubeProduct"}),
+        )
+        self.metrics = features.YOUTUBE_ANALYTICS_ALL_PLAYLIST_METRICS
+        self.filters = (
+            (FeatureAmount.REQUIRED, {"isCurated"}),
+            (FeatureAmount.ZERO_OR_ONE, {"country", "province", "continent", "subContinent"}),
+            (FeatureAmount.ZERO_OR_ONE, {"playlist", "group"}),
+            (FeatureAmount.ANY, {"subscribedStatus", "youtubeProduct"}),
+        )
+
+    def verify(self, metrics, dimensions, filters):
+        super().verify(metrics, dimensions, filters)
+
+        if filters["isCurated"] != "1":
+            raise InvalidRequest("the 'isCurated' filter must be set to '1'")
+
+    def __str__(self):
+        return "Time-based activity for playlists"
+
+
+class GeographyBasedActivityPlaylist(ReportType):
+    def __init__(self):
+        self.dimensions = (
+            (FeatureAmount.REQUIRED, {"country"}),
+            (FeatureAmount.ANY, {"subscribedStatus", "youtubeProduct"}),
+        )
+        self.metrics = features.YOUTUBE_ANALYTICS_ALL_PLAYLIST_METRICS
+        self.filters = (
+            (FeatureAmount.REQUIRED, {"isCurated"}),
+            (FeatureAmount.ZERO_OR_ONE, {"country", "province", "continent", "subContinent"}),
+            (FeatureAmount.ZERO_OR_ONE, {"playlist", "group"}),
+            (FeatureAmount.ANY, {"subscribedStatus", "youtubeProduct"}),
+        )
+
+    def verify(self, metrics, dimensions, filters):
+        super().verify(metrics, dimensions, filters)
+
+        if filters["isCurated"] != "1":
+            raise InvalidRequest("the 'isCurated' filter must be set to '1'")
+
+    def __str__(self):
+        return "Geography-based activity for playlists"
+
+
+class GeographyBasedActivityUSPlaylist(ReportType):
+    def __init__(self):
+        self.dimensions = (
+            (FeatureAmount.REQUIRED, {"province"}),
+            (FeatureAmount.ANY, {"subscribedStatus", "youtubeProduct"}),
+        )
+        self.metrics = features.YOUTUBE_ANALYTICS_ALL_PLAYLIST_METRICS
+        self.filters = (
+            (FeatureAmount.REQUIRED, {"isCurated", "country"}),
+            (FeatureAmount.ZERO_OR_ONE, {"playlist", "group"}),
+            (FeatureAmount.ANY, {"subscribedStatus", "youtubeProduct"}),
+        )
+
+    def verify(self, metrics, dimensions, filters):
+        super().verify(metrics, dimensions, filters)
+
+        if filters["isCurated"] != "1":
+            raise InvalidRequest("the 'isCurated' filter must be set to '1'")
+
+        if filters["country"] != "US":
+            raise InvalidRequest("the 'country' filter must be set to 'US'")
+
+    def __str__(self):
+        return "Geography-based activity for playlists (US)"
+
+
+class PlaybackLocationPlaylist(ReportType):
+    def __init__(self):
+        self.dimensions = (
+            (FeatureAmount.REQUIRED, {"insightPlaybackLocationType"}),
+            (FeatureAmount.ANY, {"day", "subscribedStatus"}),
+        )
+        self.metrics = features.YOUTUBE_ANALYTICS_LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
+        self.filters = (
+            (FeatureAmount.REQUIRED, {"isCurated"}),
+            (FeatureAmount.ZERO_OR_ONE, {"country", "province", "continent", "subContinent"}),
+            (FeatureAmount.ZERO_OR_ONE, {"playlist", "group"}),
+            (FeatureAmount.ANY, {"subscribedStatus"}),
+        )
+
+    def verify(self, metrics, dimensions, filters):
+        super().verify(metrics, dimensions, filters)
+
+        if filters["isCurated"] != "1":
+            raise InvalidRequest("the 'isCurated' filter must be set to '1'")
+
+    def __str__(self):
+        return "Playback locations for playlists"
+
+
+class PlaybackLocationDetailPlaylist(ReportType):
+    def __init__(self):
+        self.dimensions = (FeatureAmount.REQUIRED, {"insightPlaybackLocationDetail"})
+        self.metrics = features.YOUTUBE_ANALYTICS_LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
+        self.filters = (
+            (FeatureAmount.REQUIRED, {"isCurated", "insightPlaybackLocationType"}),
+            (FeatureAmount.ZERO_OR_ONE, {"country", "province", "continent", "subContinent"}),
+            (FeatureAmount.ZERO_OR_ONE, {"playlist", "group"}),
+            (FeatureAmount.ANY, {"subscribedStatus"}),
+        )
+
+    def verify(self, metrics, dimensions, filters, max_results, sort_by):
+        super().verify(metrics, dimensions, filters)
+
+        if filters["isCurated"] != "1":
+            raise InvalidRequest("the 'isCurated' filter must be set to '1'")
+
+        if filters["insightPlaybackLocationType"] != "EMBEDDED":
+            raise InvalidRequest("the 'insightPlaybackLocationType' filter must be set to 'EMBEDDED'")
+
+        if not max_results or max_results >= 25:
+            raise InvalidRequest("the 'max_results' parameter must not be set above 25")
+
+        if not sort_by:
+            raise InvalidRequest("you must provide at least 1 sort parameter")
+
+    def __str__(self):
+        return "Playback locations for playlists (detailed)"
+
+
+class TrafficSourcePlaylist(ReportType):
+    def __init__(self):
+        self.dimensions = (
+            (FeatureAmount.REQUIRED, {"insightTrafficSourceType"}),
+            (FeatureAmount.ANY, {"day", "subscribedStatus"}),
+        )
+        self.metrics = features.YOUTUBE_ANALYTICS_LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
+        self.filters = (
+            (FeatureAmount.REQUIRED, {"isCurated"}),
+            (FeatureAmount.ZERO_OR_ONE, {"country", "province", "continent", "subContinent"}),
+            (FeatureAmount.ZERO_OR_ONE, {"playlist", "group"}),
+            (FeatureAmount.ANY, {"subscribedStatus"}),
+        )
+
+    def verify(self, metrics, dimensions, filters):
+        super().verify(metrics, dimensions, filters)
+
+        if filters["isCurated"] != "1":
+            raise InvalidRequest("the 'isCurated' filter must be set to '1'")
+
+    def __str__(self):
+        return "Traffic sources for playlists"
+
+
+class TrafficSourceDetailPlaylist(ReportType):
+    def __init__(self):
+        self.dimensions = (FeatureAmount.REQUIRED, {"insightTrafficSourceDetail"})
+        self.metrics = features.YOUTUBE_ANALYTICS_LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
+        self.filters = (
+            (FeatureAmount.REQUIRED, {"isCurated", "insightTrafficSourceType"}),
+            (FeatureAmount.ZERO_OR_ONE, {"country", "province", "continent", "subContinent"}),
+            (FeatureAmount.ZERO_OR_ONE, {"playlist", "group"}),
+            (FeatureAmount.ANY, {"subscribedStatus"}),
+        )
+
+    def verify(self, metrics, dimensions, filters, max_results, sort_by):
+        super().verify(metrics, dimensions, filters)
+
+        if filters["isCurated"] != "1":
+            raise InvalidRequest("the 'isCurated' filter must be set to '1'")
+
+        if not max_results or max_results >= 25:
+            raise InvalidRequest("the 'max_results' parameter must not be set above 25")
+
+        if not sort_by:
+            raise InvalidRequest("you must provide at least 1 sort parameter")
+
+    def __str__(self):
+        return "Traffic sources for playlists (detailed)"
+
+
+class DeviceTypePlaylist(ReportType):
+    def __init__(self):
+        self.dimensions = (
+            (FeatureAmount.REQUIRED, {"deviceType"}),
+            (FeatureAmount.ANY, {"day", "subscribedStatus", "youtubeProduct"}),
+        )
+        self.metrics = features.YOUTUBE_ANALYTICS_LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
+        self.filters = (
+            (FeatureAmount.REQUIRED, {"isCurated"}),
+            (FeatureAmount.ZERO_OR_ONE, {"country", "province", "continent", "subContinent"}),
+            (FeatureAmount.ZERO_OR_ONE, {"playlist", "group"}),
+            (FeatureAmount.ANY, {"operatingSystem", "subscribedStatus", "youtubeProduct"}),
+        )
+
+    def verify(self, metrics, dimensions, filters):
+        super().verify(metrics, dimensions, filters)
+
+        if filters["isCurated"] != "1":
+            raise InvalidRequest("the 'isCurated' filter must be set to '1'")
+
+    def __str__(self):
+        return "Device types for playlists"
+
+
+class OperatingSystemPlaylist(ReportType):
+    def __init__(self):
+        self.dimensions = (
+            (FeatureAmount.REQUIRED, {"operatingSystem"}),
+            (FeatureAmount.ANY, {"day", "subscribedStatus", "youtubeProduct"}),
+        )
+        self.metrics = features.YOUTUBE_ANALYTICS_LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
+        self.filters = (
+            (FeatureAmount.REQUIRED, {"isCurated"}),
+            (FeatureAmount.ZERO_OR_ONE, {"country", "province", "continent", "subContinent"}),
+            (FeatureAmount.ZERO_OR_ONE, {"playlist", "group"}),
+            (FeatureAmount.ANY, {"deviceType", "subscribedStatus", "youtubeProduct"}),
+        )
+
+    def verify(self, metrics, dimensions, filters):
+        super().verify(metrics, dimensions, filters)
+
+        if filters["isCurated"] != "1":
+            raise InvalidRequest("the 'isCurated' filter must be set to '1'")
+
+    def __str__(self):
+        return "Operating systems for playlists"
+
+
+class DeviceTypeAndOperatingSystemPlaylist(ReportType):
+    def __init__(self):
+        self.dimensions = (
+            (FeatureAmount.REQUIRED, {"deviceType", "operatingSystem"}),
+            (FeatureAmount.ANY, {"day", "subscribedStatus", "youtubeProduct"}),
+        )
+        self.metrics = features.YOUTUBE_ANALYTICS_LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
+        self.filters = (
+            (FeatureAmount.REQUIRED, {"isCurated"}),
+            (FeatureAmount.ZERO_OR_ONE, {"country", "province", "continent", "subContinent"}),
+            (FeatureAmount.ZERO_OR_ONE, {"playlist", "group"}),
+            (FeatureAmount.ANY, {"subscribedStatus", "youtubeProduct"}),
+        )
+
+    def verify(self, metrics, dimensions, filters):
+        super().verify(metrics, dimensions, filters)
+
+        if filters["isCurated"] != "1":
+            raise InvalidRequest("the 'isCurated' filter must be set to '1'")
+
+    def __str__(self):
+        return "Device types and operating systems for playlists"
+
+
+class ViewerDemographicsPlaylist(ReportType):
+    def __init__(self):
+        self.dimensions = ((FeatureAmount.NON_ZERO, {"ageGroup", "gender"}), (FeatureAmount.ANY, {"subscribedStatus"}))
+        self.metrics = ("viewerPercentage",)
+        self.filters = (
+            (FeatureAmount.REQUIRED, {"isCurated"}),
+            (FeatureAmount.ZERO_OR_ONE, {"country", "province", "continent", "subContinent"}),
+            (FeatureAmount.ZERO_OR_ONE, {"playlist", "group"}),
+            (FeatureAmount.ANY, {"subscribedStatus"}),
+        )
+
+    def verify(self, metrics, dimensions, filters):
+        super().verify(metrics, dimensions, filters)
+
+        if filters["isCurated"] != "1":
+            raise InvalidRequest("the 'isCurated' filter must be set to '1'")
+
+    def __str__(self):
+        return "Viewer demographics for playlists"
+
+
+class TopPlaylists(ReportType):
+    def __init__(self):
+        self.dimensions = (FeatureAmount.REQUIRED, {"playlist"})
+        self.metrics = features.YOUTUBE_ANALYTICS_ALL_PLAYLIST_METRICS
+        self.filters = (
+            (FeatureAmount.REQUIRED, {"isCurated"}),
+            (FeatureAmount.ZERO_OR_ONE, {"country", "province", "continent", "subContinent"}),
+            (FeatureAmount.ANY, {"playlist", "subscribedStatus", "youtubeProduct"}),
+        )
+
+    def verify(self, metrics, dimensions, filters, max_results, sort_by):
+        super().verify(metrics, dimensions, filters)
+
+        if filters["isCurated"] != "1":
+            raise InvalidRequest("the 'isCurated' filter must be set to '1'")
+
+        if not max_results or max_results >= 200:
+            raise InvalidRequest("the 'max_results' parameter must not be set above 200")
+
+        if not sort_by:
+            raise InvalidRequest("you must provide at least 1 sort parameter")
+
+    def __str__(self):
+        return "Top playlists"
+
+
+class AdPerformance(ReportType):
+    def __init__(self):
+        self.dimensions = ((FeatureAmount.REQUIRED, {"adType"}), (FeatureAmount.OPTIONAL, {"day"}))
+        self.metrics = ("grossRevenue", "adImpressions", "cpm")
+        self.filters = (
+            (FeatureAmount.ZERO_OR_ONE, {"video", "group"}),
+            (FeatureAmount.ZERO_OR_ONE, {"country", "continent", "subContinent"}),
+        )
+
+    def __str__(self):
+        return "Ad performance"
+
+
 def determine(metrics, dimensions, filters):
     if "insightPlaybackLocationType" in dimensions:
         return PlaybackLocation

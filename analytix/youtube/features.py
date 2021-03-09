@@ -103,6 +103,23 @@ YOUTUBE_ANALYTICS_LOCATION_AND_TRAFFIC_METRICS = (
     "views",
     "estimatedMinutesWatched",
 )
+YOUTUBE_ANALYTICS_ALL_PLAYLIST_METRICS = (
+    "views",
+    "redViews",
+    "estimatedMinutesWatched",
+    "estimatedRedMinutesWatched",
+    "averageViewDuration",
+    "playlistStarts",
+    "viewsPerPlaylistStart",
+    "averageTimeInPlaylist",
+)
+YOUTUBE_ANALYTICS_LOCATION_AND_TRAFFIC_PLAYLIST_METRICS = (
+    "views",
+    "estimatedMinutesWatched",
+    "playlistStarts",
+    "viewsPerPlaylistStart",
+    "averageTimeInPlaylist",
+)
 
 
 class FeatureAmount(Enum):
