@@ -1,6 +1,11 @@
 Changelog
 =========
 
+v1.0.2
+------
+
+- Fixed ordering issue.
+
 v1.0.1
 ------
 
