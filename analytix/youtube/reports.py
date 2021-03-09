@@ -28,7 +28,7 @@ class ReportType:
         filters = set(filters)
 
         if metrics != "all":
-            diff = set(metrics) - self.metrics
+            diff = set(metrics) - set(self.metrics)
             if diff:
                 raise InvalidRequest("unexpected metric(s): " + ", ".join(diff))
 

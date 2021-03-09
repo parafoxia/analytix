@@ -1,6 +1,6 @@
 from enum import Enum, auto
 
-YOUTUBE_ANALYTICS_ALL_METRICS = {
+YOUTUBE_ANALYTICS_ALL_METRICS = (
     "views",
     "redViews",
     "comments",
@@ -36,8 +36,8 @@ YOUTUBE_ANALYTICS_ALL_METRICS = {
     "playbackBasedCpm",
     "adImpressions",
     "cpm",
-}
-YOUTUBE_ANALYTICS_ALL_PROVINCE_METRICS = {
+)
+YOUTUBE_ANALYTICS_ALL_PROVINCE_METRICS = (
     "views",
     "redViews",
     "estimatedMinutesWatched",
@@ -57,8 +57,8 @@ YOUTUBE_ANALYTICS_ALL_PROVINCE_METRICS = {
     "cardTeaserImpressions",
     "cardClicks",
     "cardTeaserClicks",
-}
-YOUTUBE_ANALYTICS_SUBSCRIPTION_METRICS = {
+)
+YOUTUBE_ANALYTICS_SUBSCRIPTION_METRICS = (
     "views",
     "redViews",
     "likes",
@@ -83,26 +83,26 @@ YOUTUBE_ANALYTICS_SUBSCRIPTION_METRICS = {
     "cardTeaserImpressions",
     "cardClicks",
     "cardTeaserClicks",
-}
-YOUTUBE_ANALYTICS_LIVE_PLAYBACK_DETAIL_METRICS = {
+)
+YOUTUBE_ANALYTICS_LIVE_PLAYBACK_DETAIL_METRICS = (
     "views",
     "redViews",
     "estimatedMinutesWatched",
     "estimatedRedMinutesWatched",
     "averageViewDuration",
-}
-YOUTUBE_ANALYTICS_VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS = {
+)
+YOUTUBE_ANALYTICS_VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS = (
     "views",
     "redViews",
     "estimatedMinutesWatched",
     "estimatedRedMinutesWatched",
     "averageViewDuration",
     "averageViewPercentage",
-}
-YOUTUBE_ANALYTICS_LOCATION_AND_TRAFFIC_METRICS = {
+)
+YOUTUBE_ANALYTICS_LOCATION_AND_TRAFFIC_METRICS = (
     "views",
     "estimatedMinutesWatched",
-}
+)
 
 
 class FeatureAmount(Enum):
