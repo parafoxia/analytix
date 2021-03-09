@@ -1,6 +1,12 @@
 Changelog
 =========
 
+v1.0.1
+------
+
+- Fixed an issue with report type that have required and optional dimensions.
+- Fixed some stuff in the docs.
+
 v1.0.0
 ------
 
