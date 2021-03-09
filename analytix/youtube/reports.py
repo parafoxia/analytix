@@ -179,7 +179,7 @@ class PlaybackDetailsSubscribedStatusUS(ReportType):
             (FeatureAmount.ZERO_OR_ONE, {"subscribedStatus"}),
             (FeatureAmount.ZERO_OR_ONE, {"day", "month"}),
         ]
-        self.metrics = {
+        self.metrics = (
             "views",
             "redViews",
             "estimatedMinutesWatched",
@@ -199,7 +199,7 @@ class PlaybackDetailsSubscribedStatusUS(ReportType):
             "cardTeaserImpressions",
             "cardClicks",
             "cardTeaserClicks",
-        }
+        )
         self.filters = [
             (FeatureAmount.ZERO_OR_ONE, {"video", "group"}),
             (FeatureAmount.ANY, {"province", "subscribedStatus"}),
@@ -465,7 +465,7 @@ class ViewerDemographics(ReportType):
             (FeatureAmount.NON_ZERO, {"ageGroup", "gender"}),
             (FeatureAmount.ANY, {"liveOrOnDemand", "subscribedStatus"}),
         ]
-        self.metrics = {"viewerPercentage"}
+        self.metrics = ("viewerPercentage",)
         self.filters = [
             (FeatureAmount.ZERO_OR_ONE, {"country", "province", "continent", "subContinent"}),
             (FeatureAmount.ZERO_OR_ONE, {"video", "group"}),
@@ -482,7 +482,7 @@ class EngagementAndContentSharing(ReportType):
             (FeatureAmount.REQUIRED, {"sharingService"}),
             (FeatureAmount.ZERO_OR_ONE, {"subscribedStatus"}),
         ]
-        self.metrics = {"shares"}
+        self.metrics = ("shares",)
         self.filters = [(FeatureAmount.ZERO_OR_ONE, {"country", "continent", "subContinent"}), Detail]
 
     def __str__(self):
@@ -492,7 +492,7 @@ class EngagementAndContentSharing(ReportType):
 class AudienceRetention(ReportType):
     def __init__(self):
         self.dimensions = [(FeatureAmount.REQUIRED, {"elaspedVideoTimeRatio"})]
-        self.metrics = {"audienceWatchRatio", "relativeRetentionPerformance"}
+        self.metrics = ("audienceWatchRatio", "relativeRetentionPerformance")
         self.filters = [
             (FeatureAmount.REQUIRED, {"video"}),
             (FeatureAmount.ANY, {"audienceType", "subscribedStatus", "youtubeProduct"}),
