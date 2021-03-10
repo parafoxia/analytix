@@ -623,7 +623,7 @@ class BasicUserActivityPlaylist(ReportType):
             (FeatureAmount.ANY, {"subscribedStatus", "youtubeProduct"}),
         )
 
-    def verify(self, metrics, dimensions, filters):
+    def verify(self, metrics, dimensions, filters, *args):
         super().verify(metrics, dimensions, filters)
 
         if filters["isCurated"] != "1":
@@ -647,7 +647,7 @@ class TimeBasedActivityPlaylist(ReportType):
             (FeatureAmount.ANY, {"subscribedStatus", "youtubeProduct"}),
         )
 
-    def verify(self, metrics, dimensions, filters):
+    def verify(self, metrics, dimensions, filters, *args):
         super().verify(metrics, dimensions, filters)
 
         if filters["isCurated"] != "1":
@@ -671,7 +671,7 @@ class GeographyBasedActivityPlaylist(ReportType):
             (FeatureAmount.ANY, {"subscribedStatus", "youtubeProduct"}),
         )
 
-    def verify(self, metrics, dimensions, filters):
+    def verify(self, metrics, dimensions, filters, *args):
         super().verify(metrics, dimensions, filters)
 
         if filters["isCurated"] != "1":
@@ -694,7 +694,7 @@ class GeographyBasedActivityUSPlaylist(ReportType):
             (FeatureAmount.ANY, {"subscribedStatus", "youtubeProduct"}),
         )
 
-    def verify(self, metrics, dimensions, filters):
+    def verify(self, metrics, dimensions, filters, *args):
         super().verify(metrics, dimensions, filters)
 
         if filters["isCurated"] != "1":
@@ -721,7 +721,7 @@ class PlaybackLocationPlaylist(ReportType):
             (FeatureAmount.ANY, {"subscribedStatus"}),
         )
 
-    def verify(self, metrics, dimensions, filters):
+    def verify(self, metrics, dimensions, filters, *args):
         super().verify(metrics, dimensions, filters)
 
         if filters["isCurated"] != "1":
@@ -775,7 +775,7 @@ class TrafficSourcePlaylist(ReportType):
             (FeatureAmount.ANY, {"subscribedStatus"}),
         )
 
-    def verify(self, metrics, dimensions, filters):
+    def verify(self, metrics, dimensions, filters, *args):
         super().verify(metrics, dimensions, filters)
 
         if filters["isCurated"] != "1":
@@ -826,7 +826,7 @@ class DeviceTypePlaylist(ReportType):
             (FeatureAmount.ANY, {"operatingSystem", "subscribedStatus", "youtubeProduct"}),
         )
 
-    def verify(self, metrics, dimensions, filters):
+    def verify(self, metrics, dimensions, filters, *args):
         super().verify(metrics, dimensions, filters)
 
         if filters["isCurated"] != "1":
@@ -850,7 +850,7 @@ class OperatingSystemPlaylist(ReportType):
             (FeatureAmount.ANY, {"deviceType", "subscribedStatus", "youtubeProduct"}),
         )
 
-    def verify(self, metrics, dimensions, filters):
+    def verify(self, metrics, dimensions, filters, *args):
         super().verify(metrics, dimensions, filters)
 
         if filters["isCurated"] != "1":
@@ -874,7 +874,7 @@ class DeviceTypeAndOperatingSystemPlaylist(ReportType):
             (FeatureAmount.ANY, {"subscribedStatus", "youtubeProduct"}),
         )
 
-    def verify(self, metrics, dimensions, filters):
+    def verify(self, metrics, dimensions, filters, *args):
         super().verify(metrics, dimensions, filters)
 
         if filters["isCurated"] != "1":
@@ -895,7 +895,7 @@ class ViewerDemographicsPlaylist(ReportType):
             (FeatureAmount.ANY, {"subscribedStatus"}),
         )
 
-    def verify(self, metrics, dimensions, filters):
+    def verify(self, metrics, dimensions, filters, *args):
         super().verify(metrics, dimensions, filters)
 
         if filters["isCurated"] != "1":
@@ -945,20 +945,7 @@ class AdPerformance(ReportType):
 
 
 def determine(metrics, dimensions, filters):
-    if "insightPlaybackLocationType" in dimensions:
-        return PlaybackLocation
-
-    if "insightPlaybackLocationDetail" in dimensions:
-        return PlaybackLocationDetail
-
-    if "insightTrafficSourceType" in dimensions:
-        return TrafficSource
-
-    if "insightTrafficSourceDetail" in dimensions:
-        return TrafficSourceDetail
-
-    if "ageGroup" in dimensions or "gender" in dimensions:
-        return ViewerDemographics
+    curated = filters.get("isCurated", "0") == "1"
 
     if "sharingService" in dimensions:
         return EngagementAndContentSharing
@@ -966,12 +953,46 @@ def determine(metrics, dimensions, filters):
     if "elapsedVideoTimeRatio" in dimensions:
         return AudienceRetention
 
+    if "playlist" in dimensions:
+        return TopPlaylists
+
+    if "insightPlaybackLocationType" in dimensions:
+        if curated:
+            return PlaybackLocationPlaylist
+        return PlaybackLocation
+
+    if "insightPlaybackLocationDetail" in dimensions:
+        if curated:
+            return PlaybackLocationDetailPlaylist
+        return PlaybackLocationDetail
+
+    if "insightTrafficSourceType" in dimensions:
+        if curated:
+            return TrafficSourcePlaylist
+        return TrafficSource
+
+    if "insightTrafficSourceDetail" in dimensions:
+        if curated:
+            return TrafficSourceDetailPlaylist
+        return TrafficSourceDetail
+
+    if "ageGroup" in dimensions or "gender" in dimensions:
+        if curated:
+            return ViewerDemographicsPlaylist
+        return ViewerDemographics
+
     if "deviceType" in dimensions:
         if "operatingSystem" in dimensions:
+            if curated:
+                return DeviceTypeAndOperatingSystemPlaylist
             return DeviceTypeAndOperatingSystem
+        if curated:
+            return DeviceTypePlaylist
         return DeviceType
 
     if "operatingSystem" in dimensions:
+        if curated:
+            return OperatingSystemPlaylist
         return OperatingSystem
 
     if "video" in dimensions:
@@ -988,6 +1009,8 @@ def determine(metrics, dimensions, filters):
     if "country" in dimensions:
         if "liveOrOnDemand" in dimensions or "liveOrOnDemand" in filters:
             return PlaybackDetailsLiveGeographyBased
+        if curated:
+            return GeographyBasedActivityPlaylist
         if (
             "subscribedStatus" in dimensions
             or "subscribedStatus" in filters
@@ -1000,6 +1023,8 @@ def determine(metrics, dimensions, filters):
     if "province" in dimensions:
         if "liveOrOnDemand" in dimensions or "liveOrOnDemand" in filters:
             return PlaybackDetailsLiveGeographyBasedUS
+        if curated:
+            return GeographyBasedActivityPlaylistUS
         if (
             "subscribedStatus" in dimensions
             or "subscribedStatus" in filters
@@ -1023,8 +1048,14 @@ def determine(metrics, dimensions, filters):
         return PlaybackDetailsSubscribedStatus
 
     if "day" in dimensions or "month" in dimensions:
+        if curated:
+            return TimeBasedActivityPlaylist
         if "province" in filters:
             return TimeBasedActivityUS
         return TimeBasedActivity
 
-    return None
+    if curated:
+        return BasicUserActivityPlaylist
+    if "province" in filters:
+        return BasicUserActivityUS
+    return BasicUserActivity

@@ -61,6 +61,9 @@ class YouTubeAnalyticsReport:
             file += ".csv"
         self.to_dataframe().to_csv(file)
 
+    def __str__(self):
+        return self.type
+
 
 class YouTubeAnalytics:
     """A class to retrieve data from the YouTube Analytics API.
@@ -83,6 +86,10 @@ class YouTubeAnalytics:
         .. warning::
 
             The :code:`start_date` and :code:`end_date` parameters do not account for delayed analytics such as revenue.
+
+        .. note::
+
+            This will retrieve video reports by default. To retrieve playlist reports, include '"isCurated": "1"' in your filters.
 
         Args:
             metrics (str | tuple[str, ...] | list[str]): The metrics (or columns) to retrieve. Defaults to "all".
@@ -125,8 +132,6 @@ class YouTubeAnalytics:
 
         if verify:
             rtype = reports.determine(metrics, dimensions, filters)
-            if not rtype:
-                raise InvalidRequest("no supported report type found for given parameters")
         else:
             rtype = reports.Generic
         r = rtype()
