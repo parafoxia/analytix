@@ -26,7 +26,6 @@ author = "Ethan Henderson"
 
 # The full version, including alpha/beta/rc tags
 release = analytix.__version__
-rst_epilog = f".. |version| replace:: {release}"
 
 
 # -- General configuration ---------------------------------------------------

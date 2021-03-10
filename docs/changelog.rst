@@ -1,6 +1,18 @@
 Changelog
 =========
 
+v1.1.0
+------
+
+- Added playlist report type support.
+- If no specific report type could be determined, analytix now falls back to a basic user activity report.
+- A few minor efficient enhancements.
+
+v1.0.2
+------
+
+- Fixed ordering issue.
+
 v1.0.1
 ------
 

@@ -18,8 +18,6 @@ analytix
 
 A simple yet powerful API wrapper to make getting analytical information from the YouTube Analytics API easier than ever.
 
-This documentation is for version |version| of analytix.
-
 Features
 --------
 
