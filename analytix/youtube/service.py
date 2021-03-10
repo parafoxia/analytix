@@ -53,7 +53,7 @@ class YouTubeService:
             if use_console:
                 credentials = flow.run_console(
                     authorization_prompt_message="You need to authorise your service. Head to the below address, and enter the code.\n{url}",
-                    authorization_code_message="> ",
+                    authorization_code_message="CODE > ",
                 )
             else:
                 credentials = flow.run_local_server(
