@@ -1,6 +1,11 @@
 Changelog
 =========
 
+v1.1.1
+------
+
+Fixed bug that meant JSON reports could not be saved.
+
 v1.1.0
 ------
 
