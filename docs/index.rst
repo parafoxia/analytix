@@ -35,6 +35,7 @@ User Guide
 
    usage/install
    usage/quickstart
+   usage/reports
 
 API Reference
 -------------
