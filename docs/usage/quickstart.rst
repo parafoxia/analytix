@@ -65,4 +65,4 @@ The :code:`retrieve` method returns a :code:`YouTubeAnalyticsReport` object, whi
     report.to_json("./analytics.json")
     report.to_csv("./analytics.csv")
 
-And that's it! From here, you can :doc:`find more examples<./examples>`, or browse through the :doc:`API docs<../api>`.
+.. And that's it! From here, you can :doc:`find more examples<./examples>`, or browse through the :doc:`API docs<../api>`.
