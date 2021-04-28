@@ -81,6 +81,40 @@ class YouTubeAnalytics:
     def __init__(self, service):
         self.service = service
 
+    def get_report_type(self, metrics=(), dimensions=(), filters={}, *, verify=True):
+        """Gets the report type that best matches the metrics, dimensions, and filters given. If :code:`verify` is False, this will return a :code:`Generic` report type.
+
+        Args:
+            metrics (tuple[str, ...] | list[str]): The metrics (or columns) to retrieve. Defaults to an empty tuple.
+            dimensions (tuple[str, ...] | list[str]): The dimensions in which data is split. Defaults to an empty tuple.
+            filters (dict[str, str]): The filters to be applied when retrieving data. Defaults to an empty dictionary.
+            verify (bool): Whether to attempt to determine the report type dynamically. Defaults to True.
+
+        Returns:
+            ReportType: The selected report type.
+        """
+        if not verify:
+            return reports.Generic()
+        return reports.determine(metrics, dimensions, filters)()
+
+    def get_verified_report_type(self, metrics=(), dimensions=(), filters={}):
+        """Like :code:`get_report_type`, but only returns a ReportType object if verification succeeds.
+
+        Args:
+            metrics (tuple[str, ...] | list[str]): The metrics (or columns) to retrieve. Defaults to an empty tuple.
+            dimensions (tuple[str, ...] | list[str]): The dimensions in which data is split. Defaults to an empty tuple.
+            filters (dict[str, str]): The filters to be applied when retrieving data. Defaults to an empty dictionary.
+
+        Returns:
+            ReportType | InvalidRequest: The selected report type or the error that caused verification to fail.
+        """
+        r = self.get_report_type(metrics, dimensions, filters)
+        try:
+            r.verify(metrics, dimensions, filters, 5, ("views",))
+            return r
+        except InvalidRequest as exc:
+            return exc
+
     def retrieve(self, metrics="all", verify=True, **kwargs):
         """Executes an API request to pull down analytical information.
 
@@ -93,7 +127,7 @@ class YouTubeAnalytics:
             This will retrieve video reports by default. To retrieve playlist reports, include '"isCurated": "1"' in your filters.
 
         Args:
-            metrics (str | tuple[str, ...] | list[str]): The metrics (or columns) to retrieve. Defaults to "all".
+            metrics (tuple[str, ...] | list[str]): The metrics (or columns) to retrieve. Defaults to "all".
             verify (bool): Whether to verify the requests before passing them to the API. Defaults to True.
             start_date (datetime.date): The earliest date to fetch data for. Defaults to 28 days before the current date.
             end_date (datetime.date): The latest date to fetch data for. Defaults to the current date.
@@ -131,11 +165,7 @@ class YouTubeAnalytics:
         if not isinstance(filters, dict):
             raise InvalidRequest(f"expected dict of filters, got {type(filters).__name__}")
 
-        if verify:
-            rtype = reports.determine(metrics, dimensions, filters)
-        else:
-            rtype = reports.Generic
-        r = rtype()
+        r = self.get_report_type_for(metrics, dimensions, filters, verify=verify)
         r.verify(metrics, dimensions, filters, max_results, sort_by)
 
         if metrics == "all":
