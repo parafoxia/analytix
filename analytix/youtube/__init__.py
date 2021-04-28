@@ -5,5 +5,5 @@ YOUTUBE_ANALYTICS_SCOPES = (
     "https://www.googleapis.com/auth/yt-analytics-monetary.readonly",
 )
 
-from .analytics import YouTubeAnalytics
+from .analytics import YouTubeAnalytics, YouTubeAnalyticsReport
 from .service import YouTubeService
