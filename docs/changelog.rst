@@ -1,6 +1,14 @@
 Changelog
 =========
 
+v1.2.0
+------
+
+Added helper functions for retrieving report types:
+
+- :code:`.get_report_type()`
+- :code:`.get_verified_report_type()`
+
 v1.1.1
 ------
 
