@@ -5,24 +5,36 @@ class AnalytixError(Exception):
 
 
 class NoAuthorisedService(AnalytixError):
-    """Exception thrown when an operatoion that requires authorisation is attempted while no service is no authorised."""
+    """An operation that requires authorisation was attempted while no service is authorised."""
 
     pass
 
 
 class ServiceAlreadyExists(AnalytixError):
-    """Exception thrown when an attempt to create a service is made while one already exists."""
+    """An attempt to create a service was made while one already exists."""
 
     pass
 
 
-class IncompleteRequest(AnalytixError):
-    """Exception throws when not enough information has been passed to a request."""
+class InvalidScopes(AnalytixError):
+    """Invalid scopes were provided."""
 
     pass
 
 
 class InvalidRequest(AnalytixError):
-    """Exception throws when invalid information has been passed to a request."""
+    """Invalid information was passed to a request."""
+
+    pass
+
+
+class Deprecated(AnalytixError):
+    """A feature of analytix or the YouTube Analytics API is deprecated."""
+
+    pass
+
+
+class MissingOptionalComponents(AnalytixError):
+    """Some optional components are missing."""
 
     pass
