@@ -9,20 +9,24 @@ if sys.version_info < (3, 6, 0):
 
 import setuptools
 
-import analytix
+with open("analytix/__init__.py", mode="r", encoding="utf-8") as f:
+    # I didn't choose this life, okay?
+    productname, version, description, url, docs, author, license_ = [
+        l.split('"')[1] for l in f.readlines()[:7]
+    ]
 
 with open("./README.md", "r", encoding="utf-8") as f:
     long_description = f.read()
 
 setuptools.setup(
-    name=analytix.__productname__,
-    version=analytix.__version__,
-    description=analytix.__description__,
+    name=productname,
+    version=version,
+    description=description,
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url=analytix.__url__,
-    author=analytix.__author__,
-    license=analytix.__license__,
+    url=url,
+    author=author,
+    license=license_,
     classifiers=[
         "Development Status :: 3 - Alpha",
         # "Development Status :: 4 - Beta",
@@ -45,8 +49,8 @@ setuptools.setup(
         "Topic :: Utilities",
     ],
     project_urls={
-        "Documentation": analytix.__docs__,
-        "Source": analytix.__url__,
+        "Documentation": docs,
+        "Source": url,
     },
     install_requires=[
         "google-api-python-client<3,>=1.12.2",
