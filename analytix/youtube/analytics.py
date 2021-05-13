@@ -165,7 +165,7 @@ class YouTubeAnalytics:
         if not isinstance(filters, dict):
             raise InvalidRequest(f"expected dict of filters, got {type(filters).__name__}")
 
-        r = self.get_report_type_for(metrics, dimensions, filters, verify=verify)
+        r = self.get_report_type(metrics, dimensions, filters, verify=verify)
         r.verify(metrics, dimensions, filters, max_results, sort_by)
 
         if metrics == "all":
