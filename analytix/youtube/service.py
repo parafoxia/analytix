@@ -46,6 +46,13 @@ class Service:
     def __str__(self):
         return self._project_id
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, exc_trace):
+        if self.authorised:
+            self.close()
+
     @property
     def _secrets(self):
         return {
@@ -140,6 +147,5 @@ class Service:
     authorize = authorise
 
     def close(self):
-        # NOTE: This doesn't unauthorise the service, just closes the httplib2 sockets.
         self.authorised.close()
         logging.info("Service closed")
