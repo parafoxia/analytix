@@ -1,3 +1,5 @@
+from analytix.errors import InvalidRequest
+
 from .types import (
     Dimensions,
     ExactlyOne,
@@ -27,7 +29,7 @@ class ReportType:
     def __str__(self):
         return self.__class__()._friendly_name
 
-    def verify(self, dim, met, fil):
+    def verify(self, dim, met, fil, *args):
         self.dimensions.verify(dim)
         self.metrics.verify(met)
         self.filters.verify(fil)
@@ -41,7 +43,7 @@ class DetailedReportType(ReportType):
     def verify(self, dim, met, fil, max, srt):
         super().verify(dim, met, fil)
 
-        if not max or max >= self.max_results:
+        if not max or max > self.max_results:
             raise InvalidRequest(
                 f"the 'max_results' parameter must be no larger than {self.max_results} "
                 "for the selected report type"
@@ -53,7 +55,9 @@ class DetailedReportType(ReportType):
             )
 
         if any(s not in met for s in srt):
-            raise InvalidRequest(f"the sort parameter must be a valid metric")
+            raise InvalidRequest(
+                f"the sort parameter must be one or more valid metrics"
+            )
 
 
 class BasicUserActivity(ReportType):
@@ -516,7 +520,7 @@ class TopVideosPlaybackDetail(DetailedReportType):
         self.max_results = 200
 
 
-def determine(metrics, dimensions, filters):
+def determine(dimensions, metrics, filters):
     curated = filters.get("isCurated", "0") == "1"
 
     if "sharingService" in dimensions:
