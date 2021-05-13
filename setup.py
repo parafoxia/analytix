@@ -58,7 +58,7 @@ setuptools.setup(
     ],
     # Previous versions might be okay
     extras_require={
-        "contrib": [
+        "dev": [
             "black>=21",
             "mypy>=0.812",
             "pandas<2,>=1.2",
