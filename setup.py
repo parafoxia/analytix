@@ -11,8 +11,8 @@ import setuptools
 
 with open("analytix/__init__.py", mode="r", encoding="utf-8") as f:
     # I didn't choose this life, okay?
-    productname, version, description, url, docs, author, license_ = [
-        l.split('"')[1] for l in f.readlines()[:7]
+    productname, version, description, url, docs, author, license_, bug_tracker = [
+        l.split('"')[1] for l in f.readlines()[:8]
     ]
 
 with open("./README.md", "r", encoding="utf-8") as f:
@@ -51,6 +51,7 @@ setuptools.setup(
     project_urls={
         "Documentation": docs,
         "Source": url,
+        "Bug Tracker": bug_tracker,
     },
     install_requires=[
         "google-api-python-client<3,>=1.12.2",

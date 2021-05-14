@@ -5,6 +5,7 @@ __url__ = "https://github.com/parafoxia/analytix"
 __docs__ = "https://analytix.readthedocs.io/en/latest/"
 __author__ = "Ethan Henderson"
 __license__ = "BSD-3-Clause"
+__bugtracker__ = "https://github.com/parafoxia/analytix/issues"
 
 from . import utils
 from .errors import *
