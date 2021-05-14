@@ -4,12 +4,6 @@ class AnalytixError(Exception):
     pass
 
 
-class NoAuthorisedService(AnalytixError):
-    """An operation that requires authorisation was attempted while no service is authorised."""
-
-    pass
-
-
 class ServiceAlreadyExists(AnalytixError):
     """An attempt to create a service was made while one already exists."""
 
@@ -36,5 +30,11 @@ class Deprecated(AnalytixError):
 
 class MissingOptionalComponents(AnalytixError):
     """Some optional components are missing."""
+
+    pass
+
+
+class UtilityError(AnalytixError):
+    """Something went wrong inside a util function."""
 
     pass

@@ -1,11 +1,7 @@
 import datetime as dt
 import logging
 
-from analytix.errors import (
-    Deprecated,
-    InvalidRequest,
-    NoAuthorisedService,
-)
+from analytix.errors import Deprecated, InvalidRequest
 
 from . import api
 from .api.iso import CURRENCIES
@@ -88,7 +84,7 @@ class Analytics:
             )
         logging.debug("Using these metrics: " + ", ".join(metrics))
 
-        r.verify(dimensions, metrics, filters)
+        r.verify(dimensions, metrics, filters, max_results, sort_by)
         logging.debug("Verification complete")
 
         if filters:
