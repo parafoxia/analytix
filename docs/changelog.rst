@@ -1,6 +1,17 @@
 Changelog
 =========
 
+v1.2.2
+------
+
+- Verify sort metrics better
+- Fix a few bugs
+
+v1.2.1
+------
+
+Bug fixes.
+
 v1.2.0
 ------
 
