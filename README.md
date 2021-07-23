@@ -14,7 +14,7 @@ A simple yet powerful API wrapper to make getting analytical information from th
 
 ## Installation
 
-**You need Python 3.7.0 or greater to run analytix.** You will also need to have a Google Developers project with the YouTube Analytics API enabled. You can find instructions on how to do that in the [YouTube Analytics API docs](https://developers.google.com/youtube/reporting/v1/code_samples/python#set-up-authorization-credentials/).
+**You need Python 3.6.0 or greater to run analytix.** You will also need to have a Google Developers project with the YouTube Analytics API enabled. You can find instructions on how to do that in the [YouTube Analytics API docs](https://developers.google.com/youtube/reporting/v1/code_samples/python#set-up-authorization-credentials/).
 
 It is recommended you install analytix in a virtual environment. To do this, run the following:
 
@@ -56,12 +56,11 @@ The following example shows you how easy analytix can be to use. This retrieves 
 ```py
 import datetime as dt
 
-from analytix import YouTubeAnalytics, YouTubeAnalyticsClient
+from analytix import YouTubeAnalytics
 
-client = YouTubeAnalyticsClient("./secrets.json")  # Load from secrets file
-analytics = YouTubeAnalytics(client)
+client = YouTubeAnalytics("./secrets.json")  # Load from secrets file
 start_date = dt.date.today() - dt.timedelta(days=28)
-report = analytics.retrieve(start_date, dimensions=("day",))
+report = client.retrieve(start_date, dimensions=("day",))
 report.to_csv("./analytics-28d.csv")
 ```
 
@@ -72,12 +71,10 @@ import datetime as dt
 
 import matplotlib.pyplot as plt
 import seaborn as sns
-from analytix import YouTubeAnalytics, YouTubeAnalyticsClient
+from analytix import YouTubeAnalytics
 
-client = YouTubeAnalyticsClient("./secrets.json")
-analytics = YouTubeAnalytics(client)
-
-report = analytics.retrieve(
+client = YouTubeAnalytics("./secrets.json")
+report = client.retrieve(
     dt.date(2021, 1, 1),
     dt.date(2021, 1, 31),
     metrics=("views",),
