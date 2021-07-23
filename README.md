@@ -47,14 +47,14 @@ You may need to prefix these commands with `py -m` or `python3.9 -m` (or similar
 
 Before you begin, you will need to have a Google Developers project with the YouTube Analytics API enabled. You can find instructions on how to do that in the [YouTube Analytics API docs](https://developers.google.com/youtube/reporting/v1/code_samples/python#set-up-authorization-credentials/).
 
-Once you've done that, pulling reports down is easy. The below example gets as much information as possible from the last 28 days.
+Once you've done that, pulling reports down is easy. The below example loads credentials from a secrets file, and gets as much information as possible from the last 28 days.
 
 ```py
 import datetime as dt
 
 from analytix import YouTubeAnalytics
 
-client = YouTubeAnalytics.from_file("./secrets.json")  # Load from secrets file
+client = YouTubeAnalytics.from_file("./secrets.json")
 start_date = dt.date.today() - dt.timedelta(days=28)
 report = client.retrieve(start_date, dimensions=("day",))
 report.to_csv("./analytics-28d.csv")
