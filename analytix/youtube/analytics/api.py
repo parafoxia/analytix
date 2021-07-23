@@ -35,7 +35,7 @@ class YouTubeAnalytics:
         return self.project_id
 
     def __repr__(self):
-        return f"<YouTubeAnalyticsClient project_id={self.project_id!r}>"
+        return f"<YouTubeAnalytics project_id={self.project_id!r}>"
 
     @property
     def authorised(self):
