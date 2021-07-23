@@ -363,6 +363,14 @@ class PlaybackLocationDetail(ReportType):
         if not sort_by:
             raise InvalidRequest("you must provide at least 1 sort parameter")
 
+        if any(not s[0] == "-" for s in sort_by):
+            raise InvalidRequest(
+                (
+                    "you can only sort in descending order for this report type. "
+                    "You can do this by prefixing the sort metrics with '-'"
+                )
+            )
+
     def __str__(self):
         return "Playback locations (detailed)"
 
@@ -403,6 +411,14 @@ class TrafficSourceDetail(ReportType):
 
         if not sort_by:
             raise InvalidRequest("you must provide at least 1 sort parameter")
+
+        if any(not s[0] == "-" for s in sort_by):
+            raise InvalidRequest(
+                (
+                    "you can only sort in descending order for this report type. "
+                    "You can do this by prefixing the sort metrics with '-'"
+                )
+            )
 
     def __str__(self):
         return "Traffic sources (detailed)"
@@ -483,7 +499,11 @@ class EngagementAndContentSharing(ReportType):
             (FeatureAmount.ZERO_OR_ONE, {"subscribedStatus"}),
         ]
         self.metrics = ("shares",)
-        self.filters = [(FeatureAmount.ZERO_OR_ONE, {"country", "continent", "subContinent"}), Detail]
+        self.filters = [
+            (FeatureAmount.ZERO_OR_ONE, {"country", "continent", "subContinent"}),
+            (FeatureAmount.ZERO_OR_ONE, {"video", "group"}),
+            (FeatureAmount.ANY, {"subscribedStatus"}),
+        ]
 
     def __str__(self):
         return "Engagement and content sharing"
@@ -523,6 +543,14 @@ class TopVideosRegional(ReportType):
         if not sort_by:
             raise InvalidRequest("you must provide at least 1 sort parameter")
 
+        if any(not s[0] == "-" for s in sort_by):
+            raise InvalidRequest(
+                (
+                    "you can only sort in descending order for this report type. "
+                    "You can do this by prefixing the sort metrics with '-'"
+                )
+            )
+
     def __str__(self):
         return "Top videos by region"
 
@@ -541,6 +569,14 @@ class TopVideosUS(ReportType):
 
         if not sort_by:
             raise InvalidRequest("you must provide at least 1 sort parameter")
+
+        if any(not s[0] == "-" for s in sort_by):
+            raise InvalidRequest(
+                (
+                    "you can only sort in descending order for this report type. "
+                    "You can do this by prefixing the sort metrics with '-'"
+                )
+            )
 
     def __str__(self):
         return "Top videos by state"
@@ -564,6 +600,14 @@ class TopVideosSubscribed(ReportType):
         if not sort_by:
             raise InvalidRequest("you must provide at least 1 sort parameter")
 
+        if any(not s[0] == "-" for s in sort_by):
+            raise InvalidRequest(
+                (
+                    "you can only sort in descending order for this report type. "
+                    "You can do this by prefixing the sort metrics with '-'"
+                )
+            )
+
     def __str__(self):
         return "Top videos by subscription status"
 
@@ -586,6 +630,14 @@ class TopVideosYouTubeProduct(ReportType):
         if not sort_by:
             raise InvalidRequest("you must provide at least 1 sort parameter")
 
+        if any(not s[0] == "-" for s in sort_by):
+            raise InvalidRequest(
+                (
+                    "you can only sort in descending order for this report type. "
+                    "You can do this by prefixing the sort metrics with '-'"
+                )
+            )
+
     def __str__(self):
         return "Top videos by YouTube product"
 
@@ -607,6 +659,14 @@ class TopVideosPlaybackDetail(ReportType):
 
         if not sort_by:
             raise InvalidRequest("you must provide at least 1 sort parameter")
+
+        if any(not s[0] == "-" for s in sort_by):
+            raise InvalidRequest(
+                (
+                    "you can only sort in descending order for this report type. "
+                    "You can do this by prefixing the sort metrics with '-'"
+                )
+            )
 
     def __str__(self):
         return "Top videos by playback detail"
@@ -757,6 +817,14 @@ class PlaybackLocationDetailPlaylist(ReportType):
         if not sort_by:
             raise InvalidRequest("you must provide at least 1 sort parameter")
 
+        if any(not s[0] == "-" for s in sort_by):
+            raise InvalidRequest(
+                (
+                    "you can only sort in descending order for this report type. "
+                    "You can do this by prefixing the sort metrics with '-'"
+                )
+            )
+
     def __str__(self):
         return "Playback locations for playlists (detailed)"
 
@@ -807,6 +875,14 @@ class TrafficSourceDetailPlaylist(ReportType):
 
         if not sort_by:
             raise InvalidRequest("you must provide at least 1 sort parameter")
+
+        if any(not s[0] == "-" for s in sort_by):
+            raise InvalidRequest(
+                (
+                    "you can only sort in descending order for this report type. "
+                    "You can do this by prefixing the sort metrics with '-'"
+                )
+            )
 
     def __str__(self):
         return "Traffic sources for playlists (detailed)"
@@ -927,13 +1003,21 @@ class TopPlaylists(ReportType):
         if not sort_by:
             raise InvalidRequest("you must provide at least 1 sort parameter")
 
+        if any(not s[0] == "-" for s in sort_by):
+            raise InvalidRequest(
+                (
+                    "you can only sort in descending order for this report type. "
+                    "You can do this by prefixing the sort metrics with '-'"
+                )
+            )
+
     def __str__(self):
         return "Top playlists"
 
 
 class AdPerformance(ReportType):
     def __init__(self):
-        self.dimensions = ((FeatureAmount.REQUIRED, {"adType"}), (FeatureAmount.OPTIONAL, {"day"}))
+        self.dimensions = ((FeatureAmount.REQUIRED, {"adType"}), (FeatureAmount.ANY, {"day"}))
         self.metrics = ("grossRevenue", "adImpressions", "cpm")
         self.filters = (
             (FeatureAmount.ZERO_OR_ONE, {"video", "group"}),

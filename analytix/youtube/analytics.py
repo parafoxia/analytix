@@ -165,6 +165,9 @@ class YouTubeAnalytics:
         if not isinstance(filters, dict):
             raise InvalidRequest(f"expected dict of filters, got {type(filters).__name__}")
 
+        if not isinstance(sort_by, (tuple, list, set)):
+            raise InvalidRequest(f"expected tuple, list, or set of sorting metrics, got {type(sort_by).__name__}")
+
         r = self.get_report_type(metrics, dimensions, filters, verify=verify)
         r.verify(metrics, dimensions, filters, max_results, sort_by)
 

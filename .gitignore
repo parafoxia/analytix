@@ -2,7 +2,7 @@
 *.json
 secrets
 tests
-
+testrun.py
 
 ### Data ###
 *.csv
