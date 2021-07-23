@@ -2,7 +2,7 @@
 
 [![PyPi version](https://img.shields.io/pypi/v/analytix.svg)](https://pypi.python.org/pypi/analytix/) [![PyPI pyversions](https://img.shields.io/pypi/pyversions/analytix.svg)](https://pypi.python.org/pypi/analytix/) [![License](https://img.shields.io/github/license/parafoxia/analytix.svg)](https://github.com/parafoxia/analytix/blob/main/LICENSE)
 
-A simple yet powerful API wrapper to make getting analytical information from the YouTube Analytics API easier than ever.
+A simple yet powerful API wrapper to make getting analytical information from the YouTube Analytics API easier than ever. More services are coming in the future.
 
 ## Features
 
@@ -14,7 +14,7 @@ A simple yet powerful API wrapper to make getting analytical information from th
 
 ## Installation
 
-**You need Python 3.7.1 or greater to run analytix.** You will also need to have a Google Developers project with the YouTube Analytics API enabled. You can find instructions on how to do that in the [YouTube Analytics API docs](https://developers.google.com/youtube/reporting/v1/code_samples/python#set-up-authorization-credentials/).
+**You need Python 3.7.0 or greater to run analytix.** You will also need to have a Google Developers project with the YouTube Analytics API enabled. You can find instructions on how to do that in the [YouTube Analytics API docs](https://developers.google.com/youtube/reporting/v1/code_samples/python#set-up-authorization-credentials/).
 
 It is recommended you install analytix in a virtual environment. To do this, run the following:
 
@@ -54,12 +54,14 @@ $ python3.9 -m pip install -U .
 The following example shows you how easy analytix can be to use. This retrieves day-by-day analytics for the last 28 days using all metrics.
 
 ```py
-from analytix.youtube import YouTubeAnalytics, YouTubeService
+import datetime as dt
 
-service = YouTubeService("./secrets.json")  # Load from secrets file
-service.authorise()
-analytics = YouTubeAnalytics(service)
-report = analytics.retrieve(dimensions=("day",))
+from analytix import YouTubeAnalytics, YouTubeAnalyticsClient
+
+client = YouTubeAnalyticsClient("./secrets.json")  # Load from secrets file
+analytics = YouTubeAnalytics(client)
+start_date = dt.date.today() - dt.timedelta(days=28)
+report = analytics.retrieve(start_date, dimensions=("day",))
 report.to_csv("./analytics-28d.csv")
 ```
 
@@ -70,18 +72,17 @@ import datetime as dt
 
 import matplotlib.pyplot as plt
 import seaborn as sns
-from analytix.youtube import YouTubeAnalytics, YouTubeService
+from analytix import YouTubeAnalytics, YouTubeAnalyticsClient
 
-service = YouTubeService("./secrets.json")
-service.authorise()
-analytics = YouTubeAnalytics(service)
+client = YouTubeAnalyticsClient("./secrets.json")
+analytics = YouTubeAnalytics(client)
 
 report = analytics.retrieve(
+    dt.date(2021, 1, 1),
+    dt.date(2021, 1, 31),
     metrics=("views",),
     dimensions=("day", "deviceType", "subscribedStatus"),
     filters={"liveOrOnDemand": "LIVE"},
-    start_date=dt.date(2021, 1, 1),
-    end_date=dt.date(2021, 1, 31),
     sort_by=("views",),
 )
 report.to_csv("./live-device-types.csv")
