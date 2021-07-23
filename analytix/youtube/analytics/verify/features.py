@@ -137,7 +137,7 @@ class Required(FeatureSet):
         for v in self.values:
             k = v.split("==")
             if len(k) == 2:
-                if k[1] != against[k[0]]:
+                if k[0] in against and (k[1] != against[k[0]]):
                     raise InvalidRequest(
                         f"filter '{k[0]}' must be set to '{k[1]}' for the selected report type"
                     )

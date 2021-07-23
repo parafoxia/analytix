@@ -18,8 +18,6 @@ from analytix.youtube.analytics import verify
 
 if PANDAS_AVAILABLE:
     import pandas as pd
-if NUMPY_AVAILABLE:
-    import numpy as np
 
 
 class YouTubeAnalytics:
@@ -250,6 +248,7 @@ class YouTubeAnalytics:
         logging.debug(f"URL: {url}")
 
         if not self._token:
+            logging.debug("Authorising...")
             self.authorise()
 
         with requests.get(
@@ -262,23 +261,18 @@ class YouTubeAnalytics:
             raise HTTPError(f"{error['code']}: {error['message']}")
 
         logging.info("Creating report...")
-        return YouTubeAnalyticsReport(
-            f"{rtype}", [c["name"] for c in data["columnHeaders"]], data["rows"]
-        )
+        return YouTubeAnalyticsReport(f"{rtype}", data)
 
 
 class YouTubeAnalyticsReport:
-    __slots__ = ("type", "columns", "rows", "_ncolumns", "_nrows")
+    __slots__ = ("type", "data", "columns", "_ncolumns", "_nrows")
 
-    def __init__(self, type, columns, rows):
+    def __init__(self, type, data):
         self.type = type
-        self.columns = columns
-        if NUMPY_AVAILABLE:
-            self.rows = np.array(rows)
-        else:
-            self.rows = rows
+        self.data = data
+        self.columns = [c["name"] for c in data["columnHeaders"]]
         self._ncolumns = len(self.columns)
-        self._nrows = len(self.rows)
+        self._nrows = len(data["rows"])
 
     def __repr__(self):
         return f"<YouTubeAnalyticsReport shape={self.shape!r}>"
@@ -289,13 +283,20 @@ class YouTubeAnalyticsReport:
 
     @requires_pandas
     def to_dataframe(self):
-        df = pd.DataFrame(self.rows)
+        df = pd.DataFrame(self.data["rows"])
         df.columns = self.columns
         if "day" in df.columns:
             df["day"] = pd.to_datetime(df["day"], format="%Y-%m-%d")
         if "month" in df.columns:
             df["month"] = pd.to_datetime(df["month"], format="%Y-%m")
         return df
+
+    def to_json(self, path, *, indent=4):
+        if not path.endswith(".json"):
+            path += ".json"
+
+        with open(path, mode="w", encoding="utf-8") as f:
+            json.dump(self.data, f, indent=indent, ensure_ascii=False)
 
     def to_csv(self, path, *, delimiter=","):
         if not path.endswith(".csv"):
@@ -304,5 +305,5 @@ class YouTubeAnalyticsReport:
         with open(path, mode="w", encoding="utf-8") as f:
             writer = csv.writer(f, delimiter=delimiter)
             writer.writerow(self.columns)
-            for r in self.rows:
+            for r in self.data["rows"]:
                 writer.writerow(r)
