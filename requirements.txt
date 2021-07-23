@@ -1,2 +1,2 @@
-requests<3.0.0,>=2.0.0
-requests-oauthlib<2.0.0,>=0.3.1
+requests<3,>=2
+requests-oauthlib<2,>=0.3.1
