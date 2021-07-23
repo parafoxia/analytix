@@ -9,7 +9,7 @@
 [![Maintenance](https://img.shields.io/maintenance/yes/2021)](https://github.com/parafoxia/analytix)
 [![GitHub Release Date](https://img.shields.io/github/release-date/parafoxia/analytix)](https://github.com/parafoxia/analytix)
 [![GitHub last commit](https://img.shields.io/github/last-commit/parafoxia/analytix)](https://github.com/parafoxia/analytix)
-[![Lines of code](https://img.shields.io/tokei/lines/github/parafoxia/analytix)](https://github.com/parafoxia/analytix)
+[![Read the Docs](https://img.shields.io/readthedocs/analytix)](https://analytix.readthedocs.io/en/latest/index.html)
 [![License](https://img.shields.io/github/license/parafoxia/analytix.svg)](https://github.com/parafoxia/analytix/blob/main/LICENSE)
 
 A simple yet powerful API wrapper to make getting analytical information from the YouTube Analytics API easier than ever. More services are coming in the future.
@@ -54,7 +54,7 @@ import datetime as dt
 
 from analytix import YouTubeAnalytics
 
-client = YouTubeAnalytics("./secrets.json")  # Load from secrets file
+client = YouTubeAnalytics.from_file("./secrets.json")  # Load from secrets file
 start_date = dt.date.today() - dt.timedelta(days=28)
 report = client.retrieve(start_date, dimensions=("day",))
 report.to_csv("./analytics-28d.csv")
