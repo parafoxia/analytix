@@ -285,6 +285,7 @@ YOUTUBE_ANALYTICS_VALID_FILTER_OPTIONS = {
         "self",
         "thirdParty",
     ),
+    "isCurated": ("1",),
 }
 
 YOUTUBE_ANALYTICS_ALL_FILTERS = tuple(
@@ -308,6 +309,50 @@ YOUTUBE_ANALYTICS_CORE_METRICS = (
 )
 
 YOUTUBE_ANALYTICS_ALL_METRICS = (
+    "views",
+    "redViews",
+    "comments",
+    "likes",
+    "dislikes",
+    "videosAddedToPlaylists",
+    "videosRemovedFromPlaylists",
+    "shares",
+    "estimatedMinutesWatched",
+    "estimatedRedMinutesWatched",
+    "averageViewDuration",
+    "averageViewPercentage",
+    "annotationClickThroughRate",
+    "annotationCloseRate",
+    "annotationImpressions",
+    "annotationClickableImpressions",
+    "annotationClosableImpressions",
+    "annotationClicks",
+    "annotationCloses",
+    "cardClickRate",
+    "cardTeaserClickRate",
+    "cardImpressions",
+    "cardTeaserImpressions",
+    "cardClicks",
+    "cardTeaserClicks",
+    "subscribersGained",
+    "subscribersLost",
+    "estimatedRevenue",
+    "estimatedAdRevenue",
+    "grossRevenue",
+    "estimatedRedPartnerRevenue",
+    "monetizedPlaybacks",
+    "playbackBasedCpm",
+    "adImpressions",
+    "cpm",
+    "viewerPercentage",
+    "audienceWatchRatio",
+    "relativeRetentionPerformance",
+    "playlistStarts",
+    "viewsPerPlaylistStart",
+    "averageTimeInPlaylist",
+)
+
+YOUTUBE_ANALYTICS_ALL_VIDEO_METRICS = (
     "views",
     "redViews",
     "comments",
@@ -433,4 +478,33 @@ YOUTUBE_ANALYTICS_LOCATION_AND_TRAFFIC_PLAYLIST_METRICS = (
     "playlistStarts",
     "viewsPerPlaylistStart",
     "averageTimeInPlaylist",
+)
+
+YOUTUBE_ANALYTICS_ALL_SORT_OPTIONS = (
+    "views",
+    "redViews",
+    "estimatedRevenue",
+    "estimatedRedPartnerRevenue",
+    "estimatedMinutesWatched",
+    "estimatedRedMinutesWatched",
+    "subscribersGained",
+    "subscribersLost",
+)
+
+YOUTUBE_ANALYTICS_LOCATION_AND_TRAFFIC_SORT_OPTIONS = (
+    "views",
+    "estimatedMinutesWatched",
+)
+
+YOUTUBE_ANALYTICS_TOP_VIDEOS_SORT_OPTIONS = (
+    "views",
+    "redViews",
+    "estimatedMinutesWatched",
+    "estimatedRedMinutesWatched",
+)
+
+YOUTUBE_ANALYTICS_LOCATION_AND_TRAFFIC_PLAYLIST_SORT_OPTIONS = (
+    "views",
+    "estimatedMinutesWatched",
+    "playlistStarts",
 )

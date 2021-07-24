@@ -120,7 +120,7 @@ class YouTubeAnalytics:
 
     def authorise(self, store_token=True, force=False, **kwargs):
         if self._token and not force:
-            logging.warning("Client is already authorised! Skipping...")
+            logging.info("Client is already authorised! Skipping...")
             return
 
         url, _ = self._session.authorization_url(
@@ -228,7 +228,7 @@ class YouTubeAnalytics:
         logging.debug("Using these metrics: " + ", ".join(metrics))
 
         logging.debug("Verifying report...")
-        rtype.verify(dimensions, metrics, filters, max_results, sort_by)
+        rtype.verify(dimensions, metrics, filters, sort_by, max_results)
         logging.debug("Verification complete")
 
         url = (

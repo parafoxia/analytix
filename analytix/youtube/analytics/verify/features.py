@@ -2,6 +2,7 @@ __all__ = (
     "Dimensions",
     "Filters",
     "Metrics",
+    "SortOptions",
     "Required",
     "ExactlyOne",
     "OneOrMore",
@@ -98,10 +99,8 @@ class Filters(FeatureType):
             s.verify(against, "filter")
 
         for k, v in against.items():
-            if (
-                against[k]
-                and v not in YOUTUBE_ANALYTICS_VALID_FILTER_OPTIONS[k]
-            ):
+            valid_values = YOUTUBE_ANALYTICS_VALID_FILTER_OPTIONS[k]
+            if against[k] and valid_values and v not in valid_values:
                 raise InvalidRequest(
                     f"'{v}' is not a valid value for filter '{k}'"
                 )
@@ -127,6 +126,30 @@ class Metrics:
         if diff:
             raise InvalidRequest(
                 "one or more metrics you provided are not supported by the "
+                f"selected report type ({', '.join(diff)})"
+            )
+
+
+class SortOptions:
+    def __init__(self, *values):
+        self.values = values
+
+    def __iter__(self):
+        return iter(self.values)
+
+    def verify(self, against):
+        against = set([a.strip("-") for a in against])
+
+        diff = against - set(YOUTUBE_ANALYTICS_ALL_METRICS)
+        if diff:
+            raise InvalidRequest(
+                f"one or more sort options you provided are invalid ({', '.join(diff)})"
+            )
+
+        diff = against - set(self.values)
+        if diff:
+            raise InvalidRequest(
+                "one or more sort options you provided are not supported by the "
                 f"selected report type ({', '.join(diff)})"
             )
 
