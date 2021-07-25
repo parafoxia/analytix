@@ -4,25 +4,27 @@ class AnalytixError(Exception):
     pass
 
 
-class NoAuthorisedService(AnalytixError):
-    """Exception thrown when an operatoion that requires authorisation is attempted while no service is no authorised."""
-
-    pass
-
-
-class ServiceAlreadyExists(AnalytixError):
-    """Exception thrown when an attempt to create a service is made while one already exists."""
-
-    pass
-
-
-class IncompleteRequest(AnalytixError):
-    """Exception throws when not enough information has been passed to a request."""
+class InvalidScopes(AnalytixError):
+    """Thrown when one or more invalid scopes are passed to the client."""
 
     pass
 
 
 class InvalidRequest(AnalytixError):
-    """Exception throws when invalid information has been passed to a request."""
+    """Thrown when analytix finds something wrong with an API request."""
+
+    pass
+
+
+class HTTPError(InvalidRequest):
+    """Thrown when the API returns an error. Inherits from
+    :class:`InvalidRequest`."""
+
+    pass
+
+
+class MissingOptionalComponents(AnalytixError):
+    """Thrown when an optional component or library is needed to perform an
+    action, but it missing."""
 
     pass

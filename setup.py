@@ -1,26 +1,48 @@
 import sys
 
-if sys.version_info < (3, 7, 1):
-    print("analytix requires Python version >= 3.7.1.", file=sys.stderr)
+if sys.version_info < (3, 6, 0):
+    print(
+        "analytix only supports Python versions 3.6.0 or greater.",
+        file=sys.stderr,
+    )
     sys.exit(1)
 
 import setuptools
 
-import analytix
 
-with open("./README.md", "r", encoding="utf-8") as f:
+def parse_requirements(path):
+    with open(path, mode="r", encoding="utf-8") as f:
+        deps = (d.strip() for d in f.readlines())
+        return [d for d in deps if not d.startswith(("#", "-r"))]
+
+
+with open("analytix/__init__.py", mode="r", encoding="utf-8") as f:
+    (
+        productname,
+        version,
+        description,
+        url,
+        docs,
+        author,
+        license_,
+        bug_tracker,
+    ) = [l.split('"')[1] for l in f.readlines()[:8]]
+
+with open("./README.md", mode="r", encoding="utf-8") as f:
     long_description = f.read()
 
 setuptools.setup(
-    name=analytix.__productname__,
-    version=analytix.__version__,
-    description=analytix.__description__,
+    name=productname,
+    version=version,
+    description=description,
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url=analytix.__url__,
-    author=analytix.__author__,
-    license=analytix.__license__,
+    url=url,
+    author=author,
+    license=license_,
     classifiers=[
+        # "Development Status :: 1 - Planning",
+        # "Development Status :: 2 - Pre-Alpha",
         # "Development Status :: 3 - Alpha",
         # "Development Status :: 4 - Beta",
         "Development Status :: 5 - Production/Stable",
@@ -34,21 +56,23 @@ setuptools.setup(
         "Operating System :: Unix",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3 :: Only",
+        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
+        # "Programming Language :: Python :: 3.10",
         "Topic :: Utilities",
     ],
     project_urls={
-        "Documentation": analytix.__docs__,
-        "Source": analytix.__url__,
+        "Documentation": docs,
+        "Source": url,
+        "Bug Tracker": bug_tracker,
     },
-    install_requires=[
-        "google-api-python-client>=1.12.0",
-        "google-auth-oauthlib>=0.4.2",
-        "pandas>=1.2.0",
-    ],
-    # extras_require={},
-    python_requires=">=3.7.1",
+    install_requires=parse_requirements("./requirements.txt"),
+    extras_require={
+        "dev": parse_requirements("./requirements-dev.txt"),
+        "opt": parse_requirements("./requirements-opt.txt"),
+    },
+    python_requires=">=3.6.0",
     packages=setuptools.find_packages(exclude=["tests*"]),
 )

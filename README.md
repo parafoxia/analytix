@@ -1,95 +1,67 @@
 # analytix
 
-[![PyPi version](https://img.shields.io/pypi/v/analytix.svg)](https://pypi.python.org/pypi/analytix/) [![PyPI pyversions](https://img.shields.io/pypi/pyversions/analytix.svg)](https://pypi.python.org/pypi/analytix/) [![License](https://img.shields.io/github/license/parafoxia/analytix.svg)](https://github.com/parafoxia/analytix/blob/main/LICENSE)
+[![PyPi version](https://img.shields.io/pypi/v/analytix.svg)](https://pypi.python.org/pypi/analytix/)
+[![PyPI pyversions](https://img.shields.io/pypi/pyversions/analytix.svg)](https://pypi.python.org/pypi/analytix/)
+[![PyPI - Implementation](https://img.shields.io/pypi/implementation/analytix)](https://pypi.python.org/pypi/analytix/)
+[![PyPI - Status](https://img.shields.io/pypi/status/analytix)](https://pypi.python.org/pypi/analytix/)
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/analytix)](https://pypistats.org/packages/analytix)
 
-A simple yet powerful API wrapper to make getting analytical information from the YouTube Analytics API easier than ever.
+[![Maintenance](https://img.shields.io/maintenance/yes/2021)](https://github.com/parafoxia/analytix)
+[![GitHub Release Date](https://img.shields.io/github/release-date/parafoxia/analytix)](https://github.com/parafoxia/analytix)
+[![GitHub last commit](https://img.shields.io/github/last-commit/parafoxia/analytix)](https://github.com/parafoxia/analytix)
+[![Read the Docs](https://img.shields.io/readthedocs/analytix)](https://analytix.readthedocs.io/en/latest/index.html)
+[![License](https://img.shields.io/github/license/parafoxia/analytix.svg)](https://github.com/parafoxia/analytix/blob/main/LICENSE)
+
+A simple yet powerful API wrapper to make getting analytical information from your socials easier than ever.
+
+**Supported APIs**
+
+- YouTube Analytics API
 
 ## Features
 
 - Pythonic syntax lets you feel right at home
 - Dynamic error handling saves hours of troubleshooting, and makes sure only valid requests count toward your API quota
-- A clever interface allows you to make multiple requests per session without reauthorising
+- A clever interface allows you to make multiple requests across multiple sessions without reauthorising
 - Extra support allows the native saving of CSV files and conversion to DataFrame objects
 - Easy enough for beginners, but powerful enough for advanced users
 
 ## Installation
 
-**You need Python 3.7.1 or greater to run analytix.** You will also need to have a Google Developers project with the YouTube Analytics API enabled. You can find instructions on how to do that in the [YouTube Analytics API docs](https://developers.google.com/youtube/reporting/v1/code_samples/python#set-up-authorization-credentials/).
+**You need Python 3.6.0 or greater to run analytix.** It is recommended you install analytix in a virtual environment.
 
-It is recommended you install analytix in a virtual environment. To do this, run the following:
-
-```bash
-# Windows
-> py -3.9 -m venv .venv
-> .venv\Scripts\activate
-> pip install analytix
-
-# Linux\macOS
-$ python3.9 -m venv .venv
-$ source ./.venv/bin/activate
-$ pip install analytix
+To install the latest stable version of analytix, use the following command:
+```sh
+pip install analytix
 ```
 
-To install analytix outside of a virtual environment instead, run the following:
-
-```bash
-# Windows
-> py -3.9 -m pip install analytix
-
-# Linux/macOS
-$ python3.9 -m pip install analytix
+To install with optional dependencies, use the following command:
+```sh
+pip install "analytix[opt]"
 ```
 
-You can also install the development version by running the following (this assumes you're on Linux/macOS):
-
-```bash
-$ git clone https://github.com/parafoxia/analytix
-$ cd analytix
-$ git checkout develop  # Any valid branch name can go here.
-$ python3.9 -m pip install -U .
+You can also install the latest development version using the following command:
+```sh
+pip install git+https://github.com/parafoxia/analytix.git@develop
 ```
 
-## Usage examples
+You may need to prefix these commands with `py -m` or `python3.9 -m` (or similar) depending on your OS.
 
-The following example shows you how easy analytix can be to use. This retrieves day-by-day analytics for the last 28 days using all metrics.
+## Quickstart
 
-```py
-from analytix.youtube import YouTubeAnalytics, YouTubeService
+Before you begin, you will need to have a Google Developers project with the YouTube Analytics API enabled. You can find instructions on how to do that in the [YouTube Analytics API docs](https://developers.google.com/youtube/reporting/v1/code_samples/python#set-up-authorization-credentials/).
 
-service = YouTubeService("./secrets.json")  # Load from secrets file
-service.authorise()
-analytics = YouTubeAnalytics(service)
-report = analytics.retrieve(dimensions=("day",))
-report.to_csv("./analytics-28d.csv")
-```
-
-Of course not all requests will be that simple, but analytix can handle all the complicated stuff too. This example retrieves day-by-day analytics for live streams in January 2021, split by device type and subscription status, and sorted by views. It then saves the report as a CSV, converts to a dataframe for further analysis, and saves a boxplot figure.
+Once you've done that, retrieving reports down is easy. The below example loads credentials from a secrets file, and gets as much information as possible from the last 28 days.
 
 ```py
 import datetime as dt
 
-import matplotlib.pyplot as plt
-import seaborn as sns
-from analytix.youtube import YouTubeAnalytics, YouTubeService
+from analytix import YouTubeAnalytics
 
-service = YouTubeService("./secrets.json")
-service.authorise()
-analytics = YouTubeAnalytics(service)
-
-report = analytics.retrieve(
-    metrics=("views",),
-    dimensions=("day", "deviceType", "subscribedStatus"),
-    filters={"liveOrOnDemand": "LIVE"},
-    start_date=dt.date(2021, 1, 1),
-    end_date=dt.date(2021, 1, 31),
-    sort_by=("views",),
-)
-report.to_csv("./live-device-types.csv")
-df = report.to_dataframe()
-
-fig = plt.figure()
-sns.boxplot(data=df, x="day", y="views", hue="deviceType")
-fig.savefig("./live-device-types.png")
+client = YouTubeAnalytics.from_file("./secrets.json")
+start_date = dt.date.today() - dt.timedelta(days=28)
+report = client.retrieve(start_date, dimensions=("day",))
+report.to_csv("./analytics-28d.csv")
 ```
 
 To read up further, [have a look at the documentation](https://analytix.readthedocs.io/en/latest/).

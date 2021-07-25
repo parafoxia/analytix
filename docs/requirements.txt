@@ -1,3 +1,4 @@
-analytix>=0.1.0a1
-sphinx>=3.4.3
-sphinx_rtd_theme>=0.5.1
+analytix
+sphinx==4.1.1
+sphinx-rtd-theme==0.5.2
+sphinx-rtd-dark-mode==1.2.3
