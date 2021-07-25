@@ -58,7 +58,8 @@ class Dimensions(FeatureType):
         diff = against - set(YOUTUBE_ANALYTICS_ALL_DIMENSIONS)
         if diff:
             raise InvalidRequest(
-                f"one or more dimensions you provided are invalid ({', '.join(diff)})"
+                "one or more dimensions you provided are invalid "
+                f"({', '.join(diff)})"
             )
 
         diff = against - set(self.every)
@@ -85,7 +86,8 @@ class Filters(FeatureType):
         diff = keys - set(YOUTUBE_ANALYTICS_ALL_FILTERS)
         if diff:
             raise InvalidRequest(
-                f"one or more filters you provided are invalid ({', '.join(diff)})"
+                "one or more filters you provided are invalid "
+                f"({', '.join(diff)})"
             )
 
         diff = keys - set(self.every)
@@ -119,7 +121,8 @@ class Metrics:
         diff = against - set(YOUTUBE_ANALYTICS_ALL_METRICS)
         if diff:
             raise InvalidRequest(
-                f"one or more metrics you provided are invalid ({', '.join(diff)})"
+                "one or more metrics you provided are invalid "
+                f"({', '.join(diff)})"
             )
 
         diff = against - set(self.values)
@@ -143,14 +146,15 @@ class SortOptions:
         diff = against - set(YOUTUBE_ANALYTICS_ALL_METRICS)
         if diff:
             raise InvalidRequest(
-                f"one or more sort options you provided are invalid ({', '.join(diff)})"
+                "one or more sort options you provided are invalid "
+                f"({', '.join(diff)})"
             )
 
         diff = against - set(self.values)
         if diff:
             raise InvalidRequest(
-                "one or more sort options you provided are not supported by the "
-                f"selected report type ({', '.join(diff)})"
+                "one or more sort options you provided are not supported by "
+                f"the selected report type ({', '.join(diff)})"
             )
 
 
@@ -162,13 +166,15 @@ class Required(FeatureSet):
             if len(k) == 2:
                 if k[0] in against and (k[1] != against[k[0]]):
                     raise InvalidRequest(
-                        f"filter '{k[0]}' must be set to '{k[1]}' for the selected report type"
+                        f"filter '{k[0]}' must be set to '{k[1]}' for the "
+                        "selected report type"
                     )
             values.append(k[0])
 
         if len(set(values) & set(against)) != len(self.values):
             raise InvalidRequest(
-                f"expected all {ftype}s from '{', '.join(values)}', got {len(against)}"
+                f"expected all {ftype}s from '{', '.join(values)}', "
+                f"got {len(against)}"
             )
 
 
@@ -176,7 +182,8 @@ class ExactlyOne(FeatureSet):
     def verify(self, against, ftype):
         if len(self.values & set(against)) != 1:
             raise InvalidRequest(
-                f"expected 1 {ftype} from '{', '.join(self.values)}', got {len(against)}"
+                f"expected 1 {ftype} from '{', '.join(self.values)}', "
+                f"got {len(against)}"
             )
 
 
@@ -184,7 +191,8 @@ class OneOrMore(FeatureSet):
     def verify(self, against, ftype):
         if len(self.values & set(against)) == 0:
             raise InvalidRequest(
-                f"expected at least 1 {ftype} from '{', '.join(self.values)}', got 0"
+                f"expected at least 1 {ftype} from "
+                f"'{', '.join(self.values)}', got 0"
             )
 
 
@@ -198,7 +206,8 @@ class ZeroOrOne(FeatureSet):
     def verify(self, against, ftype):
         if len(self.values & set(against)) > 1:
             raise InvalidRequest(
-                f"expected 0 or 1 {ftype}s from '{', '.join(self.values)}', got {len(against)}"
+                f"expected 0 or 1 {ftype}s from '{', '.join(self.values)}', "
+                f"got {len(against)}"
             )
 
 

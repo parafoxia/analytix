@@ -21,9 +21,24 @@ if PANDAS_AVAILABLE:
 
 
 class YouTubeAnalytics:
+    """A client class to retrieve data from the YouTube Analytics API. This
+    should only be created from the relevant class methods.
+
+    Args:
+        session (OAuth2Session): The OAuth 2 session to use.
+        secrets (dict[str, str]): A dictionary containing Google Developers
+            project secrets. This is not expected in the same format as the
+            Google Developers console provides it.
+
+    Attributes:
+        secrets (dict[str, str]): A dictionary containing Google Developers
+            project secrets.
+        project_id (str): The ID of the Google Developers project.
+    """
+
     __slots__ = ("_session", "secrets", "project_id", "_token")
 
-    def __init__(self, session, secrets, **kwargs):
+    def __init__(self, session, secrets):
         self._session = session
         self.secrets = secrets
         self.project_id = secrets["project_id"]
@@ -37,12 +52,28 @@ class YouTubeAnalytics:
 
     @property
     def authorised(self):
+        """Whether the project is authorised.
+
+        Returns:
+            bool
+        """
         return bool(self._token)
 
     authorized = authorised
 
     @classmethod
     def from_file(cls, path, *, scopes="all", **kwargs):
+        """Creates the client object using a secrets file.
+
+        Args:
+            path (str): The path to the secrets file.
+            scopes (iterable[str] | str): The scopes to use. Defaults to "all".
+            **kwargs (Any): Additional arguments to pass to the OAuth2Session
+                constructor.
+
+        Returns:
+            YouTubeAnalytics: A ready-to-use client object.
+        """
         if not os.path.isfile(path):
             raise FileNotFoundError(
                 "you must provide a valid path to a secrets file"
@@ -63,6 +94,17 @@ class YouTubeAnalytics:
 
     @classmethod
     def from_dict(cls, secrets, *, scopes="all", **kwargs):
+        """Creates the client object using a secrets dictionary.
+
+        Args:
+            secrets (dict[str, dict[str, str]]): The secrets dictionary.
+            scopes (iterable[str] | str): The scopes to use. Defaults to "all".
+            **kwargs (Any): Additional arguments to pass to the OAuth2Session
+                constructor.
+
+        Returns:
+            YouTubeAnalytics: A ready-to-use client object.
+        """
         scopes = cls._resolve_scopes(scopes)
         session = OAuth2Session(
             secrets["installed"]["client_id"],
@@ -80,7 +122,8 @@ class YouTubeAnalytics:
 
         if not isinstance(scopes, (tuple, list, set)):
             raise InvalidScopes(
-                f"expected tuple, list, or set of scopes, got {type(scopes).__name__}"
+                "expected tuple, list, or set of scopes, "
+                f"got {type(scopes).__name__}"
             )
 
         for i, scope in enumerate(scopes[:]):
@@ -100,7 +143,7 @@ class YouTubeAnalytics:
     @staticmethod
     def _get_token():
         if not os.path.isfile(TOKEN_STORE / YT_ANALYTICS_TOKEN):
-            logging.info("No token found. You will need to authorise")
+            logging.info("No token found; you will need to authorise")
             return ""
 
         with open(
@@ -109,16 +152,34 @@ class YouTubeAnalytics:
             data = json.load(f)
         if time.time() > data["expires"]:
             logging.info(
-                "Token found, but it has expired. You will need to authorise"
+                "Token found, but it has expired; you will need to authorise"
             )
             return ""
 
         logging.info(
-            "Valid token found! analytix will use this, so you don't need to authorise"
+            (
+                "Valid token found; analytix will use this, so you don't need "
+                "to authorise"
+            )
         )
         return data["token"]
 
     def authorise(self, store_token=True, force=False, **kwargs):
+        """Authorises the client. This is typically called automatically when
+        needed, so you often don't need to call this unless you want to override
+        the default behaviour.
+
+        Args:
+            store_token (bool): Whether to store the token locally for future
+                uses. Defaults to True. Note that tokens are only valid for an
+                hour before they expire.
+            force (bool): Whether to force an authorisation even when
+                authorisation credentials are still value. Defaults to False.
+                If this is False, calls to this method won't do anything if the
+                client is already authorised.
+            **kwargs (Any): Additional arguments to pass when creating the
+                authorisation URL.
+        """
         if self._token and not force:
             logging.info("Client is already authorised! Skipping...")
             return
@@ -155,65 +216,114 @@ class YouTubeAnalytics:
     def retrieve(
         self, start_date, end_date=dt.date.today(), metrics="all", **kwargs
     ):
-        currency = kwargs.pop("currency", "USD")
+        """Retrieves a report from the YouTube Analytics API.
+
+        Args:
+            start_date (datetime.date): The date from which data should be
+                collected from.
+            end_date (datetime.date): The date to collect data to. Defaults to
+                the current date.
+            metrics (iterable[str] | str): The metrics (or columns) to use in
+                the report. Defaults to "all".
+            dimensions (iterable[str]): The dimensions to use. These dimensions
+                are how data is split; for example, if the "day" dimension is
+                provided, each row will contain information for a different day.
+                Defaults to an empty tuple.
+            filters (dict[str, str]): The filters to use. To get playlist
+                reports, include :code:`"isCurated": "1"`. Defaults to an empty
+                dictionary.
+            sort_by (iterable[str]): A list of metrics to sort by. To sort in
+                descending order, prefix the metric(s) with a hyphen (-).
+            max_results (int): The maximum number of rows to include in the
+                report. Set this to 0 to remove the limit. Defaults to 0.
+            currency (str): The currency to use in the format defined in the
+                `ISO 4217 <https://www.iso.org/iso-4217-currency-codes.html>`_
+                standard. Defaults to "USD".
+            start_index (int): The row to start pulling data from. This value is
+                one-indexed, meaning the first row is 1, not 0. Defaults to 1.
+            include_historical_data (bool): Whether to retrieve data before the
+                current owner of the channel became affiliated with the channel.
+                Defaults to False.
+
+        Returns:
+            YouTubeAnalyticsReport: The retrieved report.
+
+        Raises:
+            InvalidRequest: Something is wrong with the request.
+            HTTPError: The API returned an error.
+        """
         dimensions = kwargs.pop("dimensions", ())
         filters = kwargs.pop("filters", {})
-        include_historical_data = kwargs.pop("include_historical_data", False)
-        max_results = kwargs.pop("max_results", 0)
         sort_by = kwargs.pop("sort_by", ())
+        max_results = kwargs.pop("max_results", 0)
+        currency = kwargs.pop("currency", "USD")
         start_index = kwargs.pop("start_index", 1)
+        include_historical_data = kwargs.pop("include_historical_data", False)
 
         logging.debug("Verifying options...")
         if "7DayTotals" in dimensions or "30DayTotals" in dimensions:
-            raise Deprecated(
-                "the '7DayTotals' and '30DayTotals' dimensions were deprecated, and can no longer be used"
+            raise InvalidRequest(
+                "the '7DayTotals' and '30DayTotals' dimensions were "
+                "deprecated, and can no longer be used"
             )
         if not isinstance(start_date, dt.date):
             raise InvalidRequest(
-                f"expected start date as date object, got {type(start_date).__name__}"
+                "expected start date as date object, "
+                f"got {type(start_date).__name__}"
             )
         if not isinstance(end_date, dt.date):
             raise InvalidRequest(
-                f"expected end date as date object, got {type(end_date).__name__}"
+                "expected end date as date object, "
+                f"got {type(end_date).__name__}"
             )
         if end_date <= start_date:
             raise InvalidRequest(
                 f"the start date should be earlier than the end date"
             )
-        if currency not in CURRENCIES:
-            raise InvalidRequest(
-                f"expected existing currency as ISO 4217 alpha-3 code, got {currency}"
-            )
         if not isinstance(dimensions, (tuple, list, set)):
             raise InvalidRequest(
-                f"expected tuple, list, or set of dimensions, got {type(dimensions).__name__}"
+                "expected tuple, list, or set of dimensions, "
+                f"got {type(dimensions).__name__}"
             )
         if not isinstance(filters, dict):
             raise InvalidRequest(
                 f"expected dict of filters, got {type(filters).__name__}"
             )
-        if not isinstance(include_historical_data, bool):
+        if not isinstance(sort_by, (tuple, list, set)):
             raise InvalidRequest(
-                f"expected bool for 'include_historical_data', got {type(include_historical_data).__name__}"
+                "expected tuple, list, or set of sorting columns, "
+                f"got {type(sort_by).__name__}"
             )
         if not isinstance(max_results, int):
             raise InvalidRequest(
-                f"expected int for 'max_results', got {type(max_results).__name__}"
+                "expected int for 'max_results', "
+                f"got {type(max_results).__name__}"
             )
         if max_results < 0:
             raise InvalidRequest(
-                f"the maximum number of results should be no less than 0 (0 for unlimited results)"
+                (
+                    "the maximum number of results should be no less than 0 "
+                    "(0 for unlimited results)"
+                )
             )
-        if not isinstance(sort_by, (tuple, list, set)):
+        if currency not in CURRENCIES:
             raise InvalidRequest(
-                f"expected tuple, list, or set of sorting columns, got {type(sort_by).__name__}"
+                f"expected valid currency as ISO 4217 code, got {currency}"
             )
         if not isinstance(start_index, int):
             raise InvalidRequest(
-                f"expected int for 'start_index', got {type(start_index).__name__}"
+                (
+                    "expected int for 'start_index', "
+                    f"got {type(start_index).__name__}"
+                )
             )
         if start_index < 1:
             raise InvalidRequest(f"the start index should be no less than 1")
+        if not isinstance(include_historical_data, bool):
+            raise InvalidRequest(
+                "expected bool for 'include_historical_data', "
+                f"got {type(include_historical_data).__name__}"
+            )
 
         logging.debug("Determining report type...")
         rtype = verify.rtypes.determine(dimensions, metrics, filters)()
@@ -223,7 +333,8 @@ class YouTubeAnalytics:
             metrics = tuple(rtype.metrics)
         elif not isinstance(metrics, (tuple, list, set)):
             raise InvalidRequest(
-                f"expected tuple, list, or set of metrics, got {type(metrics).__name__}"
+                "expected tuple, list, or set of metrics, "
+                f"got {type(metrics).__name__}"
             )
         logging.debug("Using these metrics: " + ", ".join(metrics))
 
@@ -232,7 +343,8 @@ class YouTubeAnalytics:
         logging.debug("Verification complete")
 
         url = (
-            f"https://youtubeanalytics.googleapis.com/{YOUTUBE_ANALYTICS_API_VERSION}/reports"
+            "https://youtubeanalytics.googleapis.com/"
+            f"{YOUTUBE_ANALYTICS_API_VERSION}/reports"
             "?ids=channel==MINE"
             f"&metrics={','.join(metrics)}"
             f"&startDate={start_date.strftime('%Y-%m-%d')}"
@@ -240,7 +352,8 @@ class YouTubeAnalytics:
             f"&currency={currency}"
             f"&dimensions={','.join(dimensions)}"
             f"&filters={';'.join(f'{k}=={v}' for k, v in filters.items())}"
-            f"&includeHistorialChannelData={f'{include_historical_data}'.lower()}"
+            "&includeHistorialChannelData="
+            f"{f'{include_historical_data}'.lower()}"
             f"&maxResults={max_results}"
             f"&sort={','.join(sort_by)}"
             f"&startIndex={start_index}"
@@ -265,6 +378,19 @@ class YouTubeAnalytics:
 
 
 class YouTubeAnalyticsReport:
+    """A class created when a report is retrieved. You should not attempt to
+    construct this class manually.
+
+    Args:
+        type (str): The report type.
+        data (dict[str, Any]): The raw data from the YouTube Analytics API.
+
+    Attributes:
+        type (str): The report type.
+        data (dict[str, Any]): The raw data from the YouTube Analytics API.
+        columns (list[str]): A list of all column names.
+    """
+
     __slots__ = ("type", "data", "columns", "_ncolumns", "_nrows")
 
     def __init__(self, type, data):
@@ -279,10 +405,23 @@ class YouTubeAnalyticsReport:
 
     @property
     def shape(self):
+        """The shape of the report.
+
+        Returns:
+            tuple[int, int]: Number of rows, columns.
+        """
         return (self._nrows, self._ncolumns)
 
-    @requires_pandas
     def to_dataframe(self):
+        """Returns the data in a pandas DataFrame. If "day" or "month" are
+        columns, these are converted to the datetime64[ns] dtype automatically.
+
+        Returns:
+            DataFrame: A pandas DataFrame
+        """
+        if not PANDAS_AVAILABLE:
+            raise MissingOptionalComponents("pandas is not installed")
+
         df = pd.DataFrame(self.data["rows"])
         df.columns = self.columns
         if "day" in df.columns:
@@ -292,6 +431,13 @@ class YouTubeAnalyticsReport:
         return df
 
     def to_json(self, path, *, indent=4):
+        """Writes the raw report data to a JSON file.
+
+        Args:
+            path (str): The path to save the file to.
+            indent (int): The amount of spaces to use as an indent. Defaults to
+                4.
+        """
         if not path.endswith(".json"):
             path += ".json"
 
@@ -299,6 +445,13 @@ class YouTubeAnalyticsReport:
             json.dump(self.data, f, indent=indent, ensure_ascii=False)
 
     def to_csv(self, path, *, delimiter=","):
+        """Writes the report data to a CSV file.
+
+        Args:
+            path (str): The path to save the file to.
+            delimiter (int): The delimiter to use to separate columns. Defaults
+                to a comma (,).
+        """
         if not path.endswith(".csv"):
             path += ".csv"
 

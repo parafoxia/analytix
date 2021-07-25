@@ -44,14 +44,16 @@ class DetailedReportType(ReportType):
 
         if not sort_options:
             raise InvalidRequest(
-                f"you must provide at least 1 sort parameter for the selected report type"
+                "you must provide at least 1 sort parameter for the "
+                "selected report type"
             )
 
         if any(not s[0] == "-" for s in sort_options):
             raise InvalidRequest(
                 (
-                    "you can only sort in descending order for this report type. "
-                    "You can do this by prefixing the sort options with '-'"
+                    "you can only sort in descending order for this report "
+                    "type; you can do this by prefixing the sort options with "
+                    "a hyphen (-)"
                 )
             )
 
