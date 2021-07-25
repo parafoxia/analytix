@@ -1,8 +1,5 @@
-.. analytix documentation master file, created by
-   sphinx-quickstart on Thu Jan 28 01:44:50 2021.
-
 analytix
-====================================
+########
 
 .. image:: https://img.shields.io/pypi/v/analytix.svg
    :alt: PyPI version
@@ -12,51 +9,77 @@ analytix
    :alt: PyPI pyversions
    :target: https://pypi.python.org/pypi/analytix/
 
+.. image:: https://img.shields.io/pypi/implementation/analytix
+   :alt: PyPI - Implementation
+   :target: https://pypi.python.org/pypi/analytix/
+
+.. image:: https://img.shields.io/pypi/status/analytix
+   :alt: PyPI - Status
+   :target: https://pypi.python.org/pypi/analytix/
+
+.. image:: https://img.shields.io/pypi/dm/analytix
+   :alt: PyPI - Downloads
+   :target: https://pypistats.org/packages/analytix
+
+.. image:: https://img.shields.io/maintenance/yes/2021
+   :alt: Maintenance
+   :target: https://github.com/parafoxia/analytix
+
+.. image:: https://img.shields.io/github/release-date/parafoxia/analytix
+   :alt: GitHub Release Date
+   :target: https://github.com/parafoxia/analytix
+
+.. image:: https://img.shields.io/github/last-commit/parafoxia/analytix
+   :alt: GitHub last commit
+   :target: https://github.com/parafoxia/analytix
+
+.. image:: https://img.shields.io/readthedocs/analytix
+   :alt: Read the Docs
+   :target: https://analytix.readthedocs.io/en/latest/index.html
+
 .. image:: https://img.shields.io/github/license/parafoxia/analytix.svg
    :alt: License
    :target: https://github.com/parafoxia/analytix/blob/main/LICENSE
 
-A simple yet powerful API wrapper to make getting analytical information from the YouTube Analytics API easier than ever.
+A simple yet powerful API wrapper to make getting analytical information from your socials easier than ever.
+
+**Supported APIs**
+
+- YouTube Analytics API
 
 Features
---------
+========
 
 - Pythonic syntax lets you feel right at home
 - Dynamic error handling saves hours of troubleshooting, and makes sure only valid requests count toward your API quota
-- A clever interface allows you to make multiple requests per session without reauthorising
+- A clever interface allows you to make multiple requests across multiple sessions without reauthorising
 - Extra support allows the native saving of CSV files and conversion to DataFrame objects
 - Easy enough for beginners, but powerful enough for advanced users
 
-User Guide
-----------
+.. toctree::
+   :maxdepth: 1
+   :caption: Quickstart
+
+   starting/install
+   starting/first-report
 
 .. toctree::
-   :maxdepth: 2
+    :maxdepth: 1
+    :caption: Library reference
 
-   usage/install
-   usage/quickstart
-   usage/reports
-
-API Reference
--------------
+    app/analytix
+    app/yt-analytics
 
 .. toctree::
-   :maxdepth: 2
+    :maxdepth: 1
+    :caption: Guides and other references
 
-   api
-
-Information
------------
+    refs/yt-analytics-setup
+    refs/yt-analytics-reports
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 1
+    :caption: Information
 
-    changelog
-
-
-..  Indices and tables
-    ==================
-
-..  * :ref:`genindex`
-    * :ref:`modindex`
-    * :ref:`search`
+    info/changelog
+    info/migrating
