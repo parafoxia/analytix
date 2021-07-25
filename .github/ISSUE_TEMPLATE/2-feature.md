@@ -2,7 +2,7 @@
 name: Something new
 about: Request a new feature
 title: ''
-labels: request
+labels: feature
 assignees: ''
 
 ---
@@ -18,5 +18,4 @@ How do you propose this be done?
 
 **Contribution**
 Do you want to contribute this feature yourself?
-- [ ] Yes
-- [ ] No
+Yes/No
