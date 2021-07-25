@@ -47,8 +47,6 @@ def test_reports_max_results(client):
 
 
 def test_reports_sort_ascending(client):
-    import numpy as np
-
     report = client.retrieve(
         dt.date(2021, 1, 1),
         dt.date(2021, 2, 28),
@@ -60,8 +58,6 @@ def test_reports_sort_ascending(client):
 
 
 def test_reports_sort_descending(client):
-    import numpy as np
-
     report = client.retrieve(
         dt.date(2021, 1, 1),
         dt.date(2021, 2, 28),

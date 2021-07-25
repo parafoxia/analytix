@@ -28,7 +28,7 @@ A simple yet powerful API wrapper to make getting analytical information from yo
 
 ## Installation
 
-**You need Python 3.6.0 or greater to run analytix.** It is recommended you install analytix in a virtual environment.
+**You need Python 3.6.0 or greater to run analytix.** It is recommended you install analytix in a virtual environment. **Note**: While analytix supports Python 3.10, pandas does not. You will be able to retrieve reports and save them locally, but you won't be able to convert them to DataFrame objects.
 
 To install the latest stable version of analytix, use the following command:
 ```sh
