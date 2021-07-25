@@ -4,7 +4,7 @@
 [![PyPI pyversions](https://img.shields.io/pypi/pyversions/analytix.svg)](https://pypi.python.org/pypi/analytix/)
 [![PyPI - Implementation](https://img.shields.io/pypi/implementation/analytix)](https://pypi.python.org/pypi/analytix/)
 [![PyPI - Status](https://img.shields.io/pypi/status/analytix)](https://pypi.python.org/pypi/analytix/)
-[![PyPI - Downloads](https://img.shields.io/pypi/dm/analytix)](https://pypi.python.org/pypi/analytix/)
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/analytix)](https://pypistats.org/packages/analytix)
 
 [![Maintenance](https://img.shields.io/maintenance/yes/2021)](https://github.com/parafoxia/analytix)
 [![GitHub Release Date](https://img.shields.io/github/release-date/parafoxia/analytix)](https://github.com/parafoxia/analytix)
@@ -12,13 +12,17 @@
 [![Read the Docs](https://img.shields.io/readthedocs/analytix)](https://analytix.readthedocs.io/en/latest/index.html)
 [![License](https://img.shields.io/github/license/parafoxia/analytix.svg)](https://github.com/parafoxia/analytix/blob/main/LICENSE)
 
-A simple yet powerful API wrapper to make getting analytical information from the YouTube Analytics API easier than ever. More services are coming in the future.
+A simple yet powerful API wrapper to make getting analytical information from your socials easier than ever.
+
+**Supported APIs**
+
+- YouTube Analytics API
 
 ## Features
 
 - Pythonic syntax lets you feel right at home
 - Dynamic error handling saves hours of troubleshooting, and makes sure only valid requests count toward your API quota
-- A clever interface allows you to make multiple requests per session without reauthorising
+- A clever interface allows you to make multiple requests across multiple sessions without reauthorising
 - Extra support allows the native saving of CSV files and conversion to DataFrame objects
 - Easy enough for beginners, but powerful enough for advanced users
 
@@ -47,7 +51,7 @@ You may need to prefix these commands with `py -m` or `python3.9 -m` (or similar
 
 Before you begin, you will need to have a Google Developers project with the YouTube Analytics API enabled. You can find instructions on how to do that in the [YouTube Analytics API docs](https://developers.google.com/youtube/reporting/v1/code_samples/python#set-up-authorization-credentials/).
 
-Once you've done that, pulling reports down is easy. The below example loads credentials from a secrets file, and gets as much information as possible from the last 28 days.
+Once you've done that, retrieving reports down is easy. The below example loads credentials from a secrets file, and gets as much information as possible from the last 28 days.
 
 ```py
 import datetime as dt

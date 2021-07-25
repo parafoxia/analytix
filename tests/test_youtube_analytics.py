@@ -17,7 +17,7 @@ def client():
     return client
 
 
-# CLIENT
+# Test client stuff
 
 
 def test_client_project_id_match(client):
@@ -26,7 +26,7 @@ def test_client_project_id_match(client):
     assert client.project_id == project_id
 
 
-# REPORTS
+# Test report functionality
 
 
 def test_reports_shape(client):
@@ -72,17 +72,18 @@ def test_reports_sort_descending(client):
     assert arr == sorted(arr, reverse=True)
 
 
-# REPORTS VERIFY
+# Test report verification
 
 
 def test_reports_verify_check_deprecated(client):
-    with pytest.raises(Deprecated) as exc:
+    with pytest.raises(InvalidRequest) as exc:
         report = client.retrieve(
             dt.date(2021, 1, 1), dimensions=("7DayTotals",)
         )
     assert (
         str(exc.value)
-        == "the '7DayTotals' and '30DayTotals' dimensions were deprecated, and can no longer be used"
+        == "the '7DayTotals' and '30DayTotals' dimensions were deprecated, "
+        "and can no longer be used"
     )
 
 
@@ -118,7 +119,7 @@ def test_reports_verify_check_currency(client):
     with pytest.raises(InvalidRequest) as exc:
         report = client.retrieve(dt.date(2020, 1, 1), currency="ZZZ")
     assert str(exc.value).startswith(
-        "expected existing currency as ISO 4217 alpha-3 code"
+        "expected valid currency as ISO 4217 code"
     )
 
 
@@ -156,7 +157,8 @@ def test_reports_verify_check_max_results_too_low(client):
     with pytest.raises(InvalidRequest) as exc:
         report = client.retrieve(dt.date(2020, 1, 1), max_results=-1)
     assert str(exc.value).startswith(
-        "the maximum number of results should be no less than 0 (0 for unlimited results)"
+        "the maximum number of results should be no less than 0 "
+        "(0 for unlimited results)"
     )
 
 
@@ -206,7 +208,8 @@ def test_reports_verify_check_unsupported_dimension(client):
             dt.date(2021, 1, 1), dimensions=("day", "country")
         )
     assert str(exc.value).startswith(
-        "one or more dimensions you provided are not supported by the selected report type"
+        "one or more dimensions you provided are not supported by the "
+        "selected report type"
     )
 
 
@@ -230,7 +233,8 @@ def test_reports_verify_check_unsupported_filter(client):
             filters={"province": "US-OH"},
         )
     assert str(exc.value).startswith(
-        "one or more filters you provided are not supported by the selected report type"
+        "one or more filters you provided are not supported by the "
+        "selected report type"
     )
 
 
@@ -265,7 +269,8 @@ def test_reports_verify_check_unsupported_metric(client):
             metrics=("views", "likes", "comments"),
         )
     assert str(exc.value).startswith(
-        "one or more metrics you provided are not supported by the selected report type"
+        "one or more metrics you provided are not supported by the "
+        "selected report type"
     )
 
 
@@ -319,7 +324,7 @@ def test_reports_verify_check_zero_or_one_filters(client):
     assert str(exc.value).startswith("expected 0 or 1 filters from")
 
 
-# DATAFRAME
+# Test dataframe stuff
 
 
 def test_dataframe_day_is_datetime(client):
@@ -352,7 +357,7 @@ def test_dataframe_metrics_are_numeric(client):
         assert pd.api.types.is_numeric_dtype(df[series])
 
 
-# FILES
+# Test file IO
 
 
 def test_files_json(client):
@@ -379,7 +384,7 @@ def test_files_csv(client):
     os.remove("./test.csv")
 
 
-# REPORT TYPES
+# Test report types
 
 
 def test_report_type_basic_user_activity(client):
@@ -440,7 +445,6 @@ def test_report_type_geography_based_activity_us(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-# User activity by subscribed status
 def test_report_type_user_activity_by_subscribed_status(client):
     try:
         report = client.retrieve(
@@ -452,7 +456,6 @@ def test_report_type_user_activity_by_subscribed_status(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-# User activity by subscribed status (US)
 def test_report_type_user_activity_by_subscribed_status_us(client):
     try:
         report = client.retrieve(
@@ -465,7 +468,6 @@ def test_report_type_user_activity_by_subscribed_status_us(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-# Time-based playback details (live)
 def test_report_type_time_based_playback_details_live(client):
     try:
         report = client.retrieve(
@@ -480,7 +482,6 @@ def test_report_type_time_based_playback_details_live(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-# Time-based playback details (view percentage)
 def test_report_type_time_based_playback_details_view_percentage(client):
     try:
         report = client.retrieve(
@@ -492,7 +493,6 @@ def test_report_type_time_based_playback_details_view_percentage(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-# Geography-based playback details (live)
 def test_report_type_geography_based_playback_details_live(client):
     try:
         report = client.retrieve(
@@ -507,7 +507,6 @@ def test_report_type_geography_based_playback_details_live(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-# Geography-based playback details (view percentage)
 def test_report_type_geography_based_playback_details_view_percentage(client):
     try:
         report = client.retrieve(
@@ -524,7 +523,6 @@ def test_report_type_geography_based_playback_details_view_percentage(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-# Geography-based playback details (live, US)
 def test_report_type_geography_based_playback_details_live_us(client):
     try:
         report = client.retrieve(
@@ -540,7 +538,6 @@ def test_report_type_geography_based_playback_details_live_us(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-# Geography-based playback details (view percentage, US)
 def test_report_type_geography_based_playback_details_view_percentage_us(
     client,
 ):
@@ -561,7 +558,6 @@ def test_report_type_geography_based_playback_details_view_percentage_us(
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-# Playback locations
 def test_report_type_playback_locations(client):
     try:
         report = client.retrieve(
@@ -573,7 +569,6 @@ def test_report_type_playback_locations(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-# Playback locations (detailed)
 def test_report_type_playback_locations_detailed(client):
     try:
         report = client.retrieve(
@@ -588,7 +583,6 @@ def test_report_type_playback_locations_detailed(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-# Traffic sources
 def test_report_type_traffic_sources(client):
     try:
         report = client.retrieve(
@@ -600,7 +594,6 @@ def test_report_type_traffic_sources(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-# Traffic sources (detailed)
 def test_report_type_traffic_sources_detailed(client):
     try:
         report = client.retrieve(
@@ -615,7 +608,6 @@ def test_report_type_traffic_sources_detailed(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-# Device types
 def test_report_type_device_types(client):
     try:
         report = client.retrieve(
@@ -627,7 +619,6 @@ def test_report_type_device_types(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-# Operating systems
 def test_report_type_operating_systems(client):
     try:
         report = client.retrieve(
@@ -639,7 +630,6 @@ def test_report_type_operating_systems(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-# Device types and operating systems
 def test_report_type_device_types_and_operating_systems(client):
     try:
         report = client.retrieve(
@@ -651,7 +641,6 @@ def test_report_type_device_types_and_operating_systems(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-# Viewer demographics
 def test_report_type_viewer_demographics(client):
     try:
         report = client.retrieve(
@@ -663,7 +652,6 @@ def test_report_type_viewer_demographics(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-# Engagement and content sharing
 def test_report_type_engagement_and_content_sharing(client):
     try:
         report = client.retrieve(
@@ -674,7 +662,6 @@ def test_report_type_engagement_and_content_sharing(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-# Audience retention
 def test_report_type_audience_retention(client):
     try:
         report = client.retrieve(
@@ -687,7 +674,6 @@ def test_report_type_audience_retention(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-# Top videos by region
 def test_report_type_top_videos_by_region(client):
     try:
         report = client.retrieve(
@@ -701,7 +687,6 @@ def test_report_type_top_videos_by_region(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-# Top videos by state
 def test_report_type_top_videos_by_state(client):
     try:
         report = client.retrieve(
@@ -716,7 +701,6 @@ def test_report_type_top_videos_by_state(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-# Top videos by subscription status
 def test_report_type_top_videos_by_subscription_status(client):
     try:
         report = client.retrieve(
@@ -731,7 +715,6 @@ def test_report_type_top_videos_by_subscription_status(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-# Top videos by YouTube product
 def test_report_type_top_videos_by_youtube_product(client):
     try:
         report = client.retrieve(
@@ -753,7 +736,6 @@ def test_report_type_top_videos_by_youtube_product(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-# Top videos by playback detail
 def test_report_type_top_videos_by_playback_detail(client):
     try:
         report = client.retrieve(
@@ -772,8 +754,6 @@ def test_report_type_top_videos_by_playback_detail(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-# ALL PLAYLIST ONES
-# Basic user activity for playlists
 def test_report_type_basic_user_activity_for_playlists(client):
     try:
         report = client.retrieve(
@@ -784,7 +764,6 @@ def test_report_type_basic_user_activity_for_playlists(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-# Time-based activity for playlists
 def test_report_type_time_based_activity_for_playlists(client):
     try:
         report = client.retrieve(
@@ -797,7 +776,6 @@ def test_report_type_time_based_activity_for_playlists(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-# Geography-based activity for playlists
 def test_report_type_geography_based_activity_for_playlists(client):
     try:
         report = client.retrieve(
@@ -810,7 +788,6 @@ def test_report_type_geography_based_activity_for_playlists(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-# Geography-based activity for playlists (US)
 def test_report_type_geography_based_activity_for_playlists(client):
     try:
         report = client.retrieve(
@@ -823,7 +800,6 @@ def test_report_type_geography_based_activity_for_playlists(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-# Playback locations for playlists
 def test_report_type_playback_locations_for_playlists(client):
     try:
         report = client.retrieve(
@@ -836,7 +812,6 @@ def test_report_type_playback_locations_for_playlists(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-# Playback locations for playlists (detailed)
 def test_report_type_playback_locations_for_playlists_detailed(client):
     try:
         report = client.retrieve(
@@ -854,7 +829,6 @@ def test_report_type_playback_locations_for_playlists_detailed(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-# Traffic sources for playlists
 def test_report_type_traffic_sources_for_playlists(client):
     try:
         report = client.retrieve(
@@ -867,7 +841,6 @@ def test_report_type_traffic_sources_for_playlists(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-# Traffic sources for playlists (detailed)
 def test_report_type_traffic_sources_for_playlists_detailed(client):
     try:
         report = client.retrieve(
@@ -885,7 +858,6 @@ def test_report_type_traffic_sources_for_playlists_detailed(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-# Device types for playlists
 def test_report_type_device_types_for_playlists(client):
     try:
         report = client.retrieve(
@@ -898,7 +870,6 @@ def test_report_type_device_types_for_playlists(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-# Operating systems for playlists
 def test_report_type_operating_systems_for_playlists(client):
     try:
         report = client.retrieve(
@@ -911,7 +882,6 @@ def test_report_type_operating_systems_for_playlists(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-# Device types and operating systems for playlists
 def test_report_type_device_types_and_operating_systems_for_playlists(client):
     try:
         report = client.retrieve(
@@ -926,7 +896,6 @@ def test_report_type_device_types_and_operating_systems_for_playlists(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-# Viewer demographics for playlists
 def test_report_type_viewer_demographics_for_playlists(client):
     try:
         report = client.retrieve(
@@ -939,7 +908,6 @@ def test_report_type_viewer_demographics_for_playlists(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-# Top playlists
 def test_report_type_top_playlists(client):
     try:
         report = client.retrieve(
@@ -954,7 +922,6 @@ def test_report_type_top_playlists(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-# Ad performance
 def test_report_type_ad_performance(client):
     try:
         report = client.retrieve(dt.date(2021, 1, 1), dimensions=("adType",))
