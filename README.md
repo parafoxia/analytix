@@ -49,7 +49,7 @@ You may need to prefix these commands with `py -m` or `python3.9 -m` (or similar
 
 ## Quickstart
 
-Before you begin, you will need to have a Google Developers project with the YouTube Analytics API enabled. You can find instructions on how to do that in the [YouTube Analytics API docs](https://developers.google.com/youtube/reporting/v1/code_samples/python#set-up-authorization-credentials/).
+Before you begin, you will need to have a Google Developers project with the YouTube Analytics API enabled. You can find instructions on how to do that in the [documentation](https://analytix.readthedocs.io/en/latest/refs/yt-analytics-setup.html).
 
 Once you've done that, retrieving reports down is easy. The below example loads credentials from a secrets file, and gets as much information as possible from the last 28 days.
 
