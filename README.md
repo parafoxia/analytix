@@ -49,9 +49,9 @@ You may need to prefix these commands with `py -m` or `python3.9 -m` (or similar
 
 ## Quickstart
 
-Before you begin, you will need to have a Google Developers project with the YouTube Analytics API enabled. You can find instructions on how to do that in the [documentation](https://analytix.readthedocs.io/en/latest/refs/yt-analytics-setup.html).
+Before you begin, you will need to have a Google Developers project with the YouTube Analytics API enabled. You can find instructions on how to do that in the [API setup guide](https://analytix.readthedocs.io/en/latest/refs/yt-analytics-setup.html).
 
-Once you've done that, retrieving reports down is easy. The below example loads credentials from a secrets file, and gets as much information as possible from the last 28 days.
+Once you've done that, retrieving reports is easy. The below example loads credentials from a secrets file, and gets as much information as possible from the last 28 days.
 
 ```py
 import datetime as dt
@@ -66,6 +66,10 @@ report.to_csv("./analytics-28d.csv")
 
 To read up further, [have a look at the documentation](https://analytix.readthedocs.io/en/latest/).
 
+## Contributing
+
+analytix is open to contributions. To find out where to get started, have a look at the [contributing guide](https://github.com/parafoxia/analytix/blob/main/CONTRIBUTING.md).
+
 ## License
 
-The analytix module for Python is licensed under the [BSD-3-Clause License](https://github.com/parafoxia/analytix/blob/main/LICENSE).
+The analytix module for Python is licensed under the [BSD 3-Clause License](https://github.com/parafoxia/analytix/blob/main/LICENSE).
