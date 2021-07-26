@@ -172,12 +172,12 @@ class YouTubeAnalytics:
 
         Args:
             store_token (bool): Whether to store the token locally for future
-                uses. Defaults to True. Note that tokens are only valid for an
-                hour before they expire.
+                uses. Note that tokens are only valid for an hour before they
+                expire. Defaults to True.
             force (bool): Whether to force an authorisation even when
-                authorisation credentials are still value. Defaults to False.
-                If this is False, calls to this method won't do anything if the
-                client is already authorised.
+                authorisation credentials are still value. If this is False,
+                calls to this method won't do anything if the client is already
+                authorised. Defaults to False.
             **kwargs (Any): Additional arguments to pass when creating the
                 authorisation URL.
         """
@@ -223,7 +223,7 @@ class YouTubeAnalytics:
             start_date (datetime.date): The date from which data should be
                 collected from.
             end_date (datetime.date): The date to collect data to. Defaults to
-                the current date.
+                :code:`datetime.date.today()`.
             metrics (iterable[str] | str): The metrics (or columns) to use in
                 the report. Defaults to "all".
             dimensions (iterable[str]): The dimensions to use. These dimensions
@@ -235,6 +235,7 @@ class YouTubeAnalytics:
                 dictionary.
             sort_by (iterable[str]): A list of metrics to sort by. To sort in
                 descending order, prefix the metric(s) with a hyphen (-).
+                Defaults to an empty tuple.
             max_results (int): The maximum number of rows to include in the
                 report. Set this to 0 to remove the limit. Defaults to 0.
             currency (str): The currency to use in the format defined in the
@@ -326,6 +327,18 @@ class YouTubeAnalytics:
                 f"got {type(include_historical_data).__name__}"
             )
 
+        if "month" in dimensions:
+            if start_date.day != 1 or end_date.day != 1:
+                logging.warning(
+                    "The start and end dates must be the first date of the "
+                    "month when the 'month' dimension is passed. analytix "
+                    "corrects this automatically for convenience, but consider "
+                    "manually setting the dates in future to avoid undesired "
+                    "results"
+                )
+                start_date = dt.date(start_date.year, start_date.month, 1)
+                end_date = dt.date(end_date.year, end_date.month, 1)
+
         logging.debug("Determining report type...")
         rtype = verify.rtypes.determine(dimensions, metrics, filters)()
         logging.info(f"Report type determined as: {rtype}")
@@ -385,16 +398,17 @@ class YouTubeAnalytics:
         Args:
             of (str | None): A video ID. Pass None to include all videos.
                 Defaults to None.
-            since (dt.date | None): The date to start collecting data from. If
-                this is None, analytix will fall back to the :code:`last` kwarg.
-                Defaults to None.
+            since (datetime.date | None): The date to start collecting data
+                from. If this is None, analytix will fall back to the
+                :code:`last` kwarg. Defaults to None.
             last (int): The number of days to retrieve data for. If
-                :code:`since` is not None, this is ignored. Unlike
-                :code:`end_date` in the :code:`retrieve` method, this *does*
-                account for delays in revenue analytics. Essentially, the number
-                passed here will be the number of rows in the report. Defaults
-                to 28.
-            metrics (iterable[str] | str): A list of metrics to use.
+                :code:`since` is not None, this is ignored. This accounts for
+                delayed revenue analytics, but does mean that an extra day of
+                data may sometimes be included in the report. In this case, that
+                means the report may contain either :code:`last` or
+                :code:`last + 1` rows. Defaults to 28.
+            metrics (iterable[str] | str): A list of metrics to use. Defaults to
+                "all".
 
         Returns:
             YouTubeAnalyticsReport: The retrieved report.
@@ -418,17 +432,18 @@ class YouTubeAnalytics:
         Args:
             of (str | None): A video ID. Pass None to include all videos.
                 Defaults to None.
-            since (dt.date | None): The date to start collecting data from. If
-                this is None, analytix will fall back to the :code:`last` kwarg.
-                The :code:`day` argument for the date constructor must be set to
-                1 -- if it is not, it will be set to 1 for you. Defaults to
-                None.
+            since (datetime.date | None): The date to start collecting data
+                from. If this is None, analytix will fall back to the
+                :code:`last` kwarg. The :code:`day` argument for the date
+                constructor must be set to 1 -- if it is not, it will be set to
+                1 for you. Defaults to None.
             last (int): The number of months to retrieve data for. If
                 :code:`since` is not None, this is ignored. The current month is
                 not included in reports retrieved using this method. The number
                 passed here will be the number of rows in the report. Defaults
                 to 3.
-            metrics (iterable[str] | str): A list of metrics to use.
+            metrics (iterable[str] | str): A list of metrics to use. Defaults to
+                "all".
 
         Returns:
             YouTubeAnalyticsReport: The retrieved report.
@@ -458,14 +473,15 @@ class YouTubeAnalytics:
         .. versionadded:: 2.1
 
         Args:
-            since (dt.date | None): The date to start collecting data from. If
-                this is None, analytix will fall back to the :code:`last` kwarg.
-                Defaults to None.
+            since (datetime.date | None): The date to start collecting data
+                from. If this is None, analytix will fall back to the
+                :code:`last` kwarg. Defaults to None.
             last (int): The number of days to retrieve data for. If
-                :code:`since` is not None, this is ignored. Unlike
-                :code:`end_date` in the :code:`retrieve` method, this *does*
-                account for delays in revenue analytics.
-            metrics (iterable[str] | str): A list of metrics to use.
+                :code:`since` is not None, this is ignored. This accounts for
+                delayed revenue analytics, but does mean that an extra day of
+                data may sometimes be included in the report. Defaults to 28.
+            metrics (iterable[str] | str): A list of metrics to use. Defaults to
+                "all".
 
         Returns:
             YouTubeAnalyticsReport: The retrieved report.
@@ -492,14 +508,15 @@ class YouTubeAnalytics:
                 supported. Reports retrieved using this method will be sorted in
                 descending order regardless of whether you prefix the metric
                 with a hyphen (-). Defaults to "views".
-            since (dt.date | None): The date to start collecting data from. If
-                this is None, analytix will fall back to the :code:`last` kwarg.
-                Defaults to None.
+            since (datetime.date | None): The date to start collecting data
+                from. If this is None, analytix will fall back to th
+                :code:`last` kwarg. Defaults to None.
             last (int): The number of days to retrieve data for. If
-                :code:`since` is not None, this is ignored. Unlike
-                :code:`end_date` in the :code:`retrieve` method, this *does*
-                account for delays in revenue analytics.
-            metrics (iterable[str] | str): A list of metrics to use.
+                :code:`since` is not None, this is ignored. This accounts for
+                delayed revenue analytics, but does mean that an extra day of
+                data may sometimes be included in the report. Defaults to 28.
+            metrics (iterable[str] | str): A list of metrics to use. Defaults to
+                "all".
 
         Returns:
             YouTubeAnalyticsReport: The retrieved report.
