@@ -64,6 +64,15 @@ report = client.retrieve(start_date, dimensions=("day",))
 report.to_csv("./analytics-28d.csv")
 ```
 
+From version 2.1, you can do the same operation in an easier way.
+
+```py
+from analytix import YouTubeAnalytics
+
+client = YouTubeAnalytics.from_file("./secrets.json")
+report = client.daily_analytics().to_csv("./analytics-28d.csv")
+```
+
 To read up further, [have a look at the documentation](https://analytix.readthedocs.io/en/latest/).
 
 ## Contributing
