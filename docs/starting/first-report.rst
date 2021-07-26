@@ -48,11 +48,17 @@ You can retrieve reports using the client's :code:`retrieve` method. This method
         dimensions=("day",),
     )
 
+In this example, the first argument (:code:`dt.date.today() - dt.timedelta(days=28)`) is the date in which data should be collected from. You need to supply this for every request you make. It must also be a :code:`datetime.date` object, and *not* a :code:`datetime.datetime` object.
+
 .. note::
 
     If you're retrieving reports containing revenue data, some dates may be missing as revenue analytics are typically delayed by a few days. analytix does not account for this.
 
-In this example, the first argument (:code:`dt.date.today() - dt.timedelta(days=28)`) is the date in which data should be collected from. You need to supply this for every request you make. It must also be a :code:`datetime.date` object, and *not* a :code:`datetime.datetime` object.
+From version 2.1, there is an easier way of retrieving some simple reports in the form of factory methods. These are limited in their capabilites, but can massively speed up common retrievals. These factory methods also account for delayed revenue analytics in some situations. Here's the previous example done again taking advantage of one of these factory methods:
+
+.. code-block:: python
+
+    report = client.daily_analytics(metrics=("views", "likes", "comments"))
 
 Once the report has been retrieved, you can either save it as a JSON file, save it as a CSV file, or convert it to a pandas DataFrame (provided pandas is currently installed). Note that the JSON file would contain the raw data from the API:
 
