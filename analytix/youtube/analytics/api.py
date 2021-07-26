@@ -5,6 +5,7 @@ import logging
 import os
 import time
 import typing as t
+from collections import defaultdict
 
 import requests
 from requests_oauthlib import OAuth2Session
@@ -375,6 +376,137 @@ class YouTubeAnalytics:
 
         logging.info("Creating report...")
         return YouTubeAnalyticsReport(f"{rtype}", data)
+
+    def daily_analytics(self, of=None, since=None, last=28, metrics="all"):
+        """A factory method that retrieves daily video or channel analytics.
+
+        Args:
+            of (str | None): A video ID. Pass None to include all videos.
+                Defaults to None.
+            since (dt.date | None): The date to start collecting data from. If
+                this is None, analytix will fall back to the :code:`last` kwarg.
+                Defaults to None.
+            last (int): The number of days to retrieve data for. If
+                :code:`since` is not None, this is ignored. Unlike
+                :code:`end_date` in the :code:`retrieve` method, this *does*
+                account for delays in revenue analytics. Essentially, the number
+                passed here will be the number of rows in the report. Defaults
+                to 28.
+            metrics (iterable[str] | str): A list of metrics to use.
+
+        Returns:
+            YouTubeAnalyticsReport: The retrieved report.
+
+        Raises:
+            InvalidRequest: Something is wrong with the request.
+            HTTPError: The API returned an error.
+        """
+        return self.retrieve(
+            since or dt.date.today() - dt.timedelta(days=last + 2),
+            dimensions=("day",),
+            metrics=metrics,
+            filters={"video": of} if of else {},
+        )
+
+    def monthly_analytics(self, of=None, since=None, last=3, metrics="all"):
+        """A factory method that retrieves monthly video or channel analytics.
+
+        Args:
+            of (str | None): A video ID. Pass None to include all videos.
+                Defaults to None.
+            since (dt.date | None): The date to start collecting data from. If
+                this is None, analytix will fall back to the :code:`last` kwarg.
+                The :code:`day` argument for the date constructor must be set to
+                1 -- if it is not, it will be set to 1 for you. Defaults to
+                None.
+            last (int): The number of months to retrieve data for. If
+                :code:`since` is not None, this is ignored. The current month is
+                not included in reports retrieved using this method. The number
+                passed here will be the number of rows in the report. Defaults
+                to 3.
+            metrics (iterable[str] | str): A list of metrics to use.
+
+        Returns:
+            YouTubeAnalyticsReport: The retrieved report.
+
+        Raises:
+            InvalidRequest: Something is wrong with the request.
+            HTTPError: The API returned an error.
+        """
+
+        def _resolve_date(original):
+            return dt.date(original.year, original.month, 1)
+
+        return self.retrieve(
+            _resolve_date(
+                since or dt.date.today() - dt.timedelta(days=last * 30)
+            ),
+            _resolve_date(dt.date.today() - dt.timedelta(days=30)),
+            dimensions=("month",),
+            metrics=metrics,
+            filters={"video": of} if of else {},
+        )
+
+    def regional_analytics(self, since=None, last=28, metrics="all"):
+        """A factory method that retrieves channel analytics by country. This
+        is automatically sorted by views.
+
+        Args:
+            since (dt.date | None): The date to start collecting data from. If
+                this is None, analytix will fall back to the :code:`last` kwarg.
+                Defaults to None.
+            last (int): The number of days to retrieve data for. If
+                :code:`since` is not None, this is ignored. Unlike
+                :code:`end_date` in the :code:`retrieve` method, this *does*
+                account for delays in revenue analytics.
+            metrics (iterable[str] | str): A list of metrics to use.
+
+        Returns:
+            YouTubeAnalyticsReport: The retrieved report.
+
+        Raises:
+            InvalidRequest: Something is wrong with the request.
+            HTTPError: The API returned an error.
+        """
+        return self.retrieve(
+            since or dt.date.today() - dt.timedelta(days=last + 2),
+            dimensions=("country",),
+            metrics=metrics,
+            sort_by=("-views",),
+        )
+
+    def top_videos(self, by="views", since=None, last=28, metrics="all"):
+        """A factory method that retrieves information on your channel's top
+        videos over time.
+
+        Args:
+            by (str): The metric to sort by. Note that not all metrics are
+                supported. Reports retrieved using this method will be sorted in
+                descending order regardless of whether you prefix the metric
+                with a hyphen (-). Defaults to "views".
+            since (dt.date | None): The date to start collecting data from. If
+                this is None, analytix will fall back to the :code:`last` kwarg.
+                Defaults to None.
+            last (int): The number of days to retrieve data for. If
+                :code:`since` is not None, this is ignored. Unlike
+                :code:`end_date` in the :code:`retrieve` method, this *does*
+                account for delays in revenue analytics.
+            metrics (iterable[str] | str): A list of metrics to use.
+
+        Returns:
+            YouTubeAnalyticsReport: The retrieved report.
+
+        Raises:
+            InvalidRequest: Something is wrong with the request.
+            HTTPError: The API returned an error.
+        """
+        return self.retrieve(
+            since or dt.date.today() - dt.timedelta(days=last + 2),
+            dimensions=("video",),
+            metrics=metrics,
+            sort_by=(f"-{by.strip('-')}",),
+            max_results=200,
+        )
 
 
 class YouTubeAnalyticsReport:
