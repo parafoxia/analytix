@@ -380,6 +380,8 @@ class YouTubeAnalytics:
     def daily_analytics(self, of=None, since=None, last=28, metrics="all"):
         """A factory method that retrieves daily video or channel analytics.
 
+        .. versionadded:: 2.1
+
         Args:
             of (str | None): A video ID. Pass None to include all videos.
                 Defaults to None.
@@ -410,6 +412,8 @@ class YouTubeAnalytics:
 
     def monthly_analytics(self, of=None, since=None, last=3, metrics="all"):
         """A factory method that retrieves monthly video or channel analytics.
+
+        .. versionadded:: 2.1
 
         Args:
             of (str | None): A video ID. Pass None to include all videos.
@@ -451,6 +455,8 @@ class YouTubeAnalytics:
         """A factory method that retrieves channel analytics by country. This
         is automatically sorted by views.
 
+        .. versionadded:: 2.1
+
         Args:
             since (dt.date | None): The date to start collecting data from. If
                 this is None, analytix will fall back to the :code:`last` kwarg.
@@ -478,6 +484,8 @@ class YouTubeAnalytics:
     def top_videos(self, by="views", since=None, last=28, metrics="all"):
         """A factory method that retrieves information on your channel's top
         videos over time.
+
+        .. versionadded:: 2.1
 
         Args:
             by (str): The metric to sort by. Note that not all metrics are
