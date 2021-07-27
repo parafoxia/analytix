@@ -24,9 +24,10 @@ with open("analytix/__init__.py", mode="r", encoding="utf-8") as f:
         url,
         docs,
         author,
+        email,
         license_,
         bug_tracker,
-    ) = [l.split('"')[1] for l in f.readlines()[:8]]
+    ) = [l.split('"')[1] for l in f.readlines()[:9]]
 
 with open("./README.md", mode="r", encoding="utf-8") as f:
     long_description = f.read()
@@ -39,6 +40,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url=url,
     author=author,
+    author_email=email,
     license=license_,
     classifiers=[
         # "Development Status :: 1 - Planning",
