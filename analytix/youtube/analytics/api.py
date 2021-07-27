@@ -22,18 +22,18 @@ if PANDAS_AVAILABLE:
 
 
 class YouTubeAnalytics:
-    """A client class to retrieve data from the YouTube Analytics API. This
-    should only be created from the relevant class methods.
+    """A client class to retrieve data from the YouTube Analytics API.
+    This should only be created from the relevant class methods.
 
     Args:
         session (OAuth2Session): The OAuth 2 session to use.
-        secrets (dict[str, str]): A dictionary containing Google Developers
-            project secrets. This is not expected in the same format as the
-            Google Developers console provides it.
+        secrets (dict[str, str]): A dictionary containing Google
+            Developers project secrets. This is not expected in the same
+            format as the Google Developers console provides it.
 
     Attributes:
-        secrets (dict[str, str]): A dictionary containing Google Developers
-            project secrets.
+        secrets (dict[str, str]): A dictionary containing Google
+            Developers project secrets.
         project_id (str): The ID of the Google Developers project.
     """
 
@@ -68,9 +68,10 @@ class YouTubeAnalytics:
 
         Args:
             path (str): The path to the secrets file.
-            scopes (iterable[str] | str): The scopes to use. Defaults to "all".
-            **kwargs (Any): Additional arguments to pass to the OAuth2Session
-                constructor.
+            scopes (iterable[str] | str): The scopes to use. Defaults to
+                "all".
+            **kwargs (Any): Additional arguments to pass to the
+                OAuth2Session constructor.
 
         Returns:
             YouTubeAnalytics: A ready-to-use client object.
@@ -99,9 +100,10 @@ class YouTubeAnalytics:
 
         Args:
             secrets (dict[str, dict[str, str]]): The secrets dictionary.
-            scopes (iterable[str] | str): The scopes to use. Defaults to "all".
-            **kwargs (Any): Additional arguments to pass to the OAuth2Session
-                constructor.
+            scopes (iterable[str] | str): The scopes to use. Defaults to
+                "all".
+            **kwargs (Any): Additional arguments to pass to the
+                OAuth2Session constructor.
 
         Returns:
             YouTubeAnalytics: A ready-to-use client object.
@@ -166,20 +168,20 @@ class YouTubeAnalytics:
         return data["token"]
 
     def authorise(self, store_token=True, force=False, **kwargs):
-        """Authorises the client. This is typically called automatically when
-        needed, so you often don't need to call this unless you want to override
-        the default behaviour.
+        """Authorises the client. This is typically called automatically
+        when needed, so you often don't need to call this unless you
+        want to override the default behaviour.
 
         Args:
-            store_token (bool): Whether to store the token locally for future
-                uses. Note that tokens are only valid for an hour before they
-                expire. Defaults to True.
+            store_token (bool): Whether to store the token locally for
+                future uses. Note that tokens are only valid for an hour
+                before they expire. Defaults to True.
             force (bool): Whether to force an authorisation even when
-                authorisation credentials are still value. If this is False,
-                calls to this method won't do anything if the client is already
-                authorised. Defaults to False.
-            **kwargs (Any): Additional arguments to pass when creating the
-                authorisation URL.
+                authorisation credentials are still value. If this is
+                False, calls to this method won't do anything if the
+                client is already authorised. Defaults to False.
+            **kwargs (Any): Additional arguments to pass when creating
+                the authorisation URL.
         """
         if self._token and not force:
             logging.info("Client is already authorised! Skipping...")
@@ -220,32 +222,36 @@ class YouTubeAnalytics:
         """Retrieves a report from the YouTube Analytics API.
 
         Args:
-            start_date (datetime.date): The date from which data should be
-                collected from.
-            end_date (datetime.date): The date to collect data to. Defaults to
-                :code:`datetime.date.today()`.
-            metrics (iterable[str] | str): The metrics (or columns) to use in
-                the report. Defaults to "all".
-            dimensions (iterable[str]): The dimensions to use. These dimensions
-                are how data is split; for example, if the "day" dimension is
-                provided, each row will contain information for a different day.
-                Defaults to an empty tuple.
-            filters (dict[str, str]): The filters to use. To get playlist
-                reports, include :code:`"isCurated": "1"`. Defaults to an empty
-                dictionary.
-            sort_by (iterable[str]): A list of metrics to sort by. To sort in
-                descending order, prefix the metric(s) with a hyphen (-).
-                Defaults to an empty tuple.
-            max_results (int): The maximum number of rows to include in the
-                report. Set this to 0 to remove the limit. Defaults to 0.
-            currency (str): The currency to use in the format defined in the
-                `ISO 4217 <https://www.iso.org/iso-4217-currency-codes.html>`_
+            start_date (datetime.date): The date from which data should
+                be collected from.
+            end_date (datetime.date): The date to collect data to.
+                Defaults to :code:`datetime.date.today()`.
+            metrics (iterable[str] | str): The metrics (or columns) to
+                use in the report. Defaults to "all".
+            dimensions (iterable[str]): The dimensions to use. These
+                dimensions are how data is split; for example, if the
+                "day" dimension is provided, each row will contain
+                information for a different day. Defaults to an empty
+                tuple.
+            filters (dict[str, str]): The filters to use. To get
+                playlist reports, include :code:`"isCurated": "1"`.
+                Defaults to an empty dictionary.
+            sort_by (iterable[str]): A list of metrics to sort by. To
+                sort in descending order, prefix the metric(s) with a
+                hyphen (-). Defaults to an empty tuple.
+            max_results (int): The maximum number of rows to include in
+                the report. Set this to 0 to remove the limit. Defaults
+                to 0.
+            currency (str): The currency to use in the format defined in
+                the `ISO 4217
+                <https://www.iso.org/iso-4217-currency-codes.html>`_
                 standard. Defaults to "USD".
-            start_index (int): The row to start pulling data from. This value is
-                one-indexed, meaning the first row is 1, not 0. Defaults to 1.
-            include_historical_data (bool): Whether to retrieve data before the
-                current owner of the channel became affiliated with the channel.
-                Defaults to False.
+            start_index (int): The row to start pulling data from. This
+                value is one-indexed, meaning the first row is 1, not 0.
+                Defaults to 1.
+            include_historical_data (bool): Whether to retrieve data
+                before the current owner of the channel became
+                affiliated with the channel. Defaults to False.
 
         Returns:
             YouTubeAnalyticsReport: The retrieved report.
@@ -332,9 +338,9 @@ class YouTubeAnalytics:
                 logging.warning(
                     "The start and end dates must be the first date of the "
                     "month when the 'month' dimension is passed. analytix "
-                    "corrects this automatically for convenience, but consider "
-                    "manually setting the dates in future to avoid undesired "
-                    "results"
+                    "corrects this automatically for convenience, but "
+                    "consider manually setting the dates in future to avoid "
+                    "undesired results"
                 )
                 start_date = dt.date(start_date.year, start_date.month, 1)
                 end_date = dt.date(end_date.year, end_date.month, 1)
@@ -391,24 +397,26 @@ class YouTubeAnalytics:
         return YouTubeAnalyticsReport(f"{rtype}", data)
 
     def daily_analytics(self, of=None, since=None, last=28, metrics="all"):
-        """A factory method that retrieves daily video or channel analytics.
+        """A factory method that retrieves daily video or channel
+        analytics.
 
         .. versionadded:: 2.1
 
         Args:
-            of (str | None): A video ID. Pass None to include all videos.
-                Defaults to None.
-            since (datetime.date | None): The date to start collecting data
-                from. If this is None, analytix will fall back to the
-                :code:`last` kwarg. Defaults to None.
+            of (str | None): A video ID. Pass None to include all
+                videos. Defaults to None.
+            since (datetime.date | None): The date to start collecting
+                data from. If this is None, analytix will fall back to
+                the :code:`last` kwarg. Defaults to None.
             last (int): The number of days to retrieve data for. If
-                :code:`since` is not None, this is ignored. This accounts for
-                delayed revenue analytics, but does mean that an extra day of
-                data may sometimes be included in the report. In this case, that
-                means the report may contain either :code:`last` or
-                :code:`last + 1` rows. Defaults to 28.
-            metrics (iterable[str] | str): A list of metrics to use. Defaults to
-                "all".
+                :code:`since` is not None, this is ignored. This
+                accounts for delayed revenue analytics, but does mean
+                that an extra day of data may sometimes be included in
+                the report. In this case, that means the report may
+                contain either :code:`last` or :code:`last + 1` rows.
+                Defaults to 28.
+            metrics (iterable[str] | str): A list of metrics to use.
+                Defaults to "all".
 
         Returns:
             YouTubeAnalyticsReport: The retrieved report.
@@ -425,25 +433,26 @@ class YouTubeAnalytics:
         )
 
     def monthly_analytics(self, of=None, since=None, last=3, metrics="all"):
-        """A factory method that retrieves monthly video or channel analytics.
+        """A factory method that retrieves monthly video or channel
+        analytics.
 
         .. versionadded:: 2.1
 
         Args:
-            of (str | None): A video ID. Pass None to include all videos.
-                Defaults to None.
-            since (datetime.date | None): The date to start collecting data
-                from. If this is None, analytix will fall back to the
-                :code:`last` kwarg. The :code:`day` argument for the date
-                constructor must be set to 1 -- if it is not, it will be set to
-                1 for you. Defaults to None.
+            of (str | None): A video ID. Pass None to include all
+                videos. Defaults to None.
+            since (datetime.date | None): The date to start collecting
+                data from. If this is None, analytix will fall back to
+                the :code:`last` kwarg. The :code:`day` argument for the
+                date constructor must be set to 1 -- if it is not, it
+                will be set to 1 for you. Defaults to None.
             last (int): The number of months to retrieve data for. If
-                :code:`since` is not None, this is ignored. The current month is
-                not included in reports retrieved using this method. The number
-                passed here will be the number of rows in the report. Defaults
-                to 3.
-            metrics (iterable[str] | str): A list of metrics to use. Defaults to
-                "all".
+                :code:`since` is not None, this is ignored. The current
+                month is not included in reports retrieved using this
+                method. The number passed here will be the number of
+                rows in the report. Defaults to 3.
+            metrics (iterable[str] | str): A list of metrics to use.
+                Defaults to "all".
 
         Returns:
             YouTubeAnalyticsReport: The retrieved report.
@@ -467,21 +476,22 @@ class YouTubeAnalytics:
         )
 
     def regional_analytics(self, since=None, last=28, metrics="all"):
-        """A factory method that retrieves channel analytics by country. This
-        is automatically sorted by views.
+        """A factory method that retrieves channel analytics by country.
+        This is automatically sorted by views.
 
         .. versionadded:: 2.1
 
         Args:
-            since (datetime.date | None): The date to start collecting data
-                from. If this is None, analytix will fall back to the
-                :code:`last` kwarg. Defaults to None.
+            since (datetime.date | None): The date to start collecting
+                data from. If this is None, analytix will fall back to
+                the :code:`last` kwarg. Defaults to None.
             last (int): The number of days to retrieve data for. If
-                :code:`since` is not None, this is ignored. This accounts for
-                delayed revenue analytics, but does mean that an extra day of
-                data may sometimes be included in the report. Defaults to 28.
-            metrics (iterable[str] | str): A list of metrics to use. Defaults to
-                "all".
+                :code:`since` is not None, this is ignored. This
+                accounts for delayed revenue analytics, but does mean
+                that an extra day of data may sometimes be included in
+                the report. Defaults to 28.
+            metrics (iterable[str] | str): A list of metrics to use.
+                Defaults to "all".
 
         Returns:
             YouTubeAnalyticsReport: The retrieved report.
@@ -498,25 +508,27 @@ class YouTubeAnalytics:
         )
 
     def top_videos(self, by="views", since=None, last=28, metrics="all"):
-        """A factory method that retrieves information on your channel's top
-        videos over time.
+        """A factory method that retrieves information on your channel's
+        top videos over time.
 
         .. versionadded:: 2.1
 
         Args:
-            by (str): The metric to sort by. Note that not all metrics are
-                supported. Reports retrieved using this method will be sorted in
-                descending order regardless of whether you prefix the metric
-                with a hyphen (-). Defaults to "views".
-            since (datetime.date | None): The date to start collecting data
-                from. If this is None, analytix will fall back to th
-                :code:`last` kwarg. Defaults to None.
+            by (str): The metric to sort by. Note that not all metrics
+                are supported. Reports retrieved using this method will
+                be sorted in descending order regardless of whether you
+                prefix the metric with a hyphen (-). Defaults to
+                "views".
+            since (datetime.date | None): The date to start collecting
+                data from. If this is None, analytix will fall back to
+                the :code:`last` kwarg. Defaults to None.
             last (int): The number of days to retrieve data for. If
-                :code:`since` is not None, this is ignored. This accounts for
-                delayed revenue analytics, but does mean that an extra day of
-                data may sometimes be included in the report. Defaults to 28.
-            metrics (iterable[str] | str): A list of metrics to use. Defaults to
-                "all".
+                :code:`since` is not None, this is ignored. This
+                accounts for delayed revenue analytics, but does mean
+                that an extra day of data may sometimes be included in
+                the report. Defaults to 28.
+            metrics (iterable[str] | str): A list of metrics to use.
+                Defaults to "all".
 
         Returns:
             YouTubeAnalyticsReport: The retrieved report.
@@ -535,16 +547,18 @@ class YouTubeAnalytics:
 
 
 class YouTubeAnalyticsReport:
-    """A class created when a report is retrieved. You should not attempt to
-    construct this class manually.
+    """A class created when a report is retrieved. You should not
+    attempt to construct this class manually.
 
     Args:
         type (str): The report type.
-        data (dict[str, Any]): The raw data from the YouTube Analytics API.
+        data (dict[str, Any]): The raw data from the YouTube Analytics
+            API.
 
     Attributes:
         type (str): The report type.
-        data (dict[str, Any]): The raw data from the YouTube Analytics API.
+        data (dict[str, Any]): The raw data from the YouTube Analytics
+            API.
         columns (list[str]): A list of all column names.
     """
 
@@ -570,8 +584,9 @@ class YouTubeAnalyticsReport:
         return (self._nrows, self._ncolumns)
 
     def to_dataframe(self):
-        """Returns the data in a pandas DataFrame. If "day" or "month" are
-        columns, these are converted to the datetime64[ns] dtype automatically.
+        """Returns the data in a pandas DataFrame. If "day" or "month"
+        are columns, these are converted to the datetime64[ns] dtype
+        automatically.
 
         Returns:
             DataFrame: A pandas DataFrame
@@ -592,8 +607,8 @@ class YouTubeAnalyticsReport:
 
         Args:
             path (str): The path to save the file to.
-            indent (int): The amount of spaces to use as an indent. Defaults to
-                4.
+            indent (int): The amount of spaces to use as an indent.
+                Defaults to 4.
         """
         if not path.endswith(".json"):
             path += ".json"
@@ -606,8 +621,8 @@ class YouTubeAnalyticsReport:
 
         Args:
             path (str): The path to save the file to.
-            delimiter (int): The delimiter to use to separate columns. Defaults
-                to a comma (,).
+            delimiter (int): The delimiter to use to separate columns.
+                Defaults to a comma (,).
         """
         if not path.endswith(".csv"):
             path += ".csv"

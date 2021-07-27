@@ -5,13 +5,15 @@ class AnalytixError(Exception):
 
 
 class InvalidScopes(AnalytixError):
-    """Thrown when one or more invalid scopes are passed to the client."""
+    """Thrown when one or more invalid scopes are passed to the
+    client."""
 
     pass
 
 
 class InvalidRequest(AnalytixError):
-    """Thrown when analytix finds something wrong with an API request."""
+    """Thrown when analytix finds something wrong with an API
+    request."""
 
     pass
 
@@ -24,7 +26,7 @@ class HTTPError(InvalidRequest):
 
 
 class MissingOptionalComponents(AnalytixError):
-    """Thrown when an optional component or library is needed to perform an
-    action, but it missing."""
+    """Thrown when an optional component or library is needed to perform
+    an action, but it missing."""
 
     pass
