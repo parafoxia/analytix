@@ -13,12 +13,12 @@ Version info
 Exceptions
 ==========
 
-.. autoclass:: analytix.errors.AnalytixError
+.. autoexception:: analytix.errors.AnalytixError
 
-.. autoclass:: analytix.errors.InvalidScopes
+.. autoexception:: analytix.errors.InvalidScopes
 
-.. autoclass:: analytix.errors.InvalidRequest
+.. autoexception:: analytix.errors.InvalidRequest
 
-.. autoclass:: analytix.errors.HTTPError
+.. autoexception:: analytix.errors.HTTPError
 
-.. autoclass:: analytix.errors.MissingOptionalComponents
+.. autoexception:: analytix.errors.MissingOptionalComponents

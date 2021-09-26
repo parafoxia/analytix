@@ -72,7 +72,6 @@ setuptools.setup(
     },
     install_requires=parse_requirements("./requirements.txt"),
     extras_require={
-        "dev": parse_requirements("./requirements-dev.txt"),
         "opt": parse_requirements("./requirements-opt.txt"),
     },
     python_requires=">=3.6.0",

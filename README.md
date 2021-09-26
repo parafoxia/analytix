@@ -12,11 +12,7 @@
 [![Read the Docs](https://img.shields.io/readthedocs/analytix)](https://analytix.readthedocs.io/en/latest/index.html)
 [![License](https://img.shields.io/github/license/parafoxia/analytix.svg)](https://github.com/parafoxia/analytix/blob/main/LICENSE)
 
-A simple yet powerful API wrapper to make getting analytical information from your socials easier than ever.
-
-**Supported APIs**
-
-- YouTube Analytics API
+A simple yet powerful API wrapper to make getting analytical information from the YouTube Analytics API easier than ever.
 
 ## Features
 
@@ -42,10 +38,10 @@ pip install "analytix[opt]"
 
 You can also install the latest development version using the following command:
 ```sh
-pip install git+https://github.com/parafoxia/analytix.git@develop
+pip install git+https://github.com/parafoxia/analytix@develop
 ```
 
-You may need to prefix these commands with `py -m` or `python3.9 -m` (or similar) depending on your OS.
+You may need to prefix these commands with a call to the Python interpreter depending on your OS and Python configuration.
 
 ## Quickstart
 
