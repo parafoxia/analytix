@@ -54,6 +54,8 @@ from analytix.youtube.analytics import (
 if PANDAS_AVAILABLE:
     import pandas as pd
 
+log = logging.getLogger("analytix")
+
 
 class YouTubeAnalytics:
     """A client class to retrieve data from the YouTube Analytics API.
@@ -118,7 +120,7 @@ class YouTubeAnalytics:
             )
 
         with open(path, mode="r", encoding="utf-8") as f:
-            logging.debug("Secrets file loaded")
+            log.debug("Secrets file loaded")
             secrets = json.load(f)["installed"]
 
         scopes = cls._resolve_scopes(scopes)
@@ -158,7 +160,7 @@ class YouTubeAnalytics:
     @staticmethod
     def _resolve_scopes(scopes):
         if scopes == "all":
-            logging.debug(f"Scopes set to {YOUTUBE_ANALYTICS_SCOPES}")
+            log.debug(f"Scopes set to {YOUTUBE_ANALYTICS_SCOPES}")
             return YOUTUBE_ANALYTICS_SCOPES
 
         if not isinstance(scopes, (tuple, list, set)):
@@ -178,13 +180,13 @@ class YouTubeAnalytics:
                 + ", ".join(diff)
             )
 
-        logging.debug(f"Scopes set to {scopes}")
+        log.debug(f"Scopes set to {scopes}")
         return scopes
 
     @staticmethod
     def _get_token():
         if not os.path.isfile(TOKEN_STORE / YT_ANALYTICS_TOKEN):
-            logging.info("No token found; you will need to authorise")
+            log.info("No token found; you will need to authorise")
             return ""
 
         with open(
@@ -192,12 +194,12 @@ class YouTubeAnalytics:
         ) as f:
             data = json.load(f)
         if time.time() > data["expires"]:
-            logging.info(
+            log.info(
                 "Token found, but it has expired; you will need to authorise"
             )
             return ""
 
-        logging.info(
+        log.info(
             (
                 "Valid token found; analytix will use this, so you don't need "
                 "to authorise"
@@ -215,14 +217,14 @@ class YouTubeAnalytics:
                 future uses. Note that tokens are only valid for an hour
                 before they expire. Defaults to True.
             force (bool): Whether to force an authorisation even when
-                authorisation credentials are still value. If this is
+                authorisation credentials are still valid. If this is
                 False, calls to this method won't do anything if the
                 client is already authorised. Defaults to False.
             **kwargs (Any): Additional arguments to pass when creating
                 the authorisation URL.
         """
         if self._token and not force:
-            logging.info("Client is already authorised! Skipping...")
+            log.info("Client is already authorised! Skipping...")
             return
 
         url, _ = self._session.authorization_url(
@@ -235,10 +237,10 @@ class YouTubeAnalytics:
             client_secret=self.secrets["client_secret"],
         )
         self._token = token["access_token"]
-        logging.info("Token retrieved")
+        log.info("Token retrieved")
 
         if not store_token:
-            logging.info("Not storing token, as instructed")
+            log.info("Not storing token, as instructed")
             return
 
         os.makedirs(TOKEN_STORE, exist_ok=True)
@@ -250,7 +252,7 @@ class YouTubeAnalytics:
                 f,
                 ensure_ascii=False,
             )
-            logging.info(f"Key stored in {TOKEN_STORE / YT_ANALYTICS_TOKEN}")
+            log.info(f"Key stored in {TOKEN_STORE / YT_ANALYTICS_TOKEN}")
 
     authorize = authorise
 
@@ -308,7 +310,7 @@ class YouTubeAnalytics:
         start_index = kwargs.pop("start_index", 1)
         include_historical_data = kwargs.pop("include_historical_data", False)
 
-        logging.debug("Verifying options...")
+        log.debug("Verifying options...")
         if "7DayTotals" in dimensions or "30DayTotals" in dimensions:
             raise InvalidRequest(
                 "the '7DayTotals' and '30DayTotals' dimensions were "
@@ -375,7 +377,7 @@ class YouTubeAnalytics:
 
         if "month" in dimensions:
             if start_date.day != 1 or end_date.day != 1:
-                logging.warning(
+                log.warning(
                     "The start and end dates must be the first date of the "
                     "month when the 'month' dimension is passed. analytix "
                     "corrects this automatically for convenience, but "
@@ -385,9 +387,9 @@ class YouTubeAnalytics:
                 start_date = dt.date(start_date.year, start_date.month, 1)
                 end_date = dt.date(end_date.year, end_date.month, 1)
 
-        logging.debug("Determining report type...")
+        log.debug("Determining report type...")
         rtype = verify.rtypes.determine(dimensions, metrics, filters)()
-        logging.info(f"Report type determined as: {rtype}")
+        log.info(f"Report type determined as: {rtype}")
 
         if metrics == "all":
             metrics = tuple(rtype.metrics)
@@ -396,11 +398,11 @@ class YouTubeAnalytics:
                 "expected tuple, list, or set of metrics, "
                 f"got {type(metrics).__name__}"
             )
-        logging.debug("Using these metrics: " + ", ".join(metrics))
+        log.debug("Using these metrics: " + ", ".join(metrics))
 
-        logging.debug("Verifying report...")
+        log.debug("Verifying report...")
         rtype.verify(dimensions, metrics, filters, sort_by, max_results)
-        logging.debug("Verification complete")
+        log.debug("Verification complete")
 
         url = (
             "https://youtubeanalytics.googleapis.com/"
@@ -418,10 +420,10 @@ class YouTubeAnalytics:
             f"&sort={','.join(sort_by)}"
             f"&startIndex={start_index}"
         )
-        logging.debug(f"URL: {url}")
+        log.debug(f"URL: {url}")
 
         if not self._token:
-            logging.debug("Authorising...")
+            log.debug("Authorising...")
             self.authorise()
 
         with requests.get(
@@ -433,7 +435,7 @@ class YouTubeAnalytics:
             error = data["error"]
             raise HTTPError(f"{error['code']}: {error['message']}")
 
-        logging.info("Creating report...")
+        log.info("Creating report...")
         return YouTubeAnalyticsReport(f"{rtype}", data)
 
     def daily_analytics(self, of=None, since=None, last=28, metrics="all"):
