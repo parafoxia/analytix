@@ -16,7 +16,7 @@ def parse_requirements(path):
         return [d for d in deps if not d.startswith(("#", "-r"))]
 
 
-with open("analytix/__init__.py", mode="r", encoding="utf-8") as f:
+with open("./analytix/__init__.py") as f:
     (
         productname,
         version,
@@ -27,9 +27,9 @@ with open("analytix/__init__.py", mode="r", encoding="utf-8") as f:
         email,
         license_,
         bug_tracker,
-    ) = [l.split('"')[1] for l in f.readlines()[:9]]
+    ) = [l.split('"')[1] for l in f.readlines()[28:37]]
 
-with open("./README.md", mode="r", encoding="utf-8") as f:
+with open("./README.md") as f:
     long_description = f.read()
 
 setuptools.setup(

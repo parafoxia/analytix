@@ -2,6 +2,11 @@ from pathlib import Path
 
 import nox
 
+PROJECT_NAME = "analytix"
+LIB_DIR = Path(__file__).parent / PROJECT_NAME
+TEST_DIR = Path(__file__).parent / "tests"
+PY_VERSIONS = [f"3.{v}" for v in range(6, 11)]  # 3.6 - 3.10
+
 
 def parse_requirements(path):
     with open(path, mode="r", encoding="utf-8") as f:
@@ -9,54 +14,65 @@ def parse_requirements(path):
         return [d for d in deps if not d.startswith(("#", "-r"))]
 
 
-@nox.session(python=["3.6", "3.7", "3.8", "3.9", "3.10"], reuse_venv=True)
-def tests(session: nox.Session) -> None:
+DEPS = {
+    name: install
+    for name, install in (
+        r.split("~=")
+        for r in parse_requirements("./requirements-dev.txt")
+        if not r.startswith(("#", "-r"))
+    )
+}
+
+
+@nox.session(python=PY_VERSIONS, reuse_venv=True)
+def tests(session):
     deps = parse_requirements("./requirements-test.txt")
-    if session.python == "3.10":
-        deps.remove("pandas<2,>=1")
     session.install(*deps)
     session.run("pytest", "-s", "--verbose", "--log-level=INFO")
 
 
 @nox.session(reuse_venv=True)
-def check_formatting(session: nox.Session) -> None:
-    black_version = next(
-        filter(
-            lambda d: d.startswith("black"),
-            parse_requirements("./requirements-dev.txt"),
-        )
-    ).split("==")[1]
-    session.install(f"black=={black_version}")
+def check_formatting(session):
+    session.install(f"black~={DEPS['black']}")
     session.run("black", ".", "--check")
 
 
 @nox.session(reuse_venv=True)
-def check_line_lengths(session: nox.Session) -> None:
-    errors = []
-    exclude = [Path("analytix/__init__.py")]
-    files = [p for p in Path("./analytix").rglob("*.py") if p not in exclude]
+def check_imports(session):
+    session.install(f"flake8~={DEPS['flake8']}", f"isort~={DEPS['isort']}")
+    # flake8 doesn't use the gitignore so we have to be explicit.
+    session.run(
+        "flake8",
+        PROJECT_NAME,
+        "tests",
+        "--select",
+        "F4",
+        "--extend-ignore",
+        "E,F,W",
+        "--extend-exclude",
+        "__init__.py",
+    )
+    session.run("isort", ".", "-cq", "--profile", "black")
 
-    in_docs = False
 
-    for file in files:
-        with open(file, mode="r", encoding="utf-8") as f:
-            for i, l in enumerate(f):
-                if l.lstrip().startswith('"""'):
-                    in_docs = True
+@nox.session(reuse_venv=True)
+def check_line_lengths(session):
+    session.install(f"len8~={DEPS['len8']}")
+    session.run("len8", PROJECT_NAME)
+    session.run("len8", "tests")
 
-                limit = 72 if in_docs or l.lstrip().startswith("#") else 79
-                chars = len(l.rstrip("\n"))
-                if chars > limit:
-                    errors.append((file, i + 1, chars, limit))
 
-                if l.rstrip().endswith('"""'):
-                    in_docs = False
+@nox.session(reuse_venv=True)
+def check_licensing(session):
+    missing = []
 
-    if errors:
-        raise Exception(
-            f"{len(errors):,} line(s) are too long:\n"
-            + "\n".join(
-                f"- {file}, line {line:,} ({chars}/{limit})"
-                for file, line, chars, limit in errors
-            )
+    for p in [*LIB_DIR.rglob("*.py"), *TEST_DIR.rglob("*.py")]:
+        with open(p) as f:
+            if not f.read().startswith("# Copyright (c)"):
+                missing.append(p)
+
+    if missing:
+        session.error(
+            f"\n{len(missing):,} file(s) are missing their licenses:\n"
+            + "\n".join(f" - {file}" for file in missing)
         )

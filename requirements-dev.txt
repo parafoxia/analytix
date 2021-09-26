@@ -1,4 +1,5 @@
 -r requirements.txt
+-r requirements-opt.txt
 black~=21.8b0
 flake8~=3.9.2
 furo~=2021.9.8
