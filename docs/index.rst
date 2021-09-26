@@ -41,11 +41,7 @@ analytix
    :alt: License
    :target: https://github.com/parafoxia/analytix/blob/main/LICENSE
 
-A simple yet powerful API wrapper to make getting analytical information from your socials easier than ever.
-
-**Supported APIs**
-
-- YouTube Analytics API
+A simple yet powerful wrapper for the YouTube Analytics API.
 
 Features
 ========

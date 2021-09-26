@@ -12,7 +12,7 @@
 [![Read the Docs](https://img.shields.io/readthedocs/analytix)](https://analytix.readthedocs.io/en/latest/index.html)
 [![License](https://img.shields.io/github/license/parafoxia/analytix.svg)](https://github.com/parafoxia/analytix/blob/main/LICENSE)
 
-A simple yet powerful API wrapper to make getting analytical information from the YouTube Analytics API easier than ever.
+A simple yet powerful wrapper for the YouTube Analytics API.
 
 ## Features
 
