@@ -42,7 +42,7 @@ def client():
     return client
 
 
-def test_report_type_basic_user_activity(client):
+def test_basic_user_activity(client):
     try:
         report = client.retrieve(dt.date(2021, 1, 1))
         assert report.type == "Basic user activity"
@@ -50,7 +50,7 @@ def test_report_type_basic_user_activity(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-def test_report_type_basic_user_activity_us(client):
+def test_basic_user_activity_us(client):
     try:
         report = client.retrieve(
             dt.date(2021, 1, 1), filters={"province": "US-OH"}
@@ -60,7 +60,7 @@ def test_report_type_basic_user_activity_us(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-def test_report_type_time_based_activity(client):
+def test_time_based_activity(client):
     try:
         report = client.retrieve(dt.date(2021, 1, 1), dimensions=("day",))
         assert report.type == "Time-based activity"
@@ -68,7 +68,7 @@ def test_report_type_time_based_activity(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-def test_report_type_time_based_activity_us(client):
+def test_time_based_activity_us(client):
     try:
         report = client.retrieve(
             dt.date(2021, 1, 1),
@@ -80,7 +80,7 @@ def test_report_type_time_based_activity_us(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-def test_report_type_geography_based_activity(client):
+def test_geography_based_activity(client):
     try:
         report = client.retrieve(dt.date(2021, 1, 1), dimensions=("country",))
         assert report.type == "Geography-based activity"
@@ -88,7 +88,7 @@ def test_report_type_geography_based_activity(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-def test_report_type_geography_based_activity_us(client):
+def test_geography_based_activity_us(client):
     try:
         report = client.retrieve(
             dt.date(2021, 1, 1),
@@ -100,7 +100,7 @@ def test_report_type_geography_based_activity_us(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-def test_report_type_user_activity_by_subscribed_status(client):
+def test_user_activity_by_subscribed_status(client):
     try:
         report = client.retrieve(
             dt.date(2021, 1, 1),
@@ -111,7 +111,7 @@ def test_report_type_user_activity_by_subscribed_status(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-def test_report_type_user_activity_by_subscribed_status_us(client):
+def test_user_activity_by_subscribed_status_us(client):
     try:
         report = client.retrieve(
             dt.date(2021, 1, 1),
@@ -123,7 +123,7 @@ def test_report_type_user_activity_by_subscribed_status_us(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-def test_report_type_time_based_playback_details_live(client):
+def test_time_based_playback_details_live(client):
     try:
         report = client.retrieve(
             dt.date(2021, 1, 1),
@@ -137,7 +137,7 @@ def test_report_type_time_based_playback_details_live(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-def test_report_type_time_based_playback_details_view_percentage(client):
+def test_time_based_playback_details_view_percentage(client):
     try:
         report = client.retrieve(
             dt.date(2021, 1, 1),
@@ -148,7 +148,7 @@ def test_report_type_time_based_playback_details_view_percentage(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-def test_report_type_geography_based_playback_details_live(client):
+def test_geography_based_playback_details_live(client):
     try:
         report = client.retrieve(
             dt.date(2021, 1, 1),
@@ -162,7 +162,7 @@ def test_report_type_geography_based_playback_details_live(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-def test_report_type_geography_based_playback_details_view_percentage(client):
+def test_geography_based_playback_details_view_percentage(client):
     try:
         report = client.retrieve(
             dt.date(2021, 1, 1),
@@ -178,7 +178,7 @@ def test_report_type_geography_based_playback_details_view_percentage(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-def test_report_type_geography_based_playback_details_live_us(client):
+def test_geography_based_playback_details_live_us(client):
     try:
         report = client.retrieve(
             dt.date(2021, 1, 1),
@@ -193,7 +193,7 @@ def test_report_type_geography_based_playback_details_live_us(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-def test_report_type_geography_based_playback_details_view_percentage_us(
+def test_geography_based_playback_details_view_percentage_us(
     client,
 ):
     try:
@@ -213,7 +213,7 @@ def test_report_type_geography_based_playback_details_view_percentage_us(
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-def test_report_type_playback_locations(client):
+def test_playback_locations(client):
     try:
         report = client.retrieve(
             dt.date(2021, 1, 1),
@@ -224,7 +224,7 @@ def test_report_type_playback_locations(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-def test_report_type_playback_locations_detailed(client):
+def test_playback_locations_detailed(client):
     try:
         report = client.retrieve(
             dt.date(2021, 1, 1),
@@ -238,7 +238,7 @@ def test_report_type_playback_locations_detailed(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-def test_report_type_traffic_sources(client):
+def test_traffic_sources(client):
     try:
         report = client.retrieve(
             dt.date(2021, 1, 1),
@@ -249,7 +249,7 @@ def test_report_type_traffic_sources(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-def test_report_type_traffic_sources_detailed(client):
+def test_traffic_sources_detailed(client):
     try:
         report = client.retrieve(
             dt.date(2021, 1, 1),
@@ -263,7 +263,7 @@ def test_report_type_traffic_sources_detailed(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-def test_report_type_device_types(client):
+def test_device_types(client):
     try:
         report = client.retrieve(
             dt.date(2021, 1, 1),
@@ -274,7 +274,7 @@ def test_report_type_device_types(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-def test_report_type_operating_systems(client):
+def test_operating_systems(client):
     try:
         report = client.retrieve(
             dt.date(2021, 1, 1),
@@ -285,7 +285,7 @@ def test_report_type_operating_systems(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-def test_report_type_device_types_and_operating_systems(client):
+def test_device_types_and_operating_systems(client):
     try:
         report = client.retrieve(
             dt.date(2021, 1, 1),
@@ -296,7 +296,7 @@ def test_report_type_device_types_and_operating_systems(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-def test_report_type_viewer_demographics(client):
+def test_viewer_demographics(client):
     try:
         report = client.retrieve(
             dt.date(2021, 1, 1),
@@ -307,7 +307,7 @@ def test_report_type_viewer_demographics(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-def test_report_type_engagement_and_content_sharing(client):
+def test_engagement_and_content_sharing(client):
     try:
         report = client.retrieve(
             dt.date(2021, 1, 1), dimensions=("sharingService",)
@@ -317,7 +317,7 @@ def test_report_type_engagement_and_content_sharing(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-def test_report_type_audience_retention(client):
+def test_audience_retention(client):
     try:
         report = client.retrieve(
             dt.date(2021, 1, 1),
@@ -329,7 +329,7 @@ def test_report_type_audience_retention(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-def test_report_type_top_videos_by_region(client):
+def test_top_videos_by_region(client):
     try:
         report = client.retrieve(
             dt.date(2021, 1, 1),
@@ -342,7 +342,7 @@ def test_report_type_top_videos_by_region(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-def test_report_type_top_videos_by_state(client):
+def test_top_videos_by_state(client):
     try:
         report = client.retrieve(
             dt.date(2021, 1, 1),
@@ -356,7 +356,7 @@ def test_report_type_top_videos_by_state(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-def test_report_type_top_videos_by_subscription_status(client):
+def test_top_videos_by_subscription_status(client):
     try:
         report = client.retrieve(
             dt.date(2021, 1, 1),
@@ -370,7 +370,7 @@ def test_report_type_top_videos_by_subscription_status(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-def test_report_type_top_videos_by_youtube_product(client):
+def test_top_videos_by_youtube_product(client):
     try:
         report = client.retrieve(
             dt.date(2021, 1, 1),
@@ -391,7 +391,7 @@ def test_report_type_top_videos_by_youtube_product(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-def test_report_type_top_videos_by_playback_detail(client):
+def test_top_videos_by_playback_detail(client):
     try:
         report = client.retrieve(
             dt.date(2021, 1, 1),
@@ -409,7 +409,7 @@ def test_report_type_top_videos_by_playback_detail(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-def test_report_type_basic_user_activity_for_playlists(client):
+def test_basic_user_activity_for_playlists(client):
     try:
         report = client.retrieve(
             dt.date(2021, 1, 1), filters={"isCurated": "1"}
@@ -419,7 +419,7 @@ def test_report_type_basic_user_activity_for_playlists(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-def test_report_type_time_based_activity_for_playlists(client):
+def test_time_based_activity_for_playlists(client):
     try:
         report = client.retrieve(
             dt.date(2021, 1, 1),
@@ -431,7 +431,7 @@ def test_report_type_time_based_activity_for_playlists(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-def test_report_type_geography_based_activity_for_playlists(client):
+def test_geography_based_activity_for_playlists(client):
     try:
         report = client.retrieve(
             dt.date(2021, 1, 1),
@@ -443,7 +443,7 @@ def test_report_type_geography_based_activity_for_playlists(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-def test_report_type_geography_based_activity_for_playlists(client):
+def test_geography_based_activity_for_playlists(client):
     try:
         report = client.retrieve(
             dt.date(2021, 1, 1),
@@ -455,7 +455,7 @@ def test_report_type_geography_based_activity_for_playlists(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-def test_report_type_playback_locations_for_playlists(client):
+def test_playback_locations_for_playlists(client):
     try:
         report = client.retrieve(
             dt.date(2021, 1, 1),
@@ -467,7 +467,7 @@ def test_report_type_playback_locations_for_playlists(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-def test_report_type_playback_locations_for_playlists_detailed(client):
+def test_playback_locations_for_playlists_detailed(client):
     try:
         report = client.retrieve(
             dt.date(2021, 1, 1),
@@ -484,7 +484,7 @@ def test_report_type_playback_locations_for_playlists_detailed(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-def test_report_type_traffic_sources_for_playlists(client):
+def test_traffic_sources_for_playlists(client):
     try:
         report = client.retrieve(
             dt.date(2021, 1, 1),
@@ -496,7 +496,7 @@ def test_report_type_traffic_sources_for_playlists(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-def test_report_type_traffic_sources_for_playlists_detailed(client):
+def test_traffic_sources_for_playlists_detailed(client):
     try:
         report = client.retrieve(
             dt.date(2021, 1, 1),
@@ -513,7 +513,7 @@ def test_report_type_traffic_sources_for_playlists_detailed(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-def test_report_type_device_types_for_playlists(client):
+def test_device_types_for_playlists(client):
     try:
         report = client.retrieve(
             dt.date(2021, 1, 1),
@@ -525,7 +525,7 @@ def test_report_type_device_types_for_playlists(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-def test_report_type_operating_systems_for_playlists(client):
+def test_operating_systems_for_playlists(client):
     try:
         report = client.retrieve(
             dt.date(2021, 1, 1),
@@ -537,7 +537,7 @@ def test_report_type_operating_systems_for_playlists(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-def test_report_type_device_types_and_operating_systems_for_playlists(client):
+def test_device_types_and_operating_systems_for_playlists(client):
     try:
         report = client.retrieve(
             dt.date(2021, 1, 1),
@@ -551,7 +551,7 @@ def test_report_type_device_types_and_operating_systems_for_playlists(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-def test_report_type_viewer_demographics_for_playlists(client):
+def test_viewer_demographics_for_playlists(client):
     try:
         report = client.retrieve(
             dt.date(2021, 1, 1),
@@ -563,7 +563,7 @@ def test_report_type_viewer_demographics_for_playlists(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-def test_report_type_top_playlists(client):
+def test_top_playlists(client):
     try:
         report = client.retrieve(
             dt.date(2021, 1, 1),
@@ -577,7 +577,7 @@ def test_report_type_top_playlists(client):
         assert False, f"{inspect.stack()[0][3]} report raised: {exc}"
 
 
-def test_report_type_ad_performance(client):
+def test_ad_performance(client):
     try:
         report = client.retrieve(dt.date(2021, 1, 1), dimensions=("adType",))
         assert report.type == "Ad performance"

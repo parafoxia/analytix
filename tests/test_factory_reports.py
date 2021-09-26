@@ -40,7 +40,7 @@ def client():
     return client
 
 
-def test_factory_report_daily_analytics_rows_correct(client):
+def test_daily_analytics_rows_correct(client):
     report = client.daily_analytics()
     assert report.type == "Time-based activity"
     assert report.shape[0] == 28 or report.shape[0] == 29
@@ -49,19 +49,19 @@ def test_factory_report_daily_analytics_rows_correct(client):
     assert report.shape[0] == 10 or report.shape[0] == 11
 
 
-def test_factory_report_daily_analytics_start_date(client):
+def test_daily_analytics_start_date(client):
     report = client.daily_analytics(since=dt.date(2021, 1, 1))
     assert report.type == "Time-based activity"
     assert report.data["rows"][0][0] == "2021-01-01"
 
 
-def test_factory_report_daily_analytics_metrics(client):
+def test_daily_analytics_metrics(client):
     report = client.daily_analytics(metrics=("views", "likes", "comments"))
     assert report.type == "Time-based activity"
     assert report.shape[1] == 4
 
 
-def test_factory_report_monthly_analytics_rows_correct(client):
+def test_monthly_analytics_rows_correct(client):
     report = client.monthly_analytics()
     assert report.type == "Time-based activity"
     assert report.shape[0] == 3
@@ -70,7 +70,7 @@ def test_factory_report_monthly_analytics_rows_correct(client):
     assert report.shape[0] == 10
 
 
-def test_factory_report_monthly_analytics_start_date(client):
+def test_monthly_analytics_start_date(client):
     report = client.monthly_analytics(since=dt.date(2021, 1, 1))
     assert report.type == "Time-based activity"
     assert report.data["rows"][0][0] == "2021-01"
@@ -79,7 +79,7 @@ def test_factory_report_monthly_analytics_start_date(client):
     assert report.data["rows"][0][0] == "2020-06"
 
 
-def test_factory_report_monthly_analytics_end_date(client):
+def test_monthly_analytics_end_date(client):
     report = client.monthly_analytics(since=dt.date(2021, 1, 1))
     assert report.type == "Time-based activity"
     last_month = dt.date.today() - dt.timedelta(days=30)
@@ -88,33 +88,33 @@ def test_factory_report_monthly_analytics_end_date(client):
     ).strftime("%Y-%m")
 
 
-def test_factory_report_monthly_analytics_metrics(client):
+def test_monthly_analytics_metrics(client):
     report = client.monthly_analytics(metrics=("views", "likes", "comments"))
     assert report.type == "Time-based activity"
     assert report.shape[1] == 4
 
 
-def test_factory_report_regional_analytics_metrics_sorted(client):
+def test_regional_analytics_metrics_sorted(client):
     report = client.regional_analytics()
     assert report.type == "Geography-based activity"
     arr = [r[1] for r in report.data["rows"]]
     assert arr == sorted(arr, reverse=True)
 
 
-def test_factory_report_regional_analytics_metrics(client):
+def test_regional_analytics_metrics(client):
     report = client.regional_analytics(metrics=("views", "likes", "comments"))
     assert report.type == "Geography-based activity"
     assert report.shape[1] == 4
 
 
-def test_factory_report_top_videos_metrics_sorted(client):
+def test_top_videos_metrics_sorted(client):
     report = client.top_videos()
     assert report.type == "Top videos by region"
     arr = [r[1] for r in report.data["rows"]]
     assert arr == sorted(arr, reverse=True)
 
 
-def test_factory_report_top_videos_metrics(client):
+def test_top_videos_metrics(client):
     report = client.top_videos(metrics=("views", "likes", "comments"))
     assert report.type == "Top videos by region"
     assert report.shape[1] == 4

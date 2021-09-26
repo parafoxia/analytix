@@ -45,7 +45,7 @@ def client():
     sys.version_info >= (3, 10, 0),
     reason="pandas does not support Python 3.10",
 )
-def test_dataframe_day_is_datetime(client):
+def test_day_is_datetime(client):
     import pandas as pd
 
     report = client.retrieve(dt.date(2021, 1, 1), dimensions=("day",))
@@ -57,7 +57,7 @@ def test_dataframe_day_is_datetime(client):
     sys.version_info >= (3, 10, 0),
     reason="pandas does not support Python 3.10",
 )
-def test_dataframe_month_is_datetime(client):
+def test_month_is_datetime(client):
     import pandas as pd
 
     report = client.retrieve(
@@ -71,7 +71,7 @@ def test_dataframe_month_is_datetime(client):
     sys.version_info >= (3, 10, 0),
     reason="pandas does not support Python 3.10",
 )
-def test_dataframe_metrics_are_numeric(client):
+def test_metrics_are_numeric(client):
     import pandas as pd
 
     report = client.retrieve(dt.date(2021, 1, 1), dimensions=("day",))

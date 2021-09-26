@@ -41,7 +41,7 @@ def client():
     return client
 
 
-def test_reports_verify_check_deprecated(client):
+def test_check_deprecated(client):
     with pytest.raises(InvalidRequest) as exc:
         report = client.retrieve(
             dt.date(2021, 1, 1), dimensions=("7DayTotals",)
@@ -53,19 +53,19 @@ def test_reports_verify_check_deprecated(client):
     )
 
 
-def test_reports_verify_check_start_date(client):
+def test_check_start_date(client):
     with pytest.raises(InvalidRequest) as exc:
         report = client.retrieve("2020/1/1", dimensions=("day",))
     assert str(exc.value).startswith("expected start date as date object")
 
 
-def test_reports_verify_check_end_date(client):
+def test_check_end_date(client):
     with pytest.raises(InvalidRequest) as exc:
         report = client.retrieve(dt.date(2020, 1, 1), "2020/1/1")
     assert str(exc.value).startswith("expected end date as date object")
 
 
-def test_reports_verify_check_end_date_greater(client):
+def test_check_end_date_greater(client):
     with pytest.raises(InvalidRequest) as exc:
         report = client.retrieve(dt.date(2020, 1, 1), dt.date(2019, 1, 1))
     assert str(exc.value).startswith(
@@ -73,7 +73,7 @@ def test_reports_verify_check_end_date_greater(client):
     )
 
 
-def test_reports_verify_check_end_date_equal(client):
+def test_check_end_date_equal(client):
     with pytest.raises(InvalidRequest) as exc:
         report = client.retrieve(dt.date(2020, 1, 1), dt.date(2020, 1, 1))
     assert str(exc.value).startswith(
@@ -81,7 +81,7 @@ def test_reports_verify_check_end_date_equal(client):
     )
 
 
-def test_reports_verify_check_currency(client):
+def test_check_currency(client):
     with pytest.raises(InvalidRequest) as exc:
         report = client.retrieve(dt.date(2020, 1, 1), currency="ZZZ")
     assert str(exc.value).startswith(
@@ -89,7 +89,7 @@ def test_reports_verify_check_currency(client):
     )
 
 
-def test_reports_verify_check_dimensions_type(client):
+def test_check_dimensions_type(client):
     with pytest.raises(InvalidRequest) as exc:
         report = client.retrieve(dt.date(2020, 1, 1), dimensions="day")
     assert str(exc.value).startswith(
@@ -97,13 +97,13 @@ def test_reports_verify_check_dimensions_type(client):
     )
 
 
-def test_reports_verify_check_filters_type(client):
+def test_check_filters_type(client):
     with pytest.raises(InvalidRequest) as exc:
         report = client.retrieve(dt.date(2020, 1, 1), filters="country==US")
     assert str(exc.value).startswith("expected dict of filters")
 
 
-def test_reports_verify_check_historical_bool(client):
+def test_check_historical_bool(client):
     with pytest.raises(InvalidRequest) as exc:
         report = client.retrieve(
             dt.date(2020, 1, 1), include_historical_data=1
@@ -113,13 +113,13 @@ def test_reports_verify_check_historical_bool(client):
     )
 
 
-def test_reports_verify_check_max_results_int(client):
+def test_check_max_results_int(client):
     with pytest.raises(InvalidRequest) as exc:
         report = client.retrieve(dt.date(2020, 1, 1), max_results="5")
     assert str(exc.value).startswith("expected int for 'max_results'")
 
 
-def test_reports_verify_check_max_results_too_low(client):
+def test_check_max_results_too_low(client):
     with pytest.raises(InvalidRequest) as exc:
         report = client.retrieve(dt.date(2020, 1, 1), max_results=-1)
     assert str(exc.value).startswith(
@@ -128,7 +128,7 @@ def test_reports_verify_check_max_results_too_low(client):
     )
 
 
-def test_reports_verify_check_sort_type(client):
+def test_check_sort_type(client):
     with pytest.raises(InvalidRequest) as exc:
         report = client.retrieve(
             dt.date(2020, 1, 1), dimensions=("day",), sort_by="views"
@@ -138,13 +138,13 @@ def test_reports_verify_check_sort_type(client):
     )
 
 
-def test_reports_verify_check_start_index_int(client):
+def test_check_start_index_int(client):
     with pytest.raises(InvalidRequest) as exc:
         report = client.retrieve(dt.date(2020, 1, 1), start_index="5")
     assert str(exc.value).startswith("expected int for 'start_index'")
 
 
-def test_reports_verify_check_start_index_too_low(client):
+def test_check_start_index_too_low(client):
     with pytest.raises(InvalidRequest) as exc:
         report = client.retrieve(dt.date(2020, 1, 1), start_index=0)
     assert str(exc.value).startswith(
@@ -152,7 +152,7 @@ def test_reports_verify_check_start_index_too_low(client):
     )
 
 
-def test_reports_verify_check_metrics_type(client):
+def test_check_metrics_type(client):
     with pytest.raises(InvalidRequest) as exc:
         report = client.retrieve(
             dt.date(2020, 1, 1), dimensions=("day",), metrics="views"
@@ -160,7 +160,7 @@ def test_reports_verify_check_metrics_type(client):
     assert str(exc.value).startswith("expected tuple, list, or set of metrics")
 
 
-def test_reports_verify_check_invalid_dimension(client):
+def test_check_invalid_dimension(client):
     with pytest.raises(InvalidRequest) as exc:
         report = client.retrieve(dt.date(2021, 1, 1), dimensions=("test",))
     assert str(exc.value).startswith(
@@ -168,7 +168,7 @@ def test_reports_verify_check_invalid_dimension(client):
     )
 
 
-def test_reports_verify_check_unsupported_dimension(client):
+def test_check_unsupported_dimension(client):
     with pytest.raises(InvalidRequest) as exc:
         report = client.retrieve(
             dt.date(2021, 1, 1), dimensions=("day", "country")
@@ -179,7 +179,7 @@ def test_reports_verify_check_unsupported_dimension(client):
     )
 
 
-def test_reports_verify_check_invalid_filter(client):
+def test_check_invalid_filter(client):
     with pytest.raises(InvalidRequest) as exc:
         report = client.retrieve(
             dt.date(2021, 1, 1),
@@ -191,7 +191,7 @@ def test_reports_verify_check_invalid_filter(client):
     )
 
 
-def test_reports_verify_check_unsupported_filter(client):
+def test_check_unsupported_filter(client):
     with pytest.raises(InvalidRequest) as exc:
         report = client.retrieve(
             dt.date(2021, 1, 1),
@@ -204,7 +204,7 @@ def test_reports_verify_check_unsupported_filter(client):
     )
 
 
-def test_reports_verify_check_invalid_filter_value(client):
+def test_check_invalid_filter_value(client):
     with pytest.raises(InvalidRequest) as exc:
         report = client.retrieve(
             dt.date(2021, 1, 1),
@@ -214,7 +214,7 @@ def test_reports_verify_check_invalid_filter_value(client):
     assert "is not a valid value for filter" in str(exc.value)
 
 
-def test_reports_verify_check_invalid_metric(client):
+def test_check_invalid_metric(client):
     with pytest.raises(InvalidRequest) as exc:
         report = client.retrieve(
             dt.date(2021, 1, 1),
@@ -227,7 +227,7 @@ def test_reports_verify_check_invalid_metric(client):
     )
 
 
-def test_reports_verify_check_unsupported_metric(client):
+def test_check_unsupported_metric(client):
     with pytest.raises(InvalidRequest) as exc:
         report = client.retrieve(
             dt.date(2021, 1, 1),
@@ -240,7 +240,7 @@ def test_reports_verify_check_unsupported_metric(client):
     )
 
 
-def test_reports_verify_check_required_filter(client):
+def test_check_required_filter(client):
     with pytest.raises(InvalidRequest) as exc:
         report = client.retrieve(
             dt.date(2021, 1, 1),
@@ -249,7 +249,7 @@ def test_reports_verify_check_required_filter(client):
     assert str(exc.value).startswith("expected all filters from")
 
 
-def test_reports_verify_check_required_filter_value(client):
+def test_check_required_filter_value(client):
     with pytest.raises(InvalidRequest) as exc:
         report = client.retrieve(
             dt.date(2021, 1, 1),
@@ -262,7 +262,7 @@ def test_reports_verify_check_required_filter_value(client):
     )
 
 
-def test_reports_verify_check_exactly_one_dimension(client):
+def test_check_exactly_one_dimension(client):
     with pytest.raises(InvalidRequest) as exc:
         report = client.retrieve(
             dt.date(2021, 1, 1),
@@ -271,7 +271,7 @@ def test_reports_verify_check_exactly_one_dimension(client):
     assert str(exc.value).startswith("expected 1 dimension from")
 
 
-def test_reports_verify_check_zero_or_one_dimensions(client):
+def test_check_zero_or_one_dimensions(client):
     with pytest.raises(InvalidRequest) as exc:
         report = client.retrieve(
             dt.date(2021, 1, 1),
@@ -280,7 +280,7 @@ def test_reports_verify_check_zero_or_one_dimensions(client):
     assert str(exc.value).startswith("expected 0 or 1 dimensions from")
 
 
-def test_reports_verify_check_zero_or_one_filters(client):
+def test_check_zero_or_one_filters(client):
     with pytest.raises(InvalidRequest) as exc:
         report = client.retrieve(
             dt.date(2021, 1, 1),

@@ -42,7 +42,7 @@ def client():
     return client
 
 
-def test_files_json(client):
+def test_save_as_json(client):
     report = client.retrieve(
         dt.date(2021, 1, 1), dt.date(2021, 2, 28), dimensions=("day",)
     )
@@ -55,7 +55,7 @@ def test_files_json(client):
     os.remove("./test.json")
 
 
-def test_files_csv(client):
+def test_save_as_csv(client):
     report = client.retrieve(
         dt.date(2021, 1, 1), dt.date(2021, 2, 28), dimensions=("day",)
     )

@@ -40,14 +40,14 @@ def client():
     return client
 
 
-def test_reports_shape(client):
+def test_shape(client):
     report = client.retrieve(
         dt.date(2021, 1, 1), dt.date(2021, 2, 28), dimensions=("day",)
     )
     assert report.shape == (59, 36)
 
 
-def test_reports_max_results(client):
+def test_max_results(client):
     report = client.retrieve(
         dt.date(2021, 1, 1),
         dt.date(2021, 2, 28),
@@ -57,7 +57,7 @@ def test_reports_max_results(client):
     assert report.shape == (20, 36)
 
 
-def test_reports_sort_ascending(client):
+def test_sort_ascending(client):
     report = client.retrieve(
         dt.date(2021, 1, 1),
         dt.date(2021, 2, 28),
@@ -68,7 +68,7 @@ def test_reports_sort_ascending(client):
     assert arr == sorted(arr)
 
 
-def test_reports_sort_descending(client):
+def test_sort_descending(client):
     report = client.retrieve(
         dt.date(2021, 1, 1),
         dt.date(2021, 2, 28),

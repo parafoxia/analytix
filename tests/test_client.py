@@ -40,7 +40,7 @@ def client():
     return client
 
 
-def test_client_project_id_match(client):
+def test_project_id_match(client):
     with open("./secrets/secrets.json", mode="r", encoding="utf-8") as f:
         project_id = json.load(f)["installed"]["project_id"]
     assert client.project_id == project_id
