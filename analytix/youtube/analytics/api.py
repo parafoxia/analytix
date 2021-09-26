@@ -102,6 +102,8 @@ class YouTubeAnalytics:
 
         Args:
             path (str): The path to the secrets file.
+
+        Keyword Args:
             scopes (iterable[str] | str): The scopes to use. Defaults to
                 "all".
             **kwargs (Any): Additional arguments to pass to the
@@ -134,6 +136,8 @@ class YouTubeAnalytics:
 
         Args:
             secrets (dict[str, dict[str, str]]): The secrets dictionary.
+
+        Keyword Args:
             scopes (iterable[str] | str): The scopes to use. Defaults to
                 "all".
             **kwargs (Any): Additional arguments to pass to the
@@ -206,7 +210,7 @@ class YouTubeAnalytics:
         when needed, so you often don't need to call this unless you
         want to override the default behaviour.
 
-        Args:
+        Keyword Args:
             store_token (bool): Whether to store the token locally for
                 future uses. Note that tokens are only valid for an hour
                 before they expire. Defaults to True.
@@ -258,6 +262,8 @@ class YouTubeAnalytics:
         Args:
             start_date (datetime.date): The date from which data should
                 be collected from.
+
+        Keyword Args:
             end_date (datetime.date): The date to collect data to.
                 Defaults to :code:`datetime.date.today()`.
             metrics (iterable[str] | str): The metrics (or columns) to
@@ -436,7 +442,7 @@ class YouTubeAnalytics:
 
         .. versionadded:: 2.1
 
-        Args:
+        Keyword Args:
             of (str | None): A video ID. Pass None to include all
                 videos. Defaults to None.
             since (datetime.date | None): The date to start collecting
@@ -472,7 +478,7 @@ class YouTubeAnalytics:
 
         .. versionadded:: 2.1
 
-        Args:
+        Keyword Args:
             of (str | None): A video ID. Pass None to include all
                 videos. Defaults to None.
             since (datetime.date | None): The date to start collecting
@@ -515,7 +521,7 @@ class YouTubeAnalytics:
 
         .. versionadded:: 2.1
 
-        Args:
+        Keyword Args:
             since (datetime.date | None): The date to start collecting
                 data from. If this is None, analytix will fall back to
                 the :code:`last` kwarg. Defaults to None.
@@ -547,7 +553,7 @@ class YouTubeAnalytics:
 
         .. versionadded:: 2.1
 
-        Args:
+        Keyword Args:
             by (str): The metric to sort by. Note that not all metrics
                 are supported. Reports retrieved using this method will
                 be sorted in descending order regardless of whether you
@@ -641,6 +647,8 @@ class YouTubeAnalyticsReport:
 
         Args:
             path (str): The path to save the file to.
+
+        Keyword Args:
             indent (int): The amount of spaces to use as an indent.
                 Defaults to 4.
         """
@@ -655,6 +663,8 @@ class YouTubeAnalyticsReport:
 
         Args:
             path (str): The path to save the file to.
+
+        Keyword Args:
             delimiter (int): The delimiter to use to separate columns.
                 Defaults to a comma (,).
         """
