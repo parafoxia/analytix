@@ -1,4 +1,4 @@
-name: Upload binaries
+name: Upload Binaries
 
 on:
   release:
