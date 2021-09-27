@@ -26,7 +26,6 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import csv
 import datetime as dt
 import json
 import logging
@@ -509,9 +508,9 @@ class YouTubeAnalytics:
 
         return self.retrieve(
             _resolve_date(
-                since or dt.date.today() - dt.timedelta(days=last * 30)
+                since or dt.date.today() - dt.timedelta(days=last * 31)
             ),
-            _resolve_date(dt.date.today() - dt.timedelta(days=30)),
+            _resolve_date(dt.date.today() - dt.timedelta(days=31)),
             dimensions=("month",),
             metrics=metrics,
             filters={"video": of} if of else {},
@@ -674,7 +673,6 @@ class YouTubeAnalyticsReport:
             path += ".csv"
 
         with open(path, mode="w", encoding="utf-8") as f:
-            writer = csv.writer(f, delimiter=delimiter)
-            writer.writerow(self.columns)
-            for r in self.data["rows"]:
-                writer.writerow(r)
+            f.write(f"{delimiter.join(self.columns)}\n")
+            for row in self.data["rows"]:
+                f.write(f"{delimiter.join(f'{i}' for i in row)}\n")
