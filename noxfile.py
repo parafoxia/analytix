@@ -3,14 +3,6 @@ from pathlib import Path
 
 import nox
 
-if os.environ.get("CI", False):
-    import sys
-
-    PY_VERSIONS = [".".join(f"{v}" for v in sys.version_info[:2])]
-
-else:
-    PY_VERSIONS = [f"3.{v}" for v in range(6, 11)]  # 3.6 - 3.10
-
 PROJECT_NAME = "analytix"
 LIB_DIR = Path(__file__).parent / PROJECT_NAME
 TEST_DIR = Path(__file__).parent / "tests"
@@ -32,7 +24,7 @@ DEPS = {
 }
 
 
-@nox.session(python=PY_VERSIONS, reuse_venv=True)
+@nox.session(reuse_venv=True)
 def tests(session):
     deps = parse_requirements("./requirements-test.txt")
     session.install(*deps)
