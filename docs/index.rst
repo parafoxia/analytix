@@ -17,9 +17,9 @@ analytix
    :alt: PyPI - Status
    :target: https://pypi.python.org/pypi/analytix/
 
-.. image:: https://img.shields.io/pypi/dm/analytix
-   :alt: PyPI - Downloads
-   :target: https://pypistats.org/packages/analytix
+.. image:: https://pepy.tech/badge/analytix
+   :alt: Downloads
+   :target: https://pepy.tech/project/analytix
 
 .. image:: https://img.shields.io/maintenance/yes/2021
    :alt: Maintenance
