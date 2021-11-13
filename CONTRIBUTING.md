@@ -21,7 +21,7 @@ If you are making a very small change (one or two lines), it would be better to 
 
 1. Fork the repository.
 2. Clone your fork.
-3. Run `pip install -e ".[dev]"` to install the cloned library.
+3. Run `pip install -e . -r requirements-dev.txt` to install the cloned library.
 4. Make your changes/additions.
 5. Run `black .` in the project root to format the code properly.
 6. Run `nox` to run the tests. If they all pass, advance to step 7, otherwise, go back to step 4.
