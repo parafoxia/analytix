@@ -1,18 +1,21 @@
 # analytix
 
 [![PyPi version](https://img.shields.io/pypi/v/analytix.svg)](https://pypi.python.org/pypi/analytix/)
-[![PyPI pyversions](https://img.shields.io/pypi/pyversions/analytix.svg)](https://pypi.python.org/pypi/analytix/)
-[![PyPI - Implementation](https://img.shields.io/pypi/implementation/analytix)](https://pypi.python.org/pypi/analytix/)
 [![PyPI - Status](https://img.shields.io/pypi/status/analytix)](https://pypi.python.org/pypi/analytix/)
 [![Downloads](https://pepy.tech/badge/analytix)](https://pepy.tech/project/analytix)
-
-[![Maintenance](https://img.shields.io/maintenance/yes/2021)](https://github.com/parafoxia/analytix)
-[![GitHub Release Date](https://img.shields.io/github/release-date/parafoxia/analytix)](https://github.com/parafoxia/analytix)
 [![GitHub last commit](https://img.shields.io/github/last-commit/parafoxia/analytix)](https://github.com/parafoxia/analytix)
-[![Read the Docs](https://img.shields.io/readthedocs/analytix)](https://analytix.readthedocs.io/en/latest/index.html)
 [![License](https://img.shields.io/github/license/parafoxia/analytix.svg)](https://github.com/parafoxia/analytix/blob/main/LICENSE)
 
+[![CI (Tests)](https://github.com/parafoxia/analytix/actions/workflows/ci-tests.yml/badge.svg)](https://github.com/parafoxia/analytix/actions/workflows/ci-tests.yml)
+[![Read the Docs](https://img.shields.io/readthedocs/analytix)](https://analytix.readthedocs.io/en/latest/index.html)
+[![Maintainability](https://api.codeclimate.com/v1/badges/8819bdebb2d4aa8dfcb7/maintainability)](https://codeclimate.com/github/parafoxia/analytix/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/8819bdebb2d4aa8dfcb7/test_coverage)](https://codeclimate.com/github/parafoxia/analytix/test_coverage)
+
 A simple yet powerful wrapper for the YouTube Analytics API.
+
+CPython versions 3.6 through 3.11-dev and PyPy versions 3.6 and 3.7 are officially supported.
+
+Windows, MacOS, and Linux are all supported.
 
 ## Features
 
@@ -24,7 +27,7 @@ A simple yet powerful wrapper for the YouTube Analytics API.
 
 ## Installation
 
-**You need Python 3.6.0 or greater to run analytix.** It is recommended you install analytix in a virtual environment. **Note**: While analytix supports Python 3.10, pandas does not. You will be able to retrieve reports and save them locally, but you won't be able to convert them to DataFrame objects.
+**You need Python 3.6.0 or greater to run analytix.**
 
 To install the latest stable version of analytix, use the following command:
 ```sh
@@ -38,7 +41,7 @@ pip install "analytix[opt]"
 
 You can also install the latest development version using the following command:
 ```sh
-pip install git+https://github.com/parafoxia/analytix@develop
+pip install git+https://github.com/parafoxia/analytix
 ```
 
 You may need to prefix these commands with a call to the Python interpreter depending on your OS and Python configuration.

@@ -5,14 +5,6 @@ analytix
    :alt: PyPI version
    :target: https://pypi.python.org/pypi/analytix/
 
-.. image:: https://img.shields.io/pypi/pyversions/analytix.svg
-   :alt: PyPI pyversions
-   :target: https://pypi.python.org/pypi/analytix/
-
-.. image:: https://img.shields.io/pypi/implementation/analytix
-   :alt: PyPI - Implementation
-   :target: https://pypi.python.org/pypi/analytix/
-
 .. image:: https://img.shields.io/pypi/status/analytix
    :alt: PyPI - Status
    :target: https://pypi.python.org/pypi/analytix/
@@ -21,25 +13,33 @@ analytix
    :alt: Downloads
    :target: https://pepy.tech/project/analytix
 
-.. image:: https://img.shields.io/maintenance/yes/2021
-   :alt: Maintenance
-   :target: https://github.com/parafoxia/analytix
-
-.. image:: https://img.shields.io/github/release-date/parafoxia/analytix
-   :alt: GitHub Release Date
-   :target: https://github.com/parafoxia/analytix
-
 .. image:: https://img.shields.io/github/last-commit/parafoxia/analytix
    :alt: GitHub last commit
    :target: https://github.com/parafoxia/analytix
+
+.. image:: https://img.shields.io/github/license/parafoxia/analytix.svg
+   :alt: License
+   :target: https://github.com/parafoxia/analytix/blob/main/LICENSE
+
+|
+
+.. image:: https://github.com/parafoxia/analytix/actions/workflows/ci-tests.yml/badge.svg
+   :target: https://github.com/parafoxia/analytix/actions/workflows/ci-tests.yml
+   :alt: CI (Tests)
 
 .. image:: https://img.shields.io/readthedocs/analytix
    :alt: Read the Docs
    :target: https://analytix.readthedocs.io/en/latest/index.html
 
-.. image:: https://img.shields.io/github/license/parafoxia/analytix.svg
-   :alt: License
-   :target: https://github.com/parafoxia/analytix/blob/main/LICENSE
+.. image:: https://api.codeclimate.com/v1/badges/8819bdebb2d4aa8dfcb7/maintainability
+   :alt: Maintainability
+   :target: https://codeclimate.com/github/parafoxia/analytix/maintainability
+
+.. image:: https://api.codeclimate.com/v1/badges/8819bdebb2d4aa8dfcb7/test_coverage
+   :alt: Test Coverage
+   :target: https://codeclimate.com/github/parafoxia/analytix/test_coverage
+
+|
 
 A simple yet powerful wrapper for the YouTube Analytics API.
 
@@ -51,6 +51,9 @@ Features
 - A clever interface allows you to make multiple requests across multiple sessions without reauthorising
 - Extra support allows the native saving of CSV files and conversion to DataFrame objects
 - Easy enough for beginners, but powerful enough for advanced users
+
+Contents
+========
 
 .. toctree::
    :maxdepth: 1
