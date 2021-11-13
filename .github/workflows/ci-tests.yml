@@ -30,7 +30,7 @@ jobs:
       - name: Sleep to avoid ratelimits
         uses: 1itachi/sleep-random@v1.0.0
         with:
-          minutes: '1'
+          minutes: '2'
           random: 'true'
 
       - name: Checkout code
