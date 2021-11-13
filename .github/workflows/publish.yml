@@ -15,7 +15,7 @@ jobs:
 
     - name: Check version
       run: |
-        [[ $(sed -rn 's/__version__ = "(.*)"/v\1/p' nusex/__init__.py) == ${{ github.event.release.tag_name }} ]]
+        [[ $(sed -rn 's/__version__ = "(.*)"/v\1/p' analytix/__init__.py) == ${{ github.event.release.tag_name }} ]]
 
   build:
     name: Build package
