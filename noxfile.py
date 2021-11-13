@@ -27,6 +27,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import os
+import re
 from pathlib import Path
 
 import nox
@@ -35,25 +36,33 @@ PROJECT_NAME = "analytix"
 LIB_DIR = Path(__file__).parent / PROJECT_NAME
 TEST_DIR = Path(__file__).parent / "tests"
 
-
-def parse_requirements(path):
-    with open(path, mode="r", encoding="utf-8") as f:
-        deps = (d.strip() for d in f.readlines())
-        return [d for d in deps if not d.startswith(("#", "-r"))]
+DEP_PATTERN = re.compile("([a-zA-Z0-9-_]*)[=~<>,.0-9ab]*")
 
 
-DEPS = {
-    dep.split("~=")[0]: dep
-    for dep in [
-        *parse_requirements("./requirements-dev.txt"),
-        *parse_requirements("./requirements-nox.txt"),
-    ]
-}
+def resolve_requirements(path):
+    deps = {}
+
+    with open(path) as f:
+        for line in f:
+            if line.startswith(("#", "git")):
+                continue
+
+            if line.startswith("-r"):
+                deps.update(resolve_requirements(line[3:-1]))
+                continue
+
+            match = DEP_PATTERN.match(line)
+            deps.update({match.group(1): match.group(0)})
+
+    return deps
+
+
+DEPS = resolve_requirements("requirements-dev.txt")
 
 
 @nox.session(reuse_venv=True)
 def tests(session):
-    session.install("-U", *parse_requirements("./requirements-nox.txt"))
+    session.install("-Ur", "requirements-nox.txt", ".[opt]")
     session.run(
         "coverage",
         "run",

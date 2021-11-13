@@ -1,3 +1,3 @@
 git+https://github.com/parafoxia/analytix
-furo~=2021.9.8
-sphinx~=4.2.0
+furo
+sphinx<5,>4

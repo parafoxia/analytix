@@ -1,12 +1,13 @@
 -r requirements.txt
 -r requirements-opt.txt
-black~=21.10b0
-build~=0.7.0
+-r requirements-nox.txt
+black==21.10b0
+build<1
 flake8~=4.0.0
-furo~=2021.10.9
+furo
 isort~=5.9.3
 len8~=0.4.1
-mypy~=0.910
-nox~=2021.10.1
+mypy==0.910
+nox==2021.10.1
 git+https://github.com/pytest-dev/py; python_version == "3.11"
-sphinx~=4.2.0
+sphinx<5,>4
