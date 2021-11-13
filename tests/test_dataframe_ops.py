@@ -27,6 +27,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import datetime as dt
+import platform
 import sys
 
 import pytest
@@ -42,8 +43,9 @@ def client():
 
 
 @pytest.mark.skipif(
-    sys.version_info >= (3, 11, 0),
-    reason="pandas does not support Python 3.11",
+    sys.version_info >= (3, 11, 0)
+    or platform.python_implementation() != "CPython",
+    reason="pandas does not support Python 3.11 or PyPy",
 )
 def test_day_is_datetime(client):
     import pandas as pd
@@ -54,8 +56,9 @@ def test_day_is_datetime(client):
 
 
 @pytest.mark.skipif(
-    sys.version_info >= (3, 11, 0),
-    reason="pandas does not support Python 3.11",
+    sys.version_info >= (3, 11, 0)
+    or platform.python_implementation() != "CPython",
+    reason="pandas does not support Python 3.11 or PyPy",
 )
 def test_month_is_datetime(client):
     import pandas as pd
@@ -68,8 +71,9 @@ def test_month_is_datetime(client):
 
 
 @pytest.mark.skipif(
-    sys.version_info >= (3, 11, 0),
-    reason="pandas does not support Python 3.11",
+    sys.version_info >= (3, 11, 0)
+    or platform.python_implementation() != "CPython",
+    reason="pandas does not support Python 3.11 or PyPy",
 )
 def test_metrics_are_numeric(client):
     import pandas as pd
