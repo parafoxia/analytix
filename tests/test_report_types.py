@@ -29,7 +29,7 @@
 import datetime as dt
 import inspect
 
-import pytest  # type: ignore
+import pytest
 
 from analytix import YouTubeAnalytics
 from analytix.errors import HTTPError, InvalidRequest

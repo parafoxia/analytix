@@ -28,7 +28,7 @@
 
 import datetime as dt
 
-import pytest  # type: ignore
+import pytest
 
 from analytix import YouTubeAnalytics
 from analytix.errors import InvalidRequest

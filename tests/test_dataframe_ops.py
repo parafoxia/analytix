@@ -27,8 +27,9 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import datetime as dt
+import sys
 
-import pytest  # type: ignore
+import pytest
 
 from analytix import YouTubeAnalytics
 
@@ -40,6 +41,10 @@ def client():
     return client
 
 
+@pytest.mark.skipif(
+    sys.version_info >= (3, 11, 0),
+    reason="pandas does not support Python 3.11",
+)
 def test_day_is_datetime(client):
     import pandas as pd
 
@@ -48,6 +53,10 @@ def test_day_is_datetime(client):
     assert pd.api.types.is_datetime64_ns_dtype(df["day"])
 
 
+@pytest.mark.skipif(
+    sys.version_info >= (3, 11, 0),
+    reason="pandas does not support Python 3.11",
+)
 def test_month_is_datetime(client):
     import pandas as pd
 
@@ -58,6 +67,10 @@ def test_month_is_datetime(client):
     assert pd.api.types.is_datetime64_ns_dtype(df["month"])
 
 
+@pytest.mark.skipif(
+    sys.version_info >= (3, 11, 0),
+    reason="pandas does not support Python 3.11",
+)
 def test_metrics_are_numeric(client):
     import pandas as pd
 

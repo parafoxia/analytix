@@ -30,7 +30,7 @@ import datetime as dt
 import json
 import os
 
-import pytest  # type: ignore
+import pytest
 
 from analytix import YouTubeAnalytics
 

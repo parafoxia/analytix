@@ -28,7 +28,7 @@
 
 import json
 
-import pytest  # type: ignore
+import pytest
 
 from analytix import YouTubeAnalytics
 
