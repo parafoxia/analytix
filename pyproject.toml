@@ -8,3 +8,6 @@ build-backend = "setuptools.build_meta"
 [tool.black]
 extend-exclude = "analytix/__init__.py"
 line-length = 79
+
+[tool.isort]
+profile = "black"
