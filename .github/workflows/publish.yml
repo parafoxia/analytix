@@ -5,8 +5,21 @@ on:
     types: [published]
 
 jobs:
-  package:
-    name: Publish package
+  check-version:
+    name: Check version
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Check version
+      run: |
+        [[ $(sed -rn 's/__version__ = "(.*)"/v\1/p' nusex/__init__.py) == ${{ github.event.release.tag_name }} ]]
+
+  build:
+    name: Build package
+    needs: check-version
     runs-on: ubuntu-latest
 
     steps:
@@ -16,7 +29,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: '3.x'
+        python-version: "3.x"
 
     - name: Install dependencies
       run: |
@@ -25,36 +38,46 @@ jobs:
     - name: Build package
       run: python -m build
 
+    - name: Upload artefacts to workflow
+      uses: actions/upload-artifact@v2
+      with:
+        name: artefacts
+        path: dist/
+
+  publish:
+    name: Publish package
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Download artefacts
+      uses: actions/download-artifact@v2
+      with:
+        name: artefacts
+        path: dist/
+
     - name: Publish package
-      uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
+      uses: pypa/gh-action-pypi-publish@v1.4.2
       with:
         user: __token__
         password: ${{ secrets.PYPI_API_TOKEN }}
 
-  artefacts:
-    name: Publish artefacts
+  attach:
+    name: Attach artefacts to release
+    needs: build
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-
-    - name: Set up Python
-      uses: actions/setup-python@v2
+    - name: Download artefacts
+      uses: actions/download-artifact@v2
       with:
-        python-version: '3.x'
-
-    - name: Install dependencies
-      run: |
-        python -m pip install build
-
-    - name: Build artefacts
-      run: python -m build
+        name: artefacts
+        path: dist/
 
     - name: Attach artefacts to release
       uses: svenstaro/upload-release-action@v2
       with:
-        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        repo_token: ${{ github.token }}
         file: dist/*
         tag: ${{ github.ref }}
         overwrite: true

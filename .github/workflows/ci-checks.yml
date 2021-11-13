@@ -1,7 +1,14 @@
 name: CI (Checks)
 
 on:
-  [push, pull_request]
+  push:
+    branches:
+      - main
+      - task/**
+      - hotfix/**
+  pull_request:
+    branches:
+      - main
 
 jobs:
   check_formatting:
@@ -23,4 +30,23 @@ jobs:
 
       - name: Run checks
         run: |
-          python -m nox -k "not tests"
+          python -m nox -k "not tests and and not check_coverage and not check_docs"
+
+  check-docs:
+      name: Check docs build
+      runs-on: ubuntu-latest
+
+      steps:
+        - name: Checkout code
+          uses: actions/checkout@v2
+
+        - name: Set up Python
+          uses: actions/setup-python@v2
+          with:
+            python-version: '3.x'
+
+        - name: Install dependencies
+          run: python -m pip install nox
+
+        - name: Run checks
+          run: python -m nox -s check_docs_build
