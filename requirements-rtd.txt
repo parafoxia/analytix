@@ -1,3 +1,0 @@
-git+https://github.com/parafoxia/analytix
-furo
-sphinx<5,>4

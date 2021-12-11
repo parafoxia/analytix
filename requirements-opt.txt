@@ -1,2 +1,0 @@
--r requirements.txt
-pandas<2,>=1; python_version < "3.11" and platform_python_implementation == "CPython"

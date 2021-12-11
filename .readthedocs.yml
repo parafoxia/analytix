@@ -9,4 +9,4 @@ build:
 python:
   version: 3.8
   install:
-    - requirements: requirements-rtd.txt
+    - requirements: docs/requirements.txt

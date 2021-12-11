@@ -1,7 +1,7 @@
 ### Custom ###
+dev/
+secrets/
 *.json
-secrets
-testrun.py
 
 ### Data ###
 *.csv

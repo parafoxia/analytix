@@ -26,11 +26,14 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import sys
+from __future__ import annotations
 
-if sys.version_info < (3, 6, 0):
+import sys
+from collections import defaultdict
+
+if sys.version_info < (3, 7, 0):
     print(
-        "analytix only supports Python versions 3.6.0 or greater.",
+        "analytix only supports Python versions 3.7.0 or greater.",
         file=sys.stderr,
     )
     sys.exit(1)
@@ -38,39 +41,39 @@ if sys.version_info < (3, 6, 0):
 import setuptools
 
 
-def parse_requirements(path):
-    with open(path, mode="r", encoding="utf-8") as f:
+def parse_requirements(path: str) -> list[str]:
+    with open(path) as f:
         deps = (d.strip() for d in f.readlines())
         return [d for d in deps if not d.startswith(("#", "-r"))]
 
 
 with open("./analytix/__init__.py") as f:
-    (
-        productname,
-        version,
-        description,
-        url,
-        docs,
-        author,
-        email,
-        license_,
-        bug_tracker,
-        ci,
-    ) = [l.split('"')[1] for l in f.readlines()[28:38]]
+    attrs = defaultdict(str)
+
+    for line in f:
+        if not line.startswith("__"):
+            continue
+
+        k, v = line.split(" = ")
+        if k == "__all__":
+            continue
+
+        attrs[k[2:-2]] = v.strip().replace('"', "")
+
 
 with open("./README.md") as f:
     long_description = f.read()
 
 setuptools.setup(
-    name=productname,
-    version=version,
-    description=description,
+    name=attrs["productname"],
+    version=attrs["version"],
+    description=attrs["description"],
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url=url,
-    author=author,
-    author_email=email,
-    license=license_,
+    url=attrs["url"],
+    author=attrs["author"],
+    author_email=attrs["email"],
+    license=attrs["license"],
     classifiers=[
         # "Development Status :: 1 - Planning",
         # "Development Status :: 2 - Pre-Alpha",
@@ -83,28 +86,30 @@ setuptools.setup(
         "Natural Language :: English",
         "Operating System :: MacOS",
         "Operating System :: Microsoft :: Windows",
+        "Operating System :: OS Independent",
         "Operating System :: POSIX",
         "Operating System :: Unix",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3 :: Only",
-        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         # "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: Implementation :: CPython",
+        "Programming Language :: Python :: Implementation :: PyPy",
+        "Topic :: Software Development",
+        "Topic :: Software Development :: Code Generators",
         "Topic :: Utilities",
+        "Typing :: Typed",
     ],
     project_urls={
-        "Documentation": docs,
-        "Source": url,
-        "Bug Tracker": bug_tracker,
-        "CI": ci,
+        "Documentation": attrs["docs"],
+        "Source": attrs["url"],
+        "Bug Tracker": attrs["bugtracker"],
+        "CI": attrs["ci"],
     },
     install_requires=parse_requirements("./requirements.txt"),
-    extras_require={
-        "opt": parse_requirements("./requirements-opt.txt"),
-    },
-    python_requires=">=3.6.0",
+    python_requires=">=3.7.0,<3.12",
     packages=setuptools.find_packages(),
 )
