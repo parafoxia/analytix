@@ -18,7 +18,6 @@ isort~=5.10.0
 
 # Typing
 mypy==0.931
--r ./types.txt
 
 # Line lengths
 len8~=0.7.1

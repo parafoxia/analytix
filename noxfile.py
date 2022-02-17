@@ -54,7 +54,7 @@ DEP_PATTERN = re.compile("([a-zA-Z0-9-_]*)[=~<>,.0-9ab]*")
 def fetch_installs(*categories: str) -> list[str]:
     installs = []
 
-    with open(PROJECT_DIR / "requirements-dev.txt") as f:
+    with open(PROJECT_DIR / "requirements/dev.txt") as f:
         in_cat = None
 
         for line in f:
@@ -72,12 +72,12 @@ def fetch_installs(*categories: str) -> list[str]:
     return installs
 
 
-@nox.session(reuse_venv=True)  # type: ignore
+@nox.session(reuse_venv=True)
 def tests(session: nox.Session) -> None:
     os.makedirs(TEST_DIR / "data/test_deploy", exist_ok=True)
 
     try:
-        session.install("-U", *fetch_installs("Tests"), ".")
+        session.install(*fetch_installs("Tests"), ".")
         session.run(
             "coverage",
             "run",
@@ -93,15 +93,15 @@ def tests(session: nox.Session) -> None:
         shutil.rmtree(TEST_DIR / "data/test_deploy")
 
 
-@nox.session(reuse_venv=True)  # type: ignore
+@nox.session(reuse_venv=True)
 def check_formatting(session: nox.Session) -> None:
-    session.install("-U", *fetch_installs("Formatting"))
+    session.install(*fetch_installs("Formatting"))
     session.run("black", ".", "--check")
 
 
-@nox.session(reuse_venv=True)  # type: ignore
+@nox.session(reuse_venv=True)
 def check_imports(session: nox.Session) -> None:
-    session.install("-U", *fetch_installs("Imports"))
+    session.install(*fetch_installs("Imports"))
     # flake8 doesn't use the gitignore so we have to be explicit.
     session.run(
         "flake8",
@@ -116,21 +116,25 @@ def check_imports(session: nox.Session) -> None:
     session.run("isort", *CHECK_PATHS, "-cq")
 
 
-@nox.session(reuse_venv=True)  # type: ignore
+@nox.session(reuse_venv=True)
 def check_typing(session: nox.Session) -> None:
-    session.install("-U", *fetch_installs("Typing"), "-r", "requirements.txt")
-    session.run("mypy", *CHECK_PATHS)
+    session.install(
+        *fetch_installs("Typing"),
+        "-r",
+        "requirements/types.txt",
+    )
+    session.run("mypy", CHECK_PATHS[0], CHECK_PATHS[3])
 
 
-@nox.session(reuse_venv=True)  # type: ignore
+@nox.session(reuse_venv=True)
 def check_line_lengths(session: nox.Session) -> None:
     check = [p for p in CHECK_PATHS if p != str(TEST_DIR)]
 
-    session.install("-U", *fetch_installs("Line lengths"))
+    session.install(*fetch_installs("Line lengths"))
     session.run("len8", *check, "-lx", "data")
 
 
-@nox.session(reuse_venv=True)  # type: ignore
+@nox.session(reuse_venv=True)
 def check_licensing(session: nox.Session) -> None:
     missing = []
 
@@ -150,30 +154,30 @@ def check_licensing(session: nox.Session) -> None:
         )
 
 
-@nox.session(reuse_venv=True)  # type: ignore
+@nox.session(reuse_venv=True)
 def check_spelling(session: nox.Session) -> None:
-    session.install("-U", *fetch_installs("Spelling"))
+    session.install(*fetch_installs("Spelling"))
     session.run("codespell", *CHECK_PATHS)
 
 
-@nox.session(reuse_venv=True)  # type: ignore
+@nox.session(reuse_venv=True)
 def check_safety(session: nox.Session) -> None:
     if sys.version_info >= (3, 11):
         session.skip("Safety does not support Python 3.11")
 
-    with open(PROJECT_DIR / "docs/requirements.txt") as f:
-        installs = f.read().splitlines()[1:]
+    with open(PROJECT_DIR / "requirements.txt") as f:
+        installs = f.read().splitlines()
 
-    for p in list(PROJECT_DIR.glob("requirements*.txt")):
+    for p in list(PROJECT_DIR.glob("requirements/*.txt")):
         installs.extend(["-r", f"{p}"])
 
     # Needed due to https://github.com/pypa/pip/pull/9827.
-    session.install("-U", "pip")
-    session.install("-U", *installs)
+    session.install("pip")
+    session.install(*installs)
     session.run("safety", "check", "--full-report")
 
 
-@nox.session(reuse_venv=True)  # type: ignore
+@nox.session(reuse_venv=True)
 def check_security(session: nox.Session) -> None:
-    session.install("-U", *fetch_installs("Security"))
+    session.install(*fetch_installs("Security"))
     session.run("bandit", "-qr", *CHECK_PATHS, "-s", "B101")
