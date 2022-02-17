@@ -29,6 +29,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import pathlib
 import typing as t
 from dataclasses import dataclass
@@ -36,6 +37,8 @@ from dataclasses import dataclass
 import aiofiles
 
 _ST = t.Union[str, list[str]]
+
+log = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -56,16 +59,28 @@ class Secrets:
 
     @classmethod
     def from_file(cls, path: pathlib.Path | str) -> Secrets:
+        if not isinstance(path, pathlib.Path):
+            path = pathlib.Path(path)
+
+        log.debug(f"Loading secrets from {path.resolve()}...")
+
         with open(path) as f:
             data = json.load(f)["installed"]
 
+        log.info("Secrets loaded!")
         return cls(**data)
 
     @classmethod
     async def afrom_file(cls, path: pathlib.Path | str) -> Secrets:
+        if not isinstance(path, pathlib.Path):
+            path = pathlib.Path(path)
+
+        log.debug(f"Loading secrets from {path.resolve()}...")
+
         async with aiofiles.open(path) as f:
             data = json.loads(await f.read())["installed"]
 
+        log.info("Secrets loaded!")
         return cls(**data)
 
     def to_dict(self) -> dict[str, _ST]:

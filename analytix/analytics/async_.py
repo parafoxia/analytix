@@ -28,6 +28,7 @@
 
 from __future__ import annotations
 
+import logging
 import os
 import pathlib
 import typing as t
@@ -38,6 +39,8 @@ import analytix
 from analytix import oauth
 from analytix.secrets import Secrets
 from analytix.tokens import Tokens
+
+log = logging.getLogger(__name__)
 
 
 class AsyncAnalytics:
@@ -65,6 +68,7 @@ class AsyncAnalytics:
 
     async def close_session(self) -> None:
         await self._session.aclose()
+        log.info("Session closed")
 
     async def _try_load_tokens(self, path: pathlib.Path) -> Tokens | None:
         if not path.is_file():
@@ -81,25 +85,28 @@ class AsyncAnalytics:
         r.raise_for_status()
         return Tokens.from_data(r.json())
 
-    async def token_needs_refreshing(self) -> bool:
+    async def check_token_is_valid(self) -> bool:
         if not self._tokens:
-            return False
+            return True
 
+        log.debug("Checking if token needs to be refreshed...")
         r = await self._session.get(
             analytix.OAUTH_CHECK_URL + self._tokens.access_token
         )
         if r.is_error:
             # This seems to fail sometimes when a token is invalid, so
             # just refresh it -- we probably need to anyways.
-            return True
+            return False
 
         # If it's only got a few minutes on it, might as well refresh.
-        return int(r.json().get("expires_in", 0)) < 300
+        return int(r.json().get("expires_in", 0)) > 300
 
     async def refresh_access_token(self) -> None:
         if not self._tokens:
-            return None
+            log.warning("There are no tokens to refresh")
+            return
 
+        log.info("Refreshing access token...")
         data, headers = oauth.refresh_data_and_headers(
             self._tokens.refresh_token, self.secrets
         )
@@ -121,10 +128,13 @@ class AsyncAnalytics:
         self._token_path = token_path
 
         if not force:
+            log.info("Attempting to load tokens...")
             self._tokens = await self._try_load_tokens(token_path)
 
         if not self._tokens:
+            log.info("Unable to load tokens; you will need to authorise")
             self._tokens = await self._retrieve_tokens()
+            await self._tokens.awrite(token_path)
 
-        await self._tokens.awrite(token_path)
+        log.info("Authorisation complete!")
         return self._tokens
