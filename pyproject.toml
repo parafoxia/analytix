@@ -6,7 +6,6 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [tool.black]
-extend-exclude = "analytix/__init__.py"
 line-length = 88
 
 [tool.isort]
@@ -15,3 +14,8 @@ profile = "black"
 [tool.mypy]
 strict = true
 ignore_missing_imports = true
+exclude = "tests"
+
+[tool.len8]
+exclude = ["tests"]
+code-length = 88
