@@ -26,36 +26,58 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__all__ = (
-    "API_BASE_URL",
-    "API_SCOPES",
-    "API_SERVICE_NAME",
-    "Analytics",
-    "AsyncAnalytics",
-    "OAUTH_CHECK_URL",
-    "setup_logging",
-)
+from __future__ import annotations
 
-__productname__ = "analytix"
-__version__ = "3.0.0.dev0"
-__description__ = "A simple yet powerful wrapper for the YouTube Analytics API."
-__url__ = "https://github.com/parafoxia/analytix"
-__docs__ = "https://analytix.readthedocs.io"
-__author__ = "Ethan Henderson"
-__author_email__ = "ethan.henderson.1998@gmail.com"
-__license__ = "BSD 3-Clause 'New' or 'Revised' License"
-__bugtracker__ = "https://github.com/parafoxia/analytix/issues"
-__ci__ = "https://github.com/parafoxia/analytix/actions"
-__changelog__ = "https://github.com/parafoxia/analytix/releases"
+import json
+import pathlib
+from dataclasses import dataclass
 
-from .analytics.async_ import AsyncAnalytics
-from .analytics.sync import Analytics
-from .ux import setup_logging
+import aiofiles
 
-API_SERVICE_NAME = "youtubeAnalytics"
-API_BASE_URL = "https://youtubeanalytics.googleapis.com/v2/"
-API_SCOPES = (
-    "https://www.googleapis.com/auth/yt-analytics.readonly",
-    "https://www.googleapis.com/auth/yt-analytics-monetary.readonly",
-)
-OAUTH_CHECK_URL = "https://www.googleapis.com/oauth2/v3/tokeninfo?access_token="
+
+@dataclass()
+class Tokens:
+    access_token: str
+    expires_in: int
+    refresh_token: str
+    scope: str
+    token_type: str
+
+    @classmethod
+    def from_data(cls, data: dict[str, str | int]) -> Tokens:
+        return cls(**data)  # type: ignore
+
+    @classmethod
+    def from_file(cls, path: pathlib.Path | str) -> Tokens:
+        with open(path) as f:
+            data = json.load(f)
+
+        return cls(**data)
+
+    @classmethod
+    async def afrom_file(cls, path: pathlib.Path | str) -> Tokens:
+        async with aiofiles.open(path) as f:
+            data = json.loads(await f.read())
+
+        return cls(**data)
+
+    def update(self, data: dict[str, str | int]) -> None:
+        for k, v in data.items():
+            setattr(self, k, v)
+
+    def to_dict(self) -> dict[str, str | int]:
+        return {
+            "access_token": self.access_token,
+            "expires_in": self.expires_in,
+            "refresh_token": self.refresh_token,
+            "scope": self.scope,
+            "token_type": self.token_type,
+        }
+
+    def write(self, path: pathlib.Path | str) -> None:
+        with open(path, "w") as f:
+            json.dump(self.to_dict(), f)
+
+    async def awrite(self, path: pathlib.Path | str) -> None:
+        async with aiofiles.open(path, "w") as f:
+            await f.write(json.dumps(self.to_dict()))

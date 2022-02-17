@@ -26,36 +26,55 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__all__ = (
-    "API_BASE_URL",
-    "API_SCOPES",
-    "API_SERVICE_NAME",
-    "Analytics",
-    "AsyncAnalytics",
-    "OAUTH_CHECK_URL",
-    "setup_logging",
-)
+from __future__ import annotations
 
-__productname__ = "analytix"
-__version__ = "3.0.0.dev0"
-__description__ = "A simple yet powerful wrapper for the YouTube Analytics API."
-__url__ = "https://github.com/parafoxia/analytix"
-__docs__ = "https://analytix.readthedocs.io"
-__author__ = "Ethan Henderson"
-__author_email__ = "ethan.henderson.1998@gmail.com"
-__license__ = "BSD 3-Clause 'New' or 'Revised' License"
-__bugtracker__ = "https://github.com/parafoxia/analytix/issues"
-__ci__ = "https://github.com/parafoxia/analytix/actions"
-__changelog__ = "https://github.com/parafoxia/analytix/releases"
+import json
+import pathlib
+import typing as t
+from dataclasses import dataclass
 
-from .analytics.async_ import AsyncAnalytics
-from .analytics.sync import Analytics
-from .ux import setup_logging
+import aiofiles
 
-API_SERVICE_NAME = "youtubeAnalytics"
-API_BASE_URL = "https://youtubeanalytics.googleapis.com/v2/"
-API_SCOPES = (
-    "https://www.googleapis.com/auth/yt-analytics.readonly",
-    "https://www.googleapis.com/auth/yt-analytics-monetary.readonly",
-)
-OAUTH_CHECK_URL = "https://www.googleapis.com/oauth2/v3/tokeninfo?access_token="
+_ST = t.Union[str, list[str]]
+
+
+@dataclass(frozen=True)
+class Secrets:
+    client_id: str
+    project_id: str
+    auth_uri: str
+    token_uri: str
+    auth_provider_x509_cert_url: str
+    client_secret: str
+    redirect_uris: list[str]
+
+    def __str__(self) -> str:
+        return self.project_id
+
+    def __getitem__(self, key: str) -> _ST:
+        return t.cast(_ST, getattr(self, key))
+
+    @classmethod
+    def from_file(cls, path: pathlib.Path | str) -> Secrets:
+        with open(path) as f:
+            data = json.load(f)["installed"]
+
+        return cls(**data)
+
+    @classmethod
+    async def afrom_file(cls, path: pathlib.Path | str) -> Secrets:
+        async with aiofiles.open(path) as f:
+            data = json.loads(await f.read())["installed"]
+
+        return cls(**data)
+
+    def to_dict(self) -> dict[str, _ST]:
+        return {
+            "client_id": self.client_id,
+            "project_id": self.project_id,
+            "auth_uri": self.auth_uri,
+            "token_uri": self.token_uri,
+            "auth_provider_x509_cert_url": self.auth_provider_x509_cert_url,
+            "client_secret": self.client_secret,
+            "redirect_uris": self.redirect_uris,
+        }

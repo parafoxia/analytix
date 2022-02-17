@@ -26,36 +26,57 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__all__ = (
-    "API_BASE_URL",
-    "API_SCOPES",
-    "API_SERVICE_NAME",
-    "Analytics",
-    "AsyncAnalytics",
-    "OAUTH_CHECK_URL",
-    "setup_logging",
-)
+from __future__ import annotations
 
-__productname__ = "analytix"
-__version__ = "3.0.0.dev0"
-__description__ = "A simple yet powerful wrapper for the YouTube Analytics API."
-__url__ = "https://github.com/parafoxia/analytix"
-__docs__ = "https://analytix.readthedocs.io"
-__author__ = "Ethan Henderson"
-__author_email__ = "ethan.henderson.1998@gmail.com"
-__license__ = "BSD 3-Clause 'New' or 'Revised' License"
-__bugtracker__ = "https://github.com/parafoxia/analytix/issues"
-__ci__ = "https://github.com/parafoxia/analytix/actions"
-__changelog__ = "https://github.com/parafoxia/analytix/releases"
+import hashlib
+import logging
+import time
+import typing as t
 
-from .analytics.async_ import AsyncAnalytics
-from .analytics.sync import Analytics
-from .ux import setup_logging
+import analytix
 
-API_SERVICE_NAME = "youtubeAnalytics"
-API_BASE_URL = "https://youtubeanalytics.googleapis.com/v2/"
-API_SCOPES = (
-    "https://www.googleapis.com/auth/yt-analytics.readonly",
-    "https://www.googleapis.com/auth/yt-analytics-monetary.readonly",
-)
-OAUTH_CHECK_URL = "https://www.googleapis.com/oauth2/v3/tokeninfo?access_token="
+if t.TYPE_CHECKING:
+    from analytix.secrets import Secrets
+
+    _DHT = tuple[dict[str, str], dict[str, str]]
+
+log = logging.getLogger(__name__)
+
+
+def create_state() -> str:
+    return hashlib.sha256(f"{time.time()}".encode("utf-8")).hexdigest()
+
+
+def auth_url_and_state(secrets: Secrets) -> tuple[str, str]:
+    state = create_state()
+    url = secrets.auth_uri + (
+        "?response_type=code"
+        f"&client_id={secrets.client_id}"
+        f"&redirect_uri={secrets.redirect_uris[0]}"
+        f"&scope={'+'.join(analytix.API_SCOPES)}"
+        f"&state={state}"
+    )
+    return url, state
+
+
+def access_data_and_headers(code: str, secrets: Secrets) -> _DHT:
+    data = {
+        "client_id": secrets.client_id,
+        "client_secret": secrets.client_secret,
+        "grant_type": "authorization_code",
+        "code": code,
+        "redirect_uri": secrets.redirect_uris[0],
+    }
+    headers = {"Content-Type": "application/x-www-form-urlencoded"}
+    return data, headers
+
+
+def refresh_data_and_headers(token: str, secrets: Secrets) -> _DHT:
+    data = {
+        "client_id": secrets.client_id,
+        "client_secret": secrets.client_secret,
+        "grant_type": "refresh_token",
+        "refresh_token": token,
+    }
+    headers = {"Content-Type": "application/x-www-form-urlencoded"}
+    return data, headers

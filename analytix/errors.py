@@ -26,36 +26,6 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__all__ = (
-    "API_BASE_URL",
-    "API_SCOPES",
-    "API_SERVICE_NAME",
-    "Analytics",
-    "AsyncAnalytics",
-    "OAUTH_CHECK_URL",
-    "setup_logging",
-)
 
-__productname__ = "analytix"
-__version__ = "3.0.0.dev0"
-__description__ = "A simple yet powerful wrapper for the YouTube Analytics API."
-__url__ = "https://github.com/parafoxia/analytix"
-__docs__ = "https://analytix.readthedocs.io"
-__author__ = "Ethan Henderson"
-__author_email__ = "ethan.henderson.1998@gmail.com"
-__license__ = "BSD 3-Clause 'New' or 'Revised' License"
-__bugtracker__ = "https://github.com/parafoxia/analytix/issues"
-__ci__ = "https://github.com/parafoxia/analytix/actions"
-__changelog__ = "https://github.com/parafoxia/analytix/releases"
-
-from .analytics.async_ import AsyncAnalytics
-from .analytics.sync import Analytics
-from .ux import setup_logging
-
-API_SERVICE_NAME = "youtubeAnalytics"
-API_BASE_URL = "https://youtubeanalytics.googleapis.com/v2/"
-API_SCOPES = (
-    "https://www.googleapis.com/auth/yt-analytics.readonly",
-    "https://www.googleapis.com/auth/yt-analytics-monetary.readonly",
-)
-OAUTH_CHECK_URL = "https://www.googleapis.com/oauth2/v3/tokeninfo?access_token="
+class AnalytixError(Exception):
+    ...
