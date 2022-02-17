@@ -1,4 +1,4 @@
-# Copyright (c) 2021, Ethan Henderson
+# Copyright (c) 2021-present, Ethan Henderson
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -27,14 +27,13 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 __productname__ = "analytix"
-__version__ = "2.2.0.post0"
-__desc__ = "A simple yet powerful wrapper for the YouTube Analytics API."
+__version__ = "3.0.0.dev0"
+__description__ = "A simple yet powerful wrapper for the YouTube Analytics API."
 __url__ = "https://github.com/parafoxia/analytix"
-__docs__ = "https://analytix.readthedocs.io/en/latest/"
+__docs__ = "https://analytix.readthedocs.io"
 __author__ = "Ethan Henderson"
-__author_email__  = "ethan.henderson.1998@gmail.com"
-__license__ = "BSD-3-Clause"
+__author_email__ = "ethan.henderson.1998@gmail.com"
+__license__ = "BSD 3-Clause 'New' or 'Revised' License"
 __bugtracker__ = "https://github.com/parafoxia/analytix/issues"
 __ci__ = "https://github.com/parafoxia/analytix/actions"
-
-from .youtube.analytics.api import YouTubeAnalytics
+__changelog__ = "https://github.com/parafoxia/analytix/releases"
