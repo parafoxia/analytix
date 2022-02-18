@@ -29,7 +29,10 @@
 from __future__ import annotations
 
 import logging
+import platform
+import sys
 import typing as t
+import imp
 
 import analytix
 
@@ -61,11 +64,17 @@ def display_splash() -> None:
     print(
         BANNER + "\n"
         "\33[3mA simple yet powerful wrapper for the YouTube Analytics API.\33[0m\n\n"
-        f"You're using version \33[1m{analytix.__version__}\33[0m.\n\n"
-        f"• Documentation: \33[4m{analytix.__docs__}\33[0m\n"
-        f"• Source: \33[4m{analytix.__url__}\33[0m\n"
-        f"• Changelog: \33[4m{analytix.__changelog__}\33[0m\n\n"
-        f"\33[1mThanks for using analytix!\33[0m"
+        f"You're using version \33[1m\33[38;5;1m{analytix.__version__}\33[0m.\n\n"
+        f"\33[1m\33[38;5;4mInformation:\33[0m\n"
+        f" • Python version: {platform.python_version()} "
+        f"({platform.python_implementation()})\n"
+        f" • Operating system: {platform.system()} ({platform.release()})\n"
+        f" • Installed in: {imp.find_module('analytix')[1]}\n\n"
+        f"\33[1m\33[38;5;2mUseful links:\33[0m\n"
+        f" • Documentation: \33[4m{analytix.__docs__}\33[0m\n"
+        f" • Source: \33[4m{analytix.__url__}\33[0m\n"
+        f" • Changelog: \33[4m{analytix.__changelog__}\33[0m\n\n"
+        f"\33[1m\33[38;5;219mThanks for using analytix!\33[0m"
     )
 
 
