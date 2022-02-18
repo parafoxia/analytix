@@ -51,8 +51,8 @@ __changelog__ = "https://github.com/parafoxia/analytix/releases"
 
 from pkg_resources import working_set
 
-from .analytics.async_ import AsyncAnalytics
-from .analytics.sync import Analytics
+from .analytics import Analytics
+from .async_analytics import AsyncAnalytics
 from .ux import setup_logging
 
 API_SERVICE_NAME = "youtubeAnalytics"
