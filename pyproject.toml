@@ -17,5 +17,5 @@ ignore_missing_imports = true
 exclude = "tests"
 
 [tool.len8]
-exclude = ["tests"]
+exclude = ["tests", "ux.py"]
 code-length = 88

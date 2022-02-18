@@ -20,7 +20,7 @@ isort~=5.10.0
 mypy==0.931
 
 # Line lengths
-len8~=0.7.1
+len8~=0.7.2
 
 # Spelling
 codespell~=2.1.0

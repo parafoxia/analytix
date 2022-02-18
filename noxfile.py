@@ -131,7 +131,7 @@ def check_line_lengths(session: nox.Session) -> None:
     check = [p for p in CHECK_PATHS if p != str(TEST_DIR)]
 
     session.install(*fetch_installs("Line lengths"))
-    session.run("len8", *check, "-lx", "data")
+    session.run("len8", *check)
 
 
 @nox.session(reuse_venv=True)
