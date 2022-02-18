@@ -33,3 +33,91 @@ class AnalytixError(Exception):
 
 class NotAvailable(AnalytixError):
     ...
+
+
+class InvalidRequest(AnalytixError):
+    ...
+
+
+class MissingMetrics(InvalidRequest):
+    def __init__(self, message: str | None = None) -> None:
+        super().__init__(message or "expected at least 1 metric, got 0")
+
+
+class MissingSortOptions(InvalidRequest):
+    def __init__(self, message: str | None = None) -> None:
+        super().__init__(message or "expected at least 1 sort option, got 0")
+
+
+class InvalidMetrics(InvalidRequest):
+    def __init__(self, diff: set[str]) -> None:
+        vals = ", ".join(diff)
+        super().__init__(f"invalid metric(s) provided: {vals!r}")
+
+
+class UnsupportedMetrics(InvalidRequest):
+    def __init__(self, diff: set[str]) -> None:
+        vals = ", ".join(diff)
+        super().__init__(f"unsupported metric(s) for selected report type: {vals!r}")
+
+
+class InvalidSortOptions(InvalidRequest):
+    def __init__(self, diff: set[str]) -> None:
+        vals = ", ".join(diff)
+        super().__init__(f"invalid sort option(s) provided: {vals!r}")
+
+
+class UnsupportedSortOptions(InvalidRequest):
+    def __init__(self, diff: set[str]) -> None:
+        vals = ", ".join(diff)
+        super().__init__(
+            f"unsupported sort option(s) for selected report type: {vals!r}"
+        )
+
+
+class InvalidDimensions(InvalidRequest):
+    def __init__(self, diff: set[str]) -> None:
+        vals = ", ".join(diff)
+        super().__init__(f"invalid dimension(s) provided: {vals!r}")
+
+
+class UnsupportedDimensions(InvalidRequest):
+    def __init__(self, diff: set[str]) -> None:
+        vals = ", ".join(diff)
+        super().__init__(f"unsupported dimension(s) for selected report type: {vals!r}")
+
+
+class InvalidSetOfDimensions(InvalidRequest):
+    def __init__(self, expd: str, recv: int, values: set[str]) -> None:
+        vals = ", ".join(values)
+        super().__init__(f"expected {expd} dimension(s) from {vals!r}, got {recv}")
+
+
+class InvalidFilters(InvalidRequest):
+    def __init__(self, diff: set[str]) -> None:
+        vals = ", ".join(diff)
+        super().__init__(f"invalid filter(s) provided: {vals}")
+
+
+class UnsupportedFilters(InvalidRequest):
+    def __init__(self, diff: set[str]) -> None:
+        vals = ", ".join(diff)
+        super().__init__(f"unsupported filter(s) for selected report type: {vals}")
+
+
+class InvalidSetOfFilters(InvalidRequest):
+    def __init__(self, expd: str, recv: int, values: set[str]) -> None:
+        vals = ", ".join(values)
+        super().__init__(f"expected {expd} filter(s) from {vals!r}, got {recv}")
+
+
+class InvalidFilterValue(InvalidRequest):
+    def __init__(self, key: str, value: str) -> None:
+        super().__init__(f"invalid value for filter {key!r}: {value!r}")
+
+
+class UnsupportedFilterValue(InvalidRequest):
+    def __init__(self, key: str, value: str) -> None:
+        super().__init__(
+            f"unsupported value for filter {key!r} for selected report type: {value!r}"
+        )
