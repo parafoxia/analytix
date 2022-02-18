@@ -30,12 +30,11 @@ from __future__ import annotations
 
 import typing as t
 
-from analytix import data, errors
-from analytix.abc import FeatureType, SegmentedFeatureType, SetType
+from analytix import abc, data, errors
 
 
-class Metrics(FeatureType):
-    def validate(self, inputs: t.Iterable[str]) -> None:
+class Metrics(abc.FeatureType):
+    def validate(self, inputs: t.Collection[str]) -> None:
         if not len(inputs):
             raise errors.MissingMetrics()
 
@@ -51,8 +50,8 @@ class Metrics(FeatureType):
             raise errors.UnsupportedMetrics(diff)
 
 
-class SortOptions(FeatureType):
-    def validate(self, inputs: t.Iterable[str]) -> None:
+class SortOptions(abc.FeatureType):
+    def validate(self, inputs: t.Collection[str]) -> None:
         inputs = set(i.strip("-") for i in inputs)
 
         diff = inputs - set(data.ALL_METRICS)
@@ -64,8 +63,8 @@ class SortOptions(FeatureType):
             raise errors.UnsupportedSortOptions(diff)
 
 
-class Dimensions(SegmentedFeatureType):
-    def validate(self, inputs: t.Iterable[str]) -> None:
+class Dimensions(abc.SegmentedFeatureType):
+    def validate(self, inputs: t.Collection[str]) -> None:
         if not isinstance(inputs, set):
             inputs = set(inputs)
 
@@ -81,7 +80,7 @@ class Dimensions(SegmentedFeatureType):
             set_type.validate_dimensions(inputs)
 
 
-class Filters(SegmentedFeatureType):
+class Filters(abc.MappingFeatureType):
     @property
     def every_key(self) -> set[str]:
         return {v[: v.index("=")] if "==" in v else v for v in self.every}
@@ -123,7 +122,7 @@ class Filters(SegmentedFeatureType):
             set_type.validate_filters(keys)
 
 
-class Required(SetType):
+class Required(abc.SetType):
     def validate_dimensions(self, inputs: set[str]) -> None:
         if self.values & inputs == self.values:
             return
@@ -139,7 +138,7 @@ class Required(SetType):
         raise errors.InvalidSetOfFilters("all", common, self.values)
 
 
-class ExactlyOne(SetType):
+class ExactlyOne(abc.SetType):
     def validate_dimensions(self, inputs: set[str]) -> None:
         if len(self.values & inputs) == 1:
             return
@@ -155,7 +154,7 @@ class ExactlyOne(SetType):
         raise errors.InvalidSetOfFilters("1", common, self.values)
 
 
-class OneOrMore(SetType):
+class OneOrMore(abc.SetType):
     def validate_dimensions(self, inputs: set[str]) -> None:
         if len(self.values & inputs) > 0:
             return
@@ -171,7 +170,7 @@ class OneOrMore(SetType):
         raise errors.InvalidSetOfFilters("at least 1", common, self.values)
 
 
-class Optional(SetType):
+class Optional(abc.SetType):
     def validate_dimensions(self, inputs: set[str]) -> None:
         # No verifiction required.
         ...
@@ -181,7 +180,7 @@ class Optional(SetType):
         ...
 
 
-class ZeroOrOne(SetType):
+class ZeroOrOne(abc.SetType):
     def validate_dimensions(self, inputs: set[str]) -> None:
         if len(self.values & inputs) < 2:
             return
@@ -197,7 +196,7 @@ class ZeroOrOne(SetType):
         raise errors.InvalidSetOfFilters("0 or 1", common, self.values)
 
 
-class ZeroOrMore(SetType):
+class ZeroOrMore(abc.SetType):
     def validate_dimensions(self, inputs: set[str]) -> None:
         # No verifiction required.
         ...

@@ -43,19 +43,25 @@ class DetailedReportType(ReportType, metaclass=abc.ABCMeta):
 class FeatureType(metaclass=abc.ABCMeta):
     __slots__ = ("values",)
 
-    def __init__(self, *args: SetType) -> None:
+    def __init__(self, *args: str) -> None:
         self.values = set(args)
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(values={self.values})"
 
     @abc.abstractmethod
-    def validate(self, inputs: t.Iterable[str]) -> None:
+    def validate(self, inputs: t.Collection[str]) -> None:
         raise NotImplementedError
 
 
-class SegmentedFeatureType(FeatureType, metaclass=abc.ABCMeta):
+class SegmentedFeatureType(metaclass=abc.ABCMeta):
     __slots__ = ("values",)
+
+    def __init__(self, *args: SetType) -> None:
+        self.values = set(args)
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(values={self.values})"
 
     @property
     def every(self) -> set[str]:
@@ -67,7 +73,30 @@ class SegmentedFeatureType(FeatureType, metaclass=abc.ABCMeta):
         return every
 
     @abc.abstractmethod
-    def validate(self, inputs: t.Iterable[str]) -> None:
+    def validate(self, inputs: t.Collection[str]) -> None:
+        raise NotImplementedError
+
+
+class MappingFeatureType(metaclass=abc.ABCMeta):
+    __slots__ = ("values",)
+
+    def __init__(self, *args: SetType) -> None:
+        self.values = set(args)
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(values={self.values})"
+
+    @property
+    def every(self) -> set[str]:
+        every = set()
+
+        for set_type in self.values:
+            every |= set_type.values
+
+        return every
+
+    @abc.abstractmethod
+    def validate(self, inputs: dict[str, str]) -> None:
         raise NotImplementedError
 
 
@@ -86,5 +115,5 @@ class SetType(metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def validate_filters(self, keys: set[str], expd_keys: set[str]) -> None:
+    def validate_filters(self, keys: set[str]) -> None:
         raise NotImplementedError
