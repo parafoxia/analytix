@@ -33,7 +33,7 @@ __all__ = (
     "Analytics",
     "AsyncAnalytics",
     "OAUTH_CHECK_URL",
-    "PANDAS_AVAILABLE"
+    "PANDAS_AVAILABLE",
     "setup_logging",
 )
 
