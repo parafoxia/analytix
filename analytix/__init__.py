@@ -33,6 +33,7 @@ __all__ = (
     "Analytics",
     "AsyncAnalytics",
     "OAUTH_CHECK_URL",
+    "PANDAS_AVAILABLE"
     "setup_logging",
 )
 
@@ -48,6 +49,8 @@ __bugtracker__ = "https://github.com/parafoxia/analytix/issues"
 __ci__ = "https://github.com/parafoxia/analytix/actions"
 __changelog__ = "https://github.com/parafoxia/analytix/releases"
 
+from pkg_resources import working_set
+
 from .analytics.async_ import AsyncAnalytics
 from .analytics.sync import Analytics
 from .ux import setup_logging
@@ -59,3 +62,5 @@ API_SCOPES = (
     "https://www.googleapis.com/auth/yt-analytics-monetary.readonly",
 )
 OAUTH_CHECK_URL = "https://www.googleapis.com/oauth2/v3/tokeninfo?access_token="
+
+PANDAS_AVAILABLE = "pandas" in [p.key for p in working_set]

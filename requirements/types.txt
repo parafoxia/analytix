@@ -1,2 +1,3 @@
 -r ../requirements.txt
 types-aiofiles
+types-setuptools

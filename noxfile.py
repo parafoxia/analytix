@@ -144,7 +144,7 @@ def check_licensing(session: nox.Session) -> None:
         *PROJECT_DIR.glob("*.py"),
     ]:
         with open(p) as f:
-            if not f.read().startswith("# Copyright (c)"):
+            if not f.read().startswith("# Copyright (c) 2021-present, Ethan Henderson"):
                 missing.append(p)
 
     if missing:

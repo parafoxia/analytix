@@ -29,3 +29,7 @@
 
 class AnalytixError(Exception):
     ...
+
+
+class NotAvailable(AnalytixError):
+    ...
