@@ -25,7 +25,7 @@ Windows, MacOS, and Linux are all supported.
 - Extra support allows the native saving of CSV files and conversion to DataFrame objects
 - Easy enough for beginners, but powerful enough for advanced users
 
-## What does analytix do?
+## What does *analytix* do?
 
 The YouTube Studio provides a fantastic interface where creators can view some incredibly detailed analytics for their channel. However, there's no way to perform programmatical operations on the data to do some proper analysis on it. This is where *analytix* comes in.
 
@@ -64,9 +64,9 @@ pip install "analytix[types]"
 
 ## OAuth authentication
 
-All requests need to be authorised through OAuth 2. In order to do this, you will need a Google Developers project with the YouTube Analytics API enabled. You can find instructions on how to do that in the [API setup guide](https://analytix.readthedocs.io/en/latest/refs/yt-analytics-setup.html), or on [this video](https://www.youtube.com/watch?v=1Xday10ZWeg).
+All requests to the YouTube Analytics API need to be authorised through OAuth 2. In order to do this, you will need a Google Developers project with the YouTube Analytics API enabled. You can find instructions on how to do that in the [API setup guide](https://analytix.readthedocs.io/en/latest/refs/yt-analytics-setup.html), or on [this video](https://www.youtube.com/watch?v=1Xday10ZWeg).
 
-When *analytix* boots up for the first time, it will display a link, and ask for a code. You'll need to follow that link, run through all the steps, and enter the code to authorise *analytix*. Once that's done, *analytix* saves the tokens to the disk (if you plan to run *analytix* on a server, make sure these are in a safe place). This file, as well as your access token, will also contain your refresh token, which *analytix* will automatically use to refresh your access token when needed.
+When *analytix* boots up for the first time, it will display a link, and ask for a code. You'll need to follow that link, run through all the steps, and enter the code to authorise it. Once that's done, *analytix* saves the tokens to the disk (if you plan to run *analytix* on a server, make sure these are in a safe place). This includes your refresh token, which *analytix* will automatically use to refresh your access token when needed.
 
 This means you should only have to authorise *analytix* **once every 200 days**. If you want to reset your tokens, you can either force authorisation within *analytix*, or simple delete the generated token file.
 
