@@ -13,7 +13,7 @@
 
 A simple yet powerful wrapper for the YouTube Analytics API.
 
-CPython versions 3.6 through 3.11-dev and PyPy versions 3.6 and 3.7 are officially supported.
+CPython versions 3.7 through 3.11-dev and PyPy versions 3.7 and 3.8 are officially supported.
 
 Windows, MacOS, and Linux are all supported.
 
@@ -25,18 +25,22 @@ Windows, MacOS, and Linux are all supported.
 - Extra support allows the native saving of CSV files and conversion to DataFrame objects
 - Easy enough for beginners, but powerful enough for advanced users
 
+## What does analytix do?
+
+The YouTube Studio provides a fantastic interface where creators can view some incredibly detailed analytics for their channel. However, there's no way to perform programmatical operations on the data to do some proper analysis on it. This is where *analytix* comes in.
+
+The process of analysing data on the YouTube Studio is comprised of two steps:
+
+1. Retrieving the data to be analysed and visualised
+2. Presenting that data to the user
+
+*analytix* aims to handle step one as comprehensively as possible, allowing analysts to use tools such as pandas and Matplotlib to work on the data without having to faff around with Google's offerings.
+
 ## Installation
 
-**You need Python 3.6.0 or greater to run analytix.**
-
-To install the latest stable version of analytix, use the following command:
+To install the latest stable version of *analytix*, use the following command:
 ```sh
 pip install analytix
-```
-
-To install with optional dependencies, use the following command:
-```sh
-pip install "analytix[opt]"
 ```
 
 You can also install the latest development version using the following command:
@@ -46,38 +50,71 @@ pip install git+https://github.com/parafoxia/analytix
 
 You may need to prefix these commands with a call to the Python interpreter depending on your OS and Python configuration.
 
+## Alternative configurations
+
+You can also install *analytix* with additional libraries to provide extra functionality:
+
+```sh
+# Allow for reports to be converted to DataFrames:
+pip install "analytix[df]"
+
+# Install stub-libraries for typed projects:
+pip install "analytix[types]"
+```
+
+## OAuth authentication
+
+All requests need to be authorised through OAuth 2. In order to do this, you will need a Google Developers project with the YouTube Analytics API enabled. You can find instructions on how to do that in the [API setup guide](https://analytix.readthedocs.io/en/latest/refs/yt-analytics-setup.html), or on [this video](https://www.youtube.com/watch?v=1Xday10ZWeg).
+
+When *analytix* boots up for the first time, it will display a link, and ask for a code. You'll need to follow that link, run through all the steps, and enter the code to authorise *analytix*. Once that's done, *analytix* saves the tokens to the disk (if you plan to run *analytix* on a server, make sure these are in a safe place). This file, as well as your access token, will also contain your refresh token, which *analytix* will automatically use to refresh your access token when needed.
+
+This means you should only have to authorise *analytix* **once every 200 days**. If you want to reset your tokens, you can either force authorisation within *analytix*, or simple delete the generated token file.
+
 ## Quickstart
 
-Before you begin, you will need to have a Google Developers project with the YouTube Analytics API enabled. You can find instructions on how to do that in the [API setup guide](https://analytix.readthedocs.io/en/latest/refs/yt-analytics-setup.html).
-
-Once you've done that, retrieving reports is easy. The below example loads credentials from a secrets file, and gets as much information as possible from the last 28 days.
+Retrieving reports from the YouTube Analytics API is easy. The below example loads credentials from a secrets file, and gets as much information as possible from the last 28 days:
 
 ```py
 import datetime as dt
 
-from analytix import YouTubeAnalytics
+from analytix import Analytics
 
-client = YouTubeAnalytics.from_file("./secrets.json")
+client = Analytics.with_secrets("./secrets.json")
 start_date = dt.date.today() - dt.timedelta(days=28)
 report = client.retrieve(start_date, dimensions=("day",))
 report.to_csv("./analytics-28d.csv")
 ```
 
-From version 2.1, you can do the same operation in an easier way.
+This can also be done in a simpler way:
 
 ```py
-from analytix import YouTubeAnalytics
+from analytix import Analytics
 
-client = YouTubeAnalytics.from_file("./secrets.json")
+client = Analytics.with_secrets("./secrets.json")
 report = client.daily_analytics().to_csv("./analytics-28d.csv")
 ```
 
-To read up further, [have a look at the documentation](https://analytix.readthedocs.io/en/latest/).
+If you need async capabilities, you can use the provided async class:
+
+```py
+from analytix import AsyncAnalytics
+
+client = await AsyncAnalytics.with_secrets("./secrets.json")
+report = await client.retrieve(
+    dt.date.today() - dt.timedelta(days=7),
+    dimensions=("country",),
+)
+```
+
+To read up further, [have a look at the documentation](https://analytix.readthedocs.io).
 
 ## Contributing
 
-analytix is open to contributions. To find out where to get started, have a look at the [contributing guide](https://github.com/parafoxia/analytix/blob/main/CONTRIBUTING.md).
+Contributions are very much welcome! To get started:
+
+* Familiarise yourself with the [code of conduct](https://github.com/parafoxia/analytix/blob/main/CODE_OF_CONDUCT.md)
+* Have a look at the [contributing guide](https://github.com/parafoxia/analytix/blob/main/CONTRIBUTING.md)
 
 ## License
 
-The analytix module for Python is licensed under the [BSD 3-Clause License](https://github.com/parafoxia/analytix/blob/main/LICENSE).
+The *analytix* module for Python is licensed under the [BSD 3-Clause License](https://github.com/parafoxia/analytix/blob/main/LICENSE).
