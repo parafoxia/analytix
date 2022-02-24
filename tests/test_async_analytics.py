@@ -27,13 +27,14 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import asyncio
+
 import pytest
 
 from analytix import AsyncAnalytics
 from analytix.secrets import Secrets
 from analytix.tokens import Tokens
-from tests.test_secrets import SECRETS_PATH, secrets, secrets_dict
-from tests.test_tokens import TOKENS_PATH, tokens, tokens_dict
+from tests.test_secrets import SECRETS_PATH, secrets, secrets_dict  # noqa
+from tests.test_tokens import TOKENS_PATH, tokens, tokens_dict  # noqa
 
 
 def test_load_from_secrets_file(secrets_dict):

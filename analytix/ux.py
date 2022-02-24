@@ -28,10 +28,10 @@
 
 from __future__ import annotations
 
-import importlib
 import logging
 import platform
 import typing as t
+from importlib.util import find_spec
 
 import analytix
 
@@ -59,8 +59,14 @@ BANNER = r"""
 )
 
 
-def _find_module(name: str) -> str:
-    return importlib.util.find_spec(name).submodule_search_locations[0]
+def _install_location() -> str:
+    spec = find_spec("analytix")
+
+    if spec:
+        if spec.submodule_search_locations:
+            return spec.submodule_search_locations[0]
+
+    return "unknown"
 
 
 def display_splash() -> None:
@@ -72,7 +78,7 @@ def display_splash() -> None:
         f" • Python version: {platform.python_version()} "
         f"({platform.python_implementation()})\n"
         f" • Operating system: {platform.system()} ({platform.release()})\n"
-        f" • Installed in: {_find_module('analytix')}\n\n"
+        f" • Installed in: {_install_location()}\n\n"
         f"\33[1m\33[38;5;2mUseful links:\33[0m\n"
         f" • Documentation: \33[4m{analytix.__docs__}\33[0m\n"
         f" • Source: \33[4m{analytix.__url__}\33[0m\n"
