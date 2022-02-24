@@ -36,7 +36,7 @@ from dataclasses import dataclass
 
 import aiofiles
 
-_ST = t.Union[str, list[str]]
+_ST = t.Union[str, t.List[str]]
 
 log = logging.getLogger(__name__)
 
