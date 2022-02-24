@@ -17,5 +17,9 @@ ignore_missing_imports = true
 exclude = "tests"
 
 [tool.len8]
-exclude = ["tests", "ux.py"]
+exclude = ["tests", "analytix/ux.py"]
 code-length = 88
+
+[tool.coverage.report]
+omit = ["analytix/__init__.py", "analytix/ux.py"]
+exclude_lines = ["if t.TYPE_CHECKING:"]

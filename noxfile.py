@@ -74,23 +74,17 @@ def fetch_installs(*categories: str) -> list[str]:
 
 @nox.session(reuse_venv=True)
 def tests(session: nox.Session) -> None:
-    os.makedirs(TEST_DIR / "data/test_deploy", exist_ok=True)
-
-    try:
-        session.install(*fetch_installs("Tests"), ".")
-        session.run(
-            "coverage",
-            "run",
-            "--omit",
-            "tests/*",
-            "-m",
-            "pytest",
-            "--log-level=1",
-        )
-        session.run("coverage", "report", "-m")
-    finally:
-        # Clean-up
-        shutil.rmtree(TEST_DIR / "data/test_deploy")
+    session.install(*fetch_installs("Tests"), ".")
+    session.run(
+        "coverage",
+        "run",
+        "--omit",
+        "tests/*",
+        "-m",
+        "pytest",
+        "--log-level=1",
+    )
+    session.run("coverage", "report", "-m")
 
 
 @nox.session(reuse_venv=True)

@@ -31,9 +31,12 @@ from __future__ import annotations
 import json
 import logging
 import pathlib
+import typing as t
 from dataclasses import dataclass
 
 import aiofiles
+
+_TT = t.Union[str, int]
 
 log = logging.getLogger(__name__)
 
@@ -45,6 +48,9 @@ class Tokens:
     refresh_token: str
     scope: str
     token_type: str
+
+    def __getitem__(self, key: str) -> _TT:
+        return t.cast(_TT, getattr(self, key))
 
     @classmethod
     def from_data(cls, data: dict[str, str | int]) -> Tokens:
