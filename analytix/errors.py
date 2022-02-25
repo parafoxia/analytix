@@ -98,7 +98,7 @@ class UnsupportedDimensions(InvalidRequest):
 class InvalidSetOfDimensions(InvalidRequest):
     def __init__(self, expd: str, recv: int, values: set[str]) -> None:
         vals = ", ".join(values)
-        super().__init__(f"expected {expd} dimension(s) from {vals}, got {recv}")
+        super().__init__(f"expected {expd} dimension(s) from {vals!r}, got {recv}")
 
 
 class InvalidFilters(InvalidRequest):
@@ -116,7 +116,7 @@ class UnsupportedFilters(InvalidRequest):
 class InvalidSetOfFilters(InvalidRequest):
     def __init__(self, expd: str, recv: int, values: set[str]) -> None:
         vals = ", ".join(values)
-        super().__init__(f"expected {expd} filter(s) from {vals}, got {recv}")
+        super().__init__(f"expected {expd} filter(s) from {vals!r}, got {recv}")
 
 
 class InvalidFilterValue(InvalidRequest):

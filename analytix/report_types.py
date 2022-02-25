@@ -531,7 +531,9 @@ class TopVideosPlaybackDetail(DetailedReportType):
         self.max_results = 200
 
 
-def determine(dimensions: t.Collection[str], filters: dict[str, str], metrics: t.Collection[str]) -> type[ReportType]:
+def determine(
+    dimensions: t.Collection[str], filters: dict[str, str], metrics: t.Collection[str]
+) -> type[ReportType]:
     curated = filters.get("isCurated", "0") == "1"
 
     # if "adType" in dimensions:
