@@ -16,6 +16,9 @@ strict = true
 ignore_missing_imports = true
 exclude = "tests"
 
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+
 [tool.len8]
 exclude = ["tests", "analytix/ux.py"]
 code-length = 88
