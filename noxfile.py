@@ -166,7 +166,8 @@ def check_safety(session: nox.Session) -> None:
     # Needed due to https://github.com/pypa/pip/pull/9827.
     session.install("pip")
     session.install(*installs)
-    session.run("safety", "check", "--full-report")
+    # Issue 44715 has been fixed, so can ignore.
+    session.run("safety", "check", "--full-report", "-i", "44715")
 
 
 @nox.session(reuse_venv=True)
