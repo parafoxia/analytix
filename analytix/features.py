@@ -51,16 +51,27 @@ class Metrics(abc.FeatureType):
 
 
 class SortOptions(abc.FeatureType):
-    def validate(self, inputs: t.Collection[str]) -> None:
-        inputs = set(i.strip("-") for i in inputs)
+    def __init__(self, *args: str, descending_only: bool = False) -> None:
+        super().__init__(*args)
+        self.descending_only = descending_only
 
-        diff = inputs - set(data.ALL_METRICS)
+    def validate(self, inputs: t.Collection[str]) -> None:
+        raw_inputs = set(i.strip("-") for i in inputs)
+        if not isinstance(inputs, set):
+            inputs = set(inputs)
+
+        diff = raw_inputs - set(data.ALL_METRICS)
         if diff:
             raise errors.InvalidSortOptions(diff)
 
-        diff = inputs - self.values
+        diff = raw_inputs - self.values
         if diff:
             raise errors.UnsupportedSortOptions(diff)
+
+        if self.descending_only:
+            diff = {i for i in inputs if not i.startswith("-")}
+            if diff:
+                raise errors.UnsupportedSortOptions(diff, descending_only=True)
 
 
 class Dimensions(abc.SegmentedFeatureType):

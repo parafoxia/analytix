@@ -31,13 +31,58 @@ from __future__ import annotations
 import abc
 import typing as t
 
+from analytix.errors import InvalidAmountOfResults, MissingSortOptions
+
+if t.TYPE_CHECKING:
+    from analytix.features import Dimensions, Filters, Metrics, SortOptions
+
 
 class ReportType(metaclass=abc.ABCMeta):
-    ...
+    __slots__ = ("name", "dimensions", "filters", "metrics", "sort_options")
+
+    name: str
+    dimensions: Dimensions
+    filters: Filters
+    metrics: Metrics
+    sort_options: SortOptions
+
+    def __str__(self) -> str:
+        return self.name
+
+    def validate(
+        self,
+        dimensions: t.Collection[str],
+        filters: dict[str, str],
+        metrics: t.Collection[str],
+        sort_options: t.Collection[str],
+        _: int = 0,
+    ) -> None:
+        self.dimensions.validate(dimensions)
+        self.filters.validate(filters)
+        self.metrics.validate(metrics)
+        self.sort_options.validate(sort_options)
 
 
 class DetailedReportType(ReportType, metaclass=abc.ABCMeta):
-    ...
+    __slots__ = ("max_results",)
+
+    max_results: int
+
+    def validate(
+        self,
+        dimensions: t.Collection[str],
+        filters: dict[str, str],
+        metrics: t.Collection[str],
+        sort_options: t.Collection[str],
+        max_results: int = 0,
+    ) -> None:
+        super().validate(dimensions, filters, metrics, sort_options)
+
+        if not max_results or max_results > self.max_results:
+            raise InvalidAmountOfResults(max_results, self.max_results)
+
+        if not sort_options:
+            raise MissingSortOptions()
 
 
 class FeatureType(metaclass=abc.ABCMeta):

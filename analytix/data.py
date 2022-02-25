@@ -986,17 +986,6 @@ LOCATION_AND_TRAFFIC_PLAYLIST_METRICS = (
     "averageTimeInPlaylist",
 )
 
-ALL_SORT_OPTIONS = (
-    "views",
-    "redViews",
-    "estimatedRevenue",
-    "estimatedRedPartnerRevenue",
-    "estimatedMinutesWatched",
-    "estimatedRedMinutesWatched",
-    "subscribersGained",
-    "subscribersLost",
-)
-
 LOCATION_AND_TRAFFIC_SORT_OPTIONS = (
     "views",
     "estimatedMinutesWatched",
@@ -1007,6 +996,17 @@ TOP_VIDEOS_SORT_OPTIONS = (
     "redViews",
     "estimatedMinutesWatched",
     "estimatedRedMinutesWatched",
+)
+
+TOP_VIDEOS_EXTRA_SORT_OPTIONS = (
+    "views",
+    "redViews",
+    "estimatedRevenue",
+    "estimatedRedPartnerRevenue",
+    "estimatedMinutesWatched",
+    "estimatedRedMinutesWatched",
+    "subscribersGained",
+    "subscribersLost",
 )
 
 LOCATION_AND_TRAFFIC_PLAYLIST_SORT_OPTIONS = (
