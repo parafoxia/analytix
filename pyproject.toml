@@ -1,7 +1,7 @@
 [build-system]
 requires = [
     "setuptools>=42",
-    "wheel"
+    "wheel",
 ]
 build-backend = "setuptools.build_meta"
 
@@ -22,4 +22,7 @@ code-length = 88
 
 [tool.coverage.report]
 omit = ["analytix/__init__.py", "analytix/ux.py"]
-exclude_lines = ["if t.TYPE_CHECKING:"]
+exclude_lines = [
+    "if t.TYPE_CHECKING:",
+    "raise NotImplementedError",
+]
