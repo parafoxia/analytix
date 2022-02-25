@@ -26,6 +26,12 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import builtins
+import os
+import shutil
+
+import httpx
+import mock
 import pytest
 
 from analytix import Analytics
@@ -96,3 +102,111 @@ def test_load_existing_tokens(client, tokens_dict):
 def test_load_non_existent_tokens(client):
     tokens = client._try_load_tokens(TOKENS_PATH.parent / "does-not.exist")
     assert tokens is None
+
+
+def test_authorise_with_tokens(client):
+    with mock.patch.object(Tokens, "write") as mock_write:
+        mock_write.return_value = None
+        tokens = client.authorise(token_path=TOKENS_PATH)
+        assert isinstance(tokens, Tokens)
+
+
+def test_authorise_with_tokens_non_path_and_dir(client):
+    data_dir = "./tests/data"
+    token_dest = data_dir + "/tokens.json"
+    token_src = data_dir + "/test_tokens.json"
+    shutil.copyfile(token_src, token_dest)
+
+    tokens = client.authorise(token_path="./tests/data")  # nosec
+    assert isinstance(tokens, Tokens)
+    os.remove(token_dest)
+
+
+def test_authorise_without_tokens(client, tokens_dict):
+    with mock.patch.object(builtins, "input") as mock_input:
+        with mock.patch.object(httpx.Client, "post") as mock_post:
+            with mock.patch.object(Tokens, "write") as mock_write:
+                mock_write.return_value = None
+                mock_post.return_value = httpx.Response(
+                    status_code=200, json=tokens_dict, request=mock.Mock()
+                )
+
+                tokens = client.authorise(token_path=TOKENS_PATH, force=True)
+
+                mock_post.assert_called_once()
+                mock_input.assert_called_once()
+                mock_write.assert_called_once()
+                assert isinstance(tokens, Tokens)
+
+
+def test_refresh_access_tokens(client):
+    with mock.patch.object(httpx.Client, "post") as mock_post:
+        with mock.patch.object(Tokens, "write") as mock_write:
+            mock_write.return_value = None
+            mock_post.return_value = httpx.Response(
+                status_code=200,
+                request=mock.Mock(),
+                json={
+                    "access_token": "a",
+                    "expires_in": 10000,
+                    "refresh_token": "b",
+                    "scope": "c",
+                    "token_type": "Swearer",
+                },
+            )
+
+            client.authorise(token_path=TOKENS_PATH)
+            client.refresh_access_token()
+            tokens = client._tokens
+
+            mock_write.assert_called_once()
+            mock_post.assert_called_once()
+
+            assert tokens.access_token == "a"
+            assert tokens.expires_in == 10000
+            assert tokens.refresh_token == "b"
+            assert tokens.scope == "c"
+            assert tokens.token_type == "Swearer"
+
+
+def test_refresh_access_tokens_with_no_tokens(client, caplog):
+    caplog.set_level(30)
+    client.refresh_access_token()
+    assert client._tokens is None
+    assert "There are no tokens to refresh" in caplog.text
+
+
+def test_check_token_is_valid_with_valid(client):
+    with mock.patch.object(httpx.Client, "get") as mock_get:
+        with mock.patch.object(Tokens, "write") as mock_write:
+            mock_write.return_value = None
+            mock_get.return_value = httpx.Response(
+                status_code=200,
+                request=mock.Mock(),
+                json={"expires_in": 10000},
+            )
+
+            client.authorise(token_path=TOKENS_PATH)
+            is_valid = client.check_token_is_valid()
+
+            mock_get.assert_called_once()
+            assert is_valid
+
+
+def test_check_token_is_valid_with_invalid(client):
+    with mock.patch.object(httpx.Client, "get") as mock_get:
+        obj = mock.Mock()
+        obj.is_error = True
+        mock_get.return_value = obj
+
+        client.authorise(token_path=TOKENS_PATH)
+        is_valid = client.check_token_is_valid()
+
+        mock_get.assert_called_once()
+        assert not is_valid
+
+
+def test_check_token_is_valid_with_no_tokens(client):
+    client._tokens = None
+    is_valid = client.check_token_is_valid()
+    assert is_valid
