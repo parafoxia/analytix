@@ -76,6 +76,18 @@ def test_dimensions_required_repr_output(dimensions_required):
     assert f"{dimensions_required!r}" in outputs
 
 
+def test_dimensions_equal(dimensions_required):
+    assert dimensions_required == Dimensions(Required("day", "month"))
+
+
+def test_dimensions_not_equal(dimensions_required):
+    assert dimensions_required != Dimensions(Required("country", "subContinent"))
+
+
+def test_dimensions_not_equal_required(dimensions_required):
+    assert dimensions_required != Dimensions(Required("country", "subContinent"))
+
+
 def test_dimensions_required(dimensions_required):
     dimensions_required.validate(["day", "month"])
 
@@ -92,6 +104,10 @@ def test_dimensions_required_invalid_set(dimensions_required):
 @pytest.fixture()
 def dimensions_exactly_one() -> Dimensions:
     return Dimensions(ExactlyOne("day", "month"))
+
+
+def test_dimensions_not_equal_exactly_one(dimensions_required, dimensions_exactly_one):
+    assert dimensions_required != dimensions_exactly_one
 
 
 def test_dimensions_exactly_one_repr_output(dimensions_exactly_one):

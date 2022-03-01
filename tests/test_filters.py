@@ -129,6 +129,18 @@ def test_filters_required_repr_output(filters_required):
     assert f"{filters_required!r}" in outputs
 
 
+def test_filters_equal(filters_required):
+    assert filters_required == Filters(Required("country", "video"))
+
+
+def test_filters_not_equal(filters_required):
+    assert filters_required != Filters(Required("country", "subContinent"))
+
+
+def test_filters_not_equal_required(filters_required):
+    assert filters_required != Filters(Required("country", "subContinent"))
+
+
 def test_filters_required(filters_required):
     filters_required.validate({"country": "US", "video": "nf94bg4b397gb"})
 
@@ -145,6 +157,10 @@ def test_filters_required_invalid_set(filters_required):
 @pytest.fixture()
 def filters_exactly_one() -> Filters:
     return Filters(ExactlyOne("country", "video"))
+
+
+def test_filters_not_equal_exactly_one(filters_required, filters_exactly_one):
+    assert filters_required != filters_exactly_one
 
 
 def test_filters_exactly_one_repr_output(filters_exactly_one):

@@ -33,7 +33,24 @@ import typing as t
 from analytix import abc, data, errors
 
 
-class Metrics(abc.FeatureType):
+class CompareMixin:
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, self.__class__):
+            return NotImplemented
+
+        return self.values == other.values
+
+    def __ne__(self, other: object) -> bool:
+        if not isinstance(other, self.__class__):
+            return NotImplemented
+
+        return self.values != other.values
+
+    def __hash__(self):
+        return hash(self.__class__.__name__)
+
+
+class Metrics(abc.FeatureType, CompareMixin):
     def validate(self, inputs: t.Collection[str]) -> None:
         if not len(inputs):
             raise errors.MissingMetrics()
@@ -50,7 +67,7 @@ class Metrics(abc.FeatureType):
             raise errors.UnsupportedMetrics(diff)
 
 
-class SortOptions(abc.FeatureType):
+class SortOptions(abc.FeatureType, CompareMixin):
     def __init__(self, *args: str, descending_only: bool = False) -> None:
         super().__init__(*args)
         self.descending_only = descending_only
@@ -74,7 +91,7 @@ class SortOptions(abc.FeatureType):
                 raise errors.UnsupportedSortOptions(diff, descending_only=True)
 
 
-class Dimensions(abc.SegmentedFeatureType):
+class Dimensions(abc.SegmentedFeatureType, CompareMixin):
     def validate(self, inputs: t.Collection[str]) -> None:
         if not isinstance(inputs, set):
             inputs = set(inputs)
@@ -91,7 +108,7 @@ class Dimensions(abc.SegmentedFeatureType):
             set_type.validate_dimensions(inputs)
 
 
-class Filters(abc.MappingFeatureType):
+class Filters(abc.MappingFeatureType, CompareMixin):
     @property
     def every_key(self) -> set[str]:
         return {v[: v.index("=")] if "==" in v else v for v in self.every}
@@ -133,7 +150,7 @@ class Filters(abc.MappingFeatureType):
             set_type.validate_filters(keys)
 
 
-class Required(abc.SetType):
+class Required(abc.SetType, CompareMixin):
     def validate_dimensions(self, inputs: set[str]) -> None:
         if self.values & inputs == self.values:
             return
@@ -149,7 +166,7 @@ class Required(abc.SetType):
         raise errors.InvalidSetOfFilters("all", common, self.values)
 
 
-class ExactlyOne(abc.SetType):
+class ExactlyOne(abc.SetType, CompareMixin):
     def validate_dimensions(self, inputs: set[str]) -> None:
         if len(self.values & inputs) == 1:
             return
@@ -165,7 +182,7 @@ class ExactlyOne(abc.SetType):
         raise errors.InvalidSetOfFilters("1", common, self.values)
 
 
-class OneOrMore(abc.SetType):
+class OneOrMore(abc.SetType, CompareMixin):
     def validate_dimensions(self, inputs: set[str]) -> None:
         if len(self.values & inputs) > 0:
             return
@@ -181,7 +198,7 @@ class OneOrMore(abc.SetType):
         raise errors.InvalidSetOfFilters("at least 1", common, self.values)
 
 
-class Optional(abc.SetType):
+class Optional(abc.SetType, CompareMixin):
     def validate_dimensions(self, inputs: set[str]) -> None:
         # No verifiction required.
         ...
@@ -191,7 +208,7 @@ class Optional(abc.SetType):
         ...
 
 
-class ZeroOrOne(abc.SetType):
+class ZeroOrOne(abc.SetType, CompareMixin):
     def validate_dimensions(self, inputs: set[str]) -> None:
         if len(self.values & inputs) < 2:
             return
@@ -207,7 +224,7 @@ class ZeroOrOne(abc.SetType):
         raise errors.InvalidSetOfFilters("0 or 1", common, self.values)
 
 
-class ZeroOrMore(abc.SetType):
+class ZeroOrMore(abc.SetType, CompareMixin):
     def validate_dimensions(self, inputs: set[str]) -> None:
         # No verifiction required.
         ...

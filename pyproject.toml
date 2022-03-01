@@ -28,4 +28,5 @@ omit = ["analytix/__init__.py", "analytix/ux.py"]
 exclude_lines = [
     "if t.TYPE_CHECKING:",
     "raise NotImplementedError",
+    "return NotImplemented",
 ]

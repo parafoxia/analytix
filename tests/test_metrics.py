@@ -51,6 +51,14 @@ def test_metrics_repr_output(metrics):
     assert f"{metrics!r}" in outputs
 
 
+def test_metrics_equal(metrics):
+    assert metrics == Metrics("views", "likes", "comments")
+
+
+def test_metrics_not_equal(metrics):
+    assert metrics != Metrics("estimatedRevenue", "estimatedAdRevenue", "grossRevenue")
+
+
 def test_metrics(metrics):
     metrics.validate(["views", "likes", "comments"])
 

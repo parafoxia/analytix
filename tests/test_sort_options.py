@@ -51,6 +51,14 @@ def test_sort_options_repr_output(sort_options):
     assert f"{sort_options!r}" in outputs
 
 
+def test_sort_options_equal(sort_options):
+    assert sort_options == SortOptions("views", "likes", "comments")
+
+
+def test_sort_options_not_equal(sort_options):
+    assert sort_options != SortOptions("estimatedRevenue", "estimatedAdRevenue", "grossRevenue")
+
+
 @pytest.fixture()
 def sort_options_descending() -> SortOptions:
     return SortOptions("views", "likes", "comments", descending_only=True)
