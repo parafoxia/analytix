@@ -76,6 +76,10 @@ def test_dimensions_required_repr_output(dimensions_required):
     assert f"{dimensions_required!r}" in outputs
 
 
+def test_dimensions_hash(dimensions_required):
+    assert isinstance(hash(dimensions_required), int)
+
+
 def test_dimensions_equal(dimensions_required):
     assert dimensions_required == Dimensions(Required("day", "month"))
 

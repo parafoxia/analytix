@@ -51,6 +51,10 @@ def test_metrics_repr_output(metrics):
     assert f"{metrics!r}" in outputs
 
 
+def test_metrics_hash(metrics):
+    assert isinstance(hash(metrics), int)
+
+
 def test_metrics_equal(metrics):
     assert metrics == Metrics("views", "likes", "comments")
 

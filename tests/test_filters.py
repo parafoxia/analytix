@@ -129,6 +129,10 @@ def test_filters_required_repr_output(filters_required):
     assert f"{filters_required!r}" in outputs
 
 
+def test_filters_hash(filters_required):
+    assert isinstance(hash(filters_required), int)
+
+
 def test_filters_equal(filters_required):
     assert filters_required == Filters(Required("country", "video"))
 

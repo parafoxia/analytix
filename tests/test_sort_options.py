@@ -51,6 +51,10 @@ def test_sort_options_repr_output(sort_options):
     assert f"{sort_options!r}" in outputs
 
 
+def test_sort_options_hash(sort_options):
+    assert isinstance(hash(sort_options), int)
+
+
 def test_sort_options_equal(sort_options):
     assert sort_options == SortOptions("views", "likes", "comments")
 
