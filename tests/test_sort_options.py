@@ -56,7 +56,9 @@ def test_sort_options_equal(sort_options):
 
 
 def test_sort_options_not_equal(sort_options):
-    assert sort_options != SortOptions("estimatedRevenue", "estimatedAdRevenue", "grossRevenue")
+    assert sort_options != SortOptions(
+        "estimatedRevenue", "estimatedAdRevenue", "grossRevenue"
+    )
 
 
 @pytest.fixture()

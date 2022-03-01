@@ -34,6 +34,8 @@ from analytix import abc, data, errors
 
 
 class CompareMixin:
+    values: set[str]
+
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, self.__class__):
             return NotImplemented
@@ -46,7 +48,26 @@ class CompareMixin:
 
         return self.values != other.values
 
-    def __hash__(self):
+    def __hash__(self) -> int:
+        return hash(self.__class__.__name__)
+
+
+class NestedCompareMixin:
+    values: set[abc.SetType]
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, self.__class__):
+            return NotImplemented
+
+        return self.values == other.values
+
+    def __ne__(self, other: object) -> bool:
+        if not isinstance(other, self.__class__):
+            return NotImplemented
+
+        return self.values != other.values
+
+    def __hash__(self) -> int:
         return hash(self.__class__.__name__)
 
 
@@ -91,7 +112,7 @@ class SortOptions(abc.FeatureType, CompareMixin):
                 raise errors.UnsupportedSortOptions(diff, descending_only=True)
 
 
-class Dimensions(abc.SegmentedFeatureType, CompareMixin):
+class Dimensions(abc.SegmentedFeatureType, NestedCompareMixin):
     def validate(self, inputs: t.Collection[str]) -> None:
         if not isinstance(inputs, set):
             inputs = set(inputs)
@@ -108,7 +129,7 @@ class Dimensions(abc.SegmentedFeatureType, CompareMixin):
             set_type.validate_dimensions(inputs)
 
 
-class Filters(abc.MappingFeatureType, CompareMixin):
+class Filters(abc.MappingFeatureType, NestedCompareMixin):
     @property
     def every_key(self) -> set[str]:
         return {v[: v.index("=")] if "==" in v else v for v in self.every}

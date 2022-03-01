@@ -30,7 +30,6 @@ import pytest
 
 from analytix import data, errors
 from analytix import report_types as rt
-from analytix.features import Dimensions, Filters, Metrics, SortOptions
 
 
 def test_str_output():
@@ -1434,7 +1433,11 @@ def test_top_videos_youtube_product_2():
     report = rt.TopVideosYouTubeProduct()
     assert report.name == "Top videos by YouTube product"
     d = ["video"]
-    f = {"province": "US-OH", "subscribedStatus": "SUBSCRIBED", "youtubeProduct": "CORE"}
+    f = {
+        "province": "US-OH",
+        "subscribedStatus": "SUBSCRIBED",
+        "youtubeProduct": "CORE",
+    }
     m = data.VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS
     s = [f"-{o}" for o in data.TOP_VIDEOS_SORT_OPTIONS]
     report.validate(d, f, m, s, 200)
@@ -1487,7 +1490,11 @@ def test_top_videos_playback_detail_2():
     report = rt.TopVideosPlaybackDetail()
     assert report.name == "Top videos by playback detail"
     d = ["video"]
-    f = {"province": "US-OH", "liveOrOnDemand": "LIVE", "subscribedStatus": "SUBSCRIBED"}
+    f = {
+        "province": "US-OH",
+        "liveOrOnDemand": "LIVE",
+        "subscribedStatus": "SUBSCRIBED",
+    }
     m = data.VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS
     s = [f"-{o}" for o in data.TOP_VIDEOS_SORT_OPTIONS]
     report.validate(d, f, m, s, 200)
@@ -1497,7 +1504,12 @@ def test_top_videos_playback_detail_3():
     report = rt.TopVideosPlaybackDetail()
     assert report.name == "Top videos by playback detail"
     d = ["video"]
-    f = {"continent": "002", "liveOrOnDemand": "LIVE", "subscribedStatus": "SUBSCRIBED", "youtubeProduct": "CORE"}
+    f = {
+        "continent": "002",
+        "liveOrOnDemand": "LIVE",
+        "subscribedStatus": "SUBSCRIBED",
+        "youtubeProduct": "CORE",
+    }
     m = data.VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS
     s = [f"-{o}" for o in data.TOP_VIDEOS_SORT_OPTIONS]
     report.validate(d, f, m, s, 200)
