@@ -945,6 +945,28 @@ SUBSCRIPTION_METRICS = (
     "cardTeaserClicks",
 )
 
+LESSER_SUBSCRIPTION_METRICS = (
+    "views",
+    "redViews",
+    "estimatedMinutesWatched",
+    "estimatedRedMinutesWatched",
+    "averageViewDuration",
+    "averageViewPercentage",
+    "annotationClickThroughRate",
+    "annotationCloseRate",
+    "annotationImpressions",
+    "annotationClickableImpressions",
+    "annotationClosableImpressions",
+    "annotationClicks",
+    "annotationCloses",
+    "cardClickRate",
+    "cardTeaserClickRate",
+    "cardImpressions",
+    "cardTeaserImpressions",
+    "cardClicks",
+    "cardTeaserClicks",
+)
+
 LIVE_PLAYBACK_DETAIL_METRICS = (
     "views",
     "redViews",

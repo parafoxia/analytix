@@ -152,27 +152,7 @@ class PlaybackDetailsSubscribedStatusUS(ReportType):
             ZeroOrOne("video", "group"),
             ZeroOrMore("province", "subscribedStatus"),
         )
-        self.metrics = Metrics(
-            "views",
-            "redViews",
-            "estimatedMinutesWatched",
-            "estimatedRedMinutesWatched",
-            "averageViewDuration",
-            "averageViewPercentage",
-            "annotationClickThroughRate",
-            "annotationCloseRate",
-            "annotationImpressions",
-            "annotationClickableImpressions",
-            "annotationClosableImpressions",
-            "annotationClicks",
-            "annotationCloses",
-            "cardClickRate",
-            "cardTeaserClickRate",
-            "cardImpressions",
-            "cardTeaserImpressions",
-            "cardClicks",
-            "cardTeaserClicks",
-        )
+        self.metrics = Metrics(*data.LESSER_SUBSCRIPTION_METRICS)
         self.sort_options = SortOptions(*self.metrics.values)
 
 
@@ -324,13 +304,15 @@ class TrafficSource(ReportType):
 
 
 class TrafficSourceDetail(DetailedReportType):
+    # TODO: Validate against supported traffic sources
+
     def __init__(self) -> None:
         self.name = "Traffic sources (detailed)"
         self.dimensions = Dimensions(
             Required("insightTrafficSourceDetail"),
         )
         self.filters = Filters(
-            Required("insightTrafficSourceType==EMBEDDED"),
+            Required("insightTrafficSourceType"),
             ZeroOrOne("country", "province", "continent", "subContinent"),
             ZeroOrOne("video", "group"),
             ZeroOrMore("liveOrOnDemand", "subscribedStatus"),
@@ -367,7 +349,7 @@ class OperatingSystem(ReportType):
     def __init__(self) -> None:
         self.name = "Operating systems"
         self.dimensions = Dimensions(
-            Required("operatingSystems"),
+            Required("operatingSystem"),
             ZeroOrMore("day", "liveOrOnDemand", "subscribedStatus", "youtubeProduct"),
         )
         self.filters = Filters(
@@ -425,13 +407,13 @@ class EngagementAndContentSharing(ReportType):
     def __init__(self) -> None:
         self.name = "Engagement and content sharing"
         self.dimensions = Dimensions(
-            OneOrMore("sharingService"),
-            ZeroOrMore("subscribedStatus"),
+            Required("sharingService"),
+            Optional("subscribedStatus"),
         )
         self.filters = Filters(
             ZeroOrOne("country", "continent", "subContinent"),
             ZeroOrOne("video", "group"),
-            ZeroOrMore("subscribedStatus"),
+            Optional("subscribedStatus"),
         )
         self.metrics = Metrics("viewerPercentage")
         self.sort_options = SortOptions(*self.metrics.values)
