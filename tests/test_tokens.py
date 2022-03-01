@@ -128,9 +128,7 @@ def test_to_dict(tokens, tokens_dict):
 
 
 def test_update(tokens, tokens_dict):
-    tokens_dict[  # nosec: B105 false positive
-        "access_token"
-    ] = "gu985nh85n98hn430gn894hgn98"
+    tokens_dict["access_token"] = "gu985nh85n98hn430gn894hgn98"
     tokens.update(tokens_dict)
     assert tokens.access_token == tokens_dict["access_token"]
     assert tokens.access_token == "gu985nh85n98hn430gn894hgn98"

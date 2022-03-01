@@ -172,5 +172,7 @@ def check_safety(session: nox.Session) -> None:
 
 @nox.session(reuse_venv=True)
 def check_security(session: nox.Session) -> None:
+    check = [p for p in CHECK_PATHS if p != str(TEST_DIR)]
+
     session.install(*fetch_installs("Security"))
-    session.run("bandit", "-qr", *CHECK_PATHS, "-s", "B101")
+    session.run("bandit", "-qr", *check, "-s", "B101")

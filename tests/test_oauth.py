@@ -67,9 +67,7 @@ def test_access_data_and_headers(secrets):
 
 
 def test_refresh_data_and_headers(secrets):
-    token = (
-        "gnu54ngp943bpg984npgbn480gb9483bg84b9g8b498pb"  # nosec: B105 false positive
-    )
+    token = "gnu54ngp943bpg984npgbn480gb9483bg84b9g8b498pb"
     data, headers = oauth.refresh_data_and_headers(token, secrets)
 
     assert data == {

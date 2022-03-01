@@ -117,7 +117,7 @@ def test_authorise_with_tokens_non_path_and_dir(client):
     token_src = data_dir + "/test_tokens.json"
     shutil.copyfile(token_src, token_dest)
 
-    tokens = client.authorise(token_path="./tests/data")  # nosec
+    tokens = client.authorise(token_path="./tests/data")
     assert isinstance(tokens, Tokens)
     os.remove(token_dest)
 
