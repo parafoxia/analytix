@@ -157,14 +157,13 @@ def check_safety(session: nox.Session) -> None:
     if sys.version_info >= (3, 11):
         session.skip("Safety does not support Python 3.11")
 
-    with open(PROJECT_DIR / "requirements.txt") as f:
-        installs = f.read().splitlines()
+    installs = []
 
     for p in list(PROJECT_DIR.glob("requirements/*.txt")):
         installs.extend(["-r", f"{p}"])
 
     # Needed due to https://github.com/pypa/pip/pull/9827.
-    session.install("pip")
+    session.install("-U", "pip")
     session.install(*installs)
     # Issue 44715 has been fixed, so can ignore.
     session.run("safety", "check", "--full-report", "-i", "44715")

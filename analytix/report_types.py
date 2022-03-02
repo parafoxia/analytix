@@ -46,15 +46,6 @@ from analytix.features import (
 )
 
 
-class NullReport(ReportType):
-    def __init__(self) -> None:
-        self.name = "Null"
-        self.dimensions = Dimensions()
-        self.filters = Filters()
-        self.metrics = Metrics()
-        self.sort_options = SortOptions()
-
-
 class BasicUserActivity(ReportType):
     def __init__(self) -> None:
         self.name = "Basic user activity"
@@ -515,122 +506,122 @@ class TopVideosPlaybackDetail(DetailedReportType):
 
 def determine(
     dimensions: t.Collection[str], filters: dict[str, str], metrics: t.Collection[str]
-) -> type[ReportType]:
+) -> ReportType:
     curated = filters.get("isCurated", "0") == "1"
 
     # if "adType" in dimensions:
-    #     return AdPerformance
+    #     return AdPerformance()
 
     if "sharingService" in dimensions:
-        return EngagementAndContentSharing
+        return EngagementAndContentSharing()
 
     if "elapsedVideoTimeRatio" in dimensions:
-        return AudienceRetention
+        return AudienceRetention()
 
     # if "playlist" in dimensions:
-    #     return TopPlaylists
+    #     return TopPlaylists()
 
     if "insightPlaybackLocationType" in dimensions:
         # if curated:
-        #     return PlaybackLocationPlaylist
-        return PlaybackLocation
+        #     return PlaybackLocationPlaylist()
+        return PlaybackLocation()
 
     if "insightPlaybackLocationDetail" in dimensions:
         # if curated:
-        #     return PlaybackLocationDetailPlaylist
-        return PlaybackLocationDetail
+        #     return PlaybackLocationDetailPlaylist()
+        return PlaybackLocationDetail()
 
     if "insightTrafficSourceType" in dimensions:
         # if curated:
-        #     return TrafficSourcePlaylist
-        return TrafficSource
+        #     return TrafficSourcePlaylist()
+        return TrafficSource()
 
     if "insightTrafficSourceDetail" in dimensions:
         # if curated:
-        #     return TrafficSourceDetailPlaylist
-        return TrafficSourceDetail
+        #     return TrafficSourceDetailPlaylist()
+        return TrafficSourceDetail()
 
     if "ageGroup" in dimensions or "gender" in dimensions:
         # if curated:
-        #     return ViewerDemographicsPlaylist
-        return ViewerDemographics
+        #     return ViewerDemographicsPlaylist()
+        return ViewerDemographics()
 
     if "deviceType" in dimensions:
         if "operatingSystem" in dimensions:
             # if curated:
-            #     return DeviceTypeAndOperatingSystemPlaylist
-            return DeviceTypeAndOperatingSystem
+            #     return DeviceTypeAndOperatingSystemPlaylist()
+            return DeviceTypeAndOperatingSystem()
         # if curated:
-        #     return DeviceTypePlaylist
-        return DeviceType
+        #     return DeviceTypePlaylist()
+        return DeviceType()
 
     if "operatingSystem" in dimensions:
         # if curated:
-        #     return OperatingSystemPlaylist
-        return OperatingSystem
+        #     return OperatingSystemPlaylist()
+        return OperatingSystem()
 
     # TODO: Re-do this section
     if "video" in dimensions:
         if "province" in filters:
-            return TopVideosUS
+            return TopVideosUS()
         if "subscribedStatus" not in filters:
-            return TopVideosRegional
+            return TopVideosRegional()
         if "province" not in filters and "youtubeProduct" not in filters:
-            return TopVideosSubscribed
+            return TopVideosSubscribed()
         if "averageViewPercentage" in metrics:
-            return TopVideosYouTubeProduct
-        return TopVideosPlaybackDetail
+            return TopVideosYouTubeProduct()
+        return TopVideosPlaybackDetail()
 
     if "country" in dimensions:
         if "liveOrOnDemand" in dimensions or "liveOrOnDemand" in filters:
-            return PlaybackDetailsLiveGeographyBased
+            return PlaybackDetailsLiveGeographyBased()
         # if curated:
-        #     return GeographyBasedActivityPlaylist
+        #     return GeographyBasedActivityPlaylist()
         if (
             "subscribedStatus" in dimensions
             or "subscribedStatus" in filters
             or "youtubeProduct" in dimensions
             or "youtubeProduct" in filters
         ):
-            return PlaybackDetailsViewPercentageGeographyBased
-        return GeographyBasedActivity
+            return PlaybackDetailsViewPercentageGeographyBased()
+        return GeographyBasedActivity()
 
     if "province" in dimensions:
         if "liveOrOnDemand" in dimensions or "liveOrOnDemand" in filters:
-            return PlaybackDetailsLiveGeographyBasedUS
+            return PlaybackDetailsLiveGeographyBasedUS()
         # if curated:
-        #     return GeographyBasedActivityUSPlaylist
+        #     return GeographyBasedActivityUSPlaylist()
         if (
             "subscribedStatus" in dimensions
             or "subscribedStatus" in filters
             or "youtubeProduct" in dimensions
             or "youtubeProduct" in filters
         ):
-            return PlaybackDetailsViewPercentageGeographyBasedUS
-        return GeographyBasedActivityUS
+            return PlaybackDetailsViewPercentageGeographyBasedUS()
+        return GeographyBasedActivityUS()
 
     if "youtubeProduct" in dimensions or "youtubeProduct" in filters:
         if "liveOrOnDemand" in dimensions or "liveOrOnDemand" in filters:
-            return PlaybackDetailsLiveTimeBased
-        return PlaybackDetailsViewPercentageTimeBased
+            return PlaybackDetailsLiveTimeBased()
+        return PlaybackDetailsViewPercentageTimeBased()
 
     if "liveOrOnDemand" in dimensions or "liveOrOnDemand" in filters:
-        return PlaybackDetailsLiveTimeBased
+        return PlaybackDetailsLiveTimeBased()
 
     if "subscribedStatus" in dimensions:
         if "province" in filters:
-            return PlaybackDetailsSubscribedStatusUS
-        return PlaybackDetailsSubscribedStatus
+            return PlaybackDetailsSubscribedStatusUS()
+        return PlaybackDetailsSubscribedStatus()
 
     if "day" in dimensions or "month" in dimensions:
         # if curated:
-        #     return TimeBasedActivityPlaylist
+        #     return TimeBasedActivityPlaylist()
         if "province" in filters:
-            return TimeBasedActivityUS
-        return TimeBasedActivity
+            return TimeBasedActivityUS()
+        return TimeBasedActivity()
 
     # if curated:
-    #     return BasicUserActivityPlaylist
+    #     return BasicUserActivityPlaylist()
     if "province" in filters:
-        return BasicUserActivityUS
-    return BasicUserActivity
+        return BasicUserActivityUS()
+    return BasicUserActivity()

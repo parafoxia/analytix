@@ -33,13 +33,8 @@ from analytix import report_types as rt
 
 
 def test_str_output():
-    report = rt.NullReport()
-    assert str(report) == "Null"
-
-
-def test_null_report():
-    report = rt.NullReport()
-    assert report.name == "Null"
+    report = rt.BasicUserActivity()
+    assert str(report) == "Basic user activity"
 
 
 # BASIC USER ACTIVITY
