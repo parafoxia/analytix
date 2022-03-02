@@ -177,7 +177,7 @@ async def test_refresh_access_tokens_with_no_tokens(client, caplog):
     assert "There are no tokens to refresh" in caplog.text
 
 
-async def test_check_token_is_valid_with_valid(client):
+async def test_needs_refresh_with_valid(client):
     with mock.patch.object(httpx.AsyncClient, "get") as mock_get:
         mock_get.return_value = httpx.Response(
             status_code=200,
@@ -186,25 +186,25 @@ async def test_check_token_is_valid_with_valid(client):
         )
 
         await client.authorise(token_path=TOKENS_PATH)
-        is_valid = await client.check_token_is_valid()
+        needs_refresh = await client.needs_refresh()
 
         mock_get.assert_awaited_once()
-        assert is_valid
+        assert not needs_refresh
 
 
-async def test_check_token_is_valid_with_invalid(client):
+async def test_needs_refresh_with_invalid(client):
     with mock.patch.object(httpx.AsyncClient, "get") as mock_get:
         obj = mock.Mock()
         obj.is_error = True
 
         await client.authorise(token_path=TOKENS_PATH)
-        is_valid = await client.check_token_is_valid()
+        needs_refresh = await client.needs_refresh()
 
         mock_get.assert_awaited_once()
-        assert not is_valid
+        assert needs_refresh
 
 
-async def test_check_token_is_valid_with_no_tokens(client):
+async def test_needs_refresh_with_no_tokens(client):
     client._tokens = None
-    is_valid = await client.check_token_is_valid()
-    assert is_valid
+    needs_refresh = await client.needs_refresh()
+    assert not needs_refresh
