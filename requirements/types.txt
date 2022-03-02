@@ -1,3 +1,3 @@
--r ../requirements.txt
+-r ./base.txt
 types-aiofiles
 types-setuptools

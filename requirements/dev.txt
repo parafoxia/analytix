@@ -1,6 +1,8 @@
 # Meta
 -e .
--r ../requirements.txt
+-r ./base.txt
+-r ./df.txt
+-r ./types.txt
 
 # Sessions
 nox==2022.1.7

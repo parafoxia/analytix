@@ -111,7 +111,7 @@ setuptools.setup(
         "CI": attrs["ci"],
         "Changelog": attrs["changelog"],
     },
-    install_requires=parse_requirements("./requirements.txt"),
+    install_requires=parse_requirements("./requirements/base.txt"),
     extras_require={
         "df": parse_requirements("./requirements/df.txt"),
         "types": parse_requirements("./requirements/types.txt"),
