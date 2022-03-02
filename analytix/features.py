@@ -119,7 +119,8 @@ class Dimensions(abc.SegmentedFeatureType, NestedCompareMixin):
 
         diff = inputs - set(data.ALL_DIMENSIONS)
         if diff:
-            raise errors.InvalidDimensions(diff)
+            depr = inputs & set(data.DEPRECATED_DIMENSIONS)
+            raise errors.InvalidDimensions(diff, depr)
 
         diff = inputs - self.every
         if diff:

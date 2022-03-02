@@ -509,7 +509,12 @@ CURRENCIES = (
     "ZWL",
 )
 
-YOUTUBE_ANALYTICS_CORE_DIMENSIONS = (
+DEPRECATED_DIMENSIONS = (
+    "7DayTotals",
+    "30DayTotals",
+)
+
+CORE_DIMENSIONS = (
     "ageGroup",
     "channel",
     "country",

@@ -34,7 +34,16 @@ class AnalytixError(Exception):
 
 
 class NotAvailable(AnalytixError):
-    ...
+    def __init__(self, libs: tuple[str, ...]) -> None:
+        vals = " ".join(libs)
+        super().__init__(
+            f"some necessary libraries are not installed (hint: pip install {vals})"
+        )
+
+
+class APIError(AnalytixError):
+    def __init__(self, code: str, message: str) -> None:
+        super().__init__(f"API returned {code}: {message}")
 
 
 class InvalidRequest(AnalytixError):
@@ -42,7 +51,7 @@ class InvalidRequest(AnalytixError):
 
 
 class MissingMetrics(InvalidRequest):
-    def __init__(sel) -> None:
+    def __init__(self) -> None:
         super().__init__("expected at least 1 metric, got 0")
 
 
@@ -86,9 +95,10 @@ class UnsupportedSortOptions(InvalidRequest):
 
 
 class InvalidDimensions(InvalidRequest):
-    def __init__(self, diff: set[str]) -> None:
-        vals = ", ".join(diff)
-        super().__init__(f"invalid dimension(s) provided: {vals}")
+    def __init__(self, diff: set[str], depr: set[str]) -> None:
+        vals = ", ".join([*diff - depr, *(f"{d}*" for d in depr)])
+        extra = " (*deprecated)" if depr else ""
+        super().__init__(f"invalid dimension(s) provided: {vals}{extra}")
 
 
 class UnsupportedDimensions(InvalidRequest):
