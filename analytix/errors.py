@@ -33,9 +33,9 @@ class AnalytixError(Exception):
     ...
 
 
-class NotAvailable(AnalytixError):
-    def __init__(self, libs: tuple[str, ...]) -> None:
-        vals = " ".join(libs)
+class MissingOptionalComponents(AnalytixError):
+    def __init__(self, *args: str) -> None:
+        vals = " ".join(args)
         super().__init__(
             f"some necessary libraries are not installed (hint: pip install {vals})"
         )
@@ -44,6 +44,10 @@ class NotAvailable(AnalytixError):
 class APIError(AnalytixError):
     def __init__(self, code: str, message: str) -> None:
         super().__init__(f"API returned {code}: {message}")
+
+
+class DataFrameConversionError(AnalytixError):
+    ...
 
 
 class InvalidRequest(AnalytixError):

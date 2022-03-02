@@ -38,7 +38,7 @@ __all__ = (
 )
 
 __productname__ = "analytix"
-__version__ = "3.0.0.dev0"
+__version__ = "3.0.0rc1"
 __description__ = "A simple yet powerful wrapper for the YouTube Analytics API."
 __url__ = "https://github.com/parafoxia/analytix"
 __docs__ = "https://analytix.readthedocs.io"
@@ -51,16 +51,16 @@ __changelog__ = "https://github.com/parafoxia/analytix/releases"
 
 from pkg_resources import working_set
 
-from .analytics import Analytics
-from .async_analytics import AsyncAnalytics
-from .ux import setup_logging
-
 API_SERVICE_NAME = "youtubeAnalytics"
-API_BASE_URL = "https://youtubeanalytics.googleapis.com/v2/"
+API_BASE_URL = "https://youtubeanalytics.googleapis.com/v2/reports?"
 API_SCOPES = (
     "https://www.googleapis.com/auth/yt-analytics.readonly",
     "https://www.googleapis.com/auth/yt-analytics-monetary.readonly",
 )
 OAUTH_CHECK_URL = "https://www.googleapis.com/oauth2/v3/tokeninfo?access_token="
 
-PANDAS_AVAILABLE = "pandas" in [p.key for p in working_set]
+PANDAS_AVAILABLE: bool = "pandas" in [p.key for p in working_set]
+
+from .analytics import Analytics
+from .async_analytics import AsyncAnalytics
+from .ux import setup_logging
