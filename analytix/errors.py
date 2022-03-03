@@ -30,10 +30,14 @@ from __future__ import annotations
 
 
 class AnalytixError(Exception):
-    ...
+    """The base exception class for analytix."""
 
 
 class MissingOptionalComponents(AnalytixError):
+    """Exception thrown when components not installed by analytix by
+    default are required for a specific operation, but are not
+    installed."""
+
     def __init__(self, *args: str) -> None:
         vals = " ".join(args)
         super().__init__(
@@ -42,47 +46,67 @@ class MissingOptionalComponents(AnalytixError):
 
 
 class APIError(AnalytixError):
+    """Exception thrown when the YouTube Analytics API throws an
+    error."""
+
     def __init__(self, code: str, message: str) -> None:
         super().__init__(f"API returned {code}: {message}")
 
 
 class DataFrameConversionError(AnalytixError):
-    ...
+    """Exception thrown when converting a report to a DataFrame
+    fails."""
 
 
 class InvalidRequest(AnalytixError):
-    ...
+    """Exception thrown when a request to be made to the YouTube
+    Analytics API is not valid."""
 
 
 class MissingMetrics(InvalidRequest):
+    """Exception thrown when no metrics are provided."""
+
     def __init__(self) -> None:
         super().__init__("expected at least 1 metric, got 0")
 
 
-class MissingSortOptions(InvalidRequest):
-    def __init__(self) -> None:
-        super().__init__("expected at least 1 sort option, got 0")
-
-
 class InvalidMetrics(InvalidRequest):
+    """Exception thrown when one or more metrics are not valid."""
+
     def __init__(self, diff: set[str]) -> None:
         vals = ", ".join(diff)
         super().__init__(f"invalid metric(s) provided: {vals}")
 
 
 class UnsupportedMetrics(InvalidRequest):
+    """Exception thrown when one or more metrics are valid, but not
+    compatible with the report type that has been selected."""
+
     def __init__(self, diff: set[str]) -> None:
         vals = ", ".join(diff)
         super().__init__(f"unsupported metric(s) for selected report type: {vals}")
 
 
+class MissingSortOptions(InvalidRequest):
+    """Exception thrown when no sort options are provided when
+    necessary."""
+
+    def __init__(self) -> None:
+        super().__init__("expected at least 1 sort option, got 0")
+
+
 class InvalidSortOptions(InvalidRequest):
+    """Exception thrown when one or more sort options are not valid."""
+
     def __init__(self, diff: set[str]) -> None:
         vals = ", ".join(diff)
         super().__init__(f"invalid sort option(s) provided: {vals}")
 
 
 class UnsupportedSortOptions(InvalidRequest):
+    """Exception thrown when one or more sort options are valid, but not
+    compatible with the report type that has been selected."""
+
     def __init__(self, diff: set[str], *, descending_only: bool = False) -> None:
         vals = ", ".join(diff)
 
@@ -99,6 +123,8 @@ class UnsupportedSortOptions(InvalidRequest):
 
 
 class InvalidDimensions(InvalidRequest):
+    """Exception thrown when one or more dimensions are not valid."""
+
     def __init__(self, diff: set[str], depr: set[str]) -> None:
         vals = ", ".join([*diff - depr, *(f"{d}*" for d in depr)])
         extra = " (*deprecated)" if depr else ""
@@ -106,41 +132,61 @@ class InvalidDimensions(InvalidRequest):
 
 
 class UnsupportedDimensions(InvalidRequest):
+    """Exception thrown when one or more dimensions are valid, but not
+    compatible with the report type that has been selected."""
+
     def __init__(self, diff: set[str]) -> None:
         vals = ", ".join(diff)
         super().__init__(f"unsupported dimension(s) for selected report type: {vals}")
 
 
 class InvalidSetOfDimensions(InvalidRequest):
+    """Exception thrown when a set of dimensions contravenes the API
+    specification."""
+
     def __init__(self, expd: str, recv: int, values: set[str]) -> None:
         vals = ", ".join(values)
         super().__init__(f"expected {expd} dimension(s) from {vals!r}, got {recv}")
 
 
 class InvalidFilters(InvalidRequest):
+    """Exception thrown when one or more filters are not valid."""
+
     def __init__(self, diff: set[str]) -> None:
         vals = ", ".join(diff)
         super().__init__(f"invalid filter(s) provided: {vals}")
 
 
 class UnsupportedFilters(InvalidRequest):
+    """Exception thrown when one or more filters are valid, but not
+    compatible with the report type that has been selected."""
+
     def __init__(self, diff: set[str]) -> None:
         vals = ", ".join(diff)
         super().__init__(f"unsupported filter(s) for selected report type: {vals}")
 
 
 class InvalidSetOfFilters(InvalidRequest):
+    """Exception thrown when a set of filters contravenes the API
+    specification."""
+
     def __init__(self, expd: str, recv: int, values: set[str]) -> None:
         vals = ", ".join(values)
         super().__init__(f"expected {expd} filter(s) from {vals!r}, got {recv}")
 
 
 class InvalidFilterValue(InvalidRequest):
+    """Exception thrown when an invalid value is provided for a
+    filter."""
+
     def __init__(self, key: str, value: str) -> None:
         super().__init__(f"invalid value for filter {key!r}: {value!r}")
 
 
 class UnsupportedFilterValue(InvalidRequest):
+    """Exception thrown when a valid value is provided for a filter, but
+    cannot be used for the report type that has been selected."""
+
     def __init__(self, key: str, value: str) -> None:
         super().__init__(
             f"unsupported value for filter {key!r} for selected report type: {value!r}"
@@ -148,6 +194,9 @@ class UnsupportedFilterValue(InvalidRequest):
 
 
 class InvalidAmountOfResults(InvalidRequest):
+    """Exception thrown when the provided maximum number of results is
+    not valid."""
+
     def __init__(self, actual: int, maximum: int) -> None:
         if actual == 0:
             msg = "expected a maximum number of results"
