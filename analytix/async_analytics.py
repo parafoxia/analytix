@@ -28,6 +28,7 @@
 
 from __future__ import annotations
 
+import datetime as dt
 import logging
 import os
 import pathlib
@@ -36,7 +37,9 @@ import typing as t
 import httpx
 
 import analytix
-from analytix import oauth
+from analytix import errors, oauth
+from analytix.queries import Query
+from analytix.reports import Report
 from analytix.secrets import Secrets
 from analytix.tokens import Tokens
 
@@ -138,3 +141,63 @@ class AsyncAnalytics:
 
         log.info("Authorisation complete!")
         return self._tokens
+
+    async def retrieve(
+        self,
+        *,
+        dimensions: t.Collection[str] | None = None,
+        filters: dict[str, str] | None = None,
+        metrics: t.Collection[str] | None = None,
+        sort_options: t.Collection[str] | None = None,
+        max_results: int = 0,
+        start_date: dt.date | None = None,
+        end_date: dt.date | None = None,
+        currency: str = "USD",
+        start_index: int = 1,
+        include_historical_data: bool = False,
+        skip_validation: bool = False,
+    ) -> Report:
+        query = Query(
+            dimensions,
+            filters,
+            metrics,
+            sort_options,
+            max_results,
+            start_date,
+            end_date,
+            currency,
+            start_index,
+            include_historical_data,
+        )
+
+        if not skip_validation:
+            query.validate()
+        else:
+            log.warning("Skipping validation")
+
+        if not self.authorised:
+            await self.authorise()
+
+        try:
+            if await self.needs_refresh():
+                await self.refresh_access_token()
+        except httpx.HTTPStatusError:
+            log.warning(
+                "Token could not be refreshed due to an unexpected error; analytix "
+                "will continue for now, but you may need to manually reset your tokens"
+            )
+
+        assert self._tokens is not None
+        headers = {"Authorization": f"Bearer {self._tokens.access_token}"}
+        resp = await self._session.get(query.url, headers=headers)
+        data = resp.json()
+        log.debug(f"Data retrieved: {data}")
+
+        if next(iter(data)) == "error":
+            error = data["error"]
+            raise errors.APIError(error["code"], error["message"])
+
+        assert query.rtype is not None
+        report = Report(data, query.rtype)
+        log.info(f"Created report of shape {report.shape}!")
+        return report
