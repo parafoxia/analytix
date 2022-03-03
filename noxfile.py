@@ -86,13 +86,13 @@ def tests(session: nox.Session) -> None:
 
 
 @nox.session(reuse_venv=True)
-def check_formatting(session: nox.Session) -> None:
+def formatting(session: nox.Session) -> None:
     session.install(*fetch_installs("Formatting"))
     session.run("black", ".", "--check")
 
 
 @nox.session(reuse_venv=True)
-def check_imports(session: nox.Session) -> None:
+def imports(session: nox.Session) -> None:
     session.install(*fetch_installs("Imports"))
     # flake8 doesn't use the gitignore so we have to be explicit.
     session.run(
@@ -109,7 +109,7 @@ def check_imports(session: nox.Session) -> None:
 
 
 @nox.session(reuse_venv=True)
-def check_typing(session: nox.Session) -> None:
+def typing(session: nox.Session) -> None:
     session.install(
         *fetch_installs("Typing"),
         "-r",
@@ -119,7 +119,7 @@ def check_typing(session: nox.Session) -> None:
 
 
 @nox.session(reuse_venv=True)
-def check_line_lengths(session: nox.Session) -> None:
+def line_lengths(session: nox.Session) -> None:
     check = [p for p in CHECK_PATHS if p != str(TEST_DIR)]
 
     session.install(*fetch_installs("Line lengths"))
@@ -127,7 +127,7 @@ def check_line_lengths(session: nox.Session) -> None:
 
 
 @nox.session(reuse_venv=True)
-def check_licensing(session: nox.Session) -> None:
+def licensing(session: nox.Session) -> None:
     missing = []
 
     for p in [
@@ -147,13 +147,13 @@ def check_licensing(session: nox.Session) -> None:
 
 
 @nox.session(reuse_venv=True)
-def check_spelling(session: nox.Session) -> None:
+def spelling(session: nox.Session) -> None:
     session.install(*fetch_installs("Spelling"))
     session.run("codespell", *CHECK_PATHS, "-S", "**/analytix/data.py")
 
 
 @nox.session(reuse_venv=True)
-def check_safety(session: nox.Session) -> None:
+def safety(session: nox.Session) -> None:
     if sys.version_info >= (3, 11):
         session.skip("Safety does not support Python 3.11")
 
@@ -170,7 +170,7 @@ def check_safety(session: nox.Session) -> None:
 
 
 @nox.session(reuse_venv=True)
-def check_security(session: nox.Session) -> None:
+def security(session: nox.Session) -> None:
     check = [p for p in CHECK_PATHS if p != str(TEST_DIR)]
 
     session.install(*fetch_installs("Security"))

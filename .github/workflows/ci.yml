@@ -17,14 +17,14 @@ jobs:
       fail-fast: false
       matrix:
         session:
-          - check_formatting
-          - check_imports
-          - check_typing
-          - check_line_lengths
-          - check_licensing
-          - check_spelling
-          - check_safety
-          - check_security
+          - formatting
+          - imports
+          - typing
+          - line_lengths
+          - licensing
+          - spelling
+          - safety
+          - security
 
     name: Check
     runs-on: ubuntu-latest
