@@ -28,5 +28,6 @@
 
 import typing as t
 
+DataHeadersT = t.Tuple[t.Dict[str, str], t.Dict[str, str]]
 SecretsT = t.Union[str, t.List[str]]
 TokensT = t.Union[str, int]

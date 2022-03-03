@@ -34,20 +34,37 @@ import time
 import typing as t
 
 import analytix
+from analytix.types import DataHeadersT
 
 if t.TYPE_CHECKING:
     from analytix.secrets import Secrets
-
-    _DHT = tuple[dict[str, str], dict[str, str]]
 
 log = logging.getLogger(__name__)
 
 
 def create_state() -> str:
+    """Create a random state for requests.
+
+    Returns:
+        str:
+            The state as a 64-character long hexadecimal string.
+    """
+
     return hashlib.sha256(f"{time.time()}".encode("utf-8")).hexdigest()
 
 
 def auth_url_and_state(secrets: Secrets) -> tuple[str, str]:
+    """Get the authorisation URL and the state.
+
+    Args:
+        secrets (:obj:`Secrets`):
+            The project secrets from the Google Developers Console.
+
+    Returns:
+        :obj:`tuple` [:obj:`str`, :obj:`str`]:
+            A tuple with the following format: (URL, state).
+    """
+
     state = create_state()
     url = secrets.auth_uri + (
         "?response_type=code"
@@ -59,7 +76,20 @@ def auth_url_and_state(secrets: Secrets) -> tuple[str, str]:
     return url, state
 
 
-def access_data_and_headers(code: str, secrets: Secrets) -> _DHT:
+def access_data_and_headers(code: str, secrets: Secrets) -> DataHeadersT:
+    """Get the required data and headers for retrieving tokens from
+    the YouTube Token Endpoint.
+
+    Args:
+        code (str): The authorisation code.
+        secrets (:obj:`Secrets`):
+            The project secrets from the Google Developers Console.
+
+    Returns:
+        :obj:`tuple` [:obj:`dict` [str, str], :obj:`dict` [str, str]]:
+            A tuple with the following format: (data, headers).
+    """
+
     data = {
         "client_id": secrets.client_id,
         "client_secret": secrets.client_secret,
@@ -71,7 +101,20 @@ def access_data_and_headers(code: str, secrets: Secrets) -> _DHT:
     return data, headers
 
 
-def refresh_data_and_headers(token: str, secrets: Secrets) -> _DHT:
+def refresh_data_and_headers(token: str, secrets: Secrets) -> DataHeadersT:
+    """Get the required data and headers for refreshing tokens using
+    the YouTube Token Endpoint.
+
+    Args:
+        token (str): The refresh token.
+        secrets (:obj:`Secrets`):
+            The project secrets from the Google Developers Console.
+
+    Returns:
+        :obj:`tuple` [:obj:`dict` [str, str], :obj:`dict` [str, str]]:
+            A tuple with the following format: (data, headers).
+    """
+
     data = {
         "client_id": secrets.client_id,
         "client_secret": secrets.client_secret,
