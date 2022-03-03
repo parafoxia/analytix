@@ -9,5 +9,4 @@ build:
 python:
   version: 3.8
   install:
-    - requirements: git+https://github.com/parafoxia/analytix@task/rewrite
-    - requirements: requirements/rtd.txt
+    - requirements: docs/requirements.txt

@@ -6,7 +6,7 @@
 [![GitHub last commit](https://img.shields.io/github/last-commit/parafoxia/analytix)](https://github.com/parafoxia/analytix)
 [![License](https://img.shields.io/github/license/parafoxia/analytix.svg)](https://github.com/parafoxia/analytix/blob/main/LICENSE)
 
-[![CI (Tests)](https://github.com/parafoxia/analytix/actions/workflows/ci-tests.yml/badge.svg)](https://github.com/parafoxia/analytix/actions/workflows/ci-tests.yml)
+[![CI](https://github.com/parafoxia/analytix/actions/workflows/ci.yml/badge.svg)](https://github.com/parafoxia/analytix/actions/workflows/ci.yml)
 [![Read the Docs](https://img.shields.io/readthedocs/analytix)](https://analytix.readthedocs.io/en/latest/index.html)
 [![Maintainability](https://api.codeclimate.com/v1/badges/8819bdebb2d4aa8dfcb7/maintainability)](https://codeclimate.com/github/parafoxia/analytix/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/8819bdebb2d4aa8dfcb7/test_coverage)](https://codeclimate.com/github/parafoxia/analytix/test_coverage)
