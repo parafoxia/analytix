@@ -36,13 +36,38 @@ from dataclasses import dataclass
 
 import aiofiles
 
-_ST = t.Union[str, t.List[str]]
+from analytix.types import SecretsT
 
 log = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
 class Secrets:
+    """A dataclass representing a set of secrets for a Google Developers
+    project. This should generally be created using one of the available
+    classmethods.
+
+    Args:
+        client_id (:obj:`str`):
+            The client ID.
+        project_id (:obj:`str`):
+            The name of the project.
+        auth_uri (:obj:`str`):
+            The authorisation server endpoint URI.
+        token_uri (:obj:`str`):
+            The token server endpoint URI.
+        auth_provider_x509_cert_url (:obj:`str`):
+            The URL of the public x509 certificate, used to verify the
+            signature on JWTs, such as ID tokens, signed by the
+            authentication provider.
+        client_secret (:obj:`str`):
+            The client secret.
+        redirect_uris (:obj:`list` [:obj:`str`]):
+            A list of valid redirection endpoint URIs. This list should
+            match the list entered for the client ID on the API Access
+            pane of the Google APIs Console.
+    """
+
     client_id: str
     project_id: str
     auth_uri: str
@@ -54,11 +79,23 @@ class Secrets:
     def __str__(self) -> str:
         return self.project_id
 
-    def __getitem__(self, key: str) -> _ST:
-        return t.cast(_ST, getattr(self, key))
+    def __getitem__(self, key: str) -> SecretsT:
+        return t.cast(SecretsT, getattr(self, key))
 
     @classmethod
     def from_file(cls, path: pathlib.Path | str) -> Secrets:
+        """Load a set of secrets from a file downloaded from the Google
+        Developers Console.
+
+        Args:
+            path (:obj:`pathlib.Path` | :obj:`str`):
+                The path to the secrets file.
+
+        Returns:
+            :obj:`Secrets`:
+                The loaded secrets.
+        """
+
         if not isinstance(path, pathlib.Path):
             path = pathlib.Path(path)
 
@@ -72,6 +109,18 @@ class Secrets:
 
     @classmethod
     async def afrom_file(cls, path: pathlib.Path | str) -> Secrets:
+        """Asynchronously load a set of secrets from a file downloaded
+        from the Google Developers Console.
+
+        Args:
+            path (:obj:`pathlib.Path` | :obj:`str`):
+                The path to the secrets file.
+
+        Returns:
+            :obj:`Secrets`:
+                The loaded secrets.
+        """
+
         if not isinstance(path, pathlib.Path):
             path = pathlib.Path(path)
 
@@ -83,7 +132,15 @@ class Secrets:
         log.info("Secrets loaded!")
         return cls(**data)
 
-    def to_dict(self) -> dict[str, _ST]:
+    def to_dict(self) -> dict[str, SecretsT]:
+        """Convert secrets to a dictionary.
+
+        Returns:
+            :obj:`dict` [:obj:`str` | :obj:`SecretsT`]:
+                A dictionary of secrets, where the keys are strings, and
+                the values are either strings or lists of strings.
+        """
+
         return {
             "client_id": self.client_id,
             "project_id": self.project_id,
