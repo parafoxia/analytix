@@ -70,40 +70,48 @@ When *analytix* boots up for the first time, it will display a link, and ask for
 
 This means you should only have to authorise *analytix* **once every 200 days**. If you want to reset your tokens, you can either force authorisation within *analytix*, or simple delete the generated token file.
 
-## Quickstart
+## Logging
+
+If you want to see what *analytix* is doing, you can enable the packaged logger:
+
+```py
+import analytix
+
+analytix.setup_logging()
+```
+
+If anything is going wrong, or analytix appears to be taking a long time to fetch data, try enabling the logger in DEBUG mode.
+
+## Usage
 
 Retrieving reports from the YouTube Analytics API is easy. The below example loads credentials from a secrets file, and gets as much information as possible from the last 28 days:
 
 ```py
+from analytix import Analytics
+
+client = Analytics.with_secrets("./secrets.json")
+report = client.retrieve(dimensions=("day",))
+report.to_csv("./analytics.csv")
+```
+
+This can also be done asynchronously:
+
+```py
 import datetime as dt
 
-from analytix import Analytics
-
-client = Analytics.with_secrets("./secrets.json")
-start_date = dt.date.today() - dt.timedelta(days=28)
-report = client.retrieve(start_date, dimensions=("day",))
-report.to_csv("./analytics-28d.csv")
-```
-
-This can also be done in a simpler way:
-
-```py
-from analytix import Analytics
-
-client = Analytics.with_secrets("./secrets.json")
-report = client.daily_analytics().to_csv("./analytics-28d.csv")
-```
-
-If you need async capabilities, you can use the provided async class:
-
-```py
 from analytix import AsyncAnalytics
 
 client = await AsyncAnalytics.with_secrets("./secrets.json")
 report = await client.retrieve(
-    dt.date.today() - dt.timedelta(days=7),
     dimensions=("country",),
+    start_date=dt.date.today() - dt.timedelta(days=7),
 )
+await report.ato_csv("./async-analytics.csv")
+```
+
+If you want to analyse this data using additional tools such as pandas, you can directly export the report as a DataFrame (note that pandas is an optional dependency -- see above):
+```py
+df = report.to_dataframe()
 ```
 
 To read up further, [have a look at the documentation](https://analytix.readthedocs.io).
