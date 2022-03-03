@@ -35,7 +35,7 @@ import typing as t
 from dataclasses import dataclass
 
 import aiofiles
-from analytix.types import TokensT
+from analytix.types import TokenT
 
 log = logging.getLogger(__name__)
 
@@ -69,11 +69,11 @@ class Tokens:
     scope: str
     token_type: str
 
-    def __getitem__(self, key: str) -> TokensT:
-        return t.cast(TokensT, getattr(self, key))
+    def __getitem__(self, key: str) -> TokenT:
+        return t.cast(TokenT, getattr(self, key))
 
     @classmethod
-    def from_data(cls, data: dict[str, TokensT]) -> Tokens:
+    def from_data(cls, data: dict[str, TokenT]) -> Tokens:
         """Create an instance of this class from a dictionary.
 
         Args:
@@ -136,7 +136,7 @@ class Tokens:
         log.info("Tokens loaded!")
         return cls(**data)
 
-    def update(self, data: dict[str, TokensT]) -> None:
+    def update(self, data: dict[str, TokenT]) -> None:
         """Update token attributes.
 
         Args:
@@ -152,11 +152,11 @@ class Tokens:
 
         log.info("Tokens updated!")
 
-    def to_dict(self) -> dict[str, TokensT]:
+    def to_dict(self) -> dict[str, TokenT]:
         """Convert tokens to a dictionary.
 
         Returns:
-            :obj:`dict` [:obj:`str` | :obj:`TokensT`]:
+            :obj:`dict` [:obj:`str` | :obj:`TokenT`]:
                 A dictionary of tokens, where the keys are strings, and
                 the values are either strings or integers.
         """

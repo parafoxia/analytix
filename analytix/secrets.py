@@ -36,7 +36,7 @@ from dataclasses import dataclass
 
 import aiofiles
 
-from analytix.types import SecretsT
+from analytix.types import SecretT
 
 log = logging.getLogger(__name__)
 
@@ -79,8 +79,8 @@ class Secrets:
     def __str__(self) -> str:
         return self.project_id
 
-    def __getitem__(self, key: str) -> SecretsT:
-        return t.cast(SecretsT, getattr(self, key))
+    def __getitem__(self, key: str) -> SecretT:
+        return t.cast(SecretT, getattr(self, key))
 
     @classmethod
     def from_file(cls, path: pathlib.Path | str) -> Secrets:
@@ -132,11 +132,11 @@ class Secrets:
         log.info("Secrets loaded!")
         return cls(**data)
 
-    def to_dict(self) -> dict[str, SecretsT]:
+    def to_dict(self) -> dict[str, SecretT]:
         """Convert secrets to a dictionary.
 
         Returns:
-            :obj:`dict` [:obj:`str` | :obj:`SecretsT`]:
+            :obj:`dict` [:obj:`str` | :obj:`SecretT`]:
                 A dictionary of secrets, where the keys are strings, and
                 the values are either strings or lists of strings.
         """
