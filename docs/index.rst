@@ -100,3 +100,10 @@ Contents
     api/reports
     api/secrets
     api/tokens
+
+.. toctree::
+    :maxdepth: 1
+    :caption: Additional information
+
+    info/migrating
+    info/changelog

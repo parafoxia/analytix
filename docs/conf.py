@@ -21,7 +21,7 @@ sys.path.insert(0, os.path.abspath("."))
 # -- Project information -----------------------------------------------------
 
 project = "analytix"
-copyright = "2021, Ethan Henderson"
+copyright = "2021-present, Ethan Henderson"
 author = "Ethan Henderson"
 release = analytix.__version__
 
@@ -61,4 +61,4 @@ html_theme = "furo"
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ["_static"]
+# html_static_path = ["_static"]
