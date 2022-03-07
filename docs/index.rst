@@ -69,11 +69,19 @@ Documentation
 
 .. toctree::
     :maxdepth: 1
-    :caption: API reference
+    :caption: Data and functions
 
     api/analytix
     api/ux
     api/errors
+    api/oauth
+
+.. toctree::
+    :maxdepth: 1
+    :caption: Classes
+
     api/analytics
     api/async_analytics
     api/reports
+    api/secrets
+    api/tokens

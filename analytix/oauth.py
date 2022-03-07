@@ -34,10 +34,10 @@ import time
 import typing as t
 
 import analytix
-from analytix.types import DataHeadersT
 
 if t.TYPE_CHECKING:
     from analytix.secrets import Secrets
+    from analytix.types import DataHeadersT
 
 log = logging.getLogger(__name__)
 
@@ -46,8 +46,7 @@ def create_state() -> str:
     """Create a random state for requests.
 
     Returns:
-        str:
-            The state as a 64-character long hexadecimal string.
+        The state as a 64-character long hexadecimal string.
     """
 
     return hashlib.sha256(f"{time.time()}".encode("utf-8")).hexdigest()
@@ -57,12 +56,11 @@ def auth_url_and_state(secrets: Secrets) -> tuple[str, str]:
     """Get the authorisation URL and the state.
 
     Args:
-        secrets (:obj:`Secrets`):
+        secrets:
             The project secrets from the Google Developers Console.
 
     Returns:
-        :obj:`tuple` [:obj:`str`, :obj:`str`]:
-            A tuple with the following format: (URL, state).
+        A tuple containing the generated URL and state.
     """
 
     state = create_state()
@@ -81,13 +79,13 @@ def access_data_and_headers(code: str, secrets: Secrets) -> DataHeadersT:
     the YouTube Token Endpoint.
 
     Args:
-        code (str): The authorisation code.
-        secrets (:obj:`Secrets`):
+        code:
+            The authorisation code.
+        secrets:
             The project secrets from the Google Developers Console.
 
     Returns:
-        :obj:`tuple` [:obj:`dict` [str, str], :obj:`dict` [str, str]]:
-            A tuple with the following format: (data, headers).
+        A tuple containing the data and headers.
     """
 
     data = {
@@ -106,13 +104,13 @@ def refresh_data_and_headers(token: str, secrets: Secrets) -> DataHeadersT:
     the YouTube Token Endpoint.
 
     Args:
-        token (str): The refresh token.
-        secrets (:obj:`Secrets`):
+        token:
+            The refresh token.
+        secrets:
             The project secrets from the Google Developers Console.
 
     Returns:
-        :obj:`tuple` [:obj:`dict` [str, str], :obj:`dict` [str, str]]:
-            A tuple with the following format: (data, headers).
+        A tuple containing the data and headers.
     """
 
     data = {
