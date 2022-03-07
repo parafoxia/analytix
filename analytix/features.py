@@ -79,7 +79,7 @@ class Metrics(abc.FeatureType, CompareMixin):
         if not isinstance(inputs, set):
             inputs = set(inputs)
 
-        diff = inputs - set(data.ALL_METRICS)
+        diff = inputs - data.ALL_METRICS
         if diff:
             raise errors.InvalidMetrics(diff)
 
@@ -98,7 +98,7 @@ class SortOptions(abc.FeatureType, CompareMixin):
         if not isinstance(inputs, set):
             inputs = set(inputs)
 
-        diff = raw_inputs - set(data.ALL_METRICS)
+        diff = raw_inputs - data.ALL_METRICS
         if diff:
             raise errors.InvalidSortOptions(diff)
 
@@ -117,9 +117,9 @@ class Dimensions(abc.SegmentedFeatureType, NestedCompareMixin):
         if not isinstance(inputs, set):
             inputs = set(inputs)
 
-        diff = inputs - set(data.ALL_DIMENSIONS)
+        diff = inputs - data.ALL_DIMENSIONS
         if diff:
-            depr = inputs & set(data.DEPRECATED_DIMENSIONS)
+            depr = inputs & data.DEPRECATED_DIMENSIONS
             raise errors.InvalidDimensions(diff, depr)
 
         diff = inputs - self.every
@@ -150,7 +150,7 @@ class Filters(abc.MappingFeatureType, NestedCompareMixin):
         keys = set(inputs.keys())
         locked = self.locked
 
-        diff = keys - set(data.ALL_FILTERS)
+        diff = keys - data.ALL_FILTERS
         if diff:
             raise errors.InvalidFilters(diff)
 

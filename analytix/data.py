@@ -26,7 +26,7 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-COUNTRIES = (
+COUNTRIES = {
     "AW",
     "AF",
     "AO",
@@ -276,8 +276,9 @@ COUNTRIES = (
     "ZA",
     "ZM",
     "ZW",
-)
-SUBDIVISIONS = (
+}
+
+SUBDIVISIONS = {
     "US-OH",
     "US-IN",
     "US-OK",
@@ -335,8 +336,9 @@ SUBDIVISIONS = (
     "US-NV",
     "US-IL",
     "US-NY",
-)
-CURRENCIES = (
+}
+
+CURRENCIES = {
     "AED",
     "AFN",
     "ALL",
@@ -507,14 +509,14 @@ CURRENCIES = (
     "ZAR",
     "ZMW",
     "ZWL",
-)
+}
 
-DEPRECATED_DIMENSIONS = (
+DEPRECATED_DIMENSIONS = {
     "7DayTotals",
     "30DayTotals",
-)
+}
 
-CORE_DIMENSIONS = (
+CORE_DIMENSIONS = {
     "ageGroup",
     "channel",
     "country",
@@ -524,14 +526,14 @@ CORE_DIMENSIONS = (
     "sharingService",
     "uploaderType",
     "video",
-)
+}
 
-CONTENT_OWNER_DIMENSIONS = (
+CONTENT_OWNER_DIMENSIONS = {
     "claimedStatus",
     "uploaderType",
-)
+}
 
-ALL_DIMENSIONS = (
+ALL_DIMENSIONS = {
     "video",
     "playlist",
     "channel",
@@ -556,7 +558,7 @@ ALL_DIMENSIONS = (
     "adType",
     "claimedStatus",
     "uploaderType",
-)
+}
 
 VALID_FILTER_OPTIONS = {
     "video": (),
@@ -801,9 +803,9 @@ VALID_FILTER_OPTIONS = {
     "isCurated": ("1",),
 }
 
-ALL_FILTERS = tuple(VALID_FILTER_OPTIONS.keys())
+ALL_FILTERS = set(VALID_FILTER_OPTIONS.keys())
 
-CORE_METRICS = (
+CORE_METRICS = {
     "annotationClickThroughRate",
     "annotationCloseRate",
     "averageViewDuration",
@@ -817,9 +819,9 @@ CORE_METRICS = (
     "subscribersLost",
     "viewerPercentage",
     "views",
-)
+}
 
-ALL_METRICS = (
+ALL_METRICS = {
     "views",
     "redViews",
     "comments",
@@ -861,9 +863,9 @@ ALL_METRICS = (
     "playlistStarts",
     "viewsPerPlaylistStart",
     "averageTimeInPlaylist",
-)
+}
 
-ALL_VIDEO_METRICS = (
+ALL_VIDEO_METRICS = {
     "views",
     "redViews",
     "comments",
@@ -899,9 +901,9 @@ ALL_VIDEO_METRICS = (
     "playbackBasedCpm",
     "adImpressions",
     "cpm",
-)
+}
 
-ALL_PROVINCE_METRICS = (
+ALL_PROVINCE_METRICS = {
     "views",
     "redViews",
     "estimatedMinutesWatched",
@@ -921,9 +923,9 @@ ALL_PROVINCE_METRICS = (
     "cardTeaserImpressions",
     "cardClicks",
     "cardTeaserClicks",
-)
+}
 
-SUBSCRIPTION_METRICS = (
+SUBSCRIPTION_METRICS = {
     "views",
     "redViews",
     "likes",
@@ -948,9 +950,9 @@ SUBSCRIPTION_METRICS = (
     "cardTeaserImpressions",
     "cardClicks",
     "cardTeaserClicks",
-)
+}
 
-LESSER_SUBSCRIPTION_METRICS = (
+LESSER_SUBSCRIPTION_METRICS = {
     "views",
     "redViews",
     "estimatedMinutesWatched",
@@ -970,31 +972,31 @@ LESSER_SUBSCRIPTION_METRICS = (
     "cardTeaserImpressions",
     "cardClicks",
     "cardTeaserClicks",
-)
+}
 
-LIVE_PLAYBACK_DETAIL_METRICS = (
+LIVE_PLAYBACK_DETAIL_METRICS = {
     "views",
     "redViews",
     "estimatedMinutesWatched",
     "estimatedRedMinutesWatched",
     "averageViewDuration",
-)
+}
 
-VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS = (
+VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS = {
     "views",
     "redViews",
     "estimatedMinutesWatched",
     "estimatedRedMinutesWatched",
     "averageViewDuration",
     "averageViewPercentage",
-)
+}
 
-LOCATION_AND_TRAFFIC_METRICS = (
+LOCATION_AND_TRAFFIC_METRICS = {
     "views",
     "estimatedMinutesWatched",
-)
+}
 
-ALL_PLAYLIST_METRICS = (
+ALL_PLAYLIST_METRICS = {
     "views",
     "redViews",
     "estimatedMinutesWatched",
@@ -1003,29 +1005,29 @@ ALL_PLAYLIST_METRICS = (
     "playlistStarts",
     "viewsPerPlaylistStart",
     "averageTimeInPlaylist",
-)
+}
 
-LOCATION_AND_TRAFFIC_PLAYLIST_METRICS = (
+LOCATION_AND_TRAFFIC_PLAYLIST_METRICS = {
     "views",
     "estimatedMinutesWatched",
     "playlistStarts",
     "viewsPerPlaylistStart",
     "averageTimeInPlaylist",
-)
+}
 
-LOCATION_AND_TRAFFIC_SORT_OPTIONS = (
+LOCATION_AND_TRAFFIC_SORT_OPTIONS = {
     "views",
     "estimatedMinutesWatched",
-)
+}
 
-TOP_VIDEOS_SORT_OPTIONS = (
+TOP_VIDEOS_SORT_OPTIONS = {
     "views",
     "redViews",
     "estimatedMinutesWatched",
     "estimatedRedMinutesWatched",
-)
+}
 
-TOP_VIDEOS_EXTRA_SORT_OPTIONS = (
+TOP_VIDEOS_EXTRA_SORT_OPTIONS = {
     "views",
     "redViews",
     "estimatedRevenue",
@@ -1034,10 +1036,10 @@ TOP_VIDEOS_EXTRA_SORT_OPTIONS = (
     "estimatedRedMinutesWatched",
     "subscribersGained",
     "subscribersLost",
-)
+}
 
-LOCATION_AND_TRAFFIC_PLAYLIST_SORT_OPTIONS = (
+LOCATION_AND_TRAFFIC_PLAYLIST_SORT_OPTIONS = {
     "views",
     "estimatedMinutesWatched",
     "playlistStarts",
-)
+}
