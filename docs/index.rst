@@ -69,6 +69,17 @@ Contents
 
 .. toctree::
     :maxdepth: 1
+    :caption: Guides
+
+    guides/console
+    guides/dimensions
+    guides/filters
+    guides/metrics
+    guides/sort_options
+    guides/report_types
+
+.. toctree::
+    :maxdepth: 1
     :caption: Data and functions
 
     api/analytix
