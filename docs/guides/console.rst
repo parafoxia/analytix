@@ -5,7 +5,7 @@ This guide will run you through the process of configuring a project for analyti
 
 By the end of this guide, you will know:
 
-#. How to set up an application on the Google Developers Console
+#. How to set up an application on the `Google Developers Console <https://console.cloud.google.com/home>`_
 #. How to enable the YouTube Analytics API in your application
 #. How to make analytix aware of your application
 
