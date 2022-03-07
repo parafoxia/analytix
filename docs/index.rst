@@ -1,5 +1,5 @@
-analytix
-########
+Documentation
+#############
 
 .. image:: https://img.shields.io/pypi/v/analytix.svg
    :alt: PyPI version
@@ -64,9 +64,16 @@ Features
 - Extra support allows the native saving of CSV files and conversion to DataFrame objects
 - Easy enough for beginners, but powerful enough for advanced users
 
-Contents
-========
+Documentation
+=============
 
 .. toctree::
     :maxdepth: 1
     :caption: API reference
+
+    api/analytix
+    api/ux
+    api/errors
+    api/analytics
+    api/async_analytics
+    api/reports

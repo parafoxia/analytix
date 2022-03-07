@@ -88,6 +88,16 @@ def display_splash() -> None:
 
 
 def setup_logging(level: int = logging.INFO) -> logging.StreamHandler[t.TextIO]:
+    """Enable analytix's preconfigured logger.
+
+    Args:
+        level:
+            The log level to use. Defaults to INFO.
+
+    Returns:
+        The created log handler.
+    """
+
     FMT = "{relativeCreated:>05.0f} [{levelname:^9}] {name}: {message}"
     FORMATS = {
         logging.DEBUG: f"\33[38;5;244m{FMT}\33[0m",

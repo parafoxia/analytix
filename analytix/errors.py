@@ -64,14 +64,16 @@ class InvalidRequest(AnalytixError):
 
 
 class MissingMetrics(InvalidRequest):
-    """Exception thrown when no metrics are provided."""
+    """Exception thrown when no metrics are provided. Inherits from
+    :obj:`InvalidRequest`."""
 
     def __init__(self) -> None:
         super().__init__("expected at least 1 metric, got 0")
 
 
 class InvalidMetrics(InvalidRequest):
-    """Exception thrown when one or more metrics are not valid."""
+    """Exception thrown when one or more metrics are not valid. Inherits
+    from :obj:`InvalidRequest`."""
 
     def __init__(self, diff: set[str]) -> None:
         vals = ", ".join(diff)
@@ -80,7 +82,8 @@ class InvalidMetrics(InvalidRequest):
 
 class UnsupportedMetrics(InvalidRequest):
     """Exception thrown when one or more metrics are valid, but not
-    compatible with the report type that has been selected."""
+    compatible with the report type that has been selected. Inherits
+    from :obj:`InvalidRequest`."""
 
     def __init__(self, diff: set[str]) -> None:
         vals = ", ".join(diff)
@@ -89,14 +92,15 @@ class UnsupportedMetrics(InvalidRequest):
 
 class MissingSortOptions(InvalidRequest):
     """Exception thrown when no sort options are provided when
-    necessary."""
+    necessary. Inherits from :obj:`InvalidRequest`."""
 
     def __init__(self) -> None:
         super().__init__("expected at least 1 sort option, got 0")
 
 
 class InvalidSortOptions(InvalidRequest):
-    """Exception thrown when one or more sort options are not valid."""
+    """Exception thrown when one or more sort options are not valid.
+    Inherits from :obj:`InvalidRequest`."""
 
     def __init__(self, diff: set[str]) -> None:
         vals = ", ".join(diff)
@@ -105,7 +109,8 @@ class InvalidSortOptions(InvalidRequest):
 
 class UnsupportedSortOptions(InvalidRequest):
     """Exception thrown when one or more sort options are valid, but not
-    compatible with the report type that has been selected."""
+    compatible with the report type that has been selected. Inherits
+    from :obj:`InvalidRequest`."""
 
     def __init__(self, diff: set[str], *, descending_only: bool = False) -> None:
         vals = ", ".join(diff)
@@ -123,7 +128,8 @@ class UnsupportedSortOptions(InvalidRequest):
 
 
 class InvalidDimensions(InvalidRequest):
-    """Exception thrown when one or more dimensions are not valid."""
+    """Exception thrown when one or more dimensions are not valid.
+    Inherits from :obj:`InvalidRequest`."""
 
     def __init__(self, diff: set[str], depr: set[str]) -> None:
         vals = ", ".join([*diff - depr, *(f"{d}*" for d in depr)])
@@ -133,7 +139,8 @@ class InvalidDimensions(InvalidRequest):
 
 class UnsupportedDimensions(InvalidRequest):
     """Exception thrown when one or more dimensions are valid, but not
-    compatible with the report type that has been selected."""
+    compatible with the report type that has been selected. Inherits
+    from :obj:`InvalidRequest`."""
 
     def __init__(self, diff: set[str]) -> None:
         vals = ", ".join(diff)
@@ -142,7 +149,7 @@ class UnsupportedDimensions(InvalidRequest):
 
 class InvalidSetOfDimensions(InvalidRequest):
     """Exception thrown when a set of dimensions contravenes the API
-    specification."""
+    specification. Inherits from :obj:`InvalidRequest`."""
 
     def __init__(self, expd: str, recv: int, values: set[str]) -> None:
         vals = ", ".join(values)
@@ -150,7 +157,8 @@ class InvalidSetOfDimensions(InvalidRequest):
 
 
 class InvalidFilters(InvalidRequest):
-    """Exception thrown when one or more filters are not valid."""
+    """Exception thrown when one or more filters are not valid. Inherits
+    from :obj:`InvalidRequest`."""
 
     def __init__(self, diff: set[str]) -> None:
         vals = ", ".join(diff)
@@ -159,7 +167,8 @@ class InvalidFilters(InvalidRequest):
 
 class UnsupportedFilters(InvalidRequest):
     """Exception thrown when one or more filters are valid, but not
-    compatible with the report type that has been selected."""
+    compatible with the report type that has been selected. Inherits
+    from :obj:`InvalidRequest`."""
 
     def __init__(self, diff: set[str]) -> None:
         vals = ", ".join(diff)
@@ -168,7 +177,7 @@ class UnsupportedFilters(InvalidRequest):
 
 class InvalidSetOfFilters(InvalidRequest):
     """Exception thrown when a set of filters contravenes the API
-    specification."""
+    specification. Inherits from :obj:`InvalidRequest`."""
 
     def __init__(self, expd: str, recv: int, values: set[str]) -> None:
         vals = ", ".join(values)
@@ -176,8 +185,8 @@ class InvalidSetOfFilters(InvalidRequest):
 
 
 class InvalidFilterValue(InvalidRequest):
-    """Exception thrown when an invalid value is provided for a
-    filter."""
+    """Exception thrown when an invalid value is provided for a filter.
+    Inherits from :obj:`InvalidRequest`."""
 
     def __init__(self, key: str, value: str) -> None:
         super().__init__(f"invalid value for filter {key!r}: {value!r}")
@@ -185,7 +194,8 @@ class InvalidFilterValue(InvalidRequest):
 
 class UnsupportedFilterValue(InvalidRequest):
     """Exception thrown when a valid value is provided for a filter, but
-    cannot be used for the report type that has been selected."""
+    cannot be used for the report type that has been selected. Inherits
+    from :obj:`InvalidRequest`."""
 
     def __init__(self, key: str, value: str) -> None:
         super().__init__(
@@ -195,7 +205,7 @@ class UnsupportedFilterValue(InvalidRequest):
 
 class InvalidAmountOfResults(InvalidRequest):
     """Exception thrown when the provided maximum number of results is
-    not valid."""
+    not valid. Inherits from :obj:`InvalidRequest`."""
 
     def __init__(self, actual: int, maximum: int) -> None:
         if actual == 0:

@@ -29,7 +29,6 @@
 __all__ = (
     "API_BASE_URL",
     "API_SCOPES",
-    "API_SERVICE_NAME",
     "Analytics",
     "AsyncAnalytics",
     "OAUTH_CHECK_URL",
@@ -51,7 +50,6 @@ __changelog__ = "https://github.com/parafoxia/analytix/releases"
 
 from pkg_resources import working_set
 
-API_SERVICE_NAME = "youtubeAnalytics"
 API_BASE_URL = "https://youtubeanalytics.googleapis.com/v2/reports?"
 API_SCOPES = (
     "https://www.googleapis.com/auth/yt-analytics.readonly",
