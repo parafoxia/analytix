@@ -153,7 +153,7 @@ class Analytics:
         self._tokens.update(r.json())
         self._tokens.write(self._token_path)
 
-    def authorise(
+    def authorise(  # nosec B107
         self, token_path: pathlib.Path | str = ".", *, force: bool = False
     ) -> Tokens:
         """Authorise the client. This is called automatically when

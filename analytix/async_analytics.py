@@ -38,7 +38,6 @@ import httpx
 
 import analytix
 from analytix import errors, oauth
-from analytix.analytics import Analytics
 from analytix.queries import Query
 from analytix.reports import Report
 from analytix.secrets import Secrets
@@ -157,7 +156,7 @@ class AsyncAnalytics:
         self._tokens.update(r.json())
         await self._tokens.awrite(self._token_path)
 
-    async def authorise(
+    async def authorise(  # nosec B107
         self, *, token_path: pathlib.Path | str = ".", force: bool = False
     ) -> Tokens:
         """Authorise the client. This is called automatically when
