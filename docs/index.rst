@@ -23,9 +23,9 @@ analytix
 
 |
 
-.. image:: https://github.com/parafoxia/analytix/actions/workflows/ci-tests.yml/badge.svg
-   :target: https://github.com/parafoxia/analytix/actions/workflows/ci-tests.yml
-   :alt: CI (Tests)
+.. image:: https://github.com/parafoxia/analytix/actions/workflows/ci.yml/badge.svg
+   :target: https://github.com/parafoxia/analytix/actions/workflows/ci.yml
+   :alt: CI
 
 .. image:: https://img.shields.io/readthedocs/analytix
    :alt: Read the Docs
@@ -43,6 +43,18 @@ analytix
 
 A simple yet powerful wrapper for the YouTube Analytics API.
 
+What does *analytix* do?
+========================
+
+The YouTube Studio provides a fantastic interface where creators can view some incredibly detailed analytics for their channel. However, there's no way to perform programmatical operations on the data to do some proper analysis on it. This is where *analytix* comes in.
+
+The process of analysing data on the YouTube Studio is comprised of two steps:
+
+1. Retrieving the data to be analysed and visualised
+2. Presenting that data to the user
+
+*analytix* aims to handle step one as comprehensively as possible, allowing analysts to use tools such as *pandas* and *Matplotlib* to work on the data without having to faff around with Google's offerings.
+
 Features
 ========
 
@@ -56,29 +68,5 @@ Contents
 ========
 
 .. toctree::
-   :maxdepth: 1
-   :caption: Quickstart
-
-   starting/install
-   starting/first-report
-
-.. toctree::
     :maxdepth: 1
-    :caption: Library reference
-
-    app/analytix
-    app/yt-analytics
-
-.. toctree::
-    :maxdepth: 1
-    :caption: Guides and other references
-
-    refs/yt-analytics-setup
-    refs/yt-analytics-reports
-
-.. toctree::
-    :maxdepth: 1
-    :caption: Information
-
-    info/changelog
-    info/migrating
+    :caption: API reference
