@@ -34,7 +34,7 @@ The process of analysing data on the YouTube Studio is comprised of two steps:
 1. Retrieving the data to be analysed and visualised
 2. Presenting that data to the user
 
-*analytix* aims to handle step one as comprehensively as possible, allowing analysts to use tools such as pandas and Matplotlib to work on the data without having to faff around with Google's offerings.
+*analytix* aims to handle step one as comprehensively as possible, allowing analysts to use tools such as *pandas* and *Matplotlib* to work on the data without having to faff around with Google's offerings.
 
 ## Installation
 
@@ -80,7 +80,7 @@ import analytix
 analytix.setup_logging()
 ```
 
-If anything is going wrong, or analytix appears to be taking a long time to fetch data, try enabling the logger in DEBUG mode.
+If anything is going wrong, or *analytix* appears to be taking a long time to fetch data, try enabling the logger in DEBUG mode.
 
 ## Usage
 
@@ -109,7 +109,7 @@ report = await client.retrieve(
 await report.ato_csv("./async-analytics.csv")
 ```
 
-If you want to analyse this data using additional tools such as pandas, you can directly export the report as a DataFrame (note that pandas is an optional dependency -- see above):
+If you want to analyse this data using additional tools such as *pandas*, you can directly export the report as a DataFrame (note that pandas is an optional dependency -- see above):
 ```py
 df = report.to_dataframe()
 ```
