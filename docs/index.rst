@@ -64,8 +64,8 @@ Features
 - Extra support allows the native saving of CSV files and conversion to DataFrame objects
 - Easy enough for beginners, but powerful enough for advanced users
 
-Documentation
-=============
+Contents
+========
 
 .. toctree::
     :maxdepth: 1

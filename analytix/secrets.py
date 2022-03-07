@@ -48,21 +48,21 @@ class Secrets:
     classmethods.
 
     Args:
-        client_id (:obj:`str`):
+        client_id:
             The client ID.
-        project_id (:obj:`str`):
+        project_id:
             The name of the project.
-        auth_uri (:obj:`str`):
+        auth_uri:
             The authorisation server endpoint URI.
-        token_uri (:obj:`str`):
+        token_uri:
             The token server endpoint URI.
-        auth_provider_x509_cert_url (:obj:`str`):
+        auth_provider_x509_cert_url:
             The URL of the public x509 certificate, used to verify the
             signature on JWTs, such as ID tokens, signed by the
             authentication provider.
-        client_secret (:obj:`str`):
+        client_secret:
             The client secret.
-        redirect_uris (:obj:`list` [:obj:`str`]):
+        redirect_uris:
             A list of valid redirection endpoint URIs. This list should
             match the list entered for the client ID on the API Access
             pane of the Google APIs Console.
@@ -88,12 +88,11 @@ class Secrets:
         Developers Console.
 
         Args:
-            path (:obj:`pathlib.Path` | :obj:`str`):
+            path:
                 The path to the secrets file.
 
         Returns:
-            :obj:`Secrets`:
-                The loaded secrets.
+            The loaded secrets.
         """
 
         if not isinstance(path, pathlib.Path):
@@ -113,12 +112,11 @@ class Secrets:
         from the Google Developers Console.
 
         Args:
-            path (:obj:`pathlib.Path` | :obj:`str`):
+            path:
                 The path to the secrets file.
 
         Returns:
-            :obj:`Secrets`:
-                The loaded secrets.
+            The loaded secrets.
         """
 
         if not isinstance(path, pathlib.Path):
@@ -136,9 +134,8 @@ class Secrets:
         """Convert secrets to a dictionary.
 
         Returns:
-            :obj:`dict` [:obj:`str` | :obj:`SecretT`]:
-                A dictionary of secrets, where the keys are strings, and
-                the values are either strings or lists of strings.
+            A dictionary of secrets, where the keys are strings, and the
+            values are either strings or lists of strings.
         """
 
         return {
