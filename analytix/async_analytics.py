@@ -38,6 +38,7 @@ import httpx
 
 import analytix
 from analytix import errors, oauth
+from analytix.analytics import Analytics
 from analytix.queries import Query
 from analytix.reports import Report
 from analytix.secrets import Secrets
@@ -47,6 +48,19 @@ log = logging.getLogger(__name__)
 
 
 class AsyncAnalytics:
+    """A class representing an asynchronous client for the YouTube
+    Analytics API.
+
+    Args:
+        secrets:
+            The project secrets from the Google Developers Console.
+
+    Keyword Args:
+        **kwargs:
+            Additional parameters to be passed to the
+            :obj:`httpx.Client` constructor.
+    """
+
     __slots__ = ("secrets", "_session", "_tokens", "_token_path")
 
     def __init__(self, secrets: Secrets, **kwargs: t.Any) -> None:
@@ -60,6 +74,17 @@ class AsyncAnalytics:
 
     @classmethod
     async def with_secrets(cls, path: pathlib.Path | str) -> AsyncAnalytics:
+        """Create a client using secrets from a file downloaded from the
+        Google Developers Console.
+
+        Args:
+            path:
+                The path to the secrets file.
+
+        Returns:
+            The created client instance.
+        """
+
         if not os.path.isfile(path):
             raise FileNotFoundError("you must provided a valid path to a secrets file")
 
@@ -67,9 +92,13 @@ class AsyncAnalytics:
 
     @property
     def authorised(self) -> bool:
+        """Whether this client is authorised."""
+
         return self._tokens != None
 
     async def close_session(self) -> None:
+        """Close the currently open session."""
+
         await self._session.aclose()
         log.info("Session closed")
 
@@ -89,6 +118,13 @@ class AsyncAnalytics:
         return Tokens.from_data(r.json())
 
     async def needs_refresh(self) -> bool:
+        """Check whether any existing token needs refreshing. If the
+        client is not currently authorised, this will return ``False``.
+
+        Returns:
+            Whether the access token needs to be refreshed.
+        """
+
         if not self._tokens:
             return False
 
@@ -105,6 +141,8 @@ class AsyncAnalytics:
         return int(r.json().get("expires_in", 0)) < 300
 
     async def refresh_access_token(self) -> None:
+        """Refresh the access token."""
+
         if not self._tokens:
             log.warning("There are no tokens to refresh")
             return
@@ -122,6 +160,27 @@ class AsyncAnalytics:
     async def authorise(
         self, *, token_path: pathlib.Path | str = ".", force: bool = False
     ) -> Tokens:
+        """Authorise the client. This is called automatically when
+        needed if not manually called, though if you want to authorise
+        with non-default options, you will need to call this manually.
+
+        Args:
+            token_path:
+                The path to the token file or the directory the token
+                file is or should be stored in. If this is not provided,
+                this defaults to the current directory, and if a
+                directory is passed, the file is given the name
+                "tokens.json".
+
+        Keyword Args:
+            force:
+                Whether to forcibly authorise the client. Defaults to
+                ``False``.
+
+        Returns:
+            The tokens the client is authorised with.
+        """
+
         if not isinstance(token_path, pathlib.Path):
             token_path = pathlib.Path(token_path)
 
@@ -157,6 +216,68 @@ class AsyncAnalytics:
         include_historical_data: bool = False,
         skip_validation: bool = False,
     ) -> Report:
+        """Retrieves a report from the YouTube Analytics API.
+
+        Keyword Args:
+            dimensions:
+                The dimensions to use in the report. Defaults to
+                ``None``. If this is ``None``, no dimensions will be
+                used.
+            filters:
+                The filters to use in the report. Defaults to ``None``.
+                If this is ``None``, no filters will be used.
+            metrics:
+                The metrics to use in the report. Defaults to ``None``.
+                If this is ``None``, all available metrics for the
+                selected report type will be used.
+            sort_options:
+                The sort options to use in the report. Defaults to
+                ``None``. If this is ``None``, no sort options will be
+                used.
+            max_results:
+                The maximum number of results to include in the report.
+                Defaults to ``0``. If this is ``0``, no limit will be
+                set on the maximum number of results.
+            start_date:
+                The date from which to begin pulling data. Defaults to
+                ``None``. If this is ``None``, this will be set to 28
+                days before the end date.
+            end_date:
+                The date in which to pull data up to. Defaults to
+                ``None``. If this is ``None``, this will be set to the
+                current date.
+
+                .. warning::
+                    Due to the nature of the YouTube Analytics API, some
+                    dates may be missing from the report. analytix does
+                    not compensate for this, as the number missing is
+                    not consistent.
+
+            currency:
+                The currency in which financial data will be displayed
+                in. Defaults to "USD". This **must** be an ISO 4217
+                currency code.
+            start_index:
+                The row to start pulling data. Defaults to ``1``. This
+                value one-indexed, meaning setting this to ``1`` will
+                include all rows, and setting it to ``10`` will remove
+                the first nine rows.
+            include_historical_data:
+                Whether to retrieve data from dates earlier than the
+                current channel owner assumed ownership of the channel.
+                Defaults to ``False``. You only need to worry about this
+                if you are not the original owner of the channel.
+            skip_validation:
+                Whether to skip the validation process. Defaults to
+                ``False``.
+            force_authorisation:
+                Whether to force the (re)authorisation of the client.
+                Defaults to ``False``.
+
+        Returns:
+            An instance for working with retrieved data.
+        """
+
         query = Query(
             dimensions,
             filters,

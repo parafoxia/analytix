@@ -46,6 +46,18 @@ log = logging.getLogger(__name__)
 
 
 class Report:
+    """A class representing a YouTube Analytics API report. You will
+    never need to manually create an instance of this.
+
+    Args:
+        data:
+            The raw data retrieved from the API.
+        type:
+            The report type.
+    """
+
+    __slots__ = ("data", "type", "columns", "_ncolumns", "_nrows")
+
     def __init__(self, data: dict[t.Any, t.Any], type: ReportType) -> None:
         self.data = data
         self.type = type
@@ -55,9 +67,23 @@ class Report:
 
     @property
     def shape(self) -> tuple[int, int]:
+        """The shape of the report in the format ``(rows, columns)``."""
+
         return (self._nrows, self._ncolumns)
 
     def to_json(self, path: str, *, indent: int = 4) -> None:
+        """Write the report data to a JSON file.
+
+        Args:
+            path:
+                The path the file should be saved to.
+
+        Keyword Args:
+            indent:
+                The amount of indentation the data should be written
+                with. Defaults to ``4``.
+        """
+
         if not path.endswith(".json"):
             path += ".json"
 
@@ -67,6 +93,18 @@ class Report:
         log.info(f"Saved report as JSON to {Path(path).resolve()}")
 
     async def ato_json(self, path: str, *, indent: int = 4) -> None:
+        """Asynchronously write the report data to a JSON file.
+
+        Args:
+            path:
+                The path the file should be saved to.
+
+        Keyword Args:
+            indent:
+                The amount of indentation the data should be written
+                with. Defaults to ``4``.
+        """
+
         if not path.endswith(".json"):
             path += ".json"
 
@@ -76,8 +114,22 @@ class Report:
         log.info(f"Saved report as JSON to {Path(path).resolve()}")
 
     def to_csv(self, path: str, *, delimiter: str = ",") -> None:
-        if not path.endswith(".csv"):
-            path += ".csv"
+        """Write the report data to a CSV file.
+
+        Args:
+            path:
+                The path the file should be saved to.
+
+        Keyword Args:
+            delimiter:
+                The delimiter to use. Defaults to a comma. Passing a tab
+                here will save the file as a TSV instead.
+        """
+
+        extension = ".tsv" if delimiter == "\t" else ".csv"
+
+        if not path.endswith(extension):
+            path += extension
 
         with open(path, "w") as f:
             f.write(f"{delimiter.join(self.columns)}\n")
@@ -88,8 +140,22 @@ class Report:
         log.info(f"Saved report as CSV to {Path(path).resolve()}")
 
     async def ato_csv(self, path: str, *, delimiter: str = ",") -> None:
-        if not path.endswith(".csv"):
-            path += ".csv"
+        """Asynchronously write the report data to a CSV file.
+
+        Args:
+            path:
+                The path the file should be saved to.
+
+        Keyword Args:
+            delimiter:
+                The delimiter to use. Defaults to a comma. Passing a tab
+                here will save the file as a TSV instead.
+        """
+
+        extension = ".tsv" if delimiter == "\t" else ".csv"
+
+        if not path.endswith(extension):
+            path += extension
 
         async with aiofiles.open(path, "w") as f:
             await f.write(f"{delimiter.join(self.columns)}\n")
@@ -99,7 +165,19 @@ class Report:
 
         log.info(f"Saved report as CSV to {Path(path).resolve()}")
 
-    def to_dataframe(self) -> pd.DataFrame:
+    def to_dataframe(self, *, skip_date_conversion: bool = False) -> pd.DataFrame:
+        """Export the report data to a pandas DataFrame.
+
+        .. note::
+            The pandas library is required to do this, but is not
+            automatically installed by analytix.
+
+        Keyword Args:
+            skip_date_conversion:
+                Whether to skip automatically converting date columns to
+                the ``datetime64[ns]`` format. Defaults to ``False``.
+        """
+
         if not analytix.PANDAS_AVAILABLE:
             raise errors.MissingOptionalComponents("pandas")
 
@@ -111,9 +189,10 @@ class Report:
         df = pd.DataFrame(self.data["rows"])
         df.columns = self.columns
 
-        for col in ("day", "month"):
-            if col in df.columns:
-                df[col] = pd.to_datetime(df[col], format="%Y-%m-%d")
-                log.info(f"Converted {col!r} column to datetime64[ns] format")
+        if not skip_date_conversion:
+            for col in ("day", "month"):
+                if col in df.columns:
+                    df[col] = pd.to_datetime(df[col], format="%Y-%m-%d")
+                    log.info(f"Converted {col!r} column to datetime64[ns] format")
 
         return df
