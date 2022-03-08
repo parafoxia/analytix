@@ -68,42 +68,34 @@ Features
 - Extra support allows the native saving of CSV files and conversion to DataFrame objects
 - Easy enough for beginners, but powerful enough for advanced users
 
-Contents
-========
-
 .. toctree::
     :maxdepth: 1
     :caption: Guides
+    :glob:
+    :hidden:
 
-    guides/console
-    guides/dimensions
-    guides/filters
-    guides/metrics
-    guides/sort_options
-    guides/report_types
+    guides/*
 
 .. toctree::
     :maxdepth: 1
     :caption: Data and functions
+    :glob:
+    :hidden:
 
-    api/analytix
-    api/ux
-    api/errors
-    api/oauth
+    api/data/*
 
 .. toctree::
     :maxdepth: 1
     :caption: Classes
+    :glob:
+    :hidden:
 
-    api/analytics
-    api/async_analytics
-    api/reports
-    api/secrets
-    api/tokens
+    api/classes/*
 
 .. toctree::
     :maxdepth: 1
     :caption: Additional information
+    :glob:
+    :hidden:
 
-    info/migrating
-    info/changelog
+    info/*
