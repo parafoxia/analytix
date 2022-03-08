@@ -297,13 +297,16 @@ class Analytics:
             self.authorise(force=force_authorisation)
 
         try:
-            if self.needs_refresh():
-                self.refresh_access_token()
+            refresh = self.needs_refresh()
         except httpx.HTTPStatusError:
+            refresh = True
             log.warning(
-                "Token could not be refreshed due to an unexpected error; analytix "
-                "will continue for now, but you may need to manually reset your tokens"
+                "Token status could not be ascertained; "
+                "attempting to refresh regardless..."
             )
+
+        if refresh:
+            self.refresh_access_token()
 
         assert self._tokens is not None
         headers = {"Authorization": f"Bearer {self._tokens.access_token}"}

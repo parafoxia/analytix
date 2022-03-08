@@ -299,13 +299,16 @@ class AsyncAnalytics:
             await self.authorise()
 
         try:
-            if await self.needs_refresh():
-                await self.refresh_access_token()
+            refresh = await self.needs_refresh()
         except httpx.HTTPStatusError:
+            refresh = True
             log.warning(
-                "Token could not be refreshed due to an unexpected error; analytix "
-                "will continue for now, but you may need to manually reset your tokens"
+                "Token status could not be ascertained; "
+                "attempting to refresh regardless..."
             )
+
+        if refresh:
+            await self.refresh_access_token()
 
         assert self._tokens is not None
         headers = {"Authorization": f"Bearer {self._tokens.access_token}"}
