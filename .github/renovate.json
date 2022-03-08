@@ -20,6 +20,6 @@
     "pip_requirements": {
         "fileMatch": ["requirements/*"]
     },
-    "prCreation": "not-pending",
+    "prCreation": "immediate",
     "schedule": ["every monday"]
 }
