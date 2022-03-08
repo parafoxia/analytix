@@ -16,7 +16,7 @@ black~=22.1.0
 
 # Imports
 flake8~=4.0.1
-isort~=5.10.0
+isort~=5.10.1
 
 # Typing
 mypy==0.931
