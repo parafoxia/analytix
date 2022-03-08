@@ -1,0 +1,25 @@
+{
+    "assignees": ["parafoxia"],
+    "labels": ["dependencies"],
+    "packageRules": [
+        {
+            "matchDepTypes": ["dependencies"],
+            "matchLanguages": ["python"],
+            "groupName": "python-dependencies"
+        },
+        {
+            "matchDepTypes": ["devDependencies"],
+            "matchLanguages": ["python"],
+            "groupName": "python-dev-ependencies"
+        },
+        {
+            "matchLanguages": ["python"],
+            "groupName": "github-dependencies"
+        }
+    ],
+    "pip_requirements": {
+        "fileMatch": ["requirements/*"]
+    },
+    "prCreation": "not-pending",
+    "schedule": ["every monday"]
+}
