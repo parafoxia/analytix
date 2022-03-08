@@ -28,6 +28,8 @@
 
 import json
 import os
+import platform
+import sys
 from pathlib import Path
 
 import mock
@@ -207,6 +209,10 @@ async def test_to_tsv_async_no_extension(report, mock_csv_data):
     os.remove(TSV_OUTPUT_PATH)
 
 
+@pytest.mark.skipif(
+    sys.version_info >= (3, 11, 0) or platform.python_implementation() != "CPython",
+    reason="pandas does not support Python 3.11 or PyPy",
+)
 def test_to_dataframe(report, request_data):
     df = report.to_dataframe()
     assert df.shape == (31, 36)
@@ -217,6 +223,10 @@ def test_to_dataframe(report, request_data):
         assert list(row)[1:] == request_data["rows"][i][1:]
 
 
+@pytest.mark.skipif(
+    sys.version_info >= (3, 11, 0) or platform.python_implementation() != "CPython",
+    reason="pandas does not support Python 3.11 or PyPy",
+)
 def test_to_dataframe_no_pandas(report):
     with mock.patch.object(analytix, "can_use") as mock_cu:
         mock_cu.return_value = False
@@ -229,6 +239,10 @@ def test_to_dataframe_no_pandas(report):
         )
 
 
+@pytest.mark.skipif(
+    sys.version_info >= (3, 11, 0) or platform.python_implementation() != "CPython",
+    reason="pandas does not support Python 3.11 or PyPy",
+)
 def test_to_dataframe_no_rows(report):
     report._nrows = 0
 
