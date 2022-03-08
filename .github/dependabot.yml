@@ -1,0 +1,34 @@
+version: 2
+
+updates:
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: daily
+    assignees:
+      - "parafoxia"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-patch"]
+    labels:
+      - "dependencies"
+    rebase-strategy: auto
+    reviewers:
+        - "parafoxia"
+    target-branch: "main"
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: daily
+    assignees:
+      - "parafoxia"
+    # ignore:
+    #   - dependency-name: "*"
+    #     update-types: ["version-update:semver-patch"]
+    labels:
+      - "dependencies"
+    rebase-strategy: auto
+    reviewers:
+        - "parafoxia"
+    target-branch: "main"
