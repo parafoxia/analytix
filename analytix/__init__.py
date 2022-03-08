@@ -31,8 +31,8 @@ __all__ = (
     "API_SCOPES",
     "Analytics",
     "AsyncAnalytics",
+    "can_use",
     "OAUTH_CHECK_URL",
-    "PANDAS_AVAILABLE",
     "setup_logging",
 )
 
@@ -50,14 +50,30 @@ __changelog__ = "https://github.com/parafoxia/analytix/releases"
 
 from pkg_resources import working_set
 
+
+def can_use(*libs: str) -> bool:
+    """Whether a given library or module can be used. If multiple
+    libraries are given, this returns ``True`` if they can *all* be
+    used.
+
+    Args:
+        *libs:
+            A series of libraries to check the availability for.
+
+    Returns:
+        Whether all given libraries can be used.
+    """
+
+    ws = [p.key for p in working_set]
+    return all(l in ws for l in libs)
+
+
 API_BASE_URL = "https://youtubeanalytics.googleapis.com/v2/reports?"
 API_SCOPES = (
     "https://www.googleapis.com/auth/yt-analytics.readonly",
     "https://www.googleapis.com/auth/yt-analytics-monetary.readonly",
 )
 OAUTH_CHECK_URL = "https://www.googleapis.com/oauth2/v3/tokeninfo?access_token="
-
-PANDAS_AVAILABLE: bool = "pandas" in [p.key for p in working_set]
 
 from .analytics import Analytics
 from .async_analytics import AsyncAnalytics

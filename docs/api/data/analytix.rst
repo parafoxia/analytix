@@ -57,6 +57,4 @@ analytix
 
     The base URL for all Google OAuth requests.
 
-.. data:: analytix.PANDAS_AVAILABLE
-
-    Whether the pandas library is installed, and therefore available to use.
+.. autofunction:: analytix.can_use
