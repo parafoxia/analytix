@@ -821,7 +821,7 @@ CORE_METRICS = {
     "views",
 }
 
-ALL_METRICS = {
+ALL_METRICS_ORDERED = (
     "views",
     "redViews",
     "comments",
@@ -863,7 +863,9 @@ ALL_METRICS = {
     "playlistStarts",
     "viewsPerPlaylistStart",
     "averageTimeInPlaylist",
-}
+)
+
+ALL_METRICS = set(ALL_METRICS_ORDERED)
 
 ALL_VIDEO_METRICS = {
     "views",

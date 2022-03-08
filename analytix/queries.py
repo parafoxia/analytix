@@ -153,7 +153,7 @@ class Query:
 
         if not self.metrics:
             self.metrics = [
-                m for m in data.ALL_METRICS if m in self.rtype.metrics.values
+                m for m in data.ALL_METRICS_ORDERED if m in self.rtype.metrics.values
             ]
             log.debug("Metrics set to: " + ", ".join(self.metrics))
 
