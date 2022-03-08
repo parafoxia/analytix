@@ -13,7 +13,7 @@
 
 A simple yet powerful wrapper for the YouTube Analytics API.
 
-CPython versions 3.7 through 3.11-dev and PyPy versions 3.7 and 3.8 are officially supported.
+CPython versions 3.7 through 3.11-dev and PyPy versions 3.7 through 3.9 are officially supported.
 
 Windows, MacOS, and Linux are all supported.
 
