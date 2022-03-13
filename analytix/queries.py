@@ -168,6 +168,126 @@ class Query:
         # If it gets to this point, it's fine.
         log.info("Request OK!")
 
+    def determine_report_type(self) -> ReportType:
+        curated = self.filters.get("isCurated", "0") == "1"
+
+        # if "adType" in self.dimensions:
+        #     return rt.AdPerformance()
+
+        if "sharingService" in self.dimensions:
+            return rt.EngagementAndContentSharing()
+
+        if "elapsedVideoTimeRatio" in self.dimensions:
+            return rt.AudienceRetention()
+
+        # if "playlist" in self.dimensions:
+        #     return rt.TopPlaylists()
+
+        if "insightPlaybackLocationType" in self.dimensions:
+            # if curated:
+            #     return rt.PlaybackLocationPlaylist()
+            return rt.PlaybackLocation()
+
+        if "insightPlaybackLocationDetail" in self.dimensions:
+            # if curated:
+            #     return rt.PlaybackLocationDetailPlaylist()
+            return rt.PlaybackLocationDetail()
+
+        if "insightTrafficSourceType" in self.dimensions:
+            # if curated:
+            #     return rt.TrafficSourcePlaylist()
+            return rt.TrafficSource()
+
+        if "insightTrafficSourceDetail" in self.dimensions:
+            # if curated:
+            #     return rt.TrafficSourceDetailPlaylist()
+            return rt.TrafficSourceDetail()
+
+        if "ageGroup" in self.dimensions or "gender" in self.dimensions:
+            # if curated:
+            #     return rt.ViewerDemographicsPlaylist()
+            return rt.ViewerDemographics()
+
+        if "deviceType" in self.dimensions:
+            if "operatingSystem" in self.dimensions:
+                # if curated:
+                #     return rt.DeviceTypeAndOperatingSystemPlaylist()
+                return rt.DeviceTypeAndOperatingSystem()
+            # if curated:
+            #     return rt.DeviceTypePlaylist()
+            return rt.DeviceType()
+
+        if "operatingSystem" in self.dimensions:
+            # if curated:
+            #     return rt.OperatingSystemPlaylist()
+            return rt.OperatingSystem()
+
+        # TODO: Re-do this section
+        if "video" in self.dimensions:
+            if "province" in self.filters:
+                return rt.TopVideosUS()
+            if "subscribedStatus" not in self.filters:
+                return rt.TopVideosRegional()
+            if "province" not in self.filters and "youtubeProduct" not in self.filters:
+                return rt.TopVideosSubscribed()
+            if "averageViewPercentage" in self.metrics:
+                return rt.TopVideosYouTubeProduct()
+            return rt.TopVideosPlaybackDetail()
+
+        if "country" in self.dimensions:
+            if "liveOrOnDemand" in self.dimensions or "liveOrOnDemand" in self.filters:
+                return rt.PlaybackDetailsLiveGeographyBased()
+            # if curated:
+            #     return rt.GeographyBasedActivityPlaylist()
+            if (
+                "subscribedStatus" in self.dimensions
+                or "subscribedStatus" in self.filters
+                or "youtubeProduct" in self.dimensions
+                or "youtubeProduct" in self.filters
+            ):
+                return rt.PlaybackDetailsViewPercentageGeographyBased()
+            return rt.GeographyBasedActivity()
+
+        if "province" in self.dimensions:
+            if "liveOrOnDemand" in self.dimensions or "liveOrOnDemand" in self.filters:
+                return rt.PlaybackDetailsLiveGeographyBasedUS()
+            # if curated:
+            #     return rt.GeographyBasedActivityUSPlaylist()
+            if (
+                "subscribedStatus" in self.dimensions
+                or "subscribedStatus" in self.filters
+                or "youtubeProduct" in self.dimensions
+                or "youtubeProduct" in self.filters
+            ):
+                return rt.PlaybackDetailsViewPercentageGeographyBasedUS()
+            return rt.GeographyBasedActivityUS()
+
+        if "youtubeProduct" in self.dimensions or "youtubeProduct" in self.filters:
+            if "liveOrOnDemand" in self.dimensions or "liveOrOnDemand" in self.filters:
+                return rt.PlaybackDetailsLiveTimeBased()
+            return rt.PlaybackDetailsViewPercentageTimeBased()
+
+        if "liveOrOnDemand" in self.dimensions or "liveOrOnDemand" in self.filters:
+            return rt.PlaybackDetailsLiveTimeBased()
+
+        if "subscribedStatus" in self.dimensions:
+            if "province" in self.filters:
+                return rt.PlaybackDetailsSubscribedStatusUS()
+            return rt.PlaybackDetailsSubscribedStatus()
+
+        if "day" in self.dimensions or "month" in self.dimensions:
+            # if curated:
+            #     return rt.TimeBasedActivityPlaylist()
+            if "province" in self.filters:
+                return rt.TimeBasedActivityUS()
+            return rt.TimeBasedActivity()
+
+        # if curated:
+        #     return rt.BasicUserActivityPlaylist()
+        if "province" in self.filters:
+            return rt.BasicUserActivityUS()
+        return rt.BasicUserActivity()
+
     def set_report_type(self) -> None:
-        self.rtype = rt.determine(self.dimensions, self.filters, self.metrics)
+        self.rtype = self.determine_report_type()
         log.info(f"Report type determined as {self.rtype.name!r}")
