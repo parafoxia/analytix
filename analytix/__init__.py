@@ -74,6 +74,7 @@ API_SCOPES = (
     "https://www.googleapis.com/auth/yt-analytics-monetary.readonly",
 )
 OAUTH_CHECK_URL = "https://www.googleapis.com/oauth2/v3/tokeninfo?access_token="
+UPDATE_CHECK_URL = "https://pypi.org/pypi/analytix/json"
 
 from .analytics import Analytics
 from .async_analytics import AsyncAnalytics

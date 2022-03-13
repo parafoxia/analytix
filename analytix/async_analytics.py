@@ -60,13 +60,14 @@ class AsyncAnalytics:
             :obj:`httpx.Client` constructor.
     """
 
-    __slots__ = ("secrets", "_session", "_tokens", "_token_path")
+    __slots__ = ("secrets", "_session", "_tokens", "_token_path", "_checked_for_update")
 
     def __init__(self, secrets: Secrets, **kwargs: t.Any) -> None:
         self.secrets = secrets
         self._session = httpx.AsyncClient(**kwargs)
         self._tokens: Tokens | None = None
         self._token_path = pathlib.Path()
+        self._checked_for_update = False
 
     def __str__(self) -> str:
         return self.secrets.project_id
@@ -100,6 +101,22 @@ class AsyncAnalytics:
 
         await self._session.aclose()
         log.info("Session closed")
+
+    async def check_for_updates(self) -> str | None:
+        log.debug("Checking for updates...")
+
+        r = await self._session.get(analytix.UPDATE_CHECK_URL)
+        if r.is_error:
+            # If we can't get the info, just ignore it.
+            log.debug("Failed to get version information")
+            return None
+
+        latest = r.json()["info"]["version"]
+        if analytix.__version__ != latest:
+            log.warning(f"A newer version of analytix is available (v{latest})")
+
+        self._checked_for_update = True
+        return t.cast(str, latest)
 
     async def _try_load_tokens(self, path: pathlib.Path) -> Tokens | None:
         if not path.is_file():

@@ -210,3 +210,27 @@ def test_needs_refresh_with_no_tokens(client):
     client._tokens = None
     needs_refresh = client.needs_refresh()
     assert not needs_refresh
+
+
+def test_update_check(client):
+    with mock.patch.object(httpx.Client, "get") as mock_get:
+        mock_get.return_value = httpx.Response(
+            status_code=200,
+            request=mock.Mock(),
+            json={"info": {"version": "3.0.0"}},
+        )
+
+        latest = client.check_for_updates()
+        mock_get.assert_called_once()
+        assert latest == "3.0.0"
+
+
+def test_update_check_failure(client):
+    with mock.patch.object(httpx.Client, "get") as mock_get:
+        obj = mock.Mock()
+        obj.is_error = True
+        mock_get.return_value = obj
+
+        latest = client.check_for_updates()
+        mock_get.assert_called_once()
+        assert latest is None
