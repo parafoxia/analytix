@@ -25,6 +25,7 @@ jobs:
           - spelling
           - safety
           - security
+          - dependencies
 
     name: Check
     runs-on: ubuntu-latest

@@ -19,7 +19,7 @@ flake8~=4.0.1
 isort~=5.10.0
 
 # Typing
-mypy==0.931
+mypy==0.940
 
 # Line lengths
 len8~=0.7.2
@@ -38,3 +38,6 @@ safety~=1.10.3; python_version < "3.11"
 
 # Security
 bandit~=1.7.2
+
+# Dependencies
+deputil~=0.1.2
