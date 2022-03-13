@@ -31,7 +31,6 @@ import datetime as dt
 import json
 import os
 import shutil
-import typing as t
 
 import httpx
 import mock
@@ -43,6 +42,7 @@ from analytix.report_types import TimeBasedActivity
 from analytix.secrets import Secrets
 from analytix.tokens import Tokens
 from tests.paths import JSON_OUTPUT_PATH, MOCK_DATA_PATH
+from tests.test_reports import request_data  # noqa
 from tests.test_secrets import SECRETS_PATH, secrets, secrets_dict  # noqa
 from tests.test_tokens import TOKENS_PATH, tokens, tokens_dict  # noqa
 
@@ -331,19 +331,6 @@ def test_retrieve_with_refresh_check(client, request_data):
             mock_get.assert_called_once()
             assert report.data == request_data
             assert isinstance(report.type, TimeBasedActivity)
-
-
-@pytest.fixture()
-def tokens() -> Tokens:
-    return Tokens.from_file(TOKENS_PATH)
-
-
-@pytest.fixture()
-def tokens_dict() -> dict[str, t.Any]:
-    with open(TOKENS_PATH) as f:
-        data = json.load(f)
-
-    return t.cast(t.Dict[str, t.Any], data)
 
 
 def test_retrieve_with_refresh(client, tokens, tokens_dict):
