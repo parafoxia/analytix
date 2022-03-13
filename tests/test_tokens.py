@@ -32,14 +32,11 @@ import asyncio
 import json
 import os
 import typing as t
-from pathlib import Path
 
 import pytest
 
 from analytix.tokens import Tokens
-from tests.test_secrets import SECRETS_PATH
-
-TOKENS_PATH = Path(__file__).parent / "data/test_tokens.json"
+from tests.paths import SECRETS_PATH, TOKENS_PATH
 
 
 @pytest.fixture()

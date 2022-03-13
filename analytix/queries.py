@@ -148,8 +148,8 @@ class Query:
                 )
                 self._end_date = dt.date(self._end_date.year, self._end_date.month, 1)
 
-        self.rtype = rt.determine(self.dimensions, self.filters, self.metrics)
-        log.info(f"Report type determined as {self.rtype.name!r}")
+        self.set_report_type()
+        assert self.rtype is not None
 
         if not self.metrics:
             self.metrics = [
@@ -167,3 +167,7 @@ class Query:
 
         # If it gets to this point, it's fine.
         log.info("Request OK!")
+
+    def set_report_type(self) -> None:
+        self.rtype = rt.determine(self.dimensions, self.filters, self.metrics)
+        log.info(f"Report type determined as {self.rtype.name!r}")

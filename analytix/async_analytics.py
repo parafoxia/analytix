@@ -103,6 +103,14 @@ class AsyncAnalytics:
         log.info("Session closed")
 
     async def check_for_updates(self) -> str | None:
+        """Checks for newer versions of analytix.
+
+        Returns:
+            The latest version, or ``None`` if either you are using the
+            latest version, or the latest version could not be
+            ascertained.
+        """
+
         log.debug("Checking for updates...")
 
         r = await self._session.get(analytix.UPDATE_CHECK_URL)
@@ -231,6 +239,9 @@ class AsyncAnalytics:
         start_index: int = 1,
         include_historical_data: bool = False,
         skip_validation: bool = False,
+        force_authorisation: bool = False,
+        skip_update_check: bool = False,
+        skip_refresh_check: bool = False,
     ) -> Report:
         """Retrieves a report from the YouTube Analytics API.
 
@@ -289,10 +300,18 @@ class AsyncAnalytics:
             force_authorisation:
                 Whether to force the (re)authorisation of the client.
                 Defaults to ``False``.
+            skip_update_check:
+                Whether to skip checking for updates. Defaults to
+                ``False``.
+            skip_refresh_token:
+                Whether to skip token refreshing. Defaults to ``False``.
 
         Returns:
             An instance for working with retrieved data.
         """
+
+        if not skip_update_check and not self._checked_for_update:
+            await self.check_for_updates()
 
         query = Query(
             dimensions,
@@ -310,21 +329,14 @@ class AsyncAnalytics:
         if not skip_validation:
             query.validate()
         else:
-            log.warning("Skipping validation")
-
-        if not self.authorised:
-            await self.authorise()
-
-        try:
-            refresh = await self.needs_refresh()
-        except httpx.HTTPStatusError:
-            refresh = True
             log.warning(
-                "Token status could not be ascertained; "
-                "attempting to refresh regardless..."
+                "Skipping validation -- invalid requests will count toward your quota"
             )
 
-        if refresh:
+        if not self.authorised or force_authorisation:
+            await self.authorise(force=force_authorisation)
+
+        if (not skip_refresh_check) and await self.needs_refresh():
             await self.refresh_access_token()
 
         assert self._tokens is not None
@@ -336,6 +348,9 @@ class AsyncAnalytics:
         if next(iter(data)) == "error":
             error = data["error"]
             raise errors.APIError(error["code"], error["message"])
+
+        if not query.rtype:
+            query.set_report_type()
 
         assert query.rtype is not None
         report = Report(data, query.rtype)

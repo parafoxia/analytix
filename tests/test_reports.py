@@ -30,7 +30,6 @@ import json
 import os
 import platform
 import sys
-from pathlib import Path
 
 import mock
 import pytest
@@ -39,13 +38,13 @@ import analytix
 from analytix import data, errors
 from analytix.report_types import TimeBasedActivity
 from analytix.reports import Report
-
-DATA_PATH = Path(__file__).parent / "data"
-MOCK_DATA_PATH = DATA_PATH / "test_data.json"
-MOCK_CSV_PATH = DATA_PATH / "test_data.csv"
-JSON_OUTPUT_PATH = DATA_PATH / "output.json"
-CSV_OUTPUT_PATH = DATA_PATH / "output.csv"
-TSV_OUTPUT_PATH = DATA_PATH / "output.tsv"
+from tests.paths import (
+    CSV_OUTPUT_PATH,
+    JSON_OUTPUT_PATH,
+    MOCK_CSV_PATH,
+    MOCK_DATA_PATH,
+    TSV_OUTPUT_PATH,
+)
 
 
 @pytest.fixture()

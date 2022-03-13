@@ -27,8 +27,11 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import builtins
+import datetime as dt
+import json
 import os
 import shutil
+import typing as t
 
 import httpx
 import mock
@@ -36,8 +39,11 @@ import pytest
 import pytest_asyncio
 
 from analytix import AsyncAnalytics
+from analytix.errors import APIError
+from analytix.report_types import TimeBasedActivity
 from analytix.secrets import Secrets
 from analytix.tokens import Tokens
+from tests.paths import JSON_OUTPUT_PATH, MOCK_DATA_PATH
 from tests.test_secrets import SECRETS_PATH, secrets, secrets_dict  # noqa
 from tests.test_tokens import TOKENS_PATH, tokens, tokens_dict  # noqa
 
@@ -232,3 +238,135 @@ async def test_update_check_failure(client):
         latest = await client.check_for_updates()
         mock_get.assert_called_once()
         assert latest is None
+
+
+@pytest.fixture()
+def request_data():
+    with open(MOCK_DATA_PATH) as f:
+        return json.load(f)
+
+
+async def test_retrieve(client, request_data):
+    with mock.patch.object(httpx.AsyncClient, "get") as mock_get:
+        mock_get.return_value = httpx.Response(
+            status_code=200,
+            request=mock.Mock(),
+            json=request_data,
+        )
+
+        report = await client.retrieve(
+            dimensions=("day",),
+            start_date=dt.date(2022, 1, 1),
+            end_date=dt.date(2022, 1, 31),
+            skip_update_check=True,
+            skip_refresh_check=True,
+        )
+        mock_get.assert_called_once()
+        assert report.data == request_data
+        assert isinstance(report.type, TimeBasedActivity)
+
+
+async def test_retrieve_version_check(client, request_data):
+    with mock.patch.object(httpx.AsyncClient, "get") as mock_get:
+        mock_get.return_value = httpx.Response(
+            status_code=200,
+            request=mock.Mock(),
+            json=request_data,
+        )
+
+        with mock.patch.object(AsyncAnalytics, "check_for_updates") as mock_check:
+            mock_check.return_value == "3.0.0"
+
+            report = await client.retrieve(
+                dimensions=("day",),
+                start_date=dt.date(2022, 1, 1),
+                end_date=dt.date(2022, 1, 31),
+                skip_refresh_check=True,
+            )
+            mock_get.assert_called_once()
+            assert report.data == request_data
+            assert isinstance(report.type, TimeBasedActivity)
+
+
+async def test_retrieve_no_validate(client, request_data):
+    with mock.patch.object(httpx.AsyncClient, "get") as mock_get:
+        mock_get.return_value = httpx.Response(
+            status_code=200,
+            request=mock.Mock(),
+            json=request_data,
+        )
+
+        report = await client.retrieve(
+            dimensions=("day",),
+            start_date=dt.date(2022, 1, 1),
+            end_date=dt.date(2022, 1, 31),
+            skip_validation=True,
+            skip_update_check=True,
+            skip_refresh_check=True,
+        )
+        mock_get.assert_called_once()
+        assert report.data == request_data
+        assert isinstance(report.type, TimeBasedActivity)
+
+
+async def test_retrieve_with_refresh_check(client, request_data):
+    with mock.patch.object(httpx.AsyncClient, "get") as mock_get:
+        mock_get.return_value = httpx.Response(
+            status_code=200,
+            request=mock.Mock(),
+            json=request_data,
+        )
+
+        with mock.patch.object(AsyncAnalytics, "needs_refresh") as mock_check:
+            mock_check.return_value = False
+
+            report = await client.retrieve(
+                dimensions=("day",),
+                start_date=dt.date(2022, 1, 1),
+                end_date=dt.date(2022, 1, 31),
+                skip_update_check=True,
+            )
+            mock_get.assert_called_once()
+            assert report.data == request_data
+            assert isinstance(report.type, TimeBasedActivity)
+
+
+@pytest.fixture()
+def tokens() -> Tokens:
+    return Tokens.from_file(TOKENS_PATH)
+
+
+@pytest.fixture()
+def tokens_dict() -> dict[str, t.Any]:
+    with open(TOKENS_PATH) as f:
+        data = json.load(f)
+
+    return t.cast(t.Dict[str, t.Any], data)
+
+
+async def test_retrieve_with_refresh(client, tokens, tokens_dict):
+    with mock.patch.object(AsyncAnalytics, "needs_refresh") as mock_check:
+        mock_check.return_value = True
+
+        with mock.patch.object(AsyncAnalytics, "authorise") as mock_auth:
+            mock_auth.return_value = tokens
+            client._tokens = tokens
+            client._token_path = JSON_OUTPUT_PATH
+
+            with mock.patch.object(httpx.AsyncClient, "post") as mock_post:
+                mock_post.return_value = httpx.Response(
+                    status_code=200,
+                    request=mock.Mock(),
+                    json=tokens_dict,
+                )
+
+                # Because we are using fake credentials, this will
+                # always error, so we might as well just test that now.
+                with pytest.raises(APIError) as exc:
+                    await client.retrieve(skip_update_check=True)
+                assert (
+                    str(exc.value)
+                    == "API returned 401: Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project."
+                )
+
+    os.remove(JSON_OUTPUT_PATH)

@@ -102,6 +102,14 @@ class Analytics:
         log.info("Session closed")
 
     def check_for_updates(self) -> str | None:
+        """Checks for newer versions of analytix.
+
+        Returns:
+            The latest version, or ``None`` if either you are using the
+            latest version, or the latest version could not be
+            ascertained.
+        """
+
         log.debug("Checking for updates...")
 
         r = self._session.get(analytix.UPDATE_CHECK_URL)
@@ -229,6 +237,8 @@ class Analytics:
         include_historical_data: bool = False,
         skip_validation: bool = False,
         force_authorisation: bool = False,
+        skip_update_check: bool = False,
+        skip_refresh_check: bool = False,
     ) -> Report:
         """Retrieves a report from the YouTube Analytics API.
 
@@ -287,12 +297,17 @@ class Analytics:
             force_authorisation:
                 Whether to force the (re)authorisation of the client.
                 Defaults to ``False``.
+            skip_update_check:
+                Whether to skip checking for updates. Defaults to
+                ``False``.
+            skip_refresh_token:
+                Whether to skip token refreshing. Defaults to ``False``.
 
         Returns:
             An instance for working with retrieved data.
         """
 
-        if not self._checked_for_update:
+        if not skip_update_check and not self._checked_for_update:
             self.check_for_updates()
 
         query = Query(
@@ -311,21 +326,14 @@ class Analytics:
         if not skip_validation:
             query.validate()
         else:
-            log.warning("Skipping validation")
+            log.warning(
+                "Skipping validation -- invalid requests will count toward your quota"
+            )
 
         if not self.authorised or force_authorisation:
             self.authorise(force=force_authorisation)
 
-        try:
-            refresh = self.needs_refresh()
-        except httpx.HTTPStatusError:
-            refresh = True
-            log.warning(
-                "Token status could not be ascertained; "
-                "attempting to refresh regardless..."
-            )
-
-        if refresh:
+        if (not skip_refresh_check) and self.needs_refresh():
             self.refresh_access_token()
 
         assert self._tokens is not None
@@ -337,6 +345,9 @@ class Analytics:
         if next(iter(data)) == "error":
             error = data["error"]
             raise errors.APIError(error["code"], error["message"])
+
+        if not query.rtype:
+            query.set_report_type()
 
         assert query.rtype is not None
         report = Report(data, query.rtype)

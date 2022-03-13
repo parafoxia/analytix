@@ -31,13 +31,11 @@ from __future__ import annotations
 import asyncio
 import json
 import typing as t
-from pathlib import Path
 
 import pytest
 
 from analytix.secrets import Secrets
-
-SECRETS_PATH = Path(__file__).parent / "data/test_secrets.json"
+from tests.paths import SECRETS_PATH
 
 
 @pytest.fixture()
