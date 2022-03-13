@@ -171,8 +171,8 @@ class Query:
     def determine_report_type(self) -> ReportType:
         curated = self.filters.get("isCurated", "0") == "1"
 
-        # if "adType" in self.dimensions:
-        #     return rt.AdPerformance()
+        if "adType" in self.dimensions:
+            return rt.AdPerformance()
 
         if "sharingService" in self.dimensions:
             return rt.EngagementAndContentSharing()
@@ -180,46 +180,46 @@ class Query:
         if "elapsedVideoTimeRatio" in self.dimensions:
             return rt.AudienceRetention()
 
-        # if "playlist" in self.dimensions:
-        #     return rt.TopPlaylists()
+        if "playlist" in self.dimensions:
+            return rt.TopPlaylists()
 
         if "insightPlaybackLocationType" in self.dimensions:
-            # if curated:
-            #     return rt.PlaybackLocationPlaylist()
+            if curated:
+                return rt.PlaybackLocationPlaylist()
             return rt.PlaybackLocation()
 
         if "insightPlaybackLocationDetail" in self.dimensions:
-            # if curated:
-            #     return rt.PlaybackLocationDetailPlaylist()
+            if curated:
+                return rt.PlaybackLocationDetailPlaylist()
             return rt.PlaybackLocationDetail()
 
         if "insightTrafficSourceType" in self.dimensions:
-            # if curated:
-            #     return rt.TrafficSourcePlaylist()
+            if curated:
+                return rt.TrafficSourcePlaylist()
             return rt.TrafficSource()
 
         if "insightTrafficSourceDetail" in self.dimensions:
-            # if curated:
-            #     return rt.TrafficSourceDetailPlaylist()
+            if curated:
+                return rt.TrafficSourceDetailPlaylist()
             return rt.TrafficSourceDetail()
 
         if "ageGroup" in self.dimensions or "gender" in self.dimensions:
-            # if curated:
-            #     return rt.ViewerDemographicsPlaylist()
+            if curated:
+                return rt.ViewerDemographicsPlaylist()
             return rt.ViewerDemographics()
 
         if "deviceType" in self.dimensions:
             if "operatingSystem" in self.dimensions:
-                # if curated:
-                #     return rt.DeviceTypeAndOperatingSystemPlaylist()
+                if curated:
+                    return rt.DeviceTypeAndOperatingSystemPlaylist()
                 return rt.DeviceTypeAndOperatingSystem()
-            # if curated:
-            #     return rt.DeviceTypePlaylist()
+            if curated:
+                return rt.DeviceTypePlaylist()
             return rt.DeviceType()
 
         if "operatingSystem" in self.dimensions:
-            # if curated:
-            #     return rt.OperatingSystemPlaylist()
+            if curated:
+                return rt.OperatingSystemPlaylist()
             return rt.OperatingSystem()
 
         # TODO: Re-do this section
@@ -237,8 +237,8 @@ class Query:
         if "country" in self.dimensions:
             if "liveOrOnDemand" in self.dimensions or "liveOrOnDemand" in self.filters:
                 return rt.PlaybackDetailsLiveGeographyBased()
-            # if curated:
-            #     return rt.GeographyBasedActivityPlaylist()
+            if curated:
+                return rt.GeographyBasedActivityPlaylist()
             if (
                 "subscribedStatus" in self.dimensions
                 or "subscribedStatus" in self.filters
@@ -251,8 +251,8 @@ class Query:
         if "province" in self.dimensions:
             if "liveOrOnDemand" in self.dimensions or "liveOrOnDemand" in self.filters:
                 return rt.PlaybackDetailsLiveGeographyBasedUS()
-            # if curated:
-            #     return rt.GeographyBasedActivityUSPlaylist()
+            if curated:
+                return rt.GeographyBasedActivityUSPlaylist()
             if (
                 "subscribedStatus" in self.dimensions
                 or "subscribedStatus" in self.filters
@@ -276,14 +276,14 @@ class Query:
             return rt.PlaybackDetailsSubscribedStatus()
 
         if "day" in self.dimensions or "month" in self.dimensions:
-            # if curated:
-            #     return rt.TimeBasedActivityPlaylist()
+            if curated:
+                return rt.TimeBasedActivityPlaylist()
             if "province" in self.filters:
                 return rt.TimeBasedActivityUS()
             return rt.TimeBasedActivity()
 
-        # if curated:
-        #     return rt.BasicUserActivityPlaylist()
+        if curated:
+            return rt.BasicUserActivityPlaylist()
         if "province" in self.filters:
             return rt.BasicUserActivityUS()
         return rt.BasicUserActivity()

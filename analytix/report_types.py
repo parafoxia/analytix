@@ -502,3 +502,235 @@ class TopVideosPlaybackDetail(DetailedReportType):
             *data.TOP_VIDEOS_SORT_OPTIONS, descending_only=True
         )
         self.max_results = 200
+
+
+class BasicUserActivityPlaylist(ReportType):
+    def __init__(self) -> None:
+        self.name = "Basic user activity for playlists"
+        self.dimensions = Dimensions()
+        self.filters = Filters(
+            Required("isCurated==1"),
+            ZeroOrOne("country", "province", "continent", "subContinent"),
+            ZeroOrOne("playlist", "group"),
+            ZeroOrMore("subscribedStatus", "youtubeProduct"),
+        )
+        self.metrics = Metrics(*data.ALL_PLAYLIST_METRICS)
+        self.sort_options = SortOptions(*self.metrics.values)
+
+
+class TimeBasedActivityPlaylist(ReportType):
+    def __init__(self) -> None:
+        self.name = "Time-based activity for playlists"
+        self.dimensions = Dimensions(
+            ExactlyOne("day", "month"),
+            ZeroOrMore("subscribedStatus", "youtubeProduct"),
+        )
+        self.filters = Filters(
+            Required("isCurated==1"),
+            ZeroOrOne("country", "province", "continent", "subContinent"),
+            ZeroOrOne("playlist", "group"),
+            ZeroOrMore("subscribedStatus", "youtubeProduct"),
+        )
+        self.metrics = Metrics(*data.ALL_PLAYLIST_METRICS)
+        self.sort_options = SortOptions(*self.metrics.values)
+
+
+class GeographyBasedActivityPlaylist(ReportType):
+    def __init__(self) -> None:
+        self.name = "Geography-based activity for playlists"
+        self.dimensions = Dimensions(
+            ExactlyOne("country"),
+            ZeroOrMore("subscribedStatus", "youtubeProduct"),
+        )
+        self.filters = Filters(
+            Required("isCurated==1"),
+            ZeroOrOne("continent", "subContinent"),
+            ZeroOrOne("playlist", "group"),
+            ZeroOrMore("subscribedStatus", "youtubeProduct"),
+        )
+        self.metrics = Metrics(*data.ALL_PLAYLIST_METRICS)
+        self.sort_options = SortOptions(*self.metrics.values)
+
+
+class GeographyBasedActivityUSPlaylist(ReportType):
+    def __init__(self) -> None:
+        self.name = "Geography-based activity for playlists (US)"
+        self.dimensions = Dimensions(
+            ExactlyOne("province"),
+            ZeroOrMore("subscribedStatus", "youtubeProduct"),
+        )
+        self.filters = Filters(
+            Required("isCurated==1", "country==US"),
+            ZeroOrOne("playlist", "group"),
+            ZeroOrMore("subscribedStatus", "youtubeProduct"),
+        )
+        self.metrics = Metrics(*data.ALL_PLAYLIST_METRICS)
+        self.sort_options = SortOptions(*self.metrics.values)
+
+
+class PlaybackLocationPlaylist(ReportType):
+    def __init__(self) -> None:
+        self.name = "Playback locations for playlists"
+        self.dimensions = Dimensions(
+            Required("insightPlaybackLocationType"),
+            ZeroOrMore("day", "subscribedStatus"),
+        )
+        self.filters = Filters(
+            Required("isCurated==1"),
+            ZeroOrOne("country", "province", "continent", "subContinent"),
+            ZeroOrOne("playlist", "group"),
+            Optional("subscribedStatus"),
+        )
+        self.metrics = Metrics(*data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS)
+        self.sort_options = SortOptions(*self.metrics.values)
+
+
+class PlaybackLocationDetailPlaylist(DetailedReportType):
+    def __init__(self) -> None:
+        self.name = "Playback locations for playlists (detailed)"
+        self.dimensions = Dimensions(
+            Required("insightPlaybackLocationDetail"),
+        )
+        self.filters = Filters(
+            Required("isCurated==1", "insightPlaybackLocationType==EMBEDDED"),
+            ZeroOrOne("country", "province", "continent", "subContinent"),
+            ZeroOrOne("playlist", "group"),
+            Optional("subscribedStatus"),
+        )
+        self.metrics = Metrics(*data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS)
+        self.sort_options = SortOptions(
+            *data.LOCATION_AND_TRAFFIC_PLAYLIST_SORT_OPTIONS, descending_only=True
+        )
+
+
+class TrafficSourcePlaylist(ReportType):
+    def __init__(self) -> None:
+        self.name = "Playback locations for playlists"
+        self.dimensions = Dimensions(
+            Required("insightTrafficSourceType"),
+            ZeroOrMore("day", "subscribedStatus"),
+        )
+        self.filters = Filters(
+            Required("isCurated==1"),
+            ZeroOrOne("country", "province", "continent", "subContinent"),
+            ZeroOrOne("playlist", "group"),
+            Optional("subscribedStatus"),
+        )
+        self.metrics = Metrics(*data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS)
+        self.sort_options = SortOptions(*self.metrics.values)
+
+
+class TrafficSourceDetailPlaylist(DetailedReportType):
+    def __init__(self) -> None:
+        self.name = "Traffic sources for playlists (detailed)"
+        self.dimensions = Dimensions(
+            Required("insightTrafficSourceDetail"),
+        )
+        self.filters = Filters(
+            Required("isCurated==1", "insightTrafficSourceType"),
+            ZeroOrOne("country", "province", "continent", "subContinent"),
+            ZeroOrOne("playlist", "group"),
+            Optional("subscribedStatus"),
+        )
+        self.metrics = Metrics(*data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS)
+        self.sort_options = SortOptions(
+            *data.LOCATION_AND_TRAFFIC_PLAYLIST_SORT_OPTIONS, descending_only=True
+        )
+
+
+class DeviceTypePlaylist(ReportType):
+    def __init__(self) -> None:
+        self.name = "Device types for playlists"
+        self.dimensions = Dimensions(
+            Required("deviceType"),
+            ZeroOrMore("day", "subscribedStatus", "youtubeProduct"),
+        )
+        self.filters = Filters(
+            Required("isCurated==1"),
+            ZeroOrOne("country", "province", "continent", "subContinent"),
+            ZeroOrOne("playlist", "group"),
+            ZeroOrMore("operatingSystem", "subscribedStatus", "youtubeProduct"),
+        )
+        self.metrics = Metrics(*data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS)
+        self.sort_options = SortOptions(*self.metrics.values)
+
+
+class OperatingSystemPlaylist(ReportType):
+    def __init__(self) -> None:
+        self.name = "Operating systems for playlists"
+        self.dimensions = Dimensions(
+            Required("operatingSystem"),
+            ZeroOrMore("day", "subscribedStatus", "youtubeProduct"),
+        )
+        self.filters = Filters(
+            Required("isCurated==1"),
+            ZeroOrOne("country", "province", "continent", "subContinent"),
+            ZeroOrOne("playlist", "group"),
+            ZeroOrMore("deviceType", "subscribedStatus", "youtubeProduct"),
+        )
+        self.metrics = Metrics(*data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS)
+        self.sort_options = SortOptions(*self.metrics.values)
+
+
+class DeviceTypeAndOperatingSystemPlaylist(ReportType):
+    def __init__(self) -> None:
+        self.name = "Device types and operating systems for playlists"
+        self.dimensions = Dimensions(
+            Required("deviceType", "operatingSystem"),
+            ZeroOrMore("day", "subscribedStatus", "youtubeProduct"),
+        )
+        self.filters = Filters(
+            Required("isCurated==1"),
+            ZeroOrOne("country", "province", "continent", "subContinent"),
+            ZeroOrOne("playlist", "group"),
+            ZeroOrMore("subscribedStatus", "youtubeProduct"),
+        )
+        self.metrics = Metrics(*data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS)
+        self.sort_options = SortOptions(*self.metrics.values)
+
+
+class ViewerDemographicsPlaylist(ReportType):
+    def __init__(self) -> None:
+        self.name = "Viewer demographics for playlists"
+        self.dimensions = Dimensions(
+            OneOrMore("ageGroup", "gender"),
+            Optional("subscribedStatus"),
+        )
+        self.filters = Filters(
+            Required("isCurated==1"),
+            ZeroOrOne("country", "province", "continent", "subContinent"),
+            ZeroOrOne("playlist", "group"),
+            ZeroOrMore("subscribedStatus"),
+        )
+        self.metrics = Metrics("viewerPercentage ")
+        self.sort_options = SortOptions(*self.metrics.values)
+
+
+class TopPlaylists(DetailedReportType):
+    def __init__(self) -> None:
+        self.name = "Top playlists"
+        self.dimensions = Dimensions(
+            Required("playlist")
+        )
+        self.filters = Filters(
+            Required("isCurated==1"),
+            ZeroOrOne("country", "province", "continent", "subContinent"),
+            ZeroOrMore("playlist", "subscribedStatus", "youtubeProduct"),
+        )
+        self.metrics = Metrics(*data.ALL_PLAYLIST_METRICS)
+        self.sort_options = SortOptions(*data.TOP_VIDEOS_SORT_OPTIONS)
+        self.max_results = 200
+
+
+class AdPerformance(ReportType):
+    def __init__(self) -> None:
+        self.name = "Ad performance"
+        self.dimensions = Dimensions(
+            Required("adType"), Optional("day")
+        )
+        self.filters = Filters(
+            ZeroOrOne("video", "group"),
+            ZeroOrOne("country", "continent", "subContinent"),
+        )
+        self.metrics = Metrics("grossRevenue", "adImpressions", "cpm")
+        self.sort_options = SortOptions(*self.metrics.values)
