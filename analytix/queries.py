@@ -132,7 +132,7 @@ class Query:
         log.info(f"Getting data between {self.start_date} and {self.end_date}")
 
         if self.currency not in data.CURRENCIES:
-            raise InvalidRequest("expected a valid ISO 4217 currency")
+            raise InvalidRequest("expected a valid ISO 4217 currency code")
 
         if self.start_index < 1:
             raise InvalidRequest("the start index should be positive")
