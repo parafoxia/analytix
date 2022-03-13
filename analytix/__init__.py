@@ -37,7 +37,7 @@ __all__ = (
 )
 
 __productname__ = "analytix"
-__version__ = "3.0.0rc2"
+__version__ = "3.0.0rc3"
 __description__ = "A simple yet powerful wrapper for the YouTube Analytics API."
 __url__ = "https://github.com/parafoxia/analytix"
 __docs__ = "https://analytix.readthedocs.io"
