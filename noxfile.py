@@ -176,6 +176,7 @@ def security(session: nox.Session) -> None:
     session.install(*fetch_installs("Security"))
     session.run("bandit", "-qr", *check, "-s", "B101")
 
+
 @nox.session(reuse_venv=True)
 def dependencies(session: nox.Session) -> None:
     session.install(*fetch_installs("Dependencies"))

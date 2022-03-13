@@ -102,25 +102,28 @@ def test_include_historical_data_property(query):
 
 def test_url_property(query):
     assert query.url == analytix.API_BASE_URL + (
-            "ids=channel==MINE"
-            f"&dimensions=day,country"
-            f"&filters=continent==002;deviceType==MOBILE"
-            f"&metrics=views,likes,comments"
-            f"&sort=shares,dislikes"
-            f"&maxResults=0"
-            f"&startDate=2021-01-01"
-            f"&endDate=2021-12-31"
-            f"&currency=USD"
-            f"&startIndex=1"
-            f"&includeHistoricalData=false"
-        )
+        "ids=channel==MINE"
+        f"&dimensions=day,country"
+        f"&filters=continent==002;deviceType==MOBILE"
+        f"&metrics=views,likes,comments"
+        f"&sort=shares,dislikes"
+        f"&maxResults=0"
+        f"&startDate=2021-01-01"
+        f"&endDate=2021-12-31"
+        f"&currency=USD"
+        f"&startIndex=1"
+        f"&includeHistoricalData=false"
+    )
 
 
 def test_validate_max_results():
     query = Query(max_results=-1)
     with pytest.raises(InvalidRequest) as exc:
         query.validate()
-    assert str(exc.value) == "the max results should be non-negative (0 for unlimited results)"
+    assert (
+        str(exc.value)
+        == "the max results should be non-negative (0 for unlimited results)"
+    )
 
 
 def test_validate_start_date_is_date():
@@ -159,7 +162,11 @@ def test_validate_start_index():
 
 
 def test_validate_months_are_corrected():
-    query = Query(dimensions=["month"], start_date=dt.date(2021, 4, 2), end_date=dt.date(2022, 3, 31))
+    query = Query(
+        dimensions=["month"],
+        start_date=dt.date(2021, 4, 2),
+        end_date=dt.date(2022, 3, 31),
+    )
     query.validate()
     assert query._start_date == dt.date(2021, 4, 1)
     assert query._end_date == dt.date(2022, 3, 1)
