@@ -243,7 +243,7 @@ def test_geography_based_activity_us_3():
     report = rt.GeographyBasedActivityUS()
     assert report.name == "Geography-based activity (US)"
     d = ["province"]
-    f = {}
+    f = {"country": "US"}
     m = data.ALL_PROVINCE_METRICS
     s = data.ALL_PROVINCE_METRICS
     report.validate(d, f, m, s)
@@ -597,6 +597,7 @@ def test_playback_details_view_percentage_geography_based_us_2():
     assert report.name == "Geography-based playback details (view percentage, US)"
     d = ["province", "subscribedStatus", "youtubeProduct"]
     f = {
+        "country": "US",
         "group": "fn849bng984b",
         "youtubeProduct": "CORE",
         "subscribedStatus": "SUBSCRIBED",
@@ -610,7 +611,7 @@ def test_playback_details_view_percentage_geography_based_us_3():
     report = rt.PlaybackDetailsViewPercentageGeographyBasedUS()
     assert report.name == "Geography-based playback details (view percentage, US)"
     d = ["province"]
-    f = {}
+    f = {"country": "US"}
     m = data.VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS
     s = data.VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS
     report.validate(d, f, m, s)
@@ -1084,7 +1085,7 @@ def test_viewer_demographics_1():
     report = rt.ViewerDemographics()
     assert report.name == "Viewer demographics"
     d = ["ageGroup", "liveOrOnDemand"]
-    f = {"country": "US", "video": "fn849bng984b", "deviceType": "MOBILE"}
+    f = {"country": "US", "video": "fn849bng984b", "liveOrOnDemand": "LIVE"}
     m = ["viewerPercentage"]
     s = ["viewerPercentage"]
     report.validate(d, f, m, s)
@@ -1097,8 +1098,8 @@ def test_viewer_demographics_2():
     f = {
         "province": "US-OH",
         "group": "fn849bng984b",
-        "deviceType": "MOBILE",
         "liveOrOnDemand": "LIVE",
+        "subscribedStatus": "SUBSCRIBED",
     }
     m = ["viewerPercentage"]
     s = ["viewerPercentage"]
@@ -1109,12 +1110,7 @@ def test_viewer_demographics_3():
     report = rt.ViewerDemographics()
     assert report.name == "Viewer demographics"
     d = ["gender"]
-    f = {
-        "continent": "002",
-        "deviceType": "MOBILE",
-        "liveOrOnDemand": "LIVE",
-        "subscribedStatus": "SUBSCRIBED",
-    }
+    f = {"continent": "002"}
     m = ["viewerPercentage"]
     s = ["viewerPercentage"]
     report.validate(d, f, m, s)
@@ -1124,13 +1120,7 @@ def test_viewer_demographics_4():
     report = rt.ViewerDemographics()
     assert report.name == "Viewer demographics"
     d = ["ageGroup"]
-    f = {
-        "subContinent": "014",
-        "deviceType": "MOBILE",
-        "liveOrOnDemand": "LIVE",
-        "subscribedStatus": "SUBSCRIBED",
-        "youtubeProduct": "CORE",
-    }
+    f = {"subContinent": "014"}
     m = ["viewerPercentage"]
     s = ["viewerPercentage"]
     report.validate(d, f, m, s)

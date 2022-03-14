@@ -87,7 +87,7 @@ class TimeBasedActivityUS(ReportType):
         self.name = "Time-based activity (US)"
         self.dimensions = Dimensions(ExactlyOne("day", "month"))
         self.filters = Filters(
-            ZeroOrOne("province"),
+            Required("province"),
             ZeroOrOne("video", "group"),
         )
         self.metrics = Metrics(*data.ALL_PROVINCE_METRICS)
@@ -111,7 +111,7 @@ class GeographyBasedActivityUS(ReportType):
         self.name = "Geography-based activity (US)"
         self.dimensions = Dimensions(Required("province"))
         self.filters = Filters(
-            ZeroOrOne("country==US"),
+            Required("country==US"),
             ZeroOrOne("video", "group"),
         )
         self.metrics = Metrics(*data.ALL_PROVINCE_METRICS)
@@ -219,7 +219,7 @@ class PlaybackDetailsLiveGeographyBasedUS(ReportType):
             ZeroOrMore("liveOrOnDemand", "subscribedStatus", "youtubeProduct"),
         )
         self.filters = Filters(
-            ZeroOrOne("country==US"),
+            Required("country==US"),
             ZeroOrOne("video", "group"),
             ZeroOrMore("liveOrOnDemand", "subscribedStatus", "youtubeProduct"),
         )
@@ -235,7 +235,7 @@ class PlaybackDetailsViewPercentageGeographyBasedUS(ReportType):
             ZeroOrMore("subscribedStatus", "youtubeProduct"),
         )
         self.filters = Filters(
-            ZeroOrOne("country==US"),
+            Required("country==US"),
             ZeroOrOne("video", "group"),
             ZeroOrMore("subscribedStatus", "youtubeProduct"),
         )
@@ -383,12 +383,7 @@ class ViewerDemographics(ReportType):
         self.filters = Filters(
             ZeroOrOne("country", "province", "continent", "subContinent"),
             ZeroOrOne("video", "group"),
-            ZeroOrMore(
-                "deviceType",
-                "liveOrOnDemand",
-                "subscribedStatus",
-                "youtubeProduct",
-            ),
+            ZeroOrMore("liveOrOnDemand", "subscribedStatus"),
         )
         self.metrics = Metrics("viewerPercentage")
         self.sort_options = SortOptions(*self.metrics.values)
@@ -622,6 +617,8 @@ class TrafficSourcePlaylist(ReportType):
 
 
 class TrafficSourceDetailPlaylist(DetailedReportType):
+    # TODO: Same as above.
+
     def __init__(self) -> None:
         self.name = "Traffic sources for playlists (detailed)"
         self.dimensions = Dimensions(
