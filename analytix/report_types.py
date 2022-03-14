@@ -539,7 +539,7 @@ class GeographyBasedActivityPlaylist(ReportType):
     def __init__(self) -> None:
         self.name = "Geography-based activity for playlists"
         self.dimensions = Dimensions(
-            ExactlyOne("country"),
+            Required("country"),
             ZeroOrMore("subscribedStatus", "youtubeProduct"),
         )
         self.filters = Filters(
@@ -556,7 +556,7 @@ class GeographyBasedActivityUSPlaylist(ReportType):
     def __init__(self) -> None:
         self.name = "Geography-based activity for playlists (US)"
         self.dimensions = Dimensions(
-            ExactlyOne("province"),
+            Required("province"),
             ZeroOrMore("subscribedStatus", "youtubeProduct"),
         )
         self.filters = Filters(
@@ -601,11 +601,12 @@ class PlaybackLocationDetailPlaylist(DetailedReportType):
         self.sort_options = SortOptions(
             *data.LOCATION_AND_TRAFFIC_PLAYLIST_SORT_OPTIONS, descending_only=True
         )
+        self.max_results = 25
 
 
 class TrafficSourcePlaylist(ReportType):
     def __init__(self) -> None:
-        self.name = "Playback locations for playlists"
+        self.name = "Traffic sources for playlists"
         self.dimensions = Dimensions(
             Required("insightTrafficSourceType"),
             ZeroOrMore("day", "subscribedStatus"),
@@ -636,6 +637,7 @@ class TrafficSourceDetailPlaylist(DetailedReportType):
         self.sort_options = SortOptions(
             *data.LOCATION_AND_TRAFFIC_PLAYLIST_SORT_OPTIONS, descending_only=True
         )
+        self.max_results = 25
 
 
 class DeviceTypePlaylist(ReportType):
@@ -702,16 +704,14 @@ class ViewerDemographicsPlaylist(ReportType):
             ZeroOrOne("playlist", "group"),
             ZeroOrMore("subscribedStatus"),
         )
-        self.metrics = Metrics("viewerPercentage ")
+        self.metrics = Metrics("viewerPercentage")
         self.sort_options = SortOptions(*self.metrics.values)
 
 
 class TopPlaylists(DetailedReportType):
     def __init__(self) -> None:
         self.name = "Top playlists"
-        self.dimensions = Dimensions(
-            Required("playlist")
-        )
+        self.dimensions = Dimensions(Required("playlist"))
         self.filters = Filters(
             Required("isCurated==1"),
             ZeroOrOne("country", "province", "continent", "subContinent"),
@@ -725,9 +725,7 @@ class TopPlaylists(DetailedReportType):
 class AdPerformance(ReportType):
     def __init__(self) -> None:
         self.name = "Ad performance"
-        self.dimensions = Dimensions(
-            Required("adType"), Optional("day")
-        )
+        self.dimensions = Dimensions(Required("adType"), Optional("day"))
         self.filters = Filters(
             ZeroOrOne("video", "group"),
             ZeroOrOne("country", "continent", "subContinent"),
