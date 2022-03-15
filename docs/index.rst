@@ -43,10 +43,6 @@ Documentation
 
 A simple yet powerful wrapper for the YouTube Analytics API.
 
-.. important::
-
-   These docs are for a release candidate version of analytix. You might be interested in `version 2.2.0's documentation <https://analytix.readthedocs.io/en/v2.2.0.post0/>`_.
-
 What does *analytix* do?
 ========================
 
