@@ -223,12 +223,12 @@ def test_update_check(client):
         mock_get.return_value = httpx.Response(
             status_code=200,
             request=mock.Mock(),
-            json={"info": {"version": "3.0.0"}},
+            json={"info": {"version": "9999.9.9"}},
         )
 
         latest = client.check_for_updates()
         mock_get.assert_called_once()
-        assert latest == "3.0.0"
+        assert latest == "9999.9.9"
 
 
 def test_update_check_failure(client):
@@ -277,7 +277,7 @@ def test_retrieve_version_check(client, request_data):
         )
 
         with mock.patch.object(Analytics, "check_for_updates") as mock_check:
-            mock_check.return_value == "3.0.0"
+            mock_check.return_value == "9999.9.9"
 
             report = client.retrieve(
                 dimensions=("day",),
