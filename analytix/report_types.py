@@ -295,8 +295,6 @@ class TrafficSource(ReportType):
 
 
 class TrafficSourceDetail(DetailedReportType):
-    # TODO: Validate against supported traffic sources
-
     def __init__(self) -> None:
         self.name = "Traffic sources (detailed)"
         self.dimensions = Dimensions(
@@ -313,6 +311,20 @@ class TrafficSourceDetail(DetailedReportType):
             *data.LOCATION_AND_TRAFFIC_SORT_OPTIONS, descending_only=True
         )
         self.max_results = 25
+
+    def validate(
+        self,
+        dimensions: t.Collection[str],
+        filters: dict[str, str],
+        metrics: t.Collection[str],
+        sort_options: t.Collection[str],
+        max_results: int = 0,
+    ) -> None:
+        super().validate(dimensions, filters, metrics, sort_options, max_results)
+
+        itst = filters["insightTrafficSourceType"]
+        if itst not in data.VALID_FILTER_OPTIONS["insightTrafficSourceDetail"]:
+            raise errors.UnsupportedFilterValue("insightTrafficSourceType", itst)
 
 
 class DeviceType(ReportType):
@@ -617,8 +629,6 @@ class TrafficSourcePlaylist(ReportType):
 
 
 class TrafficSourceDetailPlaylist(DetailedReportType):
-    # TODO: Same as above.
-
     def __init__(self) -> None:
         self.name = "Traffic sources for playlists (detailed)"
         self.dimensions = Dimensions(
@@ -635,6 +645,20 @@ class TrafficSourceDetailPlaylist(DetailedReportType):
             *data.LOCATION_AND_TRAFFIC_PLAYLIST_SORT_OPTIONS, descending_only=True
         )
         self.max_results = 25
+
+    def validate(
+        self,
+        dimensions: t.Collection[str],
+        filters: dict[str, str],
+        metrics: t.Collection[str],
+        sort_options: t.Collection[str],
+        max_results: int = 0,
+    ) -> None:
+        super().validate(dimensions, filters, metrics, sort_options, max_results)
+
+        itst = filters["insightTrafficSourceType"]
+        if itst not in data.VALID_FILTER_OPTIONS["insightTrafficSourceDetail"]:
+            raise errors.UnsupportedFilterValue("insightTrafficSourceType", itst)
 
 
 class DeviceTypePlaylist(ReportType):

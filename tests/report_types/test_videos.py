@@ -861,6 +861,22 @@ def test_traffic_source_detail_5():
     report.validate(d, f, m, s, 25)
 
 
+def test_traffic_source_detail_invalid_source():
+    report = rt.TrafficSourceDetail()
+    assert report.name == "Traffic sources (detailed)"
+    d = ["insightTrafficSourceDetail"]
+    f = {"insightTrafficSourceType": "ANNOTATION"}
+    m = data.LOCATION_AND_TRAFFIC_METRICS
+    s = [f"-{o}" for o in data.LOCATION_AND_TRAFFIC_SORT_OPTIONS]
+
+    with pytest.raises(errors.UnsupportedFilterValue) as exc:
+        report.validate(d, f, m, s, 25)
+    assert (
+        str(exc.value)
+        == "unsupported value for filter 'insightTrafficSourceType' for selected report type: 'ANNOTATION'"
+    )
+
+
 # DEVICE TYPES
 
 
@@ -1182,21 +1198,6 @@ def test_engagement_and_content_sharing_4():
 # AUDIENCE RETENTION
 
 
-def test_audience_retention_invalid_video_filters():
-    report = rt.AudienceRetention()
-    assert report.name == "Audience retention"
-    d = ["elapsedVideoTimeRatio"]
-    f = {"video": "fn849bng984b,f327b98g3b8g"}
-    m = ["audienceWatchRatio", "relativeRetentionPerformance"]
-    s = ["audienceWatchRatio", "relativeRetentionPerformance"]
-    with pytest.raises(errors.UnsupportedFilterValue) as exc:
-        report.validate(d, f, m, s)
-    assert (
-        str(exc.value)
-        == "unsupported value for filter 'video' for selected report type: 'fn849bng984b,f327b98g3b8g'"
-    )
-
-
 def test_audience_retention_1():
     report = rt.AudienceRetention()
     assert report.name == "Audience retention"
@@ -1244,6 +1245,21 @@ def test_audience_retention_4():
     m = ["audienceWatchRatio", "relativeRetentionPerformance"]
     s = ["audienceWatchRatio", "relativeRetentionPerformance"]
     report.validate(d, f, m, s)
+
+
+def test_audience_retention_invalid_video_filters():
+    report = rt.AudienceRetention()
+    assert report.name == "Audience retention"
+    d = ["elapsedVideoTimeRatio"]
+    f = {"video": "fn849bng984b,f327b98g3b8g"}
+    m = ["audienceWatchRatio", "relativeRetentionPerformance"]
+    s = ["audienceWatchRatio", "relativeRetentionPerformance"]
+    with pytest.raises(errors.UnsupportedFilterValue) as exc:
+        report.validate(d, f, m, s)
+    assert (
+        str(exc.value)
+        == "unsupported value for filter 'video' for selected report type: 'fn849bng984b,f327b98g3b8g'"
+    )
 
 
 # TOP VIDEOS BY REGION

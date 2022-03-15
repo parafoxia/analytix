@@ -26,7 +26,9 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from analytix import data
+import pytest
+
+from analytix import data, errors
 from analytix import report_types as rt
 
 # BASIC USER ACTIVITY
@@ -509,6 +511,22 @@ def test_traffic_source_detail_playlist_5():
     m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
     s = [f"-{o}" for o in data.LOCATION_AND_TRAFFIC_PLAYLIST_SORT_OPTIONS]
     report.validate(d, f, m, s, 25)
+
+
+def test_traffic_source_detail_playlist_invalid_source():
+    report = rt.TrafficSourceDetailPlaylist()
+    assert report.name == "Traffic sources for playlists (detailed)"
+    d = ["insightTrafficSourceDetail"]
+    f = {"isCurated": "1", "insightTrafficSourceType": "ANNOTATION"}
+    m = data.LOCATION_AND_TRAFFIC_METRICS
+    s = [f"-{o}" for o in data.LOCATION_AND_TRAFFIC_SORT_OPTIONS]
+
+    with pytest.raises(errors.UnsupportedFilterValue) as exc:
+        report.validate(d, f, m, s, 25)
+    assert (
+        str(exc.value)
+        == "unsupported value for filter 'insightTrafficSourceType' for selected report type: 'ANNOTATION'"
+    )
 
 
 # DEVICE TYPES
