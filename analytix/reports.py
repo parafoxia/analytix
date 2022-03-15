@@ -39,7 +39,7 @@ import analytix
 from analytix import errors
 from analytix.abc import ReportType
 
-if analytix.can_use("pandas"):
+if analytix.can_use(all, "pandas"):
     import pandas as pd
 
 log = logging.getLogger(__name__)
@@ -178,7 +178,7 @@ class Report:
                 the ``datetime64[ns]`` format. Defaults to ``False``.
         """
 
-        if not analytix.can_use("pandas"):
+        if not analytix.can_use(all, "pandas"):
             raise errors.MissingOptionalComponents("pandas")
 
         if not self._nrows:

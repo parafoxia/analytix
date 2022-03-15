@@ -37,7 +37,7 @@ __all__ = (
 )
 
 __productname__ = "analytix"
-__version__ = "3.0.0rc3"
+__version__ = "3.0.0"
 __description__ = "A simple yet powerful wrapper for the YouTube Analytics API."
 __url__ = "https://github.com/parafoxia/analytix"
 __docs__ = "https://analytix.readthedocs.io"
@@ -48,10 +48,12 @@ __bugtracker__ = "https://github.com/parafoxia/analytix/issues"
 __ci__ = "https://github.com/parafoxia/analytix/actions"
 __changelog__ = "https://github.com/parafoxia/analytix/releases"
 
+import typing as t
+
 from pkg_resources import working_set
 
 
-def can_use(*libs: str) -> bool:
+def can_use(cmpfunc: t.Callable[[t.Iterable[object]], bool], /, *libs: str) -> bool:
     """Whether a given library or module can be used. If multiple
     libraries are given, this returns ``True`` if they can *all* be
     used.
@@ -64,8 +66,11 @@ def can_use(*libs: str) -> bool:
         Whether all given libraries can be used.
     """
 
+    if cmpfunc not in (all, any):
+        raise ValueError("comparison function must be 'all' or 'any'")
+
     ws = [p.key for p in working_set]
-    return all(l in ws for l in libs)
+    return cmpfunc(l in ws for l in libs)
 
 
 API_BASE_URL = "https://youtubeanalytics.googleapis.com/v2/reports?"
