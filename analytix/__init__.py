@@ -53,7 +53,7 @@ import typing as t
 from pkg_resources import working_set
 
 
-def can_use(cmpfunc: t.Callable[[t.Iterable[object]], bool], /, *libs: str) -> bool:
+def can_use(cmpfunc: t.Callable[[t.Iterable[object]], bool], *libs: str) -> bool:
     """Whether a given library or module can be used. If multiple
     libraries are given, this returns ``True`` if they can *all* be
     used.
