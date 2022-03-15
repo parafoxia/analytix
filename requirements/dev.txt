@@ -19,7 +19,7 @@ flake8~=4.0.1
 isort~=5.10.0
 
 # Typing
-mypy==0.940
+mypy==0.941
 
 # Line lengths
 len8~=0.7.2
