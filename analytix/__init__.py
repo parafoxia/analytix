@@ -59,11 +59,14 @@ def can_use(cmpfunc: t.Callable[[t.Iterable[object]], bool], *libs: str) -> bool
     used.
 
     Args:
+        cmpfunc:
+            The comparison function to use. Must be :obj:`all` or
+            :obj:`any`.
         *libs:
             A series of libraries to check the availability for.
 
     Returns:
-        Whether all given libraries can be used.
+        Whether the check succeeded.
     """
 
     if cmpfunc not in (all, any):
