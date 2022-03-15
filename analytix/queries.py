@@ -222,7 +222,6 @@ class Query:
                 return rt.OperatingSystemPlaylist()
             return rt.OperatingSystem()
 
-        # TODO: Re-do this section
         if "video" in self.dimensions:
             if "province" in self.filters:
                 return rt.TopVideosUS()
