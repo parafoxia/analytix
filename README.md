@@ -115,7 +115,7 @@ If you want to analyse this data using additional tools such as *pandas*, you ca
 df = report.to_dataframe()
 ```
 
-To read up further, [have a look at the documentation](https://analytix.readthedocs.io).
+To read up further, [have a look at the documentation](https://analytix.readthedocs.io), or [have a look at some examples](https://github.com/parafoxia/analytix/tree/main/examples).
 
 ## Contributing
 

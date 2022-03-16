@@ -12,7 +12,7 @@ furo
 sphinx>=4,<5
 
 # Formatting
-black~=22.1.0
+black[jupyter]~=22.1.0
 
 # Imports
 flake8~=4.0.1
