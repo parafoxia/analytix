@@ -59,7 +59,7 @@ Token refreshing
 
 * analytix is now capable of refreshing access tokens
 * This can be done manually, but is generally handles automatically
-* This means you now only have to reauthorise analytix every 200 days, rather than every hour
+* This means you no longer need to reauthorise analytix every hour
 
 Update checks
 -------------
