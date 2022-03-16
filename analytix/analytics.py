@@ -278,14 +278,14 @@ class Analytics:
                     not consistent.
 
             currency:
-                The currency in which financial data will be displayed
-                in. Defaults to "USD". This **must** be an ISO 4217
-                currency code.
+                The currency in which financial data will be displayed.
+                Defaults to "USD". This **must** be an ISO 4217 currency
+                code (such as USD or GBP).
             start_index:
-                The row to start pulling data. Defaults to ``1``. This
-                value one-indexed, meaning setting this to ``1`` will
-                include all rows, and setting it to ``10`` will remove
-                the first nine rows.
+                The first row of the data to include in the report.
+                Defaults to ``1``. This value one-indexed, meaning
+                setting this to ``1`` will include all rows, and
+                setting it to ``10`` will remove the first nine rows.
             include_historical_data:
                 Whether to retrieve data from dates earlier than the
                 current channel owner assumed ownership of the channel.
