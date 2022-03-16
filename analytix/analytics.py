@@ -137,7 +137,10 @@ class Analytics:
         data, headers = oauth.access_data_and_headers(code, self.secrets)
 
         r = self._session.post(self.secrets.token_uri, data=data, headers=headers)
-        r.raise_for_status()
+        if r.is_error:
+            error = r.json()["error"]
+            raise errors.AuthenticationError(error["code"], error["message"])
+
         return Tokens.from_data(r.json())
 
     def needs_refresh(self) -> bool:
@@ -174,8 +177,12 @@ class Analytics:
         )
 
         r = self._session.post(self.secrets.token_uri, data=data, headers=headers)
-        r.raise_for_status()
-        self._tokens.update(r.json())
+        if not r.is_error:
+            self._tokens.update(r.json())
+        else:
+            log.info("Your refresh token has expired; you will need to reauthorise")
+            self._tokens = self._retrieve_tokens()
+
         self._tokens.write(self._token_path)
 
     def authorise(  # nosec B107

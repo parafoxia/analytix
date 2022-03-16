@@ -138,7 +138,10 @@ class AsyncAnalytics:
         data, headers = oauth.access_data_and_headers(code, self.secrets)
 
         r = await self._session.post(self.secrets.token_uri, data=data, headers=headers)
-        r.raise_for_status()
+        if r.is_error:
+            error = r.json()["error"]
+            raise errors.AuthenticationError(error["code"], error["message"])
+
         return Tokens.from_data(r.json())
 
     async def needs_refresh(self) -> bool:
@@ -177,8 +180,12 @@ class AsyncAnalytics:
         )
 
         r = await self._session.post(self.secrets.token_uri, data=data, headers=headers)
-        r.raise_for_status()
-        self._tokens.update(r.json())
+        if not r.is_error:
+            self._tokens.update(r.json())
+        else:
+            log.info("Your refresh token has expired; you will need to reauthorise")
+            self._tokens = await self._retrieve_tokens()
+
         await self._tokens.awrite(self._token_path)
 
     async def authorise(  # nosec B107

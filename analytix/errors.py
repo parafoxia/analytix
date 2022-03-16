@@ -53,6 +53,14 @@ class APIError(AnalytixError):
         super().__init__(f"API returned {code}: {message}")
 
 
+class AuthenticationError(AnalytixError):
+    """Exception thrown when something goes wrong during the OAuth
+    authentication process."""
+
+    def __init__(self, code: str, message: str) -> None:
+        super().__init__(f"Authentication failure ({code}): {message}")
+
+
 class DataFrameConversionError(AnalytixError):
     """Exception thrown when converting a report to a DataFrame
     fails."""

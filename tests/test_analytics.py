@@ -37,7 +37,7 @@ import mock
 import pytest
 
 from analytix import Analytics
-from analytix.errors import APIError
+from analytix.errors import APIError, AuthenticationError
 from analytix.report_types import TimeBasedActivity
 from analytix.secrets import Secrets
 from analytix.tokens import Tokens
@@ -180,6 +180,26 @@ def test_refresh_access_tokens_with_no_tokens(client, caplog):
     client.refresh_access_token()
     assert client._tokens is None
     assert "There are no tokens to refresh" in caplog.text
+
+
+def test_retrieve_token_refresh_token_failure(client, tokens):
+    with mock.patch.object(httpx.Client, "post") as mock_post:
+        mock_post.return_value = httpx.Response(
+            status_code=403,
+            request=mock.Mock(),
+            json={"error": {"code": 403, "message": "You suck"}},
+        )
+
+        client._tokens = tokens
+
+        with mock.patch.object(builtins, "input") as mock_input:
+            mock_input.return_value = "lol ecks dee"
+
+            # If we get here, refreshing failed, and we can also test
+            # retrieval failure.
+            with pytest.raises(AuthenticationError) as exc:
+                client.refresh_access_token()
+            assert str(exc.value) == "Authentication failure (403): You suck"
 
 
 def test_needs_refresh_with_valid(client):
