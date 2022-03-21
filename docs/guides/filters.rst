@@ -72,7 +72,7 @@ The table of supported filters and their possible values, sorted in alphabetical
    * - gender
      - * female
        * male
-       * user_specified *(from 11 Aug 2022)*
+       * user_specified [#f4]_
    * - group
      - Any group ID
    * - insightPlaybackLocationDetail
@@ -256,6 +256,8 @@ The table of supported filters and their possible values, sorted in alphabetical
        * GAMING
        * KIDS
        * UNKNOWN
+
+.. [#f4] This value can only be used from 11 Aug 2022.
 
 For more information about what each filter does, look at the `official documentation <https://developers.google.com/youtube/analytics/dimensions#filters>`_.
 
