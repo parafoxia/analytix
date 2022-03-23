@@ -2,6 +2,7 @@
 dev/
 secrets/
 *.json
+*.xlsx
 
 ### Data ###
 *.csv

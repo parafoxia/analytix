@@ -39,6 +39,9 @@ import analytix
 from analytix import errors
 from analytix.abc import ReportType
 
+if analytix.can_use(all, "openpyxl"):
+    from openpyxl import Workbook
+
 if analytix.can_use(all, "pandas"):
     import pandas as pd
 
@@ -164,6 +167,40 @@ class Report:
                 await f.write(f"{line}\n")
 
         log.info(f"Saved report as CSV to {Path(path).resolve()}")
+
+    def to_excel(self, path: str, *, sheet_name: str = "Analytics") -> None:
+        """Write the report data to an Excel spreadsheet.
+
+        .. note::
+            The OpenPyXL library is required to do this, but is not
+            automatically installed by analytix.
+
+        Args:
+            path:
+                The path the file should be saved to.
+
+        Keyword Args:
+            delimiter:
+                The delimiter to use. Defaults to a comma. Passing a tab
+                here will save the file as a TSV instead.
+        """
+
+        if not analytix.can_use(all, "openpyxl"):
+            raise errors.MissingOptionalComponents("openpyxl")
+
+        if not path.endswith(".xlsx"):
+            path += ".xlsx"
+
+        wb = Workbook()
+        ws = wb.active
+        ws.title = sheet_name
+
+        ws.append(self.columns)
+        for row in self.data["rows"]:
+            ws.append(row)
+
+        wb.save(path)
+        log.info(f"Saved report as spreadsheet to {Path(path).resolve()}")
 
     def to_dataframe(self, *, skip_date_conversion: bool = False) -> pd.DataFrame:
         """Export the report data to a pandas DataFrame.
