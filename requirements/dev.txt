@@ -2,6 +2,7 @@
 -e .
 -r ./base.txt
 -r ./df.txt
+-r ./excel.txt
 -r ./types.txt
 
 # Sessions
