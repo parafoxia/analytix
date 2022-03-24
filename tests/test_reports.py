@@ -47,7 +47,7 @@ from tests.paths import (
     TSV_OUTPUT_PATH,
 )
 
-if analytix.can_use(all, "openpyxl"):
+if analytix.can_use("openpyxl"):
     from openpyxl import load_workbook
 
 
@@ -224,6 +224,21 @@ def test_to_dataframe(report, request_data):
     for i, row in df.iterrows():
         # We don't need the date to check -- it just complicated things.
         assert list(row)[1:] == request_data["rows"][i][1:]
+
+
+@pytest.mark.skipif(
+    sys.version_info >= (3, 11, 0) or platform.python_implementation() != "CPython",
+    reason="pandas does not support Python 3.11 or PyPy",
+)
+def test_to_dataframe_modin_check(report):
+    # It's not really possible to test Modin functionality, so just run
+    # this to check Modin can be selected, and get the coverage.
+
+    with mock.patch.object(analytix, "can_use") as mock_cu:
+        mock_cu.return_value = True
+
+        with pytest.raises(ImportError):
+            df = report.to_dataframe()
 
 
 @pytest.mark.skipif(

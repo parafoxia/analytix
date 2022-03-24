@@ -114,11 +114,11 @@ setuptools.setup(
     },
     install_requires=parse_requirements("./requirements/base.txt"),
     extras_require={
+        "dev": parse_requirements("./requirements/dev.txt"),
         "df": parse_requirements("./requirements/df.txt"),
         "excel": parse_requirements("./requirements/excel.txt"),
-        # "modin": parse_requirements("./requirements/modin.txt"),
+        "modin": parse_requirements("./requirements/modin.txt"),
         "pandas": parse_requirements("./requirements/df.txt"),
-        # "sharks": parse_requirements("./requirements/sharks.txt"),
         "types": parse_requirements("./requirements/types.txt"),
     },
     python_requires=">=3.7.0,<3.12",

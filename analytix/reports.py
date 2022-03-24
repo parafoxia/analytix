@@ -39,10 +39,7 @@ import analytix
 from analytix import errors
 from analytix.abc import ReportType
 
-if analytix.can_use(all, "openpyxl"):
-    from openpyxl import Workbook
-
-if analytix.can_use(all, "pandas"):
+if t.TYPE_CHECKING:
     import pandas as pd
 
 log = logging.getLogger(__name__)
@@ -185,7 +182,9 @@ class Report:
                 here will save the file as a TSV instead.
         """
 
-        if not analytix.can_use(all, "openpyxl"):
+        if analytix.can_use("openpyxl"):
+            from openpyxl import Workbook
+        else:
             raise errors.MissingOptionalComponents("openpyxl")
 
         if not path.endswith(".xlsx"):
@@ -215,7 +214,11 @@ class Report:
                 the ``datetime64[ns]`` format. Defaults to ``False``.
         """
 
-        if not analytix.can_use(all, "pandas"):
+        if analytix.can_use("modin"):
+            import modin.pandas as pd
+        elif analytix.can_use("pandas"):
+            import pandas as pd
+        else:
             raise errors.MissingOptionalComponents("pandas")
 
         if not self._nrows:
