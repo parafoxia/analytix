@@ -1,0 +1,51 @@
+name: Feature request
+description: Request a new feature or an improvement to an existing one
+labels: ["feature"]
+
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: A description of what you want implemented.
+      placeholder: "Example: The ability to convert reports to Excel spreadsheets."
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Why?
+      description: The reason you want this implemented.
+      placeholder: "Example: I like the graphing suite Excel provides, so having native Excel support would greatly improve my workflow."
+    validations:
+      required: true
+
+  - type: textarea
+    id: ideal-implementation
+    attributes:
+      label: Ideal implementation
+      description: How you think this should be implemented, if you have any idea at all.
+      placeholder: "Example: A method similar to `Report.to_csv` and `Report.to_json` -- maybe `Report.to_excel`?"
+
+  - type: textarea
+    id: additional-info
+    attributes:
+      label: Additional information
+      description: If there's anything else you feel is relevant, include it here.
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution
+      options:
+        - label: I wish to contribute this feature.
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      description: Make sure all the following statements are true before continuing.
+      options:
+        - label: I have searched the issue tracker for duplicate issues and couldn't find any. If this is a follow-up issue, I have specified as such.
+          required: true

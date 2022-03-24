@@ -1,0 +1,72 @@
+name: Bug report
+description: File a bug report
+labels: ["bug"]
+
+body:
+  - type: textarea
+    id: reproduction-steps
+    attributes:
+      label: Steps to reproduce
+      description: Steps to reproduce the bug.
+      value: |
+        1.
+        2.
+        3.
+        4.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behaviour
+    attributes:
+      label: Expected behaviour
+      description: What should have happened.
+      placeholder: "Example: The validation should have caught the issue."
+    validations:
+      required: true
+
+  - type: textarea
+    id: current-behaviour
+    attributes:
+      label: Current behaviour
+      description: What actually happened. If you were given an error, please provide it here.
+      placeholder: "Example: I received an `APIError`."
+    validations:
+      required: true
+
+  - type: textarea
+    id: version
+    attributes:
+      label: analytix version
+      description: The version of analytix you're using. Obtainable though `python -m analytix`.
+      placeholder: "3.0.0"
+    validations:
+      required: true
+
+  - type: textarea
+    id: system-info
+    attributes:
+      label: Extra information
+      description: The output from the Information section of `python -m analytix`.
+      placeholder: |
+        Information:
+          • Python version: 3.10.3 (CPython)
+          • Operating system: Linux (5.16.11-76051611-generic)
+          • Installed in: /home/parafoxia/Programs/Projects/analytix/analytix
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-info
+    attributes:
+      label: Additional information
+      description: If there's anything else you feel is relevant, include it here.
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      description: Make sure all the following statements are true before continuing.
+      options:
+        - label: I have searched the issue tracker for duplicate issues and couldn't find any. If this is a follow-up issue, I have specified as such.
+          required: true
