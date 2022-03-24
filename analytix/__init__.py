@@ -48,32 +48,22 @@ __bugtracker__ = "https://github.com/parafoxia/analytix/issues"
 __ci__ = "https://github.com/parafoxia/analytix/actions"
 __changelog__ = "https://github.com/parafoxia/analytix/releases"
 
-import typing as t
-
 from pkg_resources import working_set
 
 
-def can_use(cmpfunc: t.Callable[[t.Iterable[object]], bool], *libs: str) -> bool:
-    """Whether a given library or module can be used. If multiple
-    libraries are given, this returns ``True`` if they can *all* be
-    used.
+def can_use(package: str) -> bool:
+    """Whether a given package is available, and can be used by
+    analytix.
 
     Args:
-        cmpfunc:
-            The comparison function to use. Must be :obj:`all` or
-            :obj:`any`.
-        *libs:
-            A series of libraries to check the availability for.
+        package:
+            The package to check against.
 
     Returns:
-        Whether the check succeeded.
+        Whether the given package can be used.
     """
 
-    if cmpfunc not in (all, any):
-        raise ValueError("comparison function must be 'all' or 'any'")
-
-    ws = [p.key for p in working_set]
-    return cmpfunc(l in ws for l in libs)
+    return package in [p.key for p in working_set]
 
 
 API_BASE_URL = "https://youtubeanalytics.googleapis.com/v2/reports?"
