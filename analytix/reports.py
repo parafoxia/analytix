@@ -168,18 +168,15 @@ class Report:
     def to_excel(self, path: str, *, sheet_name: str = "Analytics") -> None:
         """Write the report data to an Excel spreadsheet.
 
-        .. note::
-            The OpenPyXL library is required to do this, but is not
-            automatically installed by analytix.
-
         Args:
             path:
                 The path the file should be saved to.
 
         Keyword Args:
-            delimiter:
-                The delimiter to use. Defaults to a comma. Passing a tab
-                here will save the file as a TSV instead.
+            sheet_name:
+                The name for the worksheet.
+
+        .. versionadded:: 3.1.0
         """
 
         if analytix.can_use("openpyxl"):
@@ -201,23 +198,35 @@ class Report:
         wb.save(path)
         log.info(f"Saved report as spreadsheet to {Path(path).resolve()}")
 
-    def to_dataframe(self, *, skip_date_conversion: bool = False) -> pd.DataFrame:
-        """Export the report data to a pandas DataFrame.
-
-        .. note::
-            The pandas library is required to do this, but is not
-            automatically installed by analytix.
+    def to_dataframe(
+        self, *, skip_date_conversion: bool = False, modin_engine: str | None = None
+    ) -> pd.DataFrame:
+        """Export the report data to a DataFrame.
 
         Keyword Args:
             skip_date_conversion:
                 Whether to skip automatically converting date columns to
                 the ``datetime64[ns]`` format. Defaults to ``False``.
+            modin_engine:
+                The Modin engine to use. Defaults to ``None``. If this
+                is ``None``, Modin will select an engine automatically.
+                If Modin is not installed this is ignored.
+
+        .. versionchanged:: 3.1.0
+            Added the ``modin_engine`` keyword argument.
         """
 
         if analytix.can_use("modin"):
+            if modin_engine:
+                import os
+
+                os.environ["MODIN_ENGINE"] = modin_engine
+
             import modin.pandas as pd
+
         elif analytix.can_use("pandas"):
             import pandas as pd
+
         else:
             raise errors.MissingOptionalComponents("pandas")
 
