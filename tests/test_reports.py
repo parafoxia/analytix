@@ -238,7 +238,9 @@ def test_to_dataframe_modin_check(report):
         mock_cu.return_value = True
 
         with pytest.raises(ImportError):
-            df = report.to_dataframe()
+            df = report.to_dataframe(modin_engine="ray")
+
+        assert os.environ["MODIN_ENGINE"] == "ray"
 
 
 @pytest.mark.skipif(
