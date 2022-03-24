@@ -44,7 +44,7 @@ import setuptools
 def parse_requirements(path: str) -> list[str]:
     with open(path) as f:
         deps = (d.strip() for d in f.readlines())
-        return [d for d in deps if not d.startswith(("#", "-r"))]
+        return [d for d in deps if not d.startswith(("#", "-e", "-r"))]
 
 
 with open("./analytix/__init__.py") as f:
