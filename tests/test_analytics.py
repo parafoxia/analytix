@@ -297,7 +297,7 @@ def test_retrieve_version_check(client, request_data):
         )
 
         with mock.patch.object(Analytics, "check_for_updates") as mock_check:
-            mock_check.return_value == "9999.9.9"
+            mock_check.return_value = "9999.9.9"
 
             report = client.retrieve(
                 dimensions=("day",),
