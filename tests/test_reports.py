@@ -40,11 +40,15 @@ from analytix.report_types import TimeBasedActivity
 from analytix.reports import Report
 from tests.paths import (
     CSV_OUTPUT_PATH,
+    EXCEL_OUTPUT_PATH,
     JSON_OUTPUT_PATH,
     MOCK_CSV_PATH,
     MOCK_DATA_PATH,
     TSV_OUTPUT_PATH,
 )
+
+if analytix.can_use(all, "openpyxl"):
+    from openpyxl import load_workbook
 
 
 @pytest.fixture()
@@ -250,3 +254,37 @@ def test_to_dataframe_no_rows(report):
     assert (
         str(exc.value) == "cannot convert to DataFrame as the returned data has no rows"
     )
+
+
+def test_to_excel(report, mock_csv_data):
+    report.to_excel(str(EXCEL_OUTPUT_PATH))
+    assert EXCEL_OUTPUT_PATH.is_file()
+
+    ws = load_workbook(EXCEL_OUTPUT_PATH)["Analytics"]
+    excel_data = "\n".join(",".join(f"{cell.value}" for cell in row) for row in ws.rows)
+    assert excel_data == mock_csv_data.strip()
+
+    os.remove(EXCEL_OUTPUT_PATH)
+
+
+def test_to_excel_no_extension(report, mock_csv_data):
+    report.to_excel(str(EXCEL_OUTPUT_PATH)[:-5])
+    assert EXCEL_OUTPUT_PATH.is_file()
+
+    ws = load_workbook(EXCEL_OUTPUT_PATH)["Analytics"]
+    excel_data = "\n".join(",".join(f"{cell.value}" for cell in row) for row in ws.rows)
+    assert excel_data == mock_csv_data.strip()
+
+    os.remove(EXCEL_OUTPUT_PATH)
+
+
+def test_to_excel_no_openpyxl(report):
+    with mock.patch.object(analytix, "can_use") as mock_cu:
+        mock_cu.return_value = False
+
+        with pytest.raises(errors.MissingOptionalComponents) as exc:
+            report.to_excel(EXCEL_OUTPUT_PATH)
+        assert (
+            str(exc.value)
+            == "some necessary libraries are not installed (hint: pip install openpyxl)"
+        )
