@@ -50,16 +50,20 @@ pip install git+https://github.com/parafoxia/analytix
 
 You may need to prefix these commands with a call to the Python interpreter depending on your OS and Python configuration.
 
-## Alternative configurations
+## Additional support
 
 You can also install *analytix* with additional libraries to provide extra functionality:
 
-```sh
-# Allow for reports to be converted to DataFrames:
-pip install "analytix[df]"
+* `analytix[dev]` — development dependencies
+* `analytix[excel]` — support for exporting reports to *Excel* spreadsheets
+* `analytix[modin]` — *Modin* support (note: this installs **all** engines; if you want to use a specific engine, you will need to do so manually)
+* `analytix[pandas]` — *pandas* support (`analytix[df]` does the same, but is deprecated)
+* `analytix[types]` — type stubs for type-hinted projects
 
-# Install stub-libraries for typed projects:
-pip install "analytix[types]"
+To install multiple at once, use commas:
+
+```sh
+pip install "analytix[excel,modin,types]
 ```
 
 ## OAuth authentication
