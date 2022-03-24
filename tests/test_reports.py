@@ -96,7 +96,17 @@ def test_to_json(report, request_data):
     os.remove(JSON_OUTPUT_PATH)
 
 
-async def test_to_json_async(report, request_data):
+async def test_await_to_json(report, request_data):
+    await report.to_json(str(JSON_OUTPUT_PATH))
+    assert JSON_OUTPUT_PATH.is_file()
+
+    with open(JSON_OUTPUT_PATH) as f:
+        assert json.load(f) == request_data
+
+    os.remove(JSON_OUTPUT_PATH)
+
+
+async def test_deprecated_ato_json(report, request_data):
     await report.ato_json(str(JSON_OUTPUT_PATH))
     assert JSON_OUTPUT_PATH.is_file()
 
@@ -116,7 +126,17 @@ def test_to_json_no_extension(report, request_data):
     os.remove(JSON_OUTPUT_PATH)
 
 
-async def test_to_json_async_no_extension(report, request_data):
+async def test_await_to_json_no_extension(report, request_data):
+    await report.to_json(str(JSON_OUTPUT_PATH)[:-5])
+    assert JSON_OUTPUT_PATH.is_file()
+
+    with open(JSON_OUTPUT_PATH) as f:
+        assert json.load(f) == request_data
+
+    os.remove(JSON_OUTPUT_PATH)
+
+
+async def test_deprecated_ato_json_no_extension(report, request_data):
     await report.ato_json(str(JSON_OUTPUT_PATH)[:-5])
     assert JSON_OUTPUT_PATH.is_file()
 
@@ -142,7 +162,17 @@ def test_to_csv(report, mock_csv_data):
     os.remove(CSV_OUTPUT_PATH)
 
 
-async def test_to_csv_async(report, mock_csv_data):
+async def test_await_to_csv(report, mock_csv_data):
+    await report.to_csv(str(CSV_OUTPUT_PATH))
+    assert CSV_OUTPUT_PATH.is_file()
+
+    with open(CSV_OUTPUT_PATH) as f:
+        assert f.read() == mock_csv_data
+
+    os.remove(CSV_OUTPUT_PATH)
+
+
+async def test_deprecated_ato_csv(report, mock_csv_data):
     await report.ato_csv(str(CSV_OUTPUT_PATH))
     assert CSV_OUTPUT_PATH.is_file()
 
@@ -162,7 +192,17 @@ def test_to_csv_no_extension(report, mock_csv_data):
     os.remove(CSV_OUTPUT_PATH)
 
 
-async def test_to_csv_async_no_extension(report, mock_csv_data):
+async def test_await_to_csv_no_extension(report, mock_csv_data):
+    await report.to_csv(str(CSV_OUTPUT_PATH)[:-4])
+    assert CSV_OUTPUT_PATH.is_file()
+
+    with open(CSV_OUTPUT_PATH) as f:
+        assert f.read() == mock_csv_data
+
+    os.remove(CSV_OUTPUT_PATH)
+
+
+async def test_deprecated_ato_csv_no_extension(report, mock_csv_data):
     await report.ato_csv(str(CSV_OUTPUT_PATH)[:-4])
     assert CSV_OUTPUT_PATH.is_file()
 
@@ -182,7 +222,17 @@ def test_to_tsv(report, mock_csv_data):
     os.remove(TSV_OUTPUT_PATH)
 
 
-async def test_to_tsv_async(report, mock_csv_data):
+async def test_await_to_tsv(report, mock_csv_data):
+    await report.to_csv(str(TSV_OUTPUT_PATH), delimiter="\t")
+    assert TSV_OUTPUT_PATH.is_file()
+
+    with open(TSV_OUTPUT_PATH) as f:
+        assert f.read() == mock_csv_data.replace(",", "\t")
+
+    os.remove(TSV_OUTPUT_PATH)
+
+
+async def test_deprecated_ato_tsv(report, mock_csv_data):
     await report.ato_csv(str(TSV_OUTPUT_PATH), delimiter="\t")
     assert TSV_OUTPUT_PATH.is_file()
 
@@ -202,7 +252,17 @@ def test_to_tsv_no_extension(report, mock_csv_data):
     os.remove(TSV_OUTPUT_PATH)
 
 
-async def test_to_tsv_async_no_extension(report, mock_csv_data):
+async def test_await_to_tsv_no_extension(report, mock_csv_data):
+    await report.to_csv(str(TSV_OUTPUT_PATH)[:-4], delimiter="\t")
+    assert TSV_OUTPUT_PATH.is_file()
+
+    with open(TSV_OUTPUT_PATH) as f:
+        assert f.read() == mock_csv_data.replace(",", "\t")
+
+    os.remove(TSV_OUTPUT_PATH)
+
+
+async def test_deprecated_ato_tsv_no_extension(report, mock_csv_data):
     await report.ato_csv(str(TSV_OUTPUT_PATH)[:-4], delimiter="\t")
     assert TSV_OUTPUT_PATH.is_file()
 
