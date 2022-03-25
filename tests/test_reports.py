@@ -281,7 +281,11 @@ def test_to_excel(report, mock_csv_data):
     excel_data = "\n".join(",".join(f"{cell.value}" for cell in row) for row in ws.rows)
     assert excel_data == mock_csv_data.strip()
 
-    os.remove(EXCEL_OUTPUT_PATH)
+    try:
+        os.remove(EXCEL_OUTPUT_PATH)
+    except PermissionError:
+        # Account for bizarre PermissionError on Windows PyPy tests.
+        ...
 
 
 def test_to_excel_no_extension(report, mock_csv_data):
@@ -292,7 +296,11 @@ def test_to_excel_no_extension(report, mock_csv_data):
     excel_data = "\n".join(",".join(f"{cell.value}" for cell in row) for row in ws.rows)
     assert excel_data == mock_csv_data.strip()
 
-    os.remove(EXCEL_OUTPUT_PATH)
+    try:
+        os.remove(EXCEL_OUTPUT_PATH)
+    except PermissionError:
+        # Account for bizarre PermissionError on Windows PyPy tests.
+        ...
 
 
 def test_to_excel_no_openpyxl(report):
