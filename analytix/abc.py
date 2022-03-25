@@ -191,9 +191,7 @@ class DynamicReportWriter(metaclass=abc.ABCMeta):
                 if f.code_context is not None and stack[1].function in f.code_context[0]
             ][0]
         except IndexError:
-            raise RuntimeError(
-                "You should not manually instantiate this class."
-            ) from None
+            raise RuntimeError("you should not manually instantiate this ABC") from None
 
         ctx = stack_data.code_context
         assert ctx

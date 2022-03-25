@@ -126,8 +126,10 @@ class Report:
         return (self._nrows, self._ncolumns)
 
     def to_json(self, path: str, *, indent: int = 4) -> JSONReportWriter:
-        """Write the report data to a JSON file. If awaited, this
-        method will utilise ``aiofiles`` and run asynchronously.
+        """Write the report data to a JSON file.
+
+        .. note::
+            This method can also be run asynchronously by awaiting it.
 
         Args:
             path:
@@ -139,31 +141,24 @@ class Report:
                 with. Defaults to ``4``.
 
         Returns:
-            ``JSONReportWriter``:
-                A dynamic object that allows for awaiting this non async
-                method.
+            The report writer. This is done to allow this method to run
+            sync or async in a typed context.
         """
 
         return JSONReportWriter(path, data=self.data, indent=indent)
 
     async def ato_json(self, path: str, *, indent: int = 4) -> None:
-        """Asynchronously write the report data to a JSON file.
-
-        Args:
-            path:
-                The path the file should be saved to.
-
-        Keyword Args:
-            indent:
-                The amount of indentation the data should be written
-                with. Defaults to ``4``.
-        """
-
+        log.warning(
+            "The `report.ato_json` method is deprecated -- "
+            "use `await report.to_json` instead"
+        )
         await self.to_json(path, indent=indent)
 
-    def to_csv(self, path: str, *, delimiter: str = ",") -> DynamicReportWriter:
-        """Write the report data to a CSV file. If awaited, this
-        method will utilise ``aiofiles`` and run asynchronously.
+    def to_csv(self, path: str, *, delimiter: str = ",") -> CSVReportWriter:
+        """Write the report data to a CSV file.
+
+        .. note::
+            This method can also be run asynchronously by awaiting it.
 
         Args:
             path:
@@ -175,9 +170,8 @@ class Report:
                 here will save the file as a TSV instead.
 
         Returns:
-            ``CSVReportWriter``:
-                A dynamic object that allows for awaiting this non async
-                method.
+            The report writer. This is done to allow this method to run
+            sync or async in a typed context.
         """
 
         return CSVReportWriter(
@@ -188,18 +182,10 @@ class Report:
         )
 
     async def ato_csv(self, path: str, *, delimiter: str = ",") -> None:
-        """Asynchronously write the report data to a CSV file.
-
-        Args:
-            path:
-                The path the file should be saved to.
-
-        Keyword Args:
-            delimiter:
-                The delimiter to use. Defaults to a comma. Passing a tab
-                here will save the file as a TSV instead.
-        """
-
+        log.warning(
+            "The `report.ato_csv` method is deprecated -- "
+            "use `await report.to_csv` instead"
+        )
         await self.to_csv(path, delimiter=delimiter)
 
     def to_excel(self, path: str, *, sheet_name: str = "Analytics") -> None:
@@ -244,6 +230,9 @@ class Report:
             skip_date_conversion:
                 Whether to skip automatically converting date columns to
                 the ``datetime64[ns]`` format. Defaults to ``False``.
+
+        Returns:
+            The newly created pandas DataFrame.
         """
 
         if analytix.can_use("modin"):

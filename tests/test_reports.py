@@ -374,10 +374,10 @@ def test_to_excel_no_openpyxl(report):
 
 
 def test_report_writers_with_bad_stack():
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(RuntimeError) as exc:
         JSONReportWriter("test.json", data={"Hello": "Goodbye"})
-        assert "You should not manually instantiate this class." == str(e)
+    assert str(exc.value) == "you should not manually instantiate this ABC"
 
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(RuntimeError) as exc:
         CSVReportWriter("test.csv", data={"Hello": "Goodbye"})
-        assert "You should not manually instantiate this class." == str(e)
+    assert str(exc.value) == "you should not manually instantiate this ABC"
