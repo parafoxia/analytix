@@ -129,14 +129,6 @@ class Query:
         if self._end_date < self._start_date:
             raise InvalidRequest("the start date should be earlier than the end date")
 
-        log.info(f"Getting data between {self.start_date} and {self.end_date}")
-
-        if self.currency not in data.CURRENCIES:
-            raise InvalidRequest("expected a valid ISO 4217 currency code")
-
-        if self.start_index < 1:
-            raise InvalidRequest("the start index should be positive")
-
         if "month" in self.dimensions:
             if self._start_date.day != 1 or self._end_date.day != 1:
                 log.warning(
@@ -147,6 +139,14 @@ class Query:
                     self._start_date.year, self._start_date.month, 1
                 )
                 self._end_date = dt.date(self._end_date.year, self._end_date.month, 1)
+
+        log.info(f"Getting data between {self.start_date} and {self.end_date}")
+
+        if self.currency not in data.CURRENCIES:
+            raise InvalidRequest("expected a valid ISO 4217 currency code")
+
+        if self.start_index < 1:
+            raise InvalidRequest("the start index should be positive")
 
         self.set_report_type()
         assert self.rtype is not None
