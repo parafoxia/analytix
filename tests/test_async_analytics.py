@@ -268,8 +268,10 @@ def request_data():
         return json.load(f)
 
 
-async def test_retrieve(client, request_data):
+async def test_retrieve(client, request_data, tokens):
     with mock.patch.object(httpx.AsyncClient, "get") as mock_get:
+        client._tokens = tokens
+
         mock_get.return_value = httpx.Response(
             status_code=200,
             request=mock.Mock(),
@@ -288,8 +290,10 @@ async def test_retrieve(client, request_data):
         assert isinstance(report.type, TimeBasedActivity)
 
 
-async def test_retrieve_version_check(client, request_data):
+async def test_retrieve_version_check(client, request_data, tokens):
     with mock.patch.object(httpx.AsyncClient, "get") as mock_get:
+        client._tokens = tokens
+
         mock_get.return_value = httpx.Response(
             status_code=200,
             request=mock.Mock(),
@@ -310,8 +314,10 @@ async def test_retrieve_version_check(client, request_data):
             assert isinstance(report.type, TimeBasedActivity)
 
 
-async def test_retrieve_no_validate(client, request_data):
+async def test_retrieve_no_validate(client, request_data, tokens):
     with mock.patch.object(httpx.AsyncClient, "get") as mock_get:
+        client._tokens = tokens
+
         mock_get.return_value = httpx.Response(
             status_code=200,
             request=mock.Mock(),
@@ -331,8 +337,10 @@ async def test_retrieve_no_validate(client, request_data):
         assert isinstance(report.type, TimeBasedActivity)
 
 
-async def test_retrieve_with_refresh_check(client, request_data):
+async def test_retrieve_with_refresh_check(client, request_data, tokens):
     with mock.patch.object(httpx.AsyncClient, "get") as mock_get:
+        client._tokens = tokens
+
         mock_get.return_value = httpx.Response(
             status_code=200,
             request=mock.Mock(),
