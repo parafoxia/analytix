@@ -126,7 +126,8 @@ class Report:
         return (self._nrows, self._ncolumns)
 
     def to_json(self, path: str, *, indent: int = 4) -> JSONReportWriter:
-        """Write the report data to a JSON file.
+        """Write the report data to a JSON file. If awaited, this
+        method will utilise ``aiofiles`` and run asynchronously.
 
         Args:
             path:
@@ -136,11 +137,16 @@ class Report:
             indent:
                 The amount of indentation the data should be written
                 with. Defaults to ``4``.
+
+        Returns:
+            ``JSONReportWriter``:
+                A dynamic object that allows for awaiting this non async
+                method.
         """
 
         return JSONReportWriter(path, data=self.data, indent=indent)
 
-    async def ato_json(self, path: str, *, indent: int = 4) -> JSONReportWriter:
+    async def ato_json(self, path: str, *, indent: int = 4) -> None:
         """Asynchronously write the report data to a JSON file.
 
         Args:
@@ -153,10 +159,11 @@ class Report:
                 with. Defaults to ``4``.
         """
 
-        return self.to_json(path, indent=indent)
+        await self.to_json(path, indent=indent)
 
-    def to_csv(self, path: str, *, delimiter: str = ",") -> CSVReportWriter:
-        """Write the report data to a CSV file.
+    def to_csv(self, path: str, *, delimiter: str = ",") -> DynamicReportWriter:
+        """Write the report data to a CSV file. If awaited, this
+        method will utilise ``aiofiles`` and run asynchronously.
 
         Args:
             path:
@@ -166,6 +173,11 @@ class Report:
             delimiter:
                 The delimiter to use. Defaults to a comma. Passing a tab
                 here will save the file as a TSV instead.
+
+        Returns:
+            ``CSVReportWriter``:
+                A dynamic object that allows for awaiting this non async
+                method.
         """
 
         return CSVReportWriter(
@@ -175,7 +187,7 @@ class Report:
             columns=self.columns,
         )
 
-    async def ato_csv(self, path: str, *, delimiter: str = ",") -> CSVReportWriter:
+    async def ato_csv(self, path: str, *, delimiter: str = ",") -> None:
         """Asynchronously write the report data to a CSV file.
 
         Args:
@@ -188,7 +200,7 @@ class Report:
                 here will save the file as a TSV instead.
         """
 
-        return self.to_csv(path, delimiter=delimiter)
+        await self.to_csv(path, delimiter=delimiter)
 
     def to_excel(self, path: str, *, sheet_name: str = "Analytics") -> None:
         """Write the report data to an Excel spreadsheet.
