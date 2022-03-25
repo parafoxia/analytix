@@ -113,7 +113,7 @@ report = await client.retrieve(
 await report.to_csv("./async-analytics.csv")
 ```
 
-If you want to analyse this data using additional tools such as *pandas*, you can directly export the report as a DataFrame (note that *pandas* is an optional dependency -- see above):
+If you want to analyse this data using additional tools such as *pandas*, you can directly export the report as a DataFrame (note that *pandas* is an optional dependency -- [see above](#additional-support)):
 
 ```py
 df = report.to_dataframe()
