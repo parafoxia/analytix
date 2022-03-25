@@ -1,0 +1,2 @@
+-r ./base.txt
+pyarrow; python_version<"3.11"

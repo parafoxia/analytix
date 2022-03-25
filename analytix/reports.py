@@ -31,6 +31,7 @@ from __future__ import annotations
 import json
 import logging
 import typing as t
+import datetime as dt
 from pathlib import Path
 
 import aiofiles
@@ -41,6 +42,7 @@ from analytix.abc import DynamicReportWriter, ReportType
 
 if t.TYPE_CHECKING:
     import pandas as pd
+    import pyarrow as pa
 
 log = logging.getLogger(__name__)
 
@@ -124,6 +126,75 @@ class Report:
         """The shape of the report in the format ``(rows, columns)``."""
 
         return (self._nrows, self._ncolumns)
+
+    def to_dataframe(self, *, skip_date_conversion: bool = False) -> pd.DataFrame:
+        """Export the report data to a pandas or Modin DataFrame. If you
+        wish to use Modin, you are responsible for selecting and
+        initialising your desired engine.
+
+        Keyword Args:
+            skip_date_conversion:
+                Whether to skip automatically converting date columns to
+                the ``datetime64[ns]`` format. Defaults to ``False``.
+
+        Returns:
+            The newly created DataFrame.
+        """
+
+        if analytix.can_use("modin"):
+            import modin.pandas as pd
+        elif analytix.can_use("pandas"):
+            import pandas as pd
+        else:
+            raise errors.MissingOptionalComponents("pandas")
+
+        if not self._nrows:
+            raise errors.DataFrameConversionError(
+                "cannot convert to DataFrame as the returned data has no rows"
+            )
+
+        df = pd.DataFrame(self.data["rows"], columns=self.columns)
+
+        if not skip_date_conversion:
+            for col in ("day", "month"):
+                if col in df.columns:
+                    df[col] = pd.to_datetime(df[col], format="%Y-%m-%d")
+                    log.info(f"Converted {col!r} column to datetime64[ns] format")
+                    break
+
+        return df
+
+    def to_arrow_table(self, *, skip_date_conversion: bool = False) -> pa.Table:
+        """Export the report data to an Apache Arrow Table.
+
+        Keyword Args:
+            skip_date_conversion:
+                Whether to skip automatically converting date columns to
+                the ``datetime64[ns]`` format. Defaults to ``False``.
+
+        Returns:
+            The newly constructed Apache Arrow Table.
+
+        .. versionadded:: 3.2.0
+        """
+
+        if analytix.can_use("pyarrow"):
+            import pyarrow as pa
+        else:
+            raise errors.MissingOptionalComponents("pyarrow")
+
+        data = list(zip(*self.data["rows"]))
+
+        if not skip_date_conversion:
+            for i, col in enumerate(data):
+                if isinstance(col[0], str) and "-" in col[0]:
+                    fmt = f"%Y-%m{'-%d'if len(col[0].split('-')) == 3 else ''}"
+                    data[i] = [dt.datetime.strptime(record, fmt) for record in data[i]]
+                    log.info("Converted time-series column to timestamp[us] format")
+                    break
+
+        table = pa.Table.from_arrays(data, names=self.columns)
+        return table
 
     def to_json(self, path: str, *, indent: int = 4) -> JSONReportWriter:
         """Write the report data to a JSON file.
@@ -220,40 +291,3 @@ class Report:
 
         wb.save(path)
         log.info(f"Saved report as spreadsheet to {Path(path).resolve()}")
-
-    def to_dataframe(self, *, skip_date_conversion: bool = False) -> pd.DataFrame:
-        """Export the report data to a DataFrame. If you wish to use
-        Modin, you are responsible for selecting and initialising your
-        desired engine.
-
-        Keyword Args:
-            skip_date_conversion:
-                Whether to skip automatically converting date columns to
-                the ``datetime64[ns]`` format. Defaults to ``False``.
-
-        Returns:
-            The newly created pandas DataFrame.
-        """
-
-        if analytix.can_use("modin"):
-            import modin.pandas as pd
-        elif analytix.can_use("pandas"):
-            import pandas as pd
-        else:
-            raise errors.MissingOptionalComponents("pandas")
-
-        if not self._nrows:
-            raise errors.DataFrameConversionError(
-                "cannot convert to DataFrame as the returned data has no rows"
-            )
-
-        df = pd.DataFrame(self.data["rows"])
-        df.columns = self.columns
-
-        if not skip_date_conversion:
-            for col in ("day", "month"):
-                if col in df.columns:
-                    df[col] = pd.to_datetime(df[col], format="%Y-%m-%d")
-                    log.info(f"Converted {col!r} column to datetime64[ns] format")
-
-        return df
