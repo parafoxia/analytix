@@ -28,7 +28,6 @@
 
 from __future__ import annotations
 
-import inspect
 import json
 import logging
 import typing as t
@@ -38,7 +37,7 @@ import aiofiles
 
 import analytix
 from analytix import errors
-from analytix.abc import ReportType
+from analytix.abc import DynamicReportWriter, ReportType
 
 if t.TYPE_CHECKING:
     import pandas as pd
@@ -46,108 +45,58 @@ if t.TYPE_CHECKING:
 log = logging.getLogger(__name__)
 
 
-class DynamicReportWriter:
-
-    __slots__ = ("_function", "_path", "_data", "_indent", "_delimiter", "_columns")
-
-    def __init__(
-        self,
-        function: str,
-        *,
-        path: str,
-        data: dict[t.Any, t.Any],
-        indent: int = 4,
-        delimiter: str = ",",
-        columns: list[t.Any] = [],
-    ) -> None:
-        self._function = function
-        self._path = path
-        self._data = data
-        self._indent = indent
-        self._delimiter = delimiter
-        self._columns = columns
-        stack = inspect.stack()
-
-        try:
-            stack_data = [
-                f
-                for f in stack
-                if f.code_context is not None and stack[1].function in f.code_context[0]
-            ][0]
-        except IndexError:
-            raise RuntimeError(
-                f"You should not manually instantiate this class."
-            ) from None
-
-        ctx = stack_data.code_context
-        assert ctx
-        if not any(word == "await" for word in ctx[0].split()):
-            self._run_sync()
-
-    def __await__(self) -> t.Generator[t.Any, None, DynamicReportWriter]:
-        async def inner() -> DynamicReportWriter:
-            await self._run_async()
-            return self
-
-        return inner().__await__()
-
-    def _raise(self) -> t.NoReturn:
-        raise TypeError(
-            f"{self.__class__.__name__!r} only works with the "
-            "`Report.to_csv` and `Report.to_json` methods."
-        )
+class JSONReportWriter(DynamicReportWriter):
+    __slots__ = ()
 
     def _run_sync(self) -> None:
-        if self._function == "to_csv":
-            extension = ".tsv" if self._delimiter == "\t" else ".csv"
+        if not self._path.endswith(".json"):
+            self._path += ".json"
 
-            if not self._path.endswith(extension):
-                self._path += extension
+        with open(self._path, "w") as f:
+            json.dump(self._data, f, indent=self._indent)
 
-            with open(self._path, "w") as f:
-                f.write(f"{self._delimiter.join(self._columns)}\n")
-                for row in self._data["rows"]:
-                    line = self._delimiter.join(f"{v}" for v in row)
-                    f.write(f"{line}\n")
-
-            return log.info(f"Saved report as CSV to {Path(self._path).resolve()}")
-
-        elif self._function == "to_json":
-            if not self._path.endswith(".json"):
-                self._path += ".json"
-
-            with open(self._path, "w") as f:
-                json.dump(self._data, f, indent=self._indent)
-
-            return log.info(f"Saved report as JSON to {Path(self._path).resolve()}")
-
-        self._raise()
+        return log.info(f"Saved report as JSON to {Path(self._path).resolve()}")
 
     async def _run_async(self) -> None:
-        if self._function == "to_csv":
-            extension = ".tsv" if self._delimiter == "\t" else ".csv"
+        if not self._path.endswith(".json"):
+            self._path += ".json"
 
-            if not self._path.endswith(extension):
-                self._path += extension
+        async with aiofiles.open(self._path, "w") as f:
+            await f.write(json.dumps(self._data, indent=self._indent))
 
-            async with aiofiles.open(self._path, "w") as f:
-                await f.write(f"{self._delimiter.join(self._columns)}\n")
-                for row in self._data["rows"]:
-                    line = self._delimiter.join(f"{v}" for v in row)
-                    await f.write(f"{line}\n")
+        return log.info(f"Saved report as JSON to {Path(self._path).resolve()}")
 
-            return log.info(f"Saved report as CSV to {Path(self._path).resolve()}")
 
-        elif self._function == "to_json":
-            if not self._path.endswith(".json"):
-                self._path += ".json"
+class CSVReportWriter(DynamicReportWriter):
+    __slots__ = ()
 
-            async with aiofiles.open(self._path, "w") as f:
-                await f.write(json.dumps(self._data, indent=self._indent))
+    def _run_sync(self) -> None:
+        extension = ".tsv" if self._delimiter == "\t" else ".csv"
 
-            return log.info(f"Saved report as JSON to {Path(self._path).resolve()}")
+        if not self._path.endswith(extension):
+            self._path += extension
 
-        self._raise()
+        with open(self._path, "w") as f:
+            f.write(f"{self._delimiter.join(self._columns)}\n")
+            for row in self._data["rows"]:
+                line = self._delimiter.join(f"{v}" for v in row)
+                f.write(f"{line}\n")
+
+        return log.info(f"Saved report as CSV to {Path(self._path).resolve()}")
+
+    async def _run_async(self) -> None:
+        extension = ".tsv" if self._delimiter == "\t" else ".csv"
+
+        if not self._path.endswith(extension):
+            self._path += extension
+
+        async with aiofiles.open(self._path, "w") as f:
+            await f.write(f"{self._delimiter.join(self._columns)}\n")
+            for row in self._data["rows"]:
+                line = self._delimiter.join(f"{v}" for v in row)
+                await f.write(f"{line}\n")
+
+        return log.info(f"Saved report as CSV to {Path(self._path).resolve()}")
 
 
 class Report:
@@ -176,7 +125,7 @@ class Report:
 
         return (self._nrows, self._ncolumns)
 
-    def to_json(self, path: str, *, indent: int = 4) -> DynamicReportWriter:
+    def to_json(self, path: str, *, indent: int = 4) -> JSONReportWriter:
         """Write the report data to a JSON file.
 
         Args:
@@ -189,7 +138,7 @@ class Report:
                 with. Defaults to ``4``.
         """
 
-        return DynamicReportWriter("to_json", data=self.data, path=path, indent=indent)
+        return JSONReportWriter(path, data=self.data, indent=indent)
 
     async def ato_json(self, path: str, *, indent: int = 4) -> None:
         """Asynchronously write the report data to a JSON file.
@@ -216,7 +165,7 @@ class Report:
 
         log.info(f"Saved report as JSON to {Path(path).resolve()}")
 
-    def to_csv(self, path: str, *, delimiter: str = ",") -> DynamicReportWriter:
+    def to_csv(self, path: str, *, delimiter: str = ",") -> CSVReportWriter:
         """Write the report data to a CSV file.
 
         Args:
@@ -229,10 +178,9 @@ class Report:
                 here will save the file as a TSV instead.
         """
 
-        return DynamicReportWriter(
-            "to_csv",
+        return CSVReportWriter(
+            path,
             data=self.data,
-            path=path,
             delimiter=delimiter,
             columns=self.columns,
         )
