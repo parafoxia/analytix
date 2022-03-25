@@ -28,10 +28,10 @@
 
 from __future__ import annotations
 
+import datetime as dt
 import json
 import logging
 import typing as t
-import datetime as dt
 from pathlib import Path
 
 import aiofiles
