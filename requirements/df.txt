@@ -1,2 +1,2 @@
 -r ./base.txt
-pandas; python_version < "3.11" and platform_python_implementation == "CPython"
+pandas; python_version<"3.11" and platform_python_implementation=="CPython"
