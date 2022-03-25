@@ -291,3 +291,45 @@ class Report:
 
         wb.save(path)
         log.info(f"Saved report as spreadsheet to {Path(path).resolve()}")
+
+    def to_feather(self, path: str) -> None:
+        """Write the report data to an Apache Feather file.
+
+        Args:
+            path:
+                The path the file should be saved to.
+
+        .. versionadded:: 3.2.0
+        """
+
+        if analytix.can_use("pyarrow"):
+            import pyarrow.feather as pf
+        else:
+            raise errors.MissingOptionalComponents("pyarrow")
+
+        if not path.endswith(".feather"):
+            path += ".feather"
+
+        pf.write_feather(self.to_arrow_table(), path)
+        log.info(f"Saved report as Apache Feather file to {Path(path).resolve()}")
+
+    def to_parquet(self, path: str) -> None:
+        """Write the report data to an Apache Parquet file.
+
+        Args:
+            path:
+                The path the file should be saved to.
+
+        .. versionadded:: 3.2.0
+        """
+
+        if analytix.can_use("pyarrow"):
+            import pyarrow.parquet as pq
+        else:
+            raise errors.MissingOptionalComponents("pyarrow")
+
+        if not path.endswith(".parquet"):
+            path += ".parquet"
+
+        pq.write_table(self.to_arrow_table(), path)
+        log.info(f"Saved report as Apache Parquet file to {Path(path).resolve()}")
