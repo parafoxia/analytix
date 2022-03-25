@@ -34,10 +34,11 @@ __all__ = (
     "can_use",
     "OAUTH_CHECK_URL",
     "setup_logging",
+    "UPDATE_CHECK_URL",
 )
 
 __productname__ = "analytix"
-__version__ = "3.0.1"
+__version__ = "3.1.0"
 __description__ = "A simple yet powerful wrapper for the YouTube Analytics API."
 __url__ = "https://github.com/parafoxia/analytix"
 __docs__ = "https://analytix.readthedocs.io"
