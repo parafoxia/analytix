@@ -29,6 +29,7 @@
 from __future__ import annotations
 
 import abc
+import inspect
 import typing as t
 
 from analytix.errors import InvalidAmountOfResults, MissingSortOptions
@@ -162,3 +163,54 @@ class SetType(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def validate_filters(self, keys: set[str]) -> None:
         raise NotImplementedError
+
+
+class DynamicReportWriter(metaclass=abc.ABCMeta):
+    __slots__ = ("_path", "_data", "_indent", "_delimiter", "_columns")
+
+    def __init__(
+        self,
+        path: str,
+        *,
+        data: dict[t.Any, t.Any],
+        indent: int = 4,
+        delimiter: str = ",",
+        columns: list[t.Any] = [],
+    ) -> None:
+        self._path = path
+        self._data = data
+        self._indent = indent
+        self._delimiter = delimiter
+        self._columns = columns
+        stack = inspect.stack()
+
+        try:
+            stack_data = [
+                f
+                for f in stack
+                if f.code_context is not None and stack[1].function in f.code_context[0]
+            ][0]
+        except IndexError:
+            raise RuntimeError(
+                f"You should not manually instantiate this class."
+            ) from None
+
+        ctx = stack_data.code_context
+        assert ctx
+        if not any(word == "await" for word in ctx[0].split()):
+            self._run_sync()
+
+    def __await__(self) -> t.Generator[t.Any, None, DynamicReportWriter]:
+        async def inner() -> DynamicReportWriter:
+            await self._run_async()
+            return self
+
+        return inner().__await__()
+
+    @abc.abstractmethod
+    def _run_sync(self) -> None:
+        ...
+
+    @abc.abstractmethod
+    async def _run_async(self) -> None:
+        ...
