@@ -235,35 +235,21 @@ class Report:
         wb.save(path)
         log.info(f"Saved report as spreadsheet to {Path(path).resolve()}")
 
-    def to_dataframe(
-        self, *, skip_date_conversion: bool = False, modin_engine: str | None = None
-    ) -> pd.DataFrame:
-        """Export the report data to a DataFrame.
+    def to_dataframe(self, *, skip_date_conversion: bool = False) -> pd.DataFrame:
+        """Export the report data to a DataFrame. If you wish to use
+        Modin, you are responsible for selecting and initialising your
+        desired engine.
 
         Keyword Args:
             skip_date_conversion:
                 Whether to skip automatically converting date columns to
                 the ``datetime64[ns]`` format. Defaults to ``False``.
-            modin_engine:
-                The Modin engine to use. Defaults to ``None``. If this
-                is ``None``, Modin will select an engine automatically.
-                If Modin is not installed this is ignored.
-
-        .. versionchanged:: 3.1.0
-            Added the ``modin_engine`` keyword argument.
         """
 
         if analytix.can_use("modin"):
-            if modin_engine:
-                import os
-
-                os.environ["MODIN_ENGINE"] = modin_engine
-
             import modin.pandas as pd
-
         elif analytix.can_use("pandas"):
             import pandas as pd
-
         else:
             raise errors.MissingOptionalComponents("pandas")
 
