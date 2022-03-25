@@ -140,7 +140,7 @@ class Report:
 
         return JSONReportWriter(path, data=self.data, indent=indent)
 
-    async def ato_json(self, path: str, *, indent: int = 4) -> None:
+    async def ato_json(self, path: str, *, indent: int = 4) -> JSONReportWriter:
         """Asynchronously write the report data to a JSON file.
 
         Args:
@@ -153,17 +153,7 @@ class Report:
                 with. Defaults to ``4``.
         """
 
-        log.warning(
-            "The `ato_json` method is deprecated - use `await to_json` instead."
-        )
-
-        if not path.endswith(".json"):
-            path += ".json"
-
-        async with aiofiles.open(path, "w") as f:
-            await f.write(json.dumps(self.data, indent=indent))
-
-        log.info(f"Saved report as JSON to {Path(path).resolve()}")
+        return self.to_json(path, indent=indent)
 
     def to_csv(self, path: str, *, delimiter: str = ",") -> CSVReportWriter:
         """Write the report data to a CSV file.
@@ -185,7 +175,7 @@ class Report:
             columns=self.columns,
         )
 
-    async def ato_csv(self, path: str, *, delimiter: str = ",") -> None:
+    async def ato_csv(self, path: str, *, delimiter: str = ",") -> CSVReportWriter:
         """Asynchronously write the report data to a CSV file.
 
         Args:
@@ -198,20 +188,7 @@ class Report:
                 here will save the file as a TSV instead.
         """
 
-        log.warning("The `ato_csv` method is deprecated - use `await to_csv` instead.")
-
-        extension = ".tsv" if delimiter == "\t" else ".csv"
-
-        if not path.endswith(extension):
-            path += extension
-
-        async with aiofiles.open(path, "w") as f:
-            await f.write(f"{delimiter.join(self.columns)}\n")
-            for row in self.data["rows"]:
-                line = delimiter.join(f"{v}" for v in row)
-                await f.write(f"{line}\n")
-
-        log.info(f"Saved report as CSV to {Path(path).resolve()}")
+        return self.to_csv(path, delimiter=delimiter)
 
     def to_excel(self, path: str, *, sheet_name: str = "Analytics") -> None:
         """Write the report data to an Excel spreadsheet.
