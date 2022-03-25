@@ -400,3 +400,25 @@ async def test_retrieve_with_refresh(client, tokens, tokens_dict):
                 )
 
     os.remove(JSON_OUTPUT_PATH)
+
+
+async def test_retrieve_with_no_authorisation(client, tokens, request_data):
+    client._tokens = tokens
+
+    with mock.patch.object(httpx.AsyncClient, "get") as mock_get:
+        mock_get.return_value = httpx.Response(
+            status_code=200,
+            request=mock.Mock(),
+            json=request_data,
+        )
+
+        with mock.patch.object(AsyncAnalytics, "authorise") as mock_auth:
+            mock_auth.return_value = tokens
+            await client.retrieve(
+                force_authorisation=True,
+                skip_refresh_check=True,
+                skip_update_check=True,
+            )
+
+            mock_auth.assert_called_once()
+            mock_get.assert_called_once()

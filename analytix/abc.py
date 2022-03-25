@@ -192,7 +192,7 @@ class DynamicReportWriter(metaclass=abc.ABCMeta):
             ][0]
         except IndexError:
             raise RuntimeError(
-                f"You should not manually instantiate this class."
+                "You should not manually instantiate this class."
             ) from None
 
         ctx = stack_data.code_context
@@ -209,8 +209,8 @@ class DynamicReportWriter(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def _run_sync(self) -> None:
-        ...
+        raise NotImplementedError
 
     @abc.abstractmethod
     async def _run_async(self) -> None:
-        ...
+        raise NotImplementedError

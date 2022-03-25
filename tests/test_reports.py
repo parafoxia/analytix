@@ -37,7 +37,7 @@ import pytest
 import analytix
 from analytix import data, errors
 from analytix.report_types import TimeBasedActivity
-from analytix.reports import Report
+from analytix.reports import CSVReportWriter, JSONReportWriter, Report
 from tests.paths import (
     CSV_OUTPUT_PATH,
     EXCEL_OUTPUT_PATH,
@@ -373,3 +373,13 @@ def test_to_excel_no_openpyxl(report):
             str(exc.value)
             == "some necessary libraries are not installed (hint: pip install openpyxl)"
         )
+
+
+def test_report_writers_with_bad_stack():
+    with pytest.raises(RuntimeError) as e:
+        JSONReportWriter("test.json", data={"Hello": "Goodbye"})
+        assert "You should not manually instantiate this class." == str(e)
+
+    with pytest.raises(RuntimeError) as e:
+        CSVReportWriter("test.csv", data={"Hello": "Goodbye"})
+        assert "You should not manually instantiate this class." == str(e)
