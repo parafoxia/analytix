@@ -41,14 +41,19 @@ from analytix.reports import CSVReportWriter, JSONReportWriter, Report
 from tests.paths import (
     CSV_OUTPUT_PATH,
     EXCEL_OUTPUT_PATH,
+    FEATHER_OUTPUT_PATH,
     JSON_OUTPUT_PATH,
     MOCK_CSV_PATH,
     MOCK_DATA_PATH,
+    PARQUET_OUTPUT_PATH,
     TSV_OUTPUT_PATH,
 )
 
 if analytix.can_use("openpyxl"):
     from openpyxl import load_workbook
+
+if analytix.can_use("pandas"):
+    import pandas as pd
 
 
 @pytest.fixture()
@@ -381,3 +386,125 @@ def test_report_writers_with_bad_stack():
     with pytest.raises(RuntimeError) as exc:
         CSVReportWriter("test.csv", data={"Hello": "Goodbye"})
     assert str(exc.value) == "you should not manually instantiate this ABC"
+
+
+@pytest.mark.skipif(
+    sys.version_info >= (3, 11, 0) or platform.python_implementation() != "CPython",
+    reason="PyArrow does not support Python 3.11",
+)
+def test_to_arrow_table(report):
+    table = report.to_arrow_table()
+
+    df_arrow = table.to_pandas()
+    df_csv = pd.read_csv(MOCK_CSV_PATH)
+    df_csv["day"] = pd.to_datetime(df_csv["day"], format="%Y-%m-%d")
+    assert df_arrow.equals(df_csv)
+
+
+@pytest.mark.skipif(
+    sys.version_info >= (3, 11, 0), reason="PyArrow does not support Python 3.11"
+)
+def test_to_arrow_table_no_pyarrow(report):
+    with mock.patch.object(analytix, "can_use") as mock_cu:
+        mock_cu.return_value = False
+
+        with pytest.raises(errors.MissingOptionalComponents) as exc:
+            report.to_arrow_table()
+        assert (
+            str(exc.value)
+            == "some necessary libraries are not installed (hint: pip install pyarrow)"
+        )
+
+
+@pytest.mark.skipif(
+    sys.version_info >= (3, 11, 0) or platform.python_implementation() != "CPython",
+    reason="PyArrow does not support Python 3.11",
+)
+def test_to_feather(report):
+    report.to_feather(str(FEATHER_OUTPUT_PATH))
+    assert FEATHER_OUTPUT_PATH.is_file()
+
+    df_csv = pd.read_csv(MOCK_CSV_PATH)
+    df_csv["day"] = pd.to_datetime(df_csv["day"], format="%Y-%m-%d")
+    df_feather = pd.read_feather(FEATHER_OUTPUT_PATH)
+    assert df_feather.equals(df_csv)
+
+    os.remove(FEATHER_OUTPUT_PATH)
+
+
+@pytest.mark.skipif(
+    sys.version_info >= (3, 11, 0) or platform.python_implementation() != "CPython",
+    reason="PyArrow does not support Python 3.11",
+)
+def test_to_feather_no_extension(report):
+    report.to_feather(str(FEATHER_OUTPUT_PATH)[:-8])
+    assert FEATHER_OUTPUT_PATH.is_file()
+
+    df_csv = pd.read_csv(MOCK_CSV_PATH)
+    df_csv["day"] = pd.to_datetime(df_csv["day"], format="%Y-%m-%d")
+    df_feather = pd.read_feather(FEATHER_OUTPUT_PATH)
+    assert df_feather.equals(df_csv)
+
+    os.remove(FEATHER_OUTPUT_PATH)
+
+
+@pytest.mark.skipif(
+    sys.version_info >= (3, 11, 0), reason="PyArrow does not support Python 3.11"
+)
+def test_to_feather_no_pyarrow(report):
+    with mock.patch.object(analytix, "can_use") as mock_cu:
+        mock_cu.return_value = False
+
+        with pytest.raises(errors.MissingOptionalComponents) as exc:
+            report.to_feather(FEATHER_OUTPUT_PATH)
+        assert (
+            str(exc.value)
+            == "some necessary libraries are not installed (hint: pip install pyarrow)"
+        )
+
+
+@pytest.mark.skipif(
+    sys.version_info >= (3, 11, 0) or platform.python_implementation() != "CPython",
+    reason="PyArrow does not support Python 3.11",
+)
+def test_to_parquet(report):
+    report.to_parquet(str(PARQUET_OUTPUT_PATH))
+    assert PARQUET_OUTPUT_PATH.is_file()
+
+    df_csv = pd.read_csv(MOCK_CSV_PATH)
+    df_csv["day"] = pd.to_datetime(df_csv["day"], format="%Y-%m-%d")
+    df_parquet = pd.read_parquet(PARQUET_OUTPUT_PATH)
+    assert df_parquet.equals(df_csv)
+
+    os.remove(PARQUET_OUTPUT_PATH)
+
+
+@pytest.mark.skipif(
+    sys.version_info >= (3, 11, 0) or platform.python_implementation() != "CPython",
+    reason="PyArrow does not support Python 3.11",
+)
+def test_to_parquet_no_extension(report):
+    report.to_parquet(str(PARQUET_OUTPUT_PATH)[:-8])
+    assert PARQUET_OUTPUT_PATH.is_file()
+
+    df_csv = pd.read_csv(MOCK_CSV_PATH)
+    df_csv["day"] = pd.to_datetime(df_csv["day"], format="%Y-%m-%d")
+    df_parquet = pd.read_parquet(PARQUET_OUTPUT_PATH)
+    assert df_parquet.equals(df_csv)
+
+    os.remove(PARQUET_OUTPUT_PATH)
+
+
+@pytest.mark.skipif(
+    sys.version_info >= (3, 11, 0), reason="PyArrow does not support Python 3.11"
+)
+def test_to_parquet_no_pyarrow(report):
+    with mock.patch.object(analytix, "can_use") as mock_cu:
+        mock_cu.return_value = False
+
+        with pytest.raises(errors.MissingOptionalComponents) as exc:
+            report.to_parquet(PARQUET_OUTPUT_PATH)
+        assert (
+            str(exc.value)
+            == "some necessary libraries are not installed (hint: pip install pyarrow)"
+        )

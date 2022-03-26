@@ -35,5 +35,8 @@ JSON_OUTPUT_PATH = DATA_PATH / "output.json"
 CSV_OUTPUT_PATH = DATA_PATH / "output.csv"
 TSV_OUTPUT_PATH = DATA_PATH / "output.tsv"
 EXCEL_OUTPUT_PATH = DATA_PATH / "output.xlsx"
+FEATHER_OUTPUT_PATH = DATA_PATH / "output.feather"
+PARQUET_OUTPUT_PATH = DATA_PATH / "output.parquet"
+
 SECRETS_PATH = Path(__file__).parent / "data/test_secrets.json"
 TOKENS_PATH = Path(__file__).parent / "data/test_tokens.json"
