@@ -73,11 +73,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install dependencies
-        run: python -m pip install nox . --use-feature=in-tree-build
-
-      - name: Write data
-        run: |
-          echo '${{ secrets.YOUTUBE_TOKENS }}' > tokens.json
+        run: python -m pip install nox
 
       - name: Run tests
         run: |
