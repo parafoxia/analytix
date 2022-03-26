@@ -54,6 +54,7 @@ You may need to prefix these commands with a call to the Python interpreter depe
 
 You can also install *analytix* with additional libraries to provide extra functionality:
 
+* `analytix[arrow]` — *Apache Arrow* support (including Feather and Parquet files)
 * `analytix[dev]` — development dependencies
 * `analytix[excel]` — support for exporting reports to *Excel* spreadsheets
 * `analytix[modin]` — *Modin* support (note: this installs **all** engines; if you want to use a specific engine, you will need to do so manually)

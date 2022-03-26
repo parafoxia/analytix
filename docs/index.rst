@@ -69,6 +69,7 @@ Additional support
 You can also install *analytix* with additional libraries to provide
 extra functionality:
 
+-  ``analytix[arrow]`` — *Apache Arrow* support (including Feather and Parquet files)
 -  ``analytix[dev]`` — development dependencies
 -  ``analytix[excel]`` — support for exporting reports to *Excel*
    spreadsheets
