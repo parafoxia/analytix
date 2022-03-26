@@ -3,6 +3,8 @@ dev/
 secrets/
 *.json
 *.xlsx
+*.feather
+*.parquet
 
 ### Data ###
 *.csv
