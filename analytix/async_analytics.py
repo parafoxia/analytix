@@ -121,7 +121,9 @@ class AsyncAnalytics:
 
         latest = r.json()["info"]["version"]
         if analytix.__version__ != latest:
-            log.warning(f"A newer version of analytix is available (v{latest})")
+            log.warning(
+                f"You do not have the latest stable version of analytix (v{latest})"
+            )
 
         self._checked_for_update = True
         return t.cast(str, latest)
