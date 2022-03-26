@@ -402,7 +402,8 @@ def test_to_arrow_table(report):
 
 
 @pytest.mark.skipif(
-    sys.version_info >= (3, 11, 0), reason="PyArrow does not support Python 3.11"
+    sys.version_info >= (3, 11, 0) or platform.python_implementation() != "CPython",
+    reason="PyArrow does not support Python 3.11",
 )
 def test_to_arrow_table_no_pyarrow(report):
     with mock.patch.object(analytix, "can_use") as mock_cu:
@@ -449,7 +450,8 @@ def test_to_feather_no_extension(report):
 
 
 @pytest.mark.skipif(
-    sys.version_info >= (3, 11, 0), reason="PyArrow does not support Python 3.11"
+    sys.version_info >= (3, 11, 0) or platform.python_implementation() != "CPython",
+    reason="PyArrow does not support Python 3.11",
 )
 def test_to_feather_no_pyarrow(report):
     with mock.patch.object(analytix, "can_use") as mock_cu:
@@ -496,7 +498,8 @@ def test_to_parquet_no_extension(report):
 
 
 @pytest.mark.skipif(
-    sys.version_info >= (3, 11, 0), reason="PyArrow does not support Python 3.11"
+    sys.version_info >= (3, 11, 0) or platform.python_implementation() != "CPython",
+    reason="PyArrow does not support Python 3.11",
 )
 def test_to_parquet_no_pyarrow(report):
     with mock.patch.object(analytix, "can_use") as mock_cu:
