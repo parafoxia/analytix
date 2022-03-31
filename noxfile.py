@@ -180,4 +180,4 @@ def security(session: nox.Session) -> None:
 @nox.session(reuse_venv=True)
 def dependencies(session: nox.Session) -> None:
     session.install(*fetch_installs("Dependencies"))
-    session.run("deputil", "requirements")
+    session.run("deputil", "update", "requirements")

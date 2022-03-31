@@ -13,7 +13,7 @@ furo
 sphinx>=4,<5
 
 # Formatting
-black[jupyter]~=22.1.0
+black[jupyter]~=22.3.0
 
 # Imports
 flake8~=4.0.1
@@ -41,4 +41,4 @@ safety~=1.10.3; python_version<"3.11"
 bandit~=1.7.2
 
 # Dependencies
-deputil~=0.1.2
+deputil~=0.2.0
