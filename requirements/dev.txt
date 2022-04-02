@@ -1,5 +1,6 @@
 # Meta
 -e .
+-r ./arrow.txt
 -r ./base.txt
 -r ./df.txt
 -r ./excel.txt
