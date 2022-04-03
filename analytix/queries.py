@@ -133,7 +133,7 @@ class Query:
             if self._start_date.day != 1 or self._end_date.day != 1:
                 log.warning(
                     "Correcting start and end dates -- if 'month' is passed as a "
-                    "dimension, the day should always be 1"
+                    "dimension, these should always be the first day of the month"
                 )
                 self._start_date = dt.date(
                     self._start_date.year, self._start_date.month, 1
