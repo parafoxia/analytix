@@ -27,7 +27,9 @@ Windows, MacOS, and Linux are all supported.
 
 ## What does *analytix* do?
 
-The YouTube Studio provides a fantastic interface where creators can view some incredibly detailed analytics for their channel. However, there's no way to perform programmatical operations on the data to do some proper analysis on it. This is where *analytix* comes in.
+The YouTube Studio provides a fantastic interface where creators can view some incredibly detailed analytics for their channel.
+However, there's no way to perform programmatical operations on the data to do some proper analysis on it.
+This is where *analytix* comes in.
 
 The process of analysing data on the YouTube Studio is comprised of two steps:
 
@@ -69,11 +71,17 @@ pip install "analytix[excel,modin,types]
 
 ## OAuth authentication
 
-All requests to the YouTube Analytics API need to be authorised through OAuth 2. In order to do this, you will need a Google Developers project with the YouTube Analytics API enabled. You can find instructions on how to do that in the [API setup guide](https://analytix.readthedocs.io/en/latest/guides/console.html), or on [this video](https://www.youtube.com/watch?v=1Xday10ZWeg).
+All requests to the YouTube Analytics API need to be authorised through OAuth 2.
+In order to do this, you will need a Google Developers project with the YouTube Analytics API enabled.
+You can find instructions on how to do that in the [API setup guide](https://analytix.readthedocs.io/en/latest/guides/console.html), or on [this video](https://www.youtube.com/watch?v=1Xday10ZWeg).
 
-When *analytix* boots up for the first time, it will display a link and ask for a code. You'll need to follow that link, run through all the steps, and enter the code to authorise it. Once that's done, *analytix* saves the tokens to the disk (if you plan to run *analytix* on a server, make sure these are in a safe place). This includes your refresh token, which *analytix* will automatically use to refresh your access token when needed.
+When *analytix* boots up for the first time, it will display a link and ask for a code.
+You'll need to follow that link, run through all the steps, and enter the code to authorise it.
+Once that's done, *analytix* saves the tokens to the disk (if you plan to run *analytix* on a server, make sure these are in a safe place).
+This includes your refresh token, which *analytix* will automatically use to refresh your access token when needed.
 
-This means you should only have to authorise *analytix*, at most, every week. More details regarding how and when refresh tokens expire can be found on the [Google Identity documentation](https://developers.google.com/identity/protocols/oauth2#expiration).
+This means you should only have to authorise *analytix*, at most, every week.
+More details regarding how and when refresh tokens expire can be found on the [Google Identity documentation](https://developers.google.com/identity/protocols/oauth2#expiration).
 
 ## Logging
 
@@ -89,7 +97,8 @@ If anything is going wrong, or *analytix* appears to be taking a long time to fe
 
 ## Usage
 
-Retrieving reports from the YouTube Analytics API is easy. The below example loads credentials from a secrets file, and gets as much information as possible from the last 28 days:
+Retrieving reports from the YouTube Analytics API is easy.
+The below example loads credentials from a secrets file, and gets as much information as possible from the last 28 days:
 
 ```py
 from analytix import Analytics
@@ -114,7 +123,7 @@ report = await client.retrieve(
 await report.to_csv("./async-analytics.csv")
 ```
 
-If you want to analyse this data using additional tools such as *pandas*, you can directly export the report as a DataFrame (note that *pandas* is an optional dependency -- [see above](#additional-support)):
+If you want to analyse this data using additional tools such as *pandas*, you can directly export the report as a DataFrame (note that *pandas* is an optional dependency — [see above](#additional-support)):
 
 ```py
 df = report.to_dataframe()
