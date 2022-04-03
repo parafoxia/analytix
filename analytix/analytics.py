@@ -158,13 +158,7 @@ class Analytics:
 
         log.debug("Checking if token needs to be refreshed...")
         r = self._session.get(analytix.OAUTH_CHECK_URL + self._tokens.access_token)
-        if r.is_error:
-            # This seems to fail sometimes when a token is invalid, so
-            # just refresh it -- we probably need to anyways.
-            return True
-
-        # If it's only got a few minutes on it, might as well refresh.
-        return int(r.json().get("expires_in", 0)) < 300
+        return r.is_error
 
     def refresh_access_token(self) -> None:
         """Refresh the access token."""
