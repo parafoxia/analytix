@@ -242,6 +242,7 @@ class Analytics:
         force_authorisation: bool = False,
         skip_update_check: bool = False,
         skip_refresh_check: bool = False,
+        token_path: pathlib.Path | str = ".",
     ) -> Report:
         """Retrieves a report from the YouTube Analytics API.
 
@@ -305,9 +306,18 @@ class Analytics:
                 ``False``.
             skip_refresh_token:
                 Whether to skip token refreshing. Defaults to ``False``.
+            token_path:
+                The path to the token file or the directory the token
+                file is or should be stored in. If this is not provided,
+                this defaults to the current directory, and if a
+                directory is passed, the file is given the name
+                "tokens.json".
 
         Returns:
             An instance for working with retrieved data.
+
+        .. versionchanged:: 3.3.0
+            Added `token_path` keyword argument.
         """
 
         if not skip_update_check and not self._checked_for_update:
@@ -334,7 +344,7 @@ class Analytics:
             )
 
         if not self.authorised or force_authorisation:
-            self.authorise(force=force_authorisation)
+            self.authorise(token_path=token_path, force=force_authorisation)
 
         if (not skip_refresh_check) and self.needs_refresh():
             self.refresh_access_token()
