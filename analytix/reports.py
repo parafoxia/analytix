@@ -114,20 +114,19 @@ class Report:
             The report type.
     """
 
-    __slots__ = ("data", "type", "columns", "_ncolumns", "_nrows")
+    __slots__ = ("data", "type", "columns", "_shape")
 
     def __init__(self, data: dict[t.Any, t.Any], type: ReportType) -> None:
         self.data = data
         self.type = type
         self.columns = [c["name"] for c in data["columnHeaders"]]
-        self._ncolumns = len(self.columns)
-        self._nrows = len(data["rows"])
+        self._shape = (len(data["rows"]), len(self.columns))
 
     @property
     def shape(self) -> tuple[int, int]:
         """The shape of the report in the format ``(rows, columns)``."""
 
-        return (self._nrows, self._ncolumns)
+        return self._shape
 
     def to_dataframe(self, *, skip_date_conversion: bool = False) -> pd.DataFrame:
         """Export the report data to a pandas or Modin DataFrame. If you
@@ -150,7 +149,7 @@ class Report:
         else:
             raise errors.MissingOptionalComponents("pandas")
 
-        if not self._nrows:
+        if not self._shape[0]:
             raise errors.DataFrameConversionError(
                 "cannot convert to DataFrame as the returned data has no rows"
             )

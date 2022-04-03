@@ -75,8 +75,7 @@ def test_init(request_data, report_type):
         "day",
         *[m for m in data.ALL_METRICS_ORDERED if m in data.ALL_VIDEO_METRICS],
     ]
-    assert report._ncolumns == 36
-    assert report._nrows == 31
+    assert report._shape == (31, 36)
 
 
 @pytest.fixture()
@@ -327,7 +326,7 @@ def test_to_dataframe_no_pandas(report):
     reason="pandas does not support Python 3.11 or PyPy",
 )
 def test_to_dataframe_no_rows(report):
-    report._nrows = 0
+    report._shape = (0, 0)
 
     with pytest.raises(errors.DataFrameConversionError) as exc:
         report.to_dataframe()
