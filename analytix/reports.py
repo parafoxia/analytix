@@ -128,6 +128,24 @@ class Report:
 
         return self._shape
 
+    @property
+    def dimensions(self) -> set[str]:
+        """The names of columns which are dimensions in the report.
+
+        .. versionadded:: 3.3.0
+        """
+
+        return set(self.columns) - self.type.metrics.values
+
+    @property
+    def metrics(self) -> set[str]:
+        """The names of columns which are metrics in the report.
+
+        .. versionadded:: 3.3.0
+        """
+
+        return self.type.metrics.values
+
     def to_dataframe(self, *, skip_date_conversion: bool = False) -> pd.DataFrame:
         """Export the report data to a pandas or Modin DataFrame. If you
         wish to use Modin, you are responsible for selecting and

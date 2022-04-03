@@ -86,8 +86,16 @@ def report():
     return Report(data, TimeBasedActivity())
 
 
-def test_shape(report):
+def test_shape_property(report):
     assert report.shape == (31, 36)
+
+
+def test_dimensions_property(report):
+    assert report.dimensions == {"day"}
+
+
+def test_metrics_property(report):
+    assert report.metrics == data.ALL_VIDEO_METRICS
 
 
 def test_to_json(report, request_data):
