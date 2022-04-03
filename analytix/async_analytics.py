@@ -316,11 +316,10 @@ class AsyncAnalytics:
                 directory is passed, the file is given the name
                 "tokens.json".
 
+                .. versionadded:: 3.3.0
+
         Returns:
             An instance for working with retrieved data.
-
-        .. versionchanged:: 3.3.0
-            Added `token_path` keyword argument.
         """
 
         if not skip_update_check and not self._checked_for_update:
