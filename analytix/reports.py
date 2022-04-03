@@ -38,11 +38,13 @@ import aiofiles
 
 import analytix
 from analytix import errors
-from analytix.abc import DynamicReportWriter, ReportType
+from analytix.abc import DynamicReportWriter
 
 if t.TYPE_CHECKING:
     import pandas as pd
     import pyarrow as pa
+
+    from analytix.abc import ReportType
 
 log = logging.getLogger(__name__)
 
