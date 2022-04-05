@@ -124,4 +124,5 @@ setuptools.setup(
     },
     python_requires=">=3.7.0,<3.12",
     packages=setuptools.find_packages(),
+    package_data={"analytix": ["py.typed"]},
 )
