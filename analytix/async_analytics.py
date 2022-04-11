@@ -33,6 +33,7 @@ import logging
 import os
 import pathlib
 import typing as t
+from warnings import warn
 
 import httpx
 
@@ -208,6 +209,12 @@ class AsyncAnalytics:
             The tokens the client is authorised with.
         """
 
+        warning = (
+            "Code-based authorisation is deprecated due to a breaking change in the "
+            "Google APIs -- analytix is patching your secrets file where necessary for "
+            "now, but the authorisation method will change in the next version"
+        )
+
         if not isinstance(token_path, pathlib.Path):
             token_path = pathlib.Path(token_path)
 
@@ -223,6 +230,11 @@ class AsyncAnalytics:
         if not self._tokens:
             log.info("Unable to load tokens; you will need to authorise")
             self._tokens = await self._retrieve_tokens()
+            # Temporary warning regarding authorisation methods.
+            if log.hasHandlers() and log.getEffectiveLevel() <= 30:
+                log.warning(warning)
+            else:
+                warn(warning)
             await self._tokens.awrite(token_path)
 
         log.info("Authorisation complete!")
