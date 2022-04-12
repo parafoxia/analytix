@@ -29,7 +29,6 @@
 from __future__ import annotations
 
 import hashlib
-import logging
 import time
 import typing as t
 
@@ -38,8 +37,6 @@ import analytix
 if t.TYPE_CHECKING:
     from analytix.secrets import Secrets
     from analytix.types import DataHeadersT
-
-log = logging.getLogger(__name__)
 
 
 def create_state() -> str:
