@@ -36,7 +36,7 @@ log = logging.getLogger(__name__)
 class Server(server.HTTPServer):
     def __init__(self, *args: t.Any, **kwargs: t.Any) -> None:
         super().__init__(*args, **kwargs)
-        self.code: str
+        self.code = ""
         log.info(f"Started webserver on {self.server_name}:{self.server_port}")
 
     def server_close(self) -> None:
@@ -52,9 +52,11 @@ class RequestHandler(server.BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header("Content-type", "text/html")
         self.end_headers()
+
         self.server: Server  # Overwrite type so code is exposed.
         self.server.code = self.path.split("&")[1][5:]
         log.debug(f"Code: {self.server.code}")
+
         self.wfile.write(
             bytes(
                 "<html>"

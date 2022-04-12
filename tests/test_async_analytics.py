@@ -45,6 +45,7 @@ from analytix.errors import APIError, AuthenticationError
 from analytix.report_types import TimeBasedActivity
 from analytix.secrets import Secrets
 from analytix.tokens import Tokens
+from analytix.webserver import Server
 from tests.paths import JSON_OUTPUT_PATH, MOCK_DATA_PATH
 from tests.test_secrets import SECRETS_PATH, secrets, secrets_dict  # noqa
 from tests.test_tokens import TOKENS_PATH, tokens, tokens_dict  # noqa
@@ -132,6 +133,24 @@ async def test_authorise_with_tokens_non_path_and_dir(client):
 
 
 async def test_authorise_without_tokens(client, tokens_dict):
+    with mock.patch.object(Server, "handle_request") as mock_req:
+        with mock.patch.object(httpx.AsyncClient, "post") as mock_post:
+            with mock.patch.object(Tokens, "awrite") as mock_write:
+                mock_write.return_value = None
+                mock_post.return_value = httpx.Response(
+                    status_code=200, json=tokens_dict, request=mock.Mock()
+                )
+                mock_req.return_value = None
+
+                tokens = await client.authorise(token_path=TOKENS_PATH, force=True)
+
+                mock_post.assert_called_once()
+                mock_req.assert_called_once()
+                mock_write.assert_called_once()
+                assert isinstance(tokens, Tokens)
+
+
+async def test_authorise_without_tokens_legacy(client, tokens_dict):
     with mock.patch.object(builtins, "input") as mock_input:
         with mock.patch.object(httpx.AsyncClient, "post") as mock_post:
             with mock.patch.object(Tokens, "awrite") as mock_write:
@@ -140,6 +159,7 @@ async def test_authorise_without_tokens(client, tokens_dict):
                     status_code=200, json=tokens_dict, request=mock.Mock()
                 )
 
+                client.legacy_auth = True
                 tokens = await client.authorise(token_path=TOKENS_PATH, force=True)
 
                 mock_post.assert_awaited_once()
@@ -195,8 +215,29 @@ async def test_retrieve_token_refresh_token_failure(client, tokens):
 
         client._tokens = tokens
 
+        with mock.patch.object(Server, "handle_request") as mock_req:
+            mock_req.return_value = None
+
+            # If we get here, refreshing failed, and we can also test
+            # retrieval failure.
+            with pytest.raises(AuthenticationError) as exc:
+                await client.refresh_access_token()
+            assert str(exc.value) == "Authentication failure (403): You suck"
+
+
+async def test_retrieve_token_refresh_token_failure_legacy(client, tokens):
+    with mock.patch.object(httpx.AsyncClient, "post") as mock_post:
+        mock_post.return_value = httpx.Response(
+            status_code=403,
+            request=mock.Mock(),
+            json={"error": {"code": 403, "message": "You suck"}},
+        )
+
+        client._tokens = tokens
+        client.legacy_auth = True
+
         with mock.patch.object(builtins, "input") as mock_input:
-            mock_input.return_value = "lol ecks dee"
+            mock_input.return_value = "is this legs?"
 
             # If we get here, refreshing failed, and we can also test
             # retrieval failure.

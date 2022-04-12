@@ -29,4 +29,5 @@ exclude_lines = [
     "if t.TYPE_CHECKING:",
     "raise NotImplementedError",
     "return NotImplemented",
+    "except KeyboardInterrupt as exc",
 ]
