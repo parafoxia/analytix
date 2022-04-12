@@ -46,7 +46,7 @@ if t.TYPE_CHECKING:
 
     from analytix.abc import ReportType
 
-log = logging.getLogger(__name__)
+_log = logging.getLogger(__name__)
 
 
 class JSONReportWriter(DynamicReportWriter):
@@ -59,7 +59,7 @@ class JSONReportWriter(DynamicReportWriter):
         with open(self._path, "w") as f:
             json.dump(self._data, f, indent=self._indent)
 
-        return log.info(f"Saved report as JSON to {Path(self._path).resolve()}")
+        return _log.info(f"Saved report as JSON to {Path(self._path).resolve()}")
 
     async def _run_async(self) -> None:
         if not self._path.endswith(".json"):
@@ -68,7 +68,7 @@ class JSONReportWriter(DynamicReportWriter):
         async with aiofiles.open(self._path, "w") as f:
             await f.write(json.dumps(self._data, indent=self._indent))
 
-        return log.info(f"Saved report as JSON to {Path(self._path).resolve()}")
+        return _log.info(f"Saved report as JSON to {Path(self._path).resolve()}")
 
 
 class CSVReportWriter(DynamicReportWriter):
@@ -86,7 +86,7 @@ class CSVReportWriter(DynamicReportWriter):
                 line = self._delimiter.join(f"{v}" for v in row)
                 f.write(f"{line}\n")
 
-        return log.info(f"Saved report as CSV to {Path(self._path).resolve()}")
+        return _log.info(f"Saved report as CSV to {Path(self._path).resolve()}")
 
     async def _run_async(self) -> None:
         extension = ".tsv" if self._delimiter == "\t" else ".csv"
@@ -100,7 +100,7 @@ class CSVReportWriter(DynamicReportWriter):
                 line = self._delimiter.join(f"{v}" for v in row)
                 await f.write(f"{line}\n")
 
-        return log.info(f"Saved report as CSV to {Path(self._path).resolve()}")
+        return _log.info(f"Saved report as CSV to {Path(self._path).resolve()}")
 
 
 class Report:
@@ -178,7 +178,7 @@ class Report:
             for col in ("day", "month"):
                 if col in df.columns:
                     df[col] = pd.to_datetime(df[col], format="%Y-%m-%d")
-                    log.info(f"Converted {col!r} column to datetime64[ns] format")
+                    _log.info(f"Converted {col!r} column to datetime64[ns] format")
                     break
 
         return df
@@ -209,7 +209,7 @@ class Report:
                 if isinstance(col[0], str) and "-" in col[0]:
                     fmt = f"%Y-%m{'-%d'if len(col[0].split('-')) == 3 else ''}"
                     data[i] = [dt.datetime.strptime(record, fmt) for record in data[i]]
-                    log.info("Converted time-series column to timestamp[us] format")
+                    _log.info("Converted time-series column to timestamp[us] format")
                     break
 
         table = pa.Table.from_arrays(data, names=self.columns)
@@ -238,7 +238,7 @@ class Report:
         return JSONReportWriter(path, data=self.data, indent=indent)
 
     async def ato_json(self, path: str, *, indent: int = 4) -> None:
-        log.warning(
+        _log.warning(
             "The `report.ato_json` method is deprecated -- "
             "use `await report.to_json` instead"
         )
@@ -272,7 +272,7 @@ class Report:
         )
 
     async def ato_csv(self, path: str, *, delimiter: str = ",") -> None:
-        log.warning(
+        _log.warning(
             "The `report.ato_csv` method is deprecated -- "
             "use `await report.to_csv` instead"
         )
@@ -309,7 +309,7 @@ class Report:
             ws.append(row)
 
         wb.save(path)
-        log.info(f"Saved report as spreadsheet to {Path(path).resolve()}")
+        _log.info(f"Saved report as spreadsheet to {Path(path).resolve()}")
 
     def to_feather(self, path: str) -> None:
         """Write the report data to an Apache Feather file.
@@ -330,7 +330,7 @@ class Report:
             path += ".feather"
 
         pf.write_feather(self.to_arrow_table(), path)
-        log.info(f"Saved report as Apache Feather file to {Path(path).resolve()}")
+        _log.info(f"Saved report as Apache Feather file to {Path(path).resolve()}")
 
     def to_parquet(self, path: str) -> None:
         """Write the report data to an Apache Parquet file.
@@ -351,4 +351,4 @@ class Report:
             path += ".parquet"
 
         pq.write_table(self.to_arrow_table(), path)
-        log.info(f"Saved report as Apache Parquet file to {Path(path).resolve()}")
+        _log.info(f"Saved report as Apache Parquet file to {Path(path).resolve()}")

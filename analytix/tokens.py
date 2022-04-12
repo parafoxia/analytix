@@ -38,7 +38,7 @@ import aiofiles
 
 from analytix.types import TokenT
 
-log = logging.getLogger(__name__)
+_log = logging.getLogger(__name__)
 
 
 @dataclass()
@@ -102,12 +102,12 @@ class Tokens:
         if not isinstance(path, pathlib.Path):
             path = pathlib.Path(path)
 
-        log.debug(f"Loading tokens from {path.resolve()}...")
+        _log.debug(f"Loading tokens from {path.resolve()}...")
 
         with open(path) as f:
             data = json.load(f)
 
-        log.info("Tokens loaded!")
+        _log.info("Tokens loaded!")
         return cls(**data)
 
     @classmethod
@@ -126,12 +126,12 @@ class Tokens:
         if not isinstance(path, pathlib.Path):
             path = pathlib.Path(path)
 
-        log.debug(f"Loading tokens from {path.resolve()}...")
+        _log.debug(f"Loading tokens from {path.resolve()}...")
 
         async with aiofiles.open(path) as f:
             data = json.loads(await f.read())
 
-        log.info("Tokens loaded!")
+        _log.info("Tokens loaded!")
         return cls(**data)
 
     def update(self, data: dict[str, TokenT]) -> None:
@@ -148,7 +148,7 @@ class Tokens:
         for k, v in data.items():
             setattr(self, k, v)
 
-        log.info("Tokens updated!")
+        _log.info("Tokens updated!")
 
     def to_dict(self) -> dict[str, TokenT]:
         """Convert tokens to a dictionary.
@@ -180,7 +180,7 @@ class Tokens:
         with open(path, "w") as f:
             json.dump(self.to_dict(), f)
 
-        log.info(f"Tokens saved to {path.resolve()}")
+        _log.info(f"Tokens saved to {path.resolve()}")
 
     async def awrite(self, path: pathlib.Path | str) -> None:
         """Asynchronously write tokens to a file.
@@ -196,4 +196,4 @@ class Tokens:
         async with aiofiles.open(path, "w") as f:
             await f.write(json.dumps(self.to_dict()))
 
-        log.info(f"Tokens saved to {path.resolve()}")
+        _log.info(f"Tokens saved to {path.resolve()}")

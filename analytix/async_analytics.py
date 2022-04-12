@@ -44,7 +44,7 @@ from analytix.secrets import Secrets
 from analytix.tokens import Tokens
 from analytix.webserver import RequestHandler, Server
 
-log = logging.getLogger(__name__)
+_log = logging.getLogger(__name__)
 
 
 class AsyncAnalytics:
@@ -133,7 +133,7 @@ class AsyncAnalytics:
             raise NotImplementedError
 
         if value:
-            ux.warn(
+            ux._warn(
                 "Manual copy/paste authorisation was deprecated by Google; while "
                 "analytix still allows you to use it, there is no guarantee it will "
                 "work"
@@ -145,7 +145,7 @@ class AsyncAnalytics:
         """Close the currently open session."""
 
         await self._session.aclose()
-        log.info("Session closed")
+        _log.info("Session closed")
 
     async def check_for_updates(self) -> str | None:
         """Checks for newer versions of analytix.
@@ -156,17 +156,17 @@ class AsyncAnalytics:
             ascertained.
         """
 
-        log.debug("Checking for updates...")
+        _log.debug("Checking for updates...")
 
         r = await self._session.get(analytix.UPDATE_CHECK_URL)
         if r.is_error:
             # If we can't get the info, just ignore it.
-            log.debug("Failed to get version information")
+            _log.debug("Failed to get version information")
             return None
 
         latest = r.json()["info"]["version"]
         if analytix.__version__ != latest:
-            log.warning(
+            _log.warning(
                 f"You do not have the latest stable version of analytix (v{latest})"
             )
 
@@ -228,7 +228,7 @@ class AsyncAnalytics:
         if not self._tokens:
             return False
 
-        log.debug("Checking if token needs to be refreshed...")
+        _log.debug("Checking if token needs to be refreshed...")
         r = await self._session.get(
             analytix.OAUTH_CHECK_URL + self._tokens.access_token
         )
@@ -248,10 +248,10 @@ class AsyncAnalytics:
         """
 
         if not self._tokens:
-            log.warning("There are no tokens to refresh")
+            _log.warning("There are no tokens to refresh")
             return
 
-        log.info("Refreshing access token...")
+        _log.info("Refreshing access token...")
         data, headers = oauth.refresh_data_and_headers(
             self._tokens.refresh_token, self.secrets
         )
@@ -260,7 +260,7 @@ class AsyncAnalytics:
         if not r.is_error:
             self._tokens.update(r.json())
         else:
-            log.info("Your refresh token has expired; you will need to reauthorise")
+            _log.info("Your refresh token has expired; you will need to reauthorise")
             self._tokens = await self._retrieve_tokens(self.secrets.redirect_uris, port)
 
         await self._tokens.awrite(self._token_path)
@@ -299,12 +299,6 @@ class AsyncAnalytics:
             The tokens the client is authorised with.
         """
 
-        warning = (
-            "Code-based authorisation is deprecated due to a breaking change in the "
-            "Google APIs -- analytix is patching your secrets file where necessary for "
-            "now, but the authorisation method will change in the next version"
-        )
-
         if not isinstance(token_path, pathlib.Path):
             token_path = pathlib.Path(token_path)
 
@@ -314,15 +308,15 @@ class AsyncAnalytics:
         self._token_path = token_path
 
         if not force:
-            log.info("Attempting to load tokens...")
+            _log.info("Attempting to load tokens...")
             self._tokens = await self._try_load_tokens(token_path)
 
         if not self._tokens:
-            log.info("Unable to load tokens; you will need to authorise")
+            _log.info("Unable to load tokens; you will need to authorise")
             self._tokens = await self._retrieve_tokens(self.secrets.redirect_uris, port)
             await self._tokens.awrite(token_path)
 
-        log.info("Authorisation complete!")
+        _log.info("Authorisation complete!")
         return self._tokens
 
     async def retrieve(
@@ -446,12 +440,14 @@ class AsyncAnalytics:
         if not skip_validation:
             query.validate()
         else:
-            log.warning(
+            _log.warning(
                 "Skipping validation -- invalid requests will count toward your quota"
             )
 
         if not self.authorised or force_authorisation:
-            await self.authorise(token_path=token_path, force=force_authorisation, port=port)
+            await self.authorise(
+                token_path=token_path, force=force_authorisation, port=port
+            )
 
         if (not skip_refresh_check) and await self.needs_refresh():
             await self.refresh_access_token(port=port)
@@ -460,7 +456,7 @@ class AsyncAnalytics:
         headers = {"Authorization": f"Bearer {self._tokens.access_token}"}
         resp = await self._session.get(query.url, headers=headers)
         data = resp.json()
-        log.debug(f"Data retrieved: {data}")
+        _log.debug(f"Data retrieved: {data}")
 
         if next(iter(data)) == "error":
             error = data["error"]
@@ -471,5 +467,5 @@ class AsyncAnalytics:
 
         assert query.rtype is not None
         report = Report(data, query.rtype)
-        log.info(f"Created report of shape {report.shape}!")
+        _log.info(f"Created report of shape {report.shape}!")
         return report

@@ -36,7 +36,7 @@ from importlib.util import find_spec
 
 import analytix
 
-log = logging.getLogger(__name__)
+_log = logging.getLogger(__name__)
 
 BANNER = r"""
 {r}            {o}             {y}            {g}88  {b}             {i}         {v}88
@@ -125,8 +125,8 @@ def setup_logging(level: int = logging.INFO) -> logging.StreamHandler[t.TextIO]:
     return handler
 
 
-def warn(message: str) -> None:
-    if log.hasHandlers() and log.getEffectiveLevel() <= 30:
-        log.warning(message)
+def _warn(message: str) -> None:
+    if _log.hasHandlers() and _log.getEffectiveLevel() <= 30:
+        _log.warning(message)
     else:
         warnings.warn(message)

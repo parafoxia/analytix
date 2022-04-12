@@ -44,7 +44,7 @@ from analytix.secrets import Secrets
 from analytix.tokens import Tokens
 from analytix.webserver import RequestHandler, Server
 
-log = logging.getLogger(__name__)
+_log = logging.getLogger(__name__)
 
 
 class Analytics:
@@ -132,7 +132,7 @@ class Analytics:
             raise NotImplementedError
 
         if value:
-            ux.warn(
+            ux._warn(
                 "Manual copy/paste authorisation was deprecated by Google; while "
                 "analytix still allows you to use it, there is no guarantee it will "
                 "work"
@@ -144,7 +144,7 @@ class Analytics:
         """Close the currently open session."""
 
         self._session.close()
-        log.info("Session closed")
+        _log.info("Session closed")
 
     def check_for_updates(self) -> str | None:
         """Checks for newer versions of analytix.
@@ -155,17 +155,17 @@ class Analytics:
             ascertained.
         """
 
-        log.debug("Checking for updates...")
+        _log.debug("Checking for updates...")
 
         r = self._session.get(analytix.UPDATE_CHECK_URL)
         if r.is_error:
             # If we can't get the info, just ignore it.
-            log.debug("Failed to get version information")
+            _log.debug("Failed to get version information")
             return None
 
         latest = r.json()["info"]["version"]
         if analytix.__version__ != latest:
-            log.warning(
+            _log.warning(
                 f"You do not have the latest stable version of analytix (v{latest})"
             )
 
@@ -227,7 +227,7 @@ class Analytics:
         if not self._tokens:
             return False
 
-        log.debug("Checking if token needs to be refreshed...")
+        _log.debug("Checking if token needs to be refreshed...")
         r = self._session.get(analytix.OAUTH_CHECK_URL + self._tokens.access_token)
         return r.is_error
 
@@ -245,10 +245,10 @@ class Analytics:
         """
 
         if not self._tokens:
-            log.warning("There are no tokens to refresh")
+            _log.warning("There are no tokens to refresh")
             return
 
-        log.info("Refreshing access token...")
+        _log.info("Refreshing access token...")
         data, headers = oauth.refresh_data_and_headers(
             self._tokens.refresh_token, self.secrets
         )
@@ -257,7 +257,7 @@ class Analytics:
         if not r.is_error:
             self._tokens.update(r.json())
         else:
-            log.info("Your refresh token has expired; you will need to reauthorise")
+            _log.info("Your refresh token has expired; you will need to reauthorise")
             self._tokens = self._retrieve_tokens(self.secrets.redirect_uris, port)
 
         self._tokens.write(self._token_path)
@@ -305,15 +305,15 @@ class Analytics:
         self._token_path = token_path
 
         if not force:
-            log.info("Attempting to load tokens...")
+            _log.info("Attempting to load tokens...")
             self._tokens = self._try_load_tokens(token_path)
 
         if not self._tokens:
-            log.info("Unable to load tokens; you will need to authorise")
+            _log.info("Unable to load tokens; you will need to authorise")
             self._tokens = self._retrieve_tokens(self.secrets.redirect_uris, port)
             self._tokens.write(token_path)
 
-        log.info("Authorisation complete!")
+        _log.info("Authorisation complete!")
         return self._tokens
 
     def retrieve(
@@ -437,7 +437,7 @@ class Analytics:
         if not skip_validation:
             query.validate()
         else:
-            log.warning(
+            _log.warning(
                 "Skipping validation -- invalid requests will count toward your quota"
             )
 
@@ -451,7 +451,7 @@ class Analytics:
         headers = {"Authorization": f"Bearer {self._tokens.access_token}"}
         resp = self._session.get(query.url, headers=headers)
         data = resp.json()
-        log.debug(f"Data retrieved: {data}")
+        _log.debug(f"Data retrieved: {data}")
 
         if next(iter(data)) == "error":
             error = data["error"]
@@ -462,5 +462,5 @@ class Analytics:
 
         assert query.rtype is not None
         report = Report(data, query.rtype)
-        log.info(f"Created report of shape {report.shape}!")
+        _log.info(f"Created report of shape {report.shape}!")
         return report

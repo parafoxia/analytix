@@ -38,7 +38,7 @@ import aiofiles
 
 from analytix.types import SecretT
 
-log = logging.getLogger(__name__)
+_log = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -98,12 +98,12 @@ class Secrets:
         if not isinstance(path, pathlib.Path):
             path = pathlib.Path(path)
 
-        log.debug(f"Loading secrets from {path.resolve()}...")
+        _log.debug(f"Loading secrets from {path.resolve()}...")
 
         with open(path) as f:
             data = json.load(f)["installed"]
 
-        log.info("Secrets loaded!")
+        _log.info("Secrets loaded!")
         return cls(**data)
 
     @classmethod
@@ -122,12 +122,12 @@ class Secrets:
         if not isinstance(path, pathlib.Path):
             path = pathlib.Path(path)
 
-        log.debug(f"Loading secrets from {path.resolve()}...")
+        _log.debug(f"Loading secrets from {path.resolve()}...")
 
         async with aiofiles.open(path) as f:
             data = json.loads(await f.read())["installed"]
 
-        log.info("Secrets loaded!")
+        _log.info("Secrets loaded!")
         return cls(**data)
 
     def to_dict(self) -> dict[str, SecretT]:

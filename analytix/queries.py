@@ -38,7 +38,7 @@ from analytix import report_types as rt
 from analytix.abc import ReportType
 from analytix.errors import InvalidRequest
 
-log = logging.getLogger(__name__)
+_log = logging.getLogger(__name__)
 
 
 class Query:
@@ -113,7 +113,7 @@ class Query:
         )
 
     def validate(self) -> None:
-        log.info("Validating request...")
+        _log.info("Validating request...")
 
         if self.max_results < 0:
             raise InvalidRequest(
@@ -131,7 +131,7 @@ class Query:
 
         if "month" in self.dimensions:
             if self._start_date.day != 1 or self._end_date.day != 1:
-                log.warning(
+                _log.warning(
                     "Correcting start and end dates -- if 'month' is passed as a "
                     "dimension, these should always be the first day of the month"
                 )
@@ -140,7 +140,7 @@ class Query:
                 )
                 self._end_date = dt.date(self._end_date.year, self._end_date.month, 1)
 
-        log.info(f"Getting data between {self.start_date} and {self.end_date}")
+        _log.info(f"Getting data between {self.start_date} and {self.end_date}")
 
         if self.currency not in data.CURRENCIES:
             raise InvalidRequest("expected a valid ISO 4217 currency code")
@@ -155,7 +155,7 @@ class Query:
             self.metrics = [
                 m for m in data.ALL_METRICS_ORDERED if m in self.rtype.metrics.values
             ]
-            log.debug("Metrics set to: " + ", ".join(self.metrics))
+            _log.debug("Metrics set to: " + ", ".join(self.metrics))
 
         self.rtype.validate(
             self.dimensions,
@@ -166,7 +166,7 @@ class Query:
         )
 
         # If it gets to this point, it's fine.
-        log.info("Request OK!")
+        _log.info("Request OK!")
 
     def determine_report_type(self) -> ReportType:
         curated = self.filters.get("isCurated", "0") == "1"
@@ -289,4 +289,4 @@ class Query:
 
     def set_report_type(self) -> None:
         self.rtype = self.determine_report_type()
-        log.info(f"Report type determined as {self.rtype.name!r}")
+        _log.info(f"Report type determined as {self.rtype.name!r}")

@@ -30,23 +30,23 @@ import logging
 import typing as t
 from http import server
 
-log = logging.getLogger(__name__)
+_log = logging.getLogger(__name__)
 
 
 class Server(server.HTTPServer):
     def __init__(self, *args: t.Any, **kwargs: t.Any) -> None:
         super().__init__(*args, **kwargs)
         self.code = ""
-        log.info(f"Started webserver on {self.server_name}:{self.server_port}")
+        _log.info(f"Started webserver on {self.server_name}:{self.server_port}")
 
     def server_close(self) -> None:
         super().server_close()
-        log.info("Closed webserver")
+        _log.info("Closed webserver")
 
 
 class RequestHandler(server.BaseHTTPRequestHandler):
     def log_request(self, *args: t.Any) -> None:
-        log.debug(f"Received request ({args[0]})")
+        _log.debug(f"Received request ({args[0]})")
 
     def do_GET(self) -> None:
         self.send_response(200)
@@ -55,7 +55,7 @@ class RequestHandler(server.BaseHTTPRequestHandler):
 
         self.server: Server  # Overwrite type so code is exposed.
         self.server.code = self.path.split("&")[1][5:]
-        log.debug(f"Code: {self.server.code}")
+        _log.debug(f"Code: {self.server.code}")
 
         self.wfile.write(
             bytes(
