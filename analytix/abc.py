@@ -31,6 +31,7 @@ from __future__ import annotations
 import abc
 import inspect
 import typing as t
+from dataclasses import dataclass
 
 from analytix.errors import InvalidAmountOfResults, MissingSortOptions
 
@@ -38,6 +39,7 @@ if t.TYPE_CHECKING:
     from analytix.features import Dimensions, Filters, Metrics, SortOptions
 
 
+@dataclass()
 class ReportType(metaclass=abc.ABCMeta):
     __slots__ = ("name", "dimensions", "filters", "metrics", "sort_options")
 
@@ -64,6 +66,7 @@ class ReportType(metaclass=abc.ABCMeta):
         self.sort_options.validate(sort_options)
 
 
+@dataclass()
 class DetailedReportType(ReportType, metaclass=abc.ABCMeta):
     __slots__ = ("max_results",)
 
