@@ -334,6 +334,7 @@ class Analytics:
         skip_update_check: bool = False,
         skip_refresh_check: bool = False,
         token_path: pathlib.Path | str = ".",
+        port: int = 8080,
     ) -> Report:
         """Retrieves a report from the YouTube Analytics API.
 
@@ -405,6 +406,13 @@ class Analytics:
                 "tokens.json".
 
                 .. versionadded:: 3.3.0
+            port:
+                The port to use for the authorisation webserver when
+                using loopback IP address authorisation. Defaults to
+                8080. This is ignored if analytix is configured to use
+                manual copy/paste authorisation.
+
+                .. versionadded:: 3.4.0
 
         Returns:
             An instance for working with retrieved data.
@@ -434,10 +442,10 @@ class Analytics:
             )
 
         if not self.authorised or force_authorisation:
-            self.authorise(token_path=token_path, force=force_authorisation)
+            self.authorise(token_path=token_path, force=force_authorisation, port=port)
 
         if (not skip_refresh_check) and self.needs_refresh():
-            self.refresh_access_token()
+            self.refresh_access_token(port=port)
 
         assert self._tokens is not None
         headers = {"Authorization": f"Bearer {self._tokens.access_token}"}
