@@ -186,8 +186,7 @@ class Analytics:
         self, token_path: pathlib.Path | str = ".", *, force: bool = False
     ) -> Tokens:
         """Authorise the client. This is called automatically when
-        needed if not manually called, though if you want to authorise
-        with non-default options, you will need to call this manually.
+        needed if not manually called.
 
         Args:
             token_path:
