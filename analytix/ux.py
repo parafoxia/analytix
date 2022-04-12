@@ -31,9 +31,12 @@ from __future__ import annotations
 import logging
 import platform
 import typing as t
+import warnings
 from importlib.util import find_spec
 
 import analytix
+
+log = logging.getLogger(__name__)
 
 BANNER = r"""
 {r}            {o}             {y}            {g}88  {b}             {i}         {v}88
@@ -120,3 +123,10 @@ def setup_logging(level: int = logging.INFO) -> logging.StreamHandler[t.TextIO]:
         handlers=[handler],
     )
     return handler
+
+
+def warn(message: str) -> None:
+    if log.hasHandlers() and log.getEffectiveLevel() <= 30:
+        log.warning(message)
+    else:
+        warnings.warn(message)

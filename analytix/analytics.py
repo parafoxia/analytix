@@ -33,16 +33,16 @@ import logging
 import os
 import pathlib
 import typing as t
-from warnings import warn
 
 import httpx
 
 import analytix
-from analytix import errors, oauth
+from analytix import errors, oauth, ux
 from analytix.queries import Query
 from analytix.reports import Report
 from analytix.secrets import Secrets
 from analytix.tokens import Tokens
+from analytix.webserver import RequestHandler, Server
 
 log = logging.getLogger(__name__)
 
@@ -60,10 +60,18 @@ class Analytics:
             :obj:`httpx.Client` constructor.
     """
 
-    __slots__ = ("secrets", "_session", "_tokens", "_token_path", "_checked_for_update")
+    __slots__ = (
+        "secrets",
+        "_legacy_auth",
+        "_session",
+        "_tokens",
+        "_token_path",
+        "_checked_for_update",
+    )
 
     def __init__(self, secrets: Secrets, **kwargs: t.Any) -> None:
         self.secrets = secrets
+        self._legacy_auth = False
         self._session = httpx.Client(**kwargs)
         self._tokens: Tokens | None = None
         self._token_path = pathlib.Path()
@@ -92,9 +100,45 @@ class Analytics:
 
     @property
     def authorised(self) -> bool:
-        """Whether this client is authorised."""
+        """Whether this client is authorised. This property is
+        read-only."""
 
         return self._tokens is not None
+
+    @property
+    def legacy_auth(self) -> bool:
+        """Whether to use manual copy/paste authorisation.
+
+        .. warning::
+            Manual copy/paste authorisation is deprecated by Google, and
+            stopped being made available from (at a best guess) 1 April.
+            While analytix still provides the ability to use it, it is
+            strongly recommended you only do so if you **absolutely**
+            have to (for example, if your firewall does not allow
+            loopback IP addressing).
+
+        .. warning::
+            Manual copy/paste authorisation is not always available. If
+            it is not, analytix will lock up.
+
+        .. versionadded:: 3.4.0
+        """
+
+        return self._legacy_auth
+
+    @legacy_auth.setter
+    def legacy_auth(self, value: bool) -> None:
+        if not isinstance(value, bool):
+            raise NotImplementedError
+
+        if value:
+            ux.warn(
+                "Manual copy/paste authorisation was deprecated by Google; while "
+                "analytix still allows you to use it, there is no guarantee it will "
+                "work"
+            )
+
+        self._legacy_auth = value
 
     def close_session(self) -> None:
         """Close the currently open session."""
@@ -134,10 +178,36 @@ class Analytics:
 
         return Tokens.from_file(path)
 
-    def _retrieve_tokens(self) -> Tokens:
-        url, state = oauth.auth_url_and_state(self.secrets)
-        code = input(f"{url}\nEnter code > ")
-        data, headers = oauth.access_data_and_headers(code, self.secrets)
+    def _mcp(self, url: str) -> str:
+        return input(
+            f"You need to authorise analytix; to do so, visit this URL: {url}\n"
+            "Enter code > "
+        )
+
+    def _ws(self, url: str, redirect_uri: str, port: int) -> str:
+        print(f"You need to authorise analytix; to do so, visit this URL: {url}")
+        ws = Server((redirect_uri[7:], port), RequestHandler)
+
+        try:
+            ws.handle_request()
+        except KeyboardInterrupt as exc:
+            raise exc
+        finally:
+            ws.server_close()
+
+        return ws.code
+
+    def _retrieve_tokens(self, redirect_uris: list[str], port: int) -> Tokens:
+        if self.legacy_auth:
+            rd_addr = redirect_uris[0]
+        else:
+            ru = redirect_uris[-1]
+            rd_addr = f"{ru}:{port}"
+
+        url, _ = oauth.auth_url_and_state(self.secrets, rd_addr)
+        code = self._mcp(url) if self.legacy_auth else self._ws(url, ru, port)
+
+        data, headers = oauth.access_data_and_headers(code, self.secrets, rd_addr)
 
         r = self._session.post(self.secrets.token_uri, data=data, headers=headers)
         if r.is_error:
@@ -161,8 +231,18 @@ class Analytics:
         r = self._session.get(analytix.OAUTH_CHECK_URL + self._tokens.access_token)
         return r.is_error
 
-    def refresh_access_token(self) -> None:
-        """Refresh the access token."""
+    def refresh_access_token(self, *, port: int = 8080) -> None:
+        """Refresh the access token.
+
+        Keyword args:
+            port:
+                The port to use for the authorisation webserver when
+                using loopback IP address authorisation. Defaults to
+                8080. This is ignored if analytix is configured to use
+                manual copy/paste authorisation.
+
+                ..versionadded:: 3.4.0
+        """
 
         if not self._tokens:
             log.warning("There are no tokens to refresh")
@@ -178,12 +258,16 @@ class Analytics:
             self._tokens.update(r.json())
         else:
             log.info("Your refresh token has expired; you will need to reauthorise")
-            self._tokens = self._retrieve_tokens()
+            self._tokens = self._retrieve_tokens(self.secrets.redirect_uris, port)
 
         self._tokens.write(self._token_path)
 
     def authorise(  # nosec B107
-        self, token_path: pathlib.Path | str = ".", *, force: bool = False
+        self,
+        token_path: pathlib.Path | str = ".",
+        *,
+        force: bool = False,
+        port: int = 8080,
     ) -> Tokens:
         """Authorise the client. This is called automatically when
         needed if not manually called.
@@ -200,16 +284,17 @@ class Analytics:
             force:
                 Whether to forcibly authorise the client. Defaults to
                 ``False``.
+            port:
+                The port to use for the authorisation webserver when
+                using loopback IP address authorisation. Defaults to
+                8080. This is ignored if analytix is configured to use
+                manual copy/paste authorisation.
+
+                ..versionadded:: 3.4.0
 
         Returns:
             The tokens the client is authorised with.
         """
-
-        warning = (
-            "Code-based authorisation is deprecated due to a breaking change in the "
-            "Google APIs -- analytix is patching your secrets file where necessary for "
-            "now, but the authorisation method will change in the next version"
-        )
 
         if not isinstance(token_path, pathlib.Path):
             token_path = pathlib.Path(token_path)
@@ -225,12 +310,7 @@ class Analytics:
 
         if not self._tokens:
             log.info("Unable to load tokens; you will need to authorise")
-            self._tokens = self._retrieve_tokens()
-            # Temporary warning regarding authorisation methods.
-            if log.hasHandlers() and log.getEffectiveLevel() <= 30:
-                log.warning(warning)
-            else:
-                warn(warning)
+            self._tokens = self._retrieve_tokens(self.secrets.redirect_uris, port)
             self._tokens.write(token_path)
 
         log.info("Authorisation complete!")

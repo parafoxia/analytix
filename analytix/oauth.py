@@ -52,7 +52,7 @@ def create_state() -> str:
     return hashlib.sha256(f"{time.time()}".encode("utf-8")).hexdigest()
 
 
-def auth_url_and_state(secrets: Secrets) -> tuple[str, str]:
+def auth_url_and_state(secrets: Secrets, redirect_uri: str) -> tuple[str, str]:
     """Get the authorisation URL and the state.
 
     Args:
@@ -67,14 +67,16 @@ def auth_url_and_state(secrets: Secrets) -> tuple[str, str]:
     url = secrets.auth_uri + (
         "?response_type=code"
         f"&client_id={secrets.client_id}"
-        f"&redirect_uri={secrets.redirect_uris[0]}"
+        f"&redirect_uri={redirect_uri}"
         f"&scope={'+'.join(analytix.API_SCOPES)}"
         f"&state={state}"
     )
     return url, state
 
 
-def access_data_and_headers(code: str, secrets: Secrets) -> DataHeadersT:
+def access_data_and_headers(
+    code: str, secrets: Secrets, redirect_uri: str
+) -> DataHeadersT:
     """Get the required data and headers for retrieving tokens from
     the YouTube Token Endpoint.
 
@@ -93,7 +95,7 @@ def access_data_and_headers(code: str, secrets: Secrets) -> DataHeadersT:
         "client_secret": secrets.client_secret,
         "grant_type": "authorization_code",
         "code": code,
-        "redirect_uri": secrets.redirect_uris[0],
+        "redirect_uri": redirect_uri,
     }
     headers = {"Content-Type": "application/x-www-form-urlencoded"}
     return data, headers

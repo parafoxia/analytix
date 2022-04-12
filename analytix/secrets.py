@@ -103,10 +103,6 @@ class Secrets:
         with open(path) as f:
             data = json.load(f)["installed"]
 
-        # Temporary patch to account for the breaking change in the API.
-        if "urn:ietf:wg:oauth:2.0:oob" not in data["redirect_uris"]:
-            data["redirect_uris"].insert(0, "urn:ietf:wg:oauth:2.0:oob")
-
         log.info("Secrets loaded!")
         return cls(**data)
 
@@ -130,10 +126,6 @@ class Secrets:
 
         async with aiofiles.open(path) as f:
             data = json.loads(await f.read())["installed"]
-
-        # Temporary patch to account for the breaking change in the API.
-        if "urn:ietf:wg:oauth:2.0:oob" not in data["redirect_uris"]:
-            data["redirect_uris"].insert(0, "urn:ietf:wg:oauth:2.0:oob")
 
         log.info("Secrets loaded!")
         return cls(**data)
