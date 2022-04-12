@@ -58,6 +58,8 @@ def auth_url_and_state(secrets: Secrets, redirect_uri: str) -> tuple[str, str]:
     Args:
         secrets:
             The project secrets from the Google Developers Console.
+        redirect_uri:
+            The URI to redirect to after authorisation.
 
     Returns:
         A tuple containing the generated URL and state.
@@ -85,6 +87,8 @@ def access_data_and_headers(
             The authorisation code.
         secrets:
             The project secrets from the Google Developers Console.
+        redirect_uri:
+            The URI to redirect to after authorisation.
 
     Returns:
         A tuple containing the data and headers.

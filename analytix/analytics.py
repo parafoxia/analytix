@@ -241,7 +241,7 @@ class Analytics:
                 8080. This is ignored if analytix is configured to use
                 manual copy/paste authorisation.
 
-                ..versionadded:: 3.4.0
+                .. versionadded:: 3.4.0
         """
 
         if not self._tokens:
@@ -290,7 +290,7 @@ class Analytics:
                 8080. This is ignored if analytix is configured to use
                 manual copy/paste authorisation.
 
-                ..versionadded:: 3.4.0
+                .. versionadded:: 3.4.0
 
         Returns:
             The tokens the client is authorised with.
