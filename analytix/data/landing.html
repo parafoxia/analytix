@@ -1,0 +1,125 @@
+<!--
+Copyright (c) 2021-present, Ethan Henderson
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its
+   contributors may be used to endorse or promote products derived from
+   this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!--
+A good chunk of this is from W3Schools:
+    https://www.w3schools.com/howto/howto_css_fixed_sidebar.asp
+
+What, you *expect* me to know all this stuff?!
+-->
+
+<html>
+    <head>
+        <title>Authorisation complete &#8212; analytix</title>
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Hind&family=Michroma&display=swap');
+
+            html {
+                font-family: "Hind", sans-serif;
+                color: #ccc;
+                background-color: #151515;
+            }
+
+            h1, h2, h3, h4, h5, h6 {
+                font-family: "Michroma", sans-serif;
+            }
+
+            .sidenav {
+                height: 100%;
+                width: 10%;
+                position: fixed;
+                z-index: 1;
+                top: 0;
+                left: 0;
+                overflow-x: hidden;
+                padding-top: 20px;
+                text-align: center;
+                font-family: "Michroma", sans-serif;
+            }
+
+            .sidenav a {
+                padding: 6px 8px 6px 16px;
+                text-decoration: none;
+                color: #ccc;
+                display: block;
+            }
+
+            .sidenav a:hover {
+                color: #fff;
+            }
+
+            .sidenav img {
+                display: block;
+                margin-left: auto;
+                margin-right: auto;
+                margin-bottom: 5%;
+            }
+
+            .main {
+                margin-left: 10%;
+                padding: 0px 10px;
+            }
+
+            @media screen and (max-height: 450px) {
+                .sidenav {padding-top: 15px;}
+                .sidenav a {font-size: 18px;}
+            }
+        </style>
+    </head>
+    <body>
+        <div class="sidenav">
+            <img src="https://raw.githubusercontent.com/parafoxia/analytix/main/docs/images/logo.png", alt="analytix logo", width="80%">
+            <a href="https://analytix.readthedocs.io">DOCS</a>
+            <a href="https://pypi.org/project/analytix/">PYPI</a>
+            <a href="https://github.com/parafoxia/analytix">GITHUB</a>
+            <a href="https://github.com/parafoxia/analytix/releases">CHANGELOG</a>
+        </div>
+
+        <div class="main">
+            <h1>Authorisation complete!</h1>
+            Awesome &#8212; analytix is now authorised!
+
+            <h2>What happens now?</h2>
+            <p>
+                Your tokens will be saved to the file path you specified.
+                If you did not specify a file path, you will find them in a file called "tokens.json" in your current working directory.
+            </p>
+            <p>
+                Your new tokens will serve you well for the next 7 days, unless your application status is anything other than "Testing".
+                If you do not know whether your application's status is "Testing", it more than likely is.
+                You can find more information regarding the lifetime of tokens on the <a href="https://developers.google.com/identity/protocols/oauth2#expiration">Google Identity documentation</a>.
+            </p>
+            <p>
+                While you have been reading this, analytix has been busy pulling your report(s) down.
+                You can now close this window and have a look!
+            </p>
+        </div>
+    </body>
+</html>

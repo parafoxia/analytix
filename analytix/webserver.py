@@ -29,6 +29,7 @@
 import logging
 import typing as t
 from http import server
+from pathlib import Path
 
 _log = logging.getLogger(__name__)
 
@@ -57,15 +58,4 @@ class RequestHandler(server.BaseHTTPRequestHandler):
         self.server.code = self.path.split("&")[1][5:]
         _log.debug(f"Code: {self.server.code}")
 
-        self.wfile.write(
-            bytes(
-                "<html>"
-                "<head><title>Authorisation complete</title></head>"
-                "<body>"
-                "<h1>Success!</h1>"
-                "You may now close this window -- analytix is now authorised."
-                "</body>"
-                "</html>",
-                "utf-8",
-            )
-        )
+        self.wfile.write((Path(__file__).parent / "data/landing.html").read_bytes())
