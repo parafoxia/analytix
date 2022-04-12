@@ -39,7 +39,7 @@ def test_create_state():
 
 
 def test_auth_url_and_state(secrets):
-    url, state = oauth.auth_url_and_state(secrets)
+    url, state = oauth.auth_url_and_state(secrets, secrets.redirect_uris[0])
 
     assert url == (
         "https://accounts.google.com/o/oauth2/auth"
@@ -54,7 +54,9 @@ def test_auth_url_and_state(secrets):
 
 def test_access_data_and_headers(secrets):
     code = "4ng0843ng89n340gn4028ng084n"
-    data, headers = oauth.access_data_and_headers(code, secrets)
+    data, headers = oauth.access_data_and_headers(
+        code, secrets, secrets.redirect_uris[0]
+    )
 
     assert data == {
         "client_id": "fn497gnwebg9wn98ghw8gh9",
