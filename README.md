@@ -75,8 +75,8 @@ All requests to the YouTube Analytics API need to be authorised through OAuth 2.
 In order to do this, you will need a Google Developers project with the YouTube Analytics API enabled.
 You can find instructions on how to do that in the [API setup guide](https://analytix.readthedocs.io/en/latest/guides/console.html), or on [this video](https://www.youtube.com/watch?v=1Xday10ZWeg).
 
-When *analytix* boots up for the first time, it will display a link and ask for a code.
-You'll need to follow that link, run through all the steps, and enter the code to authorise it.
+When *analytix* boots up for the first time, it will display a link.
+You'll need to follow that link and run through the OAuth workflow.
 Once that's done, *analytix* saves the tokens to the disk (if you plan to run *analytix* on a server, make sure these are in a safe place).
 This includes your refresh token, which *analytix* will automatically use to refresh your access token when needed.
 

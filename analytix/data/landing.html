@@ -51,6 +51,10 @@ What, you *expect* me to know all this stuff?!
                 font-family: "Michroma", sans-serif;
             }
 
+            p.footer {
+                font-family: "Michroma", sans-serif;
+            }
+
             .sidenav {
                 height: 100%;
                 width: 200px;
@@ -104,7 +108,7 @@ What, you *expect* me to know all this stuff?!
 
         <div class="main">
             <h1>Authorisation complete!</h1>
-            Awesome &#8212; analytix is now authorised!
+            Awesome &#8212; analytix is now authorised! You may now close this window.
 
             <h2>What happens now?</h2>
             <p>
@@ -116,9 +120,15 @@ What, you *expect* me to know all this stuff?!
                 If you do not know whether your application's status is "Testing", it more than likely is.
                 You can find more information regarding the lifetime of tokens on the <a href="https://developers.google.com/identity/protocols/oauth2#expiration">Google Identity documentation</a>.
             </p>
+
+            <h2>What about a code?</h2>
             <p>
-                While you have been reading this, analytix has been busy pulling your report(s) down.
-                You can now close this window and have a look!
+                Google deprecated the old manual copy/paste authorisation method, so analytix now creates a webserver that listens for the code instead. In fact, analytix probably has the code already, and has been busy pulling your report(s) down while you have been reading this!
+            </p>
+            <p>
+                For those that still want to use the old manual copy/paste method, analytix will allow the use of it until version 4.
+                However, it is strongly recommended that you do not use it, as Google has not made any guarantees that it will continue to support it.
+                If you downloaded your OAuth Client ID secrets file after 1 April, manual copy/paste authorisation is not available to you.
             </p>
         </div>
     </body>

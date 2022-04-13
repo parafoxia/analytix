@@ -67,6 +67,11 @@ Creating an OAuth Client ID
 
     You should **never** share this secrets file with anyone.
 
+.. important::
+
+    From around 1 April 2022, this file contains slightly different information than it used to.
+    This means that anyone who downloaded their OAuth Client ID file after this date **must** use analytix v3.4.0 or greater, and cannot use manual copy/paste authorisation.
+
 Conclusion
 ==========
 

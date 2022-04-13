@@ -112,11 +112,11 @@ class AsyncAnalytics:
 
         .. warning::
             Manual copy/paste authorisation is deprecated by Google, and
-            stopped being made available from (at a best guess) 1 April.
-            While analytix still provides the ability to use it, it is
-            strongly recommended you only do so if you **absolutely**
-            have to (for example, if your firewall does not allow
-            loopback IP addressing).
+            stopped being made available from 1 April. While analytix
+            still provides the ability to use it for now, it is strongly
+            recommended you only do so if you **absolutely** have to
+            (for example, if your firewall does not allow loopback
+            communication).
 
         .. warning::
             Manual copy/paste authorisation is not always available. If
