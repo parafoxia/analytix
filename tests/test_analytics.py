@@ -207,7 +207,7 @@ def test_retrieve_token_refresh_token_failure(client, tokens):
         mock_post.return_value = httpx.Response(
             status_code=403,
             request=mock.Mock(),
-            json={"error": {"code": 403, "message": "You suck"}},
+            json={"error": "is this legs?", "error_description": "this is not legs"},
         )
 
         client._tokens = tokens
@@ -219,7 +219,10 @@ def test_retrieve_token_refresh_token_failure(client, tokens):
             # retrieval failure.
             with pytest.raises(AuthenticationError) as exc:
                 client.refresh_access_token()
-            assert str(exc.value) == "Authentication failure (403): You suck"
+            assert (
+                str(exc.value)
+                == "Authorisation error (is this legs?): this is not legs"
+            )
 
 
 def test_retrieve_token_refresh_token_failure_legacy(client, tokens):
@@ -227,7 +230,7 @@ def test_retrieve_token_refresh_token_failure_legacy(client, tokens):
         mock_post.return_value = httpx.Response(
             status_code=403,
             request=mock.Mock(),
-            json={"error": {"code": 403, "message": "You suck"}},
+            json={"error": "is this legs?", "error_description": "this is not legs"},
         )
 
         client._tokens = tokens
@@ -240,7 +243,10 @@ def test_retrieve_token_refresh_token_failure_legacy(client, tokens):
             # retrieval failure.
             with pytest.raises(AuthenticationError) as exc:
                 client.refresh_access_token()
-            assert str(exc.value) == "Authentication failure (403): You suck"
+            assert (
+                str(exc.value)
+                == "Authorisation error (is this legs?): this is not legs"
+            )
 
 
 def test_needs_refresh_with_valid(client):

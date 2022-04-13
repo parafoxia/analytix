@@ -211,8 +211,7 @@ class Analytics:
 
         r = self._session.post(self.secrets.token_uri, data=data, headers=headers)
         if r.is_error:
-            error = r.json()["error"]
-            raise errors.AuthenticationError(error["code"], error["message"])
+            raise errors.AuthenticationError(**r.json())
 
         return Tokens.from_data(r.json())
 
