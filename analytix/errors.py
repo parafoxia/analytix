@@ -36,7 +36,12 @@ class AnalytixError(Exception):
 class MissingOptionalComponents(AnalytixError):
     """Exception thrown when components not installed by analytix by
     default are required for a specific operation, but are not
-    installed."""
+    installed.
+
+    Args:
+        *args:
+            The libraries that need to be installed.
+    """
 
     def __init__(self, *args: str) -> None:
         vals = " ".join(args)
@@ -47,7 +52,14 @@ class MissingOptionalComponents(AnalytixError):
 
 class APIError(AnalytixError):
     """Exception thrown when the YouTube Analytics API throws an
-    error."""
+    error.
+
+    Args:
+        code:
+            The error code.
+        message:
+            The error message.
+    """
 
     def __init__(self, code: str, message: str) -> None:
         super().__init__(f"API returned {code}: {message}")
@@ -55,7 +67,14 @@ class APIError(AnalytixError):
 
 class AuthenticationError(AnalytixError):
     """Exception thrown when something goes wrong during the OAuth
-    authentication process."""
+    authentication process.
+
+    Args:
+        error:
+            The error type.
+        error_description:
+            A description of the error.
+    """
 
     def __init__(self, error: str, error_description: str) -> None:
         super().__init__(f"Authorisation error ({error}): {error_description}")
@@ -81,7 +100,12 @@ class MissingMetrics(InvalidRequest):
 
 class InvalidMetrics(InvalidRequest):
     """Exception thrown when one or more metrics are not valid. Inherits
-    from :obj:`InvalidRequest`."""
+    from :obj:`InvalidRequest`.
+
+    Args:
+        diff:
+            The invalid metrics.
+    """
 
     def __init__(self, diff: set[str]) -> None:
         vals = ", ".join(diff)
@@ -91,7 +115,12 @@ class InvalidMetrics(InvalidRequest):
 class UnsupportedMetrics(InvalidRequest):
     """Exception thrown when one or more metrics are valid, but not
     compatible with the report type that has been selected. Inherits
-    from :obj:`InvalidRequest`."""
+    from :obj:`InvalidRequest`.
+
+    Args:
+        diff:
+            The unsupported metrics.
+    """
 
     def __init__(self, diff: set[str]) -> None:
         vals = ", ".join(diff)
@@ -108,7 +137,12 @@ class MissingSortOptions(InvalidRequest):
 
 class InvalidSortOptions(InvalidRequest):
     """Exception thrown when one or more sort options are not valid.
-    Inherits from :obj:`InvalidRequest`."""
+    Inherits from :obj:`InvalidRequest`.
+
+    Args:
+        diff:
+            The invalid sort options.
+    """
 
     def __init__(self, diff: set[str]) -> None:
         vals = ", ".join(diff)
@@ -118,7 +152,17 @@ class InvalidSortOptions(InvalidRequest):
 class UnsupportedSortOptions(InvalidRequest):
     """Exception thrown when one or more sort options are valid, but not
     compatible with the report type that has been selected. Inherits
-    from :obj:`InvalidRequest`."""
+    from :obj:`InvalidRequest`.
+
+    Args:
+        diff:
+            The unsupported sort options.
+
+    Keyword args:
+        descending_only:
+            Whether only descending sort options were expected. Defaults
+            to ``False``.
+    """
 
     def __init__(self, diff: set[str], *, descending_only: bool = False) -> None:
         vals = ", ".join(diff)
@@ -137,7 +181,15 @@ class UnsupportedSortOptions(InvalidRequest):
 
 class InvalidDimensions(InvalidRequest):
     """Exception thrown when one or more dimensions are not valid.
-    Inherits from :obj:`InvalidRequest`."""
+    Inherits from :obj:`InvalidRequest`.
+
+    Args:
+        diff:
+            The invalid dimensions.
+        depr:
+            Dimensions that are deprecated (this will only ever be
+            "7DayTotals" and "30DayTotals").
+    """
 
     def __init__(self, diff: set[str], depr: set[str]) -> None:
         vals = ", ".join([*diff - depr, *(f"{d}*" for d in depr)])
@@ -148,7 +200,12 @@ class InvalidDimensions(InvalidRequest):
 class UnsupportedDimensions(InvalidRequest):
     """Exception thrown when one or more dimensions are valid, but not
     compatible with the report type that has been selected. Inherits
-    from :obj:`InvalidRequest`."""
+    from :obj:`InvalidRequest`.
+
+    Args:
+        diff:
+            The unsupported dimensions.
+    """
 
     def __init__(self, diff: set[str]) -> None:
         vals = ", ".join(diff)
@@ -157,7 +214,16 @@ class UnsupportedDimensions(InvalidRequest):
 
 class InvalidSetOfDimensions(InvalidRequest):
     """Exception thrown when a set of dimensions contravenes the API
-    specification. Inherits from :obj:`InvalidRequest`."""
+    specification. Inherits from :obj:`InvalidRequest`.
+
+    Args:
+        expd:
+            The number of dimensions expected from the given set.
+        recv:
+            The number of dimensions received from the given set.
+        values:
+            The full set of possible dimensions in this context.
+    """
 
     def __init__(self, expd: str, recv: int, values: set[str]) -> None:
         vals = ", ".join(values)
@@ -166,7 +232,12 @@ class InvalidSetOfDimensions(InvalidRequest):
 
 class InvalidFilters(InvalidRequest):
     """Exception thrown when one or more filters are not valid. Inherits
-    from :obj:`InvalidRequest`."""
+    from :obj:`InvalidRequest`.
+
+    Args:
+        diff:
+            The invalid filters.
+    """
 
     def __init__(self, diff: set[str]) -> None:
         vals = ", ".join(diff)
@@ -176,7 +247,12 @@ class InvalidFilters(InvalidRequest):
 class UnsupportedFilters(InvalidRequest):
     """Exception thrown when one or more filters are valid, but not
     compatible with the report type that has been selected. Inherits
-    from :obj:`InvalidRequest`."""
+    from :obj:`InvalidRequest`.
+
+    Args:
+        diff:
+            The unsupported filters.
+    """
 
     def __init__(self, diff: set[str]) -> None:
         vals = ", ".join(diff)
@@ -185,7 +261,16 @@ class UnsupportedFilters(InvalidRequest):
 
 class InvalidSetOfFilters(InvalidRequest):
     """Exception thrown when a set of filters contravenes the API
-    specification. Inherits from :obj:`InvalidRequest`."""
+    specification. Inherits from :obj:`InvalidRequest`.
+
+    Args:
+        expd:
+            The number of filters expected from the given set.
+        recv:
+            The number of filters received from the given set.
+        values:
+            The full set of possible filters in this context.
+    """
 
     def __init__(self, expd: str, recv: int, values: set[str]) -> None:
         vals = ", ".join(values)
@@ -194,7 +279,14 @@ class InvalidSetOfFilters(InvalidRequest):
 
 class InvalidFilterValue(InvalidRequest):
     """Exception thrown when an invalid value is provided for a filter.
-    Inherits from :obj:`InvalidRequest`."""
+    Inherits from :obj:`InvalidRequest`.
+
+    Args:
+        key:
+            The filter key.
+        value:
+            The invalid filter value.
+    """
 
     def __init__(self, key: str, value: str) -> None:
         super().__init__(f"invalid value for filter {key!r}: {value!r}")
@@ -203,7 +295,14 @@ class InvalidFilterValue(InvalidRequest):
 class UnsupportedFilterValue(InvalidRequest):
     """Exception thrown when a valid value is provided for a filter, but
     cannot be used for the report type that has been selected. Inherits
-    from :obj:`InvalidRequest`."""
+    from :obj:`InvalidRequest`.
+
+    Args:
+        key:
+            The filter key.
+        value:
+            The unsupported filter value.
+    """
 
     def __init__(self, key: str, value: str) -> None:
         super().__init__(
@@ -213,7 +312,14 @@ class UnsupportedFilterValue(InvalidRequest):
 
 class InvalidAmountOfResults(InvalidRequest):
     """Exception thrown when the provided maximum number of results is
-    not valid. Inherits from :obj:`InvalidRequest`."""
+    not valid. Inherits from :obj:`InvalidRequest`.
+
+    Args:
+        actual:
+            The input value from the user.
+        maximum:
+            The maximum allowed value.
+    """
 
     def __init__(self, actual: int, maximum: int) -> None:
         if actual == 0:
