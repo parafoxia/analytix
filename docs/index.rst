@@ -213,19 +213,19 @@ License <https://github.com/parafoxia/analytix/blob/main/LICENSE>`__.
 
 .. toctree::
     :maxdepth: 1
-    :caption: Data and functions
-    :glob:
-    :hidden:
-
-    api/data/*
-
-.. toctree::
-    :maxdepth: 1
     :caption: Classes
     :glob:
     :hidden:
 
     api/classes/*
+
+.. toctree::
+    :maxdepth: 1
+    :caption: Data and functions
+    :glob:
+    :hidden:
+
+    api/data/*
 
 .. toctree::
     :maxdepth: 1
