@@ -176,6 +176,12 @@ class Report:
             The raw data retrieved from the API.
         type:
             The report type.
+
+    Attributes:
+        data:
+            The raw data retrieved from the API.
+        type:
+            The report type.
     """
 
     __slots__ = ("data", "type", "_column_headers", "_shape")

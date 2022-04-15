@@ -58,6 +58,10 @@ class Analytics:
         **kwargs:
             Additional parameters to be passed to the
             :obj:`httpx.Client` constructor.
+
+    Attributes:
+        secrets:
+            A :obj:`Secrets` object representing your project secrets.
     """
 
     __slots__ = (
