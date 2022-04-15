@@ -149,7 +149,7 @@ def licensing(session: nox.Session) -> None:
 @nox.session(reuse_venv=True)
 def spelling(session: nox.Session) -> None:
     session.install(*fetch_installs("Spelling"))
-    session.run("codespell", *CHECK_PATHS, "-S", "**/analytix/data.py")
+    session.run("codespell", *CHECK_PATHS, "-S", "**/analytix/data*")
 
 
 @nox.session(reuse_venv=True)
