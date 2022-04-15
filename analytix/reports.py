@@ -32,6 +32,8 @@ import datetime as dt
 import json
 import logging
 import typing as t
+from dataclasses import dataclass
+from enum import Enum
 from pathlib import Path
 
 import aiofiles
@@ -39,6 +41,7 @@ import aiofiles
 import analytix
 from analytix import errors
 from analytix.abc import DynamicReportWriter
+from analytix.types import ReportRowT
 
 if t.TYPE_CHECKING:
     import pandas as pd
@@ -103,6 +106,67 @@ class CSVReportWriter(DynamicReportWriter):
         return _log.info(f"Saved report as CSV to {Path(self._path).resolve()}")
 
 
+class ColumnType(Enum):
+    """An enumeration of possible column types."""
+
+    DIMENSION = "DIMENSION"
+    """"""
+
+    METRIC = "METRIC"
+    """"""
+
+
+class DataType(Enum):
+    """An enumeration of possible data types."""
+
+    STRING = "STRING"
+    """"""
+
+    INTEGER = "INTEGER"
+    """"""
+
+    FLOAT = "FLOAT"
+    """"""
+
+
+@dataclass(frozen=True)
+class ColumnHeader:
+    """A dataclass representing a column header.
+
+    Args:
+        name:
+            The column name.
+        column_type:
+            The column type.
+        data_type:
+            The column's data type.
+    """
+
+    __slots__ = ("name", "column_type", "data_type")
+
+    name: str
+    column_type: ColumnType
+    data_type: DataType
+
+    @classmethod
+    def from_json(cls, header: dict[str, str]) -> ColumnHeader:
+        """Create a column header from its JSON representation.
+
+        Args:
+            header:
+                The JSON representation of the column header.
+
+        Returns:
+            The newly created ``ColumnHeader`` instance.
+        """
+
+        return cls(
+            name=header["name"],
+            column_type=ColumnType(header["columnType"]),
+            data_type=DataType(header["dataType"]),
+        )
+
+
 class Report:
     """A class representing a YouTube Analytics API report. You will
     never need to manually create an instance of this.
@@ -114,19 +178,46 @@ class Report:
             The report type.
     """
 
-    __slots__ = ("data", "type", "columns", "_shape")
+    __slots__ = ("data", "type", "_column_headers", "_shape")
 
     def __init__(self, data: dict[t.Any, t.Any], type: ReportType) -> None:
         self.data = data
         self.type = type
-        self.columns = [c["name"] for c in data["columnHeaders"]]
-        self._shape = (len(data["rows"]), len(self.columns))
+        self._column_headers = [
+            ColumnHeader.from_json(header) for header in data["columnHeaders"]
+        ]
+        self._shape = (len(data["rows"]), len(self._column_headers))
 
     @property
     def shape(self) -> tuple[int, int]:
         """The shape of the report in the format ``(rows, columns)``."""
 
         return self._shape
+
+    @property
+    def rows(self) -> ReportRowT:
+        """The rows in the report.
+
+        .. versionadded:: 3.5.0
+        """
+        return t.cast(ReportRowT, self.data["rows"])
+
+    @property
+    def column_headers(self) -> list[ColumnHeader]:
+        """The column headers in the report.
+
+        .. versionadded:: 3.5.0
+        """
+        return self._column_headers
+
+    @property
+    def columns(self) -> list[str]:
+        """The names of all columns in the report.
+
+        .. versionchanged:: 3.5.0
+            This is now a property.
+        """
+        return [c.name for c in self._column_headers]
 
     @property
     def dimensions(self) -> set[str]:
@@ -145,6 +236,32 @@ class Report:
         """
 
         return self.type.metrics.values
+
+    @property
+    def ordered_dimensions(self) -> list[str]:
+        """The names of columns which are dimensions in the report in
+        the order in which they appear.
+
+        .. versionadded:: 3.5.0
+        """
+
+        return [
+            c.name
+            for c in self._column_headers
+            if c.column_type == ColumnType.DIMENSION
+        ]
+
+    @property
+    def ordered_metrics(self) -> list[str]:
+        """The names of columns which are metrics in the report in
+        the order in which they appear.
+
+        .. versionadded:: 3.5.0
+        """
+
+        return [
+            c.name for c in self._column_headers if c.column_type == ColumnType.METRIC
+        ]
 
     def to_dataframe(self, *, skip_date_conversion: bool = False) -> pd.DataFrame:
         """Export the report data to a pandas or Modin DataFrame. If you

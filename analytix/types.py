@@ -31,3 +31,4 @@ import typing as t
 DataHeadersT = t.Tuple[t.Dict[str, str], t.Dict[str, str]]
 SecretT = t.Union[str, t.List[str]]
 TokenT = t.Union[str, int]
+ReportRowT = t.List[t.List[t.Union[str, int, float]]]

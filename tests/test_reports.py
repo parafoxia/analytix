@@ -37,7 +37,14 @@ import pytest
 import analytix
 from analytix import data, errors
 from analytix.report_types import TimeBasedActivity
-from analytix.reports import CSVReportWriter, JSONReportWriter, Report
+from analytix.reports import (
+    ColumnHeader,
+    ColumnType,
+    CSVReportWriter,
+    DataType,
+    JSONReportWriter,
+    Report,
+)
 from tests.paths import (
     CSV_OUTPUT_PATH,
     EXCEL_OUTPUT_PATH,
@@ -71,9 +78,47 @@ def test_init(request_data, report_type):
     report = Report(request_data, report_type)
     assert report.data == request_data
     assert report.type == report_type
-    assert report.columns == [
-        "day",
-        *[m for m in data.ALL_METRICS_ORDERED if m in data.ALL_VIDEO_METRICS],
+    assert report._column_headers == [
+        ColumnHeader("day", ColumnType.DIMENSION, DataType.STRING),
+        ColumnHeader("views", ColumnType.METRIC, DataType.INTEGER),
+        ColumnHeader("redViews", ColumnType.METRIC, DataType.INTEGER),
+        ColumnHeader("comments", ColumnType.METRIC, DataType.INTEGER),
+        ColumnHeader("likes", ColumnType.METRIC, DataType.INTEGER),
+        ColumnHeader("dislikes", ColumnType.METRIC, DataType.INTEGER),
+        ColumnHeader("videosAddedToPlaylists", ColumnType.METRIC, DataType.INTEGER),
+        ColumnHeader("videosRemovedFromPlaylists", ColumnType.METRIC, DataType.INTEGER),
+        ColumnHeader("shares", ColumnType.METRIC, DataType.INTEGER),
+        ColumnHeader("estimatedMinutesWatched", ColumnType.METRIC, DataType.INTEGER),
+        ColumnHeader("estimatedRedMinutesWatched", ColumnType.METRIC, DataType.INTEGER),
+        ColumnHeader("averageViewDuration", ColumnType.METRIC, DataType.INTEGER),
+        ColumnHeader("averageViewPercentage", ColumnType.METRIC, DataType.FLOAT),
+        ColumnHeader("annotationClickThroughRate", ColumnType.METRIC, DataType.FLOAT),
+        ColumnHeader("annotationCloseRate", ColumnType.METRIC, DataType.FLOAT),
+        ColumnHeader("annotationImpressions", ColumnType.METRIC, DataType.INTEGER),
+        ColumnHeader(
+            "annotationClickableImpressions", ColumnType.METRIC, DataType.INTEGER
+        ),
+        ColumnHeader(
+            "annotationClosableImpressions", ColumnType.METRIC, DataType.INTEGER
+        ),
+        ColumnHeader("annotationClicks", ColumnType.METRIC, DataType.INTEGER),
+        ColumnHeader("annotationCloses", ColumnType.METRIC, DataType.INTEGER),
+        ColumnHeader("cardClickRate", ColumnType.METRIC, DataType.FLOAT),
+        ColumnHeader("cardTeaserClickRate", ColumnType.METRIC, DataType.FLOAT),
+        ColumnHeader("cardImpressions", ColumnType.METRIC, DataType.INTEGER),
+        ColumnHeader("cardTeaserImpressions", ColumnType.METRIC, DataType.INTEGER),
+        ColumnHeader("cardClicks", ColumnType.METRIC, DataType.INTEGER),
+        ColumnHeader("cardTeaserClicks", ColumnType.METRIC, DataType.INTEGER),
+        ColumnHeader("subscribersGained", ColumnType.METRIC, DataType.INTEGER),
+        ColumnHeader("subscribersLost", ColumnType.METRIC, DataType.INTEGER),
+        ColumnHeader("estimatedRevenue", ColumnType.METRIC, DataType.FLOAT),
+        ColumnHeader("estimatedAdRevenue", ColumnType.METRIC, DataType.FLOAT),
+        ColumnHeader("grossRevenue", ColumnType.METRIC, DataType.FLOAT),
+        ColumnHeader("estimatedRedPartnerRevenue", ColumnType.METRIC, DataType.FLOAT),
+        ColumnHeader("monetizedPlaybacks", ColumnType.METRIC, DataType.INTEGER),
+        ColumnHeader("playbackBasedCpm", ColumnType.METRIC, DataType.FLOAT),
+        ColumnHeader("adImpressions", ColumnType.METRIC, DataType.INTEGER),
+        ColumnHeader("cpm", ColumnType.METRIC, DataType.FLOAT),
     ]
     assert report._shape == (31, 36)
 
@@ -90,12 +135,76 @@ def test_shape_property(report):
     assert report.shape == (31, 36)
 
 
+def test_rows_property(report):
+    # There's a HUGE number here, so testing the first row should be
+    # sufficient to say it's correct.
+    assert report.rows[0] == [
+        "2022-01-01",
+        759,
+        82,
+        7,
+        15,
+        0,
+        7,
+        7,
+        0,
+        1335,
+        68,
+        105,
+        7.01,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        14,
+        0,
+        0,
+        3,
+        4,
+        1.096,
+        1.081,
+        1.965,
+        0.015,
+        198,
+        9.924,
+        239,
+        8.222,
+    ]
+
+
+def test_column_headers_property(report):
+    assert report.column_headers == report._column_headers
+
+
+def test_columns_property(report):
+    assert report.columns == [
+        "day",
+        *[m for m in data.ALL_METRICS_ORDERED if m in report.type.metrics.values],
+    ]
+
+
 def test_dimensions_property(report):
     assert report.dimensions == {"day"}
 
 
 def test_metrics_property(report):
     assert report.metrics == data.ALL_VIDEO_METRICS
+
+
+def test_ordered_dimensions_property(report):
+    assert report.ordered_dimensions == ["day"]
+
+
+def test_ordered_metrics_property(report):
+    assert report.ordered_metrics == [
+        m for m in data.ALL_METRICS_ORDERED if m in report.type.metrics.values
+    ]
 
 
 def test_to_json(report, request_data):
