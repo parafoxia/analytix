@@ -7,7 +7,7 @@ Note that each example requires a secrets file, which is not provided.
 ## Directory
 
 * [daily-views.py](https://github.com/parafoxia/analytix/blob/main/examples/daily-views.py) — Plots your channel's daily views for 2021 on a lineplot.
-* [monthy-likes.py](https://github.com/parafoxia/analytix/blob/main/examples/monthy-likes.py) — Plots your channel's monthly likes for 2021 on a violinplot (a type of boxplot). Each month is split by days you received dislikes, and days you didn't.
+* [monthly-likes.py](https://github.com/parafoxia/analytix/blob/main/examples/monthly-likes.py) — Plots your channel's monthly likes for 2021 on a violinplot (a type of boxplot). Each month is split by days you received dislikes, and days you didn't.
 * [revenue-ecdf.py](https://github.com/parafoxia/analytix/blob/main/examples/revenue-ecdf.py) — Plots your channel's revenue, ad revenue, and gross revenue for the first quarter of 2022 as a ECDF graph.
 
 ## License
