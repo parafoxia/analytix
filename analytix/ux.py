@@ -106,8 +106,8 @@ def setup_logging(level: int = logging.INFO) -> logging.StreamHandler[t.TextIO]:
         logging.DEBUG: f"\33[38;5;244m{FMT}\33[0m",
         logging.INFO: f"\33[38;5;248m{FMT}\33[0m",
         logging.WARNING: f"\33[1m\33[38;5;178m{FMT}\33[0m",
-        logging.ERROR: f"\33[1m\33[38;5;202m{FMT}\33[0m",
-        logging.CRITICAL: f"\33[1m\33[38;5;196m{FMT}\33[0m",
+        logging.ERROR: f"\33[1m\33[38;5;196m{FMT}\33[0m",
+        logging.CRITICAL: f"\33[1m\33[48;5;196m{FMT}\33[0m",
     }
 
     class CustomFormatter(logging.Formatter):
