@@ -224,3 +224,7 @@ dmypy.json
 
 # profiling data
 .prof
+
+# include assets
+!assets/**/*.png
+!assets/**/*.svg
