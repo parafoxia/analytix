@@ -312,7 +312,7 @@ class Report:
         Keyword Args:
             skip_date_conversion:
                 Whether to skip automatically converting date columns to
-                the ``datetime64[ns]`` format. Defaults to ``False``.
+                the ``timestamp[us]`` format. Defaults to ``False``.
 
         Returns:
             The newly constructed Apache Arrow Table.
@@ -335,8 +335,7 @@ class Report:
                     _log.info("Converted time-series column to timestamp[us] format")
                     break
 
-        table = pa.Table.from_arrays(data, names=self.columns)
-        return table
+        return pa.Table.from_arrays(data, names=self.columns)
 
     def to_json(self, path: str, *, indent: int = 4) -> JSONReportWriter:
         """Write the report data to a JSON file.
