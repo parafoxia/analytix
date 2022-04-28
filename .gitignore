@@ -6,6 +6,10 @@ secrets/
 *.feather
 *.parquet
 
+# Assets 
+!assets/**/*.png
+!assets/**/*.svg
+
 ### Data ###
 *.csv
 *.dat
