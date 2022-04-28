@@ -6,6 +6,10 @@ secrets/
 *.feather
 *.parquet
 
+# Assets 
+!assets/**/*.png
+!assets/**/*.svg
+
 ### Data ###
 *.csv
 *.dat
@@ -224,7 +228,3 @@ dmypy.json
 
 # profiling data
 .prof
-
-# include assets
-!assets/**/*.png
-!assets/**/*.svg
