@@ -11,7 +11,7 @@ nox==2022.1.7
 
 # Docs
 furo
-sphinx>=4,<5
+sphinx>=5,<6
 
 # Formatting
 black[jupyter]~=22.3.0
@@ -21,7 +21,7 @@ flake8~=4.0.1
 isort~=5.10.0
 
 # Typing
-mypy==0.950
+mypy==0.961
 
 # Line lengths
 len8~=0.7.2
@@ -30,7 +30,7 @@ len8~=0.7.2
 codespell~=2.1.0
 
 # Tests
-coverage~=6.3.1
+coverage~=6.4.1
 mock~=4.0.3
 pytest~=7.1.0
 pytest-asyncio~=0.18.1

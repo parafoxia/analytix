@@ -1,2 +1,2 @@
 furo
-sphinx>=4,<5
+sphinx>=5,<6
