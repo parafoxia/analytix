@@ -4,7 +4,7 @@ Understanding dimensions
 Overview
 ========
 
-Dimensions provide a means to split data into smaller parts. This is useful when you wish to see how your channel is performing over time, or compare the statistics for one attribute against those for another. Most report types require at least one dimension to be provided, and some report types can accept more.
+Dimensions provide a means to split data into smaller parts. This is useful when you wish to see how your channel is performing over time or compare the statistics for one attribute against those for another. Most report types require at least one dimension to be provided, and some report types can accept more.
 
 Here is some example data:
 
@@ -21,7 +21,7 @@ Here is some example data:
      - 100 000
      - 20 000
 
-This data contains four columns (the ID column, and three metrics), and one row. This row represents the cumulative data over the course of twelve months. While this is useful if you want to know the totals, there is not a lot we can take from it. To remedy this, we can use the "month" dimension. After doing so, the data looks like this:
+This data contains four columns (the ID column, and three metrics), and one row. This row represents the cumulative data over the course of 12 months. While this is useful if you want to know the totals, there is not a lot we can take from it. To remedy this, we can use the "month" dimension. After doing so, the data looks like this:
 
 .. list-table::
    :widths: 1 3 3 3 3
@@ -93,7 +93,7 @@ This data contains four columns (the ID column, and three metrics), and one row.
      - 1 138
      - 88
 
-As you can see, doing this has added an extra column (month), as well as split the original row into twelve separate ones. Using this, we can see that our channel performed the best in April, and the worst in December. It might be worth seeing what sort of content was put out in April (as well as August and November), and trying to do more of that going forward.
+As you can see, doing this has added an extra column (month), as well as split the original row into 12 separate ones. Using this, we can see that our channel performed the best in April and the worst in December. It might be worth seeing what sort of content was put out in April (as well as August and November) and trying to do more of that going forward.
 
 For report types that allow it, we can even split the data further; lets add "subscribedStatus" as a dimension (the below data has been truncated for brevity):
 

@@ -20,7 +20,7 @@ Some report types are stricter that others; they also have:
 * Their own set of valid sort options, separate to the set of valid metrics
 * A maximum number of results
 
-These report types are referred to internally as "detailed report types". Oftentimes, they are also far more picky about what filters can be provided, and the values that can be passed to them.
+These report types are referred to internally as "detailed report types". Oftentimes, they are also far more picky about what filters can be provided and the values that can be passed to them.
 
 In total, there are 43 report types -- 33 normal and 10 detailed.
 

@@ -9,8 +9,6 @@ Filters allow for unwanted data to be omitted, leaving only the relevant data. T
 Valid filters
 =============
 
-Below is a list of filters, sorted in alphabetical order.
-
 The table of supported filters and their possible values, sorted in alphabetical order by filter:
 
 .. list-table::
