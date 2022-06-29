@@ -34,7 +34,8 @@ import pathlib
 import typing as t
 from dataclasses import dataclass
 
-from analytix.types import SecretT
+if t.TYPE_CHECKING:
+    from analytix.types import SecretT
 
 _log = logging.getLogger(__name__)
 

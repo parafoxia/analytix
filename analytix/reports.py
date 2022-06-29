@@ -38,13 +38,13 @@ from pathlib import Path
 
 import analytix
 from analytix import errors
-from analytix.types import ReportRowT
 
 if t.TYPE_CHECKING:
     import pandas as pd
     import pyarrow as pa
 
     from analytix.abc import ReportType
+    from analytix.types import ReportRowT
 
 _log = logging.getLogger(__name__)
 

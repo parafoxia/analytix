@@ -90,7 +90,7 @@ def display_splash() -> None:
     )
 
 
-def setup_logging(level: int = logging.INFO) -> logging.StreamHandler[t.TextIO]:
+def enable_logger(level: int = logging.INFO) -> logging.StreamHandler[t.TextIO]:
     """Enable analytix's preconfigured logger.
 
     Args:

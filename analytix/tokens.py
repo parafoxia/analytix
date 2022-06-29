@@ -34,7 +34,8 @@ import pathlib
 import typing as t
 from dataclasses import dataclass
 
-from analytix.types import TokenT
+if t.TYPE_CHECKING:
+    from analytix.types import TokenT
 
 _log = logging.getLogger(__name__)
 
@@ -72,7 +73,7 @@ class Tokens:
         return t.cast(TokenT, getattr(self, key))
 
     @classmethod
-    def from_data(cls, data: dict[str, TokenT]) -> Tokens:
+    def from_json(cls, data: dict[str, TokenT]) -> Tokens:
         """Create an instance of this class from a dictionary.
 
         Args:
@@ -108,22 +109,6 @@ class Tokens:
         _log.info("Tokens loaded!")
         return cls(**data)
 
-    def update(self, data: dict[str, TokenT]) -> None:
-        """Update token attributes.
-
-        .. warning::
-            This does not update the tokens on disk.
-
-        Args:
-            data:
-                A dictionary of attributes to be updated.
-        """
-
-        for k, v in data.items():
-            setattr(self, k, v)
-
-        _log.info("Tokens updated!")
-
     def to_dict(self) -> dict[str, TokenT]:
         """Convert tokens to a dictionary.
 
@@ -139,6 +124,22 @@ class Tokens:
             "scope": self.scope,
             "token_type": self.token_type,
         }
+
+    def update(self, data: dict[str, TokenT]) -> None:
+        """Update token attributes.
+
+        .. warning::
+            This does not update the tokens on disk.
+
+        Args:
+            data:
+                A dictionary of attributes to be updated.
+        """
+
+        for k, v in data.items():
+            setattr(self, k, v)
+
+        _log.info("Tokens updated!")
 
     def write(self, path: pathlib.Path | str) -> None:
         """Write tokens to a file.

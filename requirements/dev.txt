@@ -33,7 +33,6 @@ codespell~=2.1.0
 coverage~=6.4.1
 mock~=4.0.3
 pytest~=7.1.0
-requests>=2.27,<3
 
 # Safety
 safety~=2.0.0

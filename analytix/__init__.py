@@ -29,10 +29,10 @@
 __all__ = (
     "API_BASE_URL",
     "API_SCOPES",
-    "Analytics",
     "can_use",
+    "Client",
+    "enable_logger",
     "OAUTH_CHECK_URL",
-    "setup_logging",
     "UPDATE_CHECK_URL",
 )
 
@@ -74,5 +74,5 @@ API_SCOPES = (
 OAUTH_CHECK_URL = "https://www.googleapis.com/oauth2/v3/tokeninfo?access_token="
 UPDATE_CHECK_URL = "https://pypi.org/pypi/analytix/json"
 
-from .analytics import Analytics
-from .ux import setup_logging
+from .client import Client
+from .ux import enable_logger

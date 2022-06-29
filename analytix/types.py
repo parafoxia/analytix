@@ -26,9 +26,17 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+from __future__ import annotations
+
 import typing as t
 
-DataHeadersT = t.Tuple[t.Dict[str, str], t.Dict[str, str]]
-SecretT = t.Union[str, t.List[str]]
-TokenT = t.Union[str, int]
-ReportRowT = t.List[t.List[t.Union[str, int, float]]]
+if t.TYPE_CHECKING:
+    from pathlib import Path
+
+    ResponseT = dict[str, t.Any]
+    PathLikeT = str | Path
+
+    DataHeadersT = t.Tuple[t.Dict[str, str], t.Dict[str, str]]
+    SecretT = t.Union[str, t.List[str]]
+    TokenT = t.Union[str, int]
+    ReportRowT = t.List[t.List[t.Union[str, int, float]]]
