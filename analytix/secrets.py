@@ -106,30 +106,6 @@ class Secrets:
         _log.info("Secrets loaded!")
         return cls(**data)
 
-    @classmethod
-    async def afrom_file(cls, path: pathlib.Path | str) -> Secrets:
-        """Asynchronously load a set of secrets from a file downloaded
-        from the Google Developers Console.
-
-        Args:
-            path:
-                The path to the secrets file.
-
-        Returns:
-            The loaded secrets.
-        """
-
-        if not isinstance(path, pathlib.Path):
-            path = pathlib.Path(path)
-
-        _log.debug(f"Loading secrets from {path.resolve()}...")
-
-        async with aiofiles.open(path) as f:
-            data = json.loads(await f.read())["installed"]
-
-        _log.info("Secrets loaded!")
-        return cls(**data)
-
     def to_dict(self) -> dict[str, SecretT]:
         """Convert secrets to a dictionary.
 

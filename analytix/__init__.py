@@ -30,7 +30,6 @@ __all__ = (
     "API_BASE_URL",
     "API_SCOPES",
     "Analytics",
-    "AsyncAnalytics",
     "can_use",
     "OAUTH_CHECK_URL",
     "setup_logging",
@@ -76,5 +75,4 @@ OAUTH_CHECK_URL = "https://www.googleapis.com/oauth2/v3/tokeninfo?access_token="
 UPDATE_CHECK_URL = "https://pypi.org/pypi/analytix/json"
 
 from .analytics import Analytics
-from .async_analytics import AsyncAnalytics
 from .ux import setup_logging
