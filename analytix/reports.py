@@ -36,11 +36,8 @@ from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 
-import aiofiles
-
 import analytix
 from analytix import errors
-from analytix.abc import DynamicReportWriter
 from analytix.types import ReportRowT
 
 if t.TYPE_CHECKING:
@@ -50,60 +47,6 @@ if t.TYPE_CHECKING:
     from analytix.abc import ReportType
 
 _log = logging.getLogger(__name__)
-
-
-class JSONReportWriter(DynamicReportWriter):
-    __slots__ = ()
-
-    def _run_sync(self) -> None:
-        if not self._path.endswith(".json"):
-            self._path += ".json"
-
-        with open(self._path, "w") as f:
-            json.dump(self._data, f, indent=self._indent)
-
-        return _log.info(f"Saved report as JSON to {Path(self._path).resolve()}")
-
-    async def _run_async(self) -> None:
-        if not self._path.endswith(".json"):
-            self._path += ".json"
-
-        async with aiofiles.open(self._path, "w") as f:
-            await f.write(json.dumps(self._data, indent=self._indent))
-
-        return _log.info(f"Saved report as JSON to {Path(self._path).resolve()}")
-
-
-class CSVReportWriter(DynamicReportWriter):
-    __slots__ = ()
-
-    def _run_sync(self) -> None:
-        extension = ".tsv" if self._delimiter == "\t" else ".csv"
-
-        if not self._path.endswith(extension):
-            self._path += extension
-
-        with open(self._path, "w") as f:
-            f.write(f"{self._delimiter.join(self._columns)}\n")
-            for row in self._data["rows"]:
-                line = self._delimiter.join(f"{v}" for v in row)
-                f.write(f"{line}\n")
-
-        return _log.info(f"Saved report as CSV to {Path(self._path).resolve()}")
-
-    async def _run_async(self) -> None:
-        extension = ".tsv" if self._delimiter == "\t" else ".csv"
-
-        if not self._path.endswith(extension):
-            self._path += extension
-
-        async with aiofiles.open(self._path, "w") as f:
-            await f.write(f"{self._delimiter.join(self._columns)}\n")
-            for row in self._data["rows"]:
-                line = self._delimiter.join(f"{v}" for v in row)
-                await f.write(f"{line}\n")
-
-        return _log.info(f"Saved report as CSV to {Path(self._path).resolve()}")
 
 
 class ColumnType(Enum):
@@ -337,7 +280,7 @@ class Report:
 
         return pa.Table.from_arrays(data, names=self.columns)
 
-    def to_json(self, path: str, *, indent: int = 4) -> JSONReportWriter:
+    def to_json(self, path: str, *, indent: int = 4) -> None:
         """Write the report data to a JSON file.
 
         .. note::
@@ -357,16 +300,15 @@ class Report:
             sync or async in a typed context.
         """
 
-        return JSONReportWriter(path, data=self.data, indent=indent)
+        if not path.endswith(".json"):
+            path += ".json"
 
-    async def ato_json(self, path: str, *, indent: int = 4) -> None:
-        _log.warning(
-            "The `report.ato_json` method is deprecated -- "
-            "use `await report.to_json` instead"
-        )
-        await self.to_json(path, indent=indent)
+        with open(path, "w") as f:
+            json.dump(self.data, f, indent=indent)
 
-    def to_csv(self, path: str, *, delimiter: str = ",") -> CSVReportWriter:
+        return _log.info(f"Saved report as JSON to {Path(path).resolve()}")
+
+    def to_csv(self, path: str, *, delimiter: str = ",") -> None:
         """Write the report data to a CSV file.
 
         .. note::
@@ -386,19 +328,18 @@ class Report:
             sync or async in a typed context.
         """
 
-        return CSVReportWriter(
-            path,
-            data=self.data,
-            delimiter=delimiter,
-            columns=self.columns,
-        )
+        extension = ".tsv" if delimiter == "\t" else ".csv"
 
-    async def ato_csv(self, path: str, *, delimiter: str = ",") -> None:
-        _log.warning(
-            "The `report.ato_csv` method is deprecated -- "
-            "use `await report.to_csv` instead"
-        )
-        await self.to_csv(path, delimiter=delimiter)
+        if not path.endswith(extension):
+            path += extension
+
+        with open(path, "w") as f:
+            f.write(f"{delimiter.join(self.columns)}\n")
+            for row in self.data["rows"]:
+                line = delimiter.join(f"{v}" for v in row)
+                f.write(f"{line}\n")
+
+        return _log.info(f"Saved report as CSV to {Path(path).resolve()}")
 
     def to_excel(self, path: str, *, sheet_name: str = "Analytics") -> None:
         """Write the report data to an Excel spreadsheet.

@@ -40,9 +40,7 @@ from analytix.report_types import TimeBasedActivity
 from analytix.reports import (
     ColumnHeader,
     ColumnType,
-    CSVReportWriter,
     DataType,
-    JSONReportWriter,
     Report,
 )
 from tests.paths import (
@@ -217,48 +215,8 @@ def test_to_json(report, request_data):
     os.remove(JSON_OUTPUT_PATH)
 
 
-async def test_await_to_json(report, request_data):
-    await report.to_json(str(JSON_OUTPUT_PATH))
-    assert JSON_OUTPUT_PATH.is_file()
-
-    with open(JSON_OUTPUT_PATH) as f:
-        assert json.load(f) == request_data
-
-    os.remove(JSON_OUTPUT_PATH)
-
-
-async def test_deprecated_ato_json(report, request_data):
-    await report.ato_json(str(JSON_OUTPUT_PATH))
-    assert JSON_OUTPUT_PATH.is_file()
-
-    with open(JSON_OUTPUT_PATH) as f:
-        assert json.load(f) == request_data
-
-    os.remove(JSON_OUTPUT_PATH)
-
-
 def test_to_json_no_extension(report, request_data):
     report.to_json(str(JSON_OUTPUT_PATH)[:-5])
-    assert JSON_OUTPUT_PATH.is_file()
-
-    with open(JSON_OUTPUT_PATH) as f:
-        assert json.load(f) == request_data
-
-    os.remove(JSON_OUTPUT_PATH)
-
-
-async def test_await_to_json_no_extension(report, request_data):
-    await report.to_json(str(JSON_OUTPUT_PATH)[:-5])
-    assert JSON_OUTPUT_PATH.is_file()
-
-    with open(JSON_OUTPUT_PATH) as f:
-        assert json.load(f) == request_data
-
-    os.remove(JSON_OUTPUT_PATH)
-
-
-async def test_deprecated_ato_json_no_extension(report, request_data):
-    await report.ato_json(str(JSON_OUTPUT_PATH)[:-5])
     assert JSON_OUTPUT_PATH.is_file()
 
     with open(JSON_OUTPUT_PATH) as f:
@@ -283,48 +241,8 @@ def test_to_csv(report, mock_csv_data):
     os.remove(CSV_OUTPUT_PATH)
 
 
-async def test_await_to_csv(report, mock_csv_data):
-    await report.to_csv(str(CSV_OUTPUT_PATH))
-    assert CSV_OUTPUT_PATH.is_file()
-
-    with open(CSV_OUTPUT_PATH) as f:
-        assert f.read() == mock_csv_data
-
-    os.remove(CSV_OUTPUT_PATH)
-
-
-async def test_deprecated_ato_csv(report, mock_csv_data):
-    await report.ato_csv(str(CSV_OUTPUT_PATH))
-    assert CSV_OUTPUT_PATH.is_file()
-
-    with open(CSV_OUTPUT_PATH) as f:
-        assert f.read() == mock_csv_data
-
-    os.remove(CSV_OUTPUT_PATH)
-
-
 def test_to_csv_no_extension(report, mock_csv_data):
     report.to_csv(str(CSV_OUTPUT_PATH)[:-4])
-    assert CSV_OUTPUT_PATH.is_file()
-
-    with open(CSV_OUTPUT_PATH) as f:
-        assert f.read() == mock_csv_data
-
-    os.remove(CSV_OUTPUT_PATH)
-
-
-async def test_await_to_csv_no_extension(report, mock_csv_data):
-    await report.to_csv(str(CSV_OUTPUT_PATH)[:-4])
-    assert CSV_OUTPUT_PATH.is_file()
-
-    with open(CSV_OUTPUT_PATH) as f:
-        assert f.read() == mock_csv_data
-
-    os.remove(CSV_OUTPUT_PATH)
-
-
-async def test_deprecated_ato_csv_no_extension(report, mock_csv_data):
-    await report.ato_csv(str(CSV_OUTPUT_PATH)[:-4])
     assert CSV_OUTPUT_PATH.is_file()
 
     with open(CSV_OUTPUT_PATH) as f:
@@ -343,48 +261,8 @@ def test_to_tsv(report, mock_csv_data):
     os.remove(TSV_OUTPUT_PATH)
 
 
-async def test_await_to_tsv(report, mock_csv_data):
-    await report.to_csv(str(TSV_OUTPUT_PATH), delimiter="\t")
-    assert TSV_OUTPUT_PATH.is_file()
-
-    with open(TSV_OUTPUT_PATH) as f:
-        assert f.read() == mock_csv_data.replace(",", "\t")
-
-    os.remove(TSV_OUTPUT_PATH)
-
-
-async def test_deprecated_ato_tsv(report, mock_csv_data):
-    await report.ato_csv(str(TSV_OUTPUT_PATH), delimiter="\t")
-    assert TSV_OUTPUT_PATH.is_file()
-
-    with open(TSV_OUTPUT_PATH) as f:
-        assert f.read() == mock_csv_data.replace(",", "\t")
-
-    os.remove(TSV_OUTPUT_PATH)
-
-
 def test_to_tsv_no_extension(report, mock_csv_data):
     report.to_csv(str(TSV_OUTPUT_PATH)[:-4], delimiter="\t")
-    assert TSV_OUTPUT_PATH.is_file()
-
-    with open(TSV_OUTPUT_PATH) as f:
-        assert f.read() == mock_csv_data.replace(",", "\t")
-
-    os.remove(TSV_OUTPUT_PATH)
-
-
-async def test_await_to_tsv_no_extension(report, mock_csv_data):
-    await report.to_csv(str(TSV_OUTPUT_PATH)[:-4], delimiter="\t")
-    assert TSV_OUTPUT_PATH.is_file()
-
-    with open(TSV_OUTPUT_PATH) as f:
-        assert f.read() == mock_csv_data.replace(",", "\t")
-
-    os.remove(TSV_OUTPUT_PATH)
-
-
-async def test_deprecated_ato_tsv_no_extension(report, mock_csv_data):
-    await report.ato_csv(str(TSV_OUTPUT_PATH)[:-4], delimiter="\t")
     assert TSV_OUTPUT_PATH.is_file()
 
     with open(TSV_OUTPUT_PATH) as f:
@@ -492,16 +370,6 @@ def test_to_excel_no_openpyxl(report):
             str(exc.value)
             == "some necessary libraries are not installed (hint: pip install openpyxl)"
         )
-
-
-def test_report_writers_with_bad_stack():
-    with pytest.raises(RuntimeError) as exc:
-        JSONReportWriter("test.json", data={"Hello": "Goodbye"})
-    assert str(exc.value) == "you should not manually instantiate this ABC"
-
-    with pytest.raises(RuntimeError) as exc:
-        CSVReportWriter("test.csv", data={"Hello": "Goodbye"})
-    assert str(exc.value) == "you should not manually instantiate this ABC"
 
 
 @pytest.mark.skipif(
