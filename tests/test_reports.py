@@ -37,12 +37,7 @@ import pytest
 import analytix
 from analytix import data, errors
 from analytix.report_types import TimeBasedActivity
-from analytix.reports import (
-    ColumnHeader,
-    ColumnType,
-    DataType,
-    Report,
-)
+from analytix.reports import ColumnHeader, ColumnType, DataType, Report
 from tests.paths import (
     CSV_OUTPUT_PATH,
     EXCEL_OUTPUT_PATH,

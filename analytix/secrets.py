@@ -34,8 +34,6 @@ import pathlib
 import typing as t
 from dataclasses import dataclass
 
-import aiofiles
-
 from analytix.types import SecretT
 
 _log = logging.getLogger(__name__)

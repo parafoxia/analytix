@@ -28,7 +28,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import json
 import os
 import typing as t
@@ -67,24 +66,6 @@ def test_load_from_file_path_object(tokens_dict):
 
 def test_load_from_file_path_str(tokens_dict):
     tokens = Tokens.from_file(str(TOKENS_PATH))
-    assert tokens.access_token == tokens_dict["access_token"]
-    assert tokens.expires_in == tokens_dict["expires_in"]
-    assert tokens.refresh_token == tokens_dict["refresh_token"]
-    assert tokens.scope == tokens_dict["scope"]
-    assert tokens.token_type == tokens_dict["token_type"]
-
-
-def test_load_from_file_path_object_async(tokens_dict):
-    tokens = asyncio.run(Tokens.afrom_file(TOKENS_PATH))
-    assert tokens.access_token == tokens_dict["access_token"]
-    assert tokens.expires_in == tokens_dict["expires_in"]
-    assert tokens.refresh_token == tokens_dict["refresh_token"]
-    assert tokens.scope == tokens_dict["scope"]
-    assert tokens.token_type == tokens_dict["token_type"]
-
-
-def test_load_from_file_path_str_async(tokens_dict):
-    tokens = asyncio.run(Tokens.afrom_file(str(TOKENS_PATH)))
     assert tokens.access_token == tokens_dict["access_token"]
     assert tokens.expires_in == tokens_dict["expires_in"]
     assert tokens.refresh_token == tokens_dict["refresh_token"]
@@ -143,17 +124,5 @@ def test_write_path_object(tokens):
 
 def test_write_path_str(tokens):
     tokens.write(str(SECRETS_PATH.parent / "test_write.json"))
-    assert (SECRETS_PATH.parent / "test_write.json").is_file()
-    os.remove(SECRETS_PATH.parent / "test_write.json")
-
-
-def test_write_path_object_async(tokens):
-    asyncio.run(tokens.awrite(SECRETS_PATH.parent / "test_write.json"))
-    assert (SECRETS_PATH.parent / "test_write.json").is_file()
-    os.remove(SECRETS_PATH.parent / "test_write.json")
-
-
-def test_write_path_str_async(tokens):
-    asyncio.run(tokens.awrite(str(SECRETS_PATH.parent / "test_write.json")))
     assert (SECRETS_PATH.parent / "test_write.json").is_file()
     os.remove(SECRETS_PATH.parent / "test_write.json")

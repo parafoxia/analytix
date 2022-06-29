@@ -34,8 +34,6 @@ import pathlib
 import typing as t
 from dataclasses import dataclass
 
-import aiofiles
-
 from analytix.types import TokenT
 
 _log = logging.getLogger(__name__)

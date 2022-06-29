@@ -29,7 +29,6 @@
 from __future__ import annotations
 
 import abc
-import inspect
 import typing as t
 from dataclasses import dataclass
 

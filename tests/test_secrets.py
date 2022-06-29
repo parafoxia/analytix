@@ -28,7 +28,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import json
 import typing as t
 
@@ -62,34 +61,6 @@ def test_load_from_file_path_object(secrets_dict):
 
 def test_load_from_file_path_str(secrets_dict):
     secrets = Secrets.from_file(str(SECRETS_PATH))
-    assert secrets.client_id == secrets_dict["client_id"]
-    assert secrets.project_id == secrets_dict["project_id"]
-    assert secrets.auth_uri == secrets_dict["auth_uri"]
-    assert secrets.token_uri == secrets_dict["token_uri"]
-    assert (
-        secrets.auth_provider_x509_cert_url
-        == secrets_dict["auth_provider_x509_cert_url"]
-    )
-    assert secrets.client_secret == secrets_dict["client_secret"]
-    assert secrets.redirect_uris == secrets_dict["redirect_uris"]
-
-
-def test_load_from_file_path_object_async(secrets_dict):
-    secrets = asyncio.run(Secrets.afrom_file(SECRETS_PATH))
-    assert secrets.client_id == secrets_dict["client_id"]
-    assert secrets.project_id == secrets_dict["project_id"]
-    assert secrets.auth_uri == secrets_dict["auth_uri"]
-    assert secrets.token_uri == secrets_dict["token_uri"]
-    assert (
-        secrets.auth_provider_x509_cert_url
-        == secrets_dict["auth_provider_x509_cert_url"]
-    )
-    assert secrets.client_secret == secrets_dict["client_secret"]
-    assert secrets.redirect_uris == secrets_dict["redirect_uris"]
-
-
-def test_load_from_file_path_str_async(secrets_dict):
-    secrets = asyncio.run(Secrets.afrom_file(str(SECRETS_PATH)))
     assert secrets.client_id == secrets_dict["client_id"]
     assert secrets.project_id == secrets_dict["project_id"]
     assert secrets.auth_uri == secrets_dict["auth_uri"]
