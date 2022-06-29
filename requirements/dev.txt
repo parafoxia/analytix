@@ -14,7 +14,7 @@ furo
 sphinx>=5,<6
 
 # Formatting
-black[jupyter]~=22.3.0
+black[jupyter]~=22.6.0
 
 # Imports
 flake8~=4.0.1
@@ -36,7 +36,7 @@ pytest~=7.1.0
 requests>=2.27,<3
 
 # Safety
-safety~=1.10.3; python_version<"3.11"
+safety~=2.0.0
 
 # Security
 bandit~=1.7.2
