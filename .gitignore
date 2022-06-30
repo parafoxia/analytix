@@ -5,8 +5,9 @@ secrets/
 *.xlsx
 *.feather
 *.parquet
+*.tsv
 
-# Assets 
+# Assets
 !assets/**/*.png
 !assets/**/*.svg
 
