@@ -26,37 +26,21 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__all__ = (
-    "API_BASE_URL",
-    "API_SCOPES",
-    "can_use",
-    "Client",
-    "enable_logger",
-    "OAUTH_CHECK_URL",
-    "UPDATE_CHECK_URL",
-    "warn",
-)
+import logging
+import warnings
 
-__productname__ = "analytix"
-__version__ = "4.0.0a"
-__description__ = "A simple yet powerful wrapper for the YouTube Analytics API."
-__url__ = "https://github.com/parafoxia/analytix"
-__docs__ = "https://analytix.readthedocs.io"
-__author__ = "Ethan Henderson"
-__author_email__ = "ethan.henderson.1998@gmail.com"
-__license__ = "BSD 3-Clause 'New' or 'Revised' License"
-__bugtracker__ = "https://github.com/parafoxia/analytix/issues"
-__ci__ = "https://github.com/parafoxia/analytix/actions"
-__changelog__ = "https://github.com/parafoxia/analytix/releases"
+from pkg_resources import working_set
 
-API_BASE_URL = "https://youtubeanalytics.googleapis.com/v2/reports?"
-API_SCOPES = (
-    "https://www.googleapis.com/auth/yt-analytics.readonly",
-    "https://www.googleapis.com/auth/yt-analytics-monetary.readonly",
-)
-OAUTH_CHECK_URL = "https://www.googleapis.com/oauth2/v3/tokeninfo?access_token="
-UPDATE_CHECK_URL = "https://pypi.org/pypi/analytix/json"
+_log = logging.getLogger(__name__)
 
-from .client import Client
-from .utils import can_use, warn
-from .ux import enable_logger
+
+def can_use(packages: str) -> bool:
+    ws = [p.key for p in working_set]
+    return all(p in ws for p in packages)
+
+
+def warn(message: str) -> None:
+    if _log.hasHandlers() and _log.getEffectiveLevel() <= 30:
+        _log.warning(message)
+    else:
+        warnings.warn(message)
