@@ -246,7 +246,6 @@ class Tokens:
         _log.info(f"Tokens saved to {path.resolve()}")
 
 
-
 def create_state() -> str:
     """Create a random state for requests.
 
