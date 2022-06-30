@@ -40,7 +40,7 @@ from analytix import errors, oauth
 from analytix.oauth import Secrets, Tokens
 from analytix.queries import Query
 from analytix.reports import AnalyticsReport
-from analytix.webserver import RequestHandler, Server
+from analytix.webserver import Server
 
 if t.TYPE_CHECKING:
     from analytix.types import PathLikeT
@@ -85,7 +85,7 @@ class Client:
         _log.debug("Checking for updates...")
 
         resp = rq.get(analytix.UPDATE_CHECK_URL)
-        if resp.ok:
+        if not resp.ok:
             # If we can't get the info, just ignore it.
             _log.debug("Failed to get version information")
             return False
@@ -107,7 +107,7 @@ class Client:
         url, _ = oauth.auth_url_and_state(self.secrets, rd_addr)
         print(f"You need to authorise analytix. To do so, visit this URL: {url}")
 
-        ws = Server((rd_url[7:], self._ws_port), RequestHandler)
+        ws = Server(rd_url[7:], self._ws_port)
         try:
             ws.handle_request()
         except KeyboardInterrupt as exc:
@@ -140,7 +140,7 @@ class Client:
             # Can't refresh if they're non-existent.
             return False
 
-        _log.debug("Checking if tokens needs to be refreshed...")
+        _log.debug("Checking if access token needs to be refreshed...")
         resp = rq.get(analytix.OAUTH_CHECK_URL + self._tokens.access_token)
         return not resp.ok
 
@@ -182,7 +182,8 @@ class Client:
         skip_update_check: bool = False,
     ) -> AnalyticsReport:
         if not skip_update_check and not self._update_checked:
-            self.can_update()
+            if self.can_update():
+                _log.warning("You do not have the latest stable version of analytix")
 
         query = Query(
             dimensions,

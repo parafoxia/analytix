@@ -26,6 +26,8 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+from __future__ import annotations
+
 import logging
 import typing as t
 from http import server
@@ -34,20 +36,9 @@ from pathlib import Path
 _log = logging.getLogger(__name__)
 
 
-class Server(server.HTTPServer):
-    def __init__(self, *args: t.Any, **kwargs: t.Any) -> None:
-        super().__init__(*args, **kwargs)
-        self.code = ""
-        _log.info(f"Started webserver on {self.server_name}:{self.server_port}")
-
-    def server_close(self) -> None:
-        super().server_close()
-        _log.info("Closed webserver")
-
-
 class RequestHandler(server.BaseHTTPRequestHandler):
-    def log_request(self, *args: t.Any) -> None:
-        _log.debug(f"Received request ({args[0]})")
+    def log_request(self, code: str = "-", _: str = "-") -> None:
+        _log.debug(f"Received request ({code})")
 
     def do_GET(self) -> None:
         self.send_response(200)
@@ -59,3 +50,14 @@ class RequestHandler(server.BaseHTTPRequestHandler):
         _log.debug(f"Code: {self.server.code}")
 
         self.wfile.write((Path(__file__).parent / "data/landing.html").read_bytes())
+
+
+class Server(server.HTTPServer):
+    def __init__(self, address: str, port: int) -> None:
+        super().__init__((address, port), RequestHandler)
+        self.code = ""
+        _log.info(f"Started webserver on {self.server_name}:{self.server_port}")
+
+    def server_close(self) -> None:
+        super().server_close()
+        _log.info("Closed webserver")
