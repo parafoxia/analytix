@@ -44,201 +44,185 @@ if t.TYPE_CHECKING:
     import pyarrow as pa
 
     from analytix.abc import ReportType
-    from analytix.types import ReportRowT
+    from analytix.types import PathLikeT, ResponseT
 
 _log = logging.getLogger(__name__)
 
 
-class ColumnType(Enum):
-    """An enumeration of possible column types."""
-
-    DIMENSION = "DIMENSION"
-    """"""
-
-    METRIC = "METRIC"
-    """"""
-
-
 class DataType(Enum):
-    """An enumeration of possible data types."""
-
     STRING = "STRING"
-    """"""
-
     INTEGER = "INTEGER"
-    """"""
-
     FLOAT = "FLOAT"
-    """"""
+
+
+class ColumnType(Enum):
+    DIMENSION = "DIMENSION"
+    METRIC = "METRIC"
 
 
 @dataclass(frozen=True)
 class ColumnHeader:
-    """A dataclass representing a column header.
-
-    Args:
-        name:
-            The column name.
-        column_type:
-            The column type.
-        data_type:
-            The column's data type.
-    """
-
-    __slots__ = ("name", "column_type", "data_type")
+    __slots__ = ("name", "data_type", "column_type")
 
     name: str
-    column_type: ColumnType
     data_type: DataType
+    column_type: ColumnType
+
+    @property
+    def data(self) -> ResponseT:
+        return {
+            "name": self.name,
+            "dataType": self.data_type.value,
+            "columnType": self.column_type.value,
+        }
+
+
+@dataclass(frozen=True)
+class ResultTable:
+    kind: str
+    column_headers: list[ColumnHeader]
+    rows: list[list[str | int | float]]
 
     @classmethod
-    def from_json(cls, header: dict[str, str]) -> ColumnHeader:
-        """Create a column header from its JSON representation.
-
-        Args:
-            header:
-                The JSON representation of the column header.
-
-        Returns:
-            The newly created ``ColumnHeader`` instance.
-        """
-
+    def from_json(cls, data: ResponseT) -> ResultTable:
         return cls(
-            name=header["name"],
-            column_type=ColumnType(header["columnType"]),
-            data_type=DataType(header["dataType"]),
+            data["kind"],
+            [
+                ColumnHeader(
+                    header["name"],
+                    DataType(header["dataType"]),
+                    ColumnType(header["columnType"]),
+                )
+                for header in data["columnHeaders"]
+            ],
+            data["rows"],
         )
 
+    @property
+    def data(self) -> ResponseT:
+        return {
+            "kind": self.kind,
+            "columnHeaders": [header.data for header in self.column_headers],
+            "rows": self.rows,
+        }
 
-class Report:
-    """A class representing a YouTube Analytics API report. You will
-    never need to manually create an instance of this.
 
-    Args:
-        data:
-            The raw data retrieved from the API.
-        type:
-            The report type.
-
-    Attributes:
-        data:
-            The raw data retrieved from the API.
-        type:
-            The report type.
-    """
-
-    __slots__ = ("data", "type", "_column_headers", "_shape")
-
-    def __init__(self, data: dict[t.Any, t.Any], type: ReportType) -> None:
-        self.data = data
+class AnalyticsReport:
+    def __init__(self, data: ResponseT, type: ReportType) -> None:
+        self.resource = ResultTable.from_json(data)
         self.type = type
-        self._column_headers = [
-            ColumnHeader.from_json(header) for header in data["columnHeaders"]
-        ]
-        self._shape = (len(data["rows"]), len(self._column_headers))
+        self._shape = (len(data["rows"]), len(self.resource.column_headers))
 
     @property
     def shape(self) -> tuple[int, int]:
-        """The shape of the report in the format ``(rows, columns)``."""
-
         return self._shape
 
     @property
-    def rows(self) -> ReportRowT:
-        """The rows in the report.
-
-        .. versionadded:: 3.5.0
-        """
-        return t.cast(ReportRowT, self.data["rows"])
-
-    @property
-    def column_headers(self) -> list[ColumnHeader]:
-        """The column headers in the report.
-
-        .. versionadded:: 3.5.0
-        """
-        return self._column_headers
-
-    @property
     def columns(self) -> list[str]:
-        """The names of all columns in the report.
-
-        .. versionchanged:: 3.5.0
-            This is now a property.
-        """
-        return [c.name for c in self._column_headers]
+        return [c.name for c in self.resource.column_headers]
 
     @property
-    def dimensions(self) -> set[str]:
-        """The names of columns which are dimensions in the report.
-
-        .. versionadded:: 3.3.0
-        """
-
-        return set(self.columns) - self.type.metrics.values
-
-    @property
-    def metrics(self) -> set[str]:
-        """The names of columns which are metrics in the report.
-
-        .. versionadded:: 3.3.0
-        """
-
-        return self.type.metrics.values
-
-    @property
-    def ordered_dimensions(self) -> list[str]:
-        """The names of columns which are dimensions in the report in
-        the order in which they appear.
-
-        .. versionadded:: 3.5.0
-        """
-
+    def dimensions(self) -> list[str]:
         return [
             c.name
-            for c in self._column_headers
+            for c in self.resource.column_headers
             if c.column_type == ColumnType.DIMENSION
         ]
 
     @property
-    def ordered_metrics(self) -> list[str]:
-        """The names of columns which are metrics in the report in
-        the order in which they appear.
-
-        .. versionadded:: 3.5.0
-        """
-
+    def metrics(self) -> list[str]:
         return [
-            c.name for c in self._column_headers if c.column_type == ColumnType.METRIC
+            c.name
+            for c in self.resource.column_headers
+            if c.column_type == ColumnType.METRIC
         ]
 
+    @property
+    def numeric(self) -> list[str]:
+        return [
+            c.name
+            for c in self.resource.column_headers
+            if c.data_type != DataType.STRING
+        ]
+
+    @property
+    def non_numeric(self) -> list[str]:
+        return [
+            c.name
+            for c in self.resource.column_headers
+            if c.data_type == DataType.STRING
+        ]
+
+    def _set_and_validate_path(
+        self, path: PathLikeT, extension: str, overwrite: bool
+    ) -> Path:
+        if not isinstance(path, Path):
+            path = Path(path)
+
+        if path.suffix != extension:
+            path = Path(path.name + extension)
+
+        if not overwrite and path.is_file():
+            raise FileExistsError("file already exists and `overwrite` is set to False")
+
+        return path
+
+    def to_json(
+        self, path: PathLikeT, *, indent: int = 4, overwrite: bool = True
+    ) -> ResponseT:
+        path = self._set_and_validate_path(path, ".json", overwrite)
+        data = self.resource.data
+
+        with open(path, "w") as f:
+            json.dump(data, f, indent=indent)
+
+        _log.info(f"Saved report as JSON to {path.resolve()}")
+        return data
+
+    def to_csv(
+        self, path: PathLikeT, *, delimiter: str = ",", overwrite: bool = True
+    ) -> None:
+        extension = ".tsv" if delimiter == "\t" else ".csv"
+        path = self._set_and_validate_path(path, extension, overwrite)
+
+        with open(path, "w") as f:
+            f.write(f"{delimiter.join(self.columns)}\n")
+            for row in self.resource.data["rows"]:
+                line = delimiter.join(f"{v}" for v in row)
+                f.write(f"{line}\n")
+
+        _log.info(f"Saved report as {extension[1:].upper()} to {path.resolve()}")
+
+    def to_excel(
+        self, path: PathLikeT, *, sheet_name: str = "Analytics", overwrite: bool = True
+    ) -> None:
+        if analytix.can_use("openpyxl", required=True):
+            from openpyxl import Workbook
+
+        path = self._set_and_validate_path(path, ".xlsx", overwrite)
+        wb = Workbook()
+        ws = wb.active
+        ws.title = sheet_name
+
+        ws.append(self.columns)
+        for row in self.resource.data["rows"]:
+            ws.append(row)
+
+        wb.save(path)
+        _log.info(f"Saved report as spreadsheet to {path.resolve()}")
+
     def to_dataframe(self, *, skip_date_conversion: bool = False) -> pd.DataFrame:
-        """Export the report data to a pandas or Modin DataFrame. If you
-        wish to use Modin, you are responsible for selecting and
-        initialising your desired engine.
-
-        Keyword Args:
-            skip_date_conversion:
-                Whether to skip automatically converting date columns to
-                the ``datetime64[ns]`` format. Defaults to ``False``.
-
-        Returns:
-            The newly created DataFrame.
-        """
-
         if analytix.can_use("modin"):
             import modin.pandas as pd
-        elif analytix.can_use("pandas"):
+        elif analytix.can_use("pandas", required=True):
             import pandas as pd
-        else:
-            raise errors.MissingOptionalComponents("pandas")
 
         if not self._shape[0]:
             raise errors.DataFrameConversionError(
                 "cannot convert to DataFrame as the returned data has no rows"
             )
 
-        df = pd.DataFrame(self.data["rows"], columns=self.columns)
+        df = pd.DataFrame(self.resource.data["rows"], columns=self.columns)
 
         if not skip_date_conversion:
             for col in ("day", "month"):
@@ -250,25 +234,10 @@ class Report:
         return df
 
     def to_arrow_table(self, *, skip_date_conversion: bool = False) -> pa.Table:
-        """Export the report data to an Apache Arrow Table.
-
-        Keyword Args:
-            skip_date_conversion:
-                Whether to skip automatically converting date columns to
-                the ``timestamp[us]`` format. Defaults to ``False``.
-
-        Returns:
-            The newly constructed Apache Arrow Table.
-
-        .. versionadded:: 3.2.0
-        """
-
-        if analytix.can_use("pyarrow"):
+        if analytix.can_use("pyarrow", required=True):
             import pyarrow as pa
-        else:
-            raise errors.MissingOptionalComponents("pyarrow")
 
-        data = list(zip(*self.data["rows"]))
+        data = list(zip(*self.resource.data["rows"]))
 
         if not skip_date_conversion:
             for i, col in enumerate(data):
@@ -280,138 +249,34 @@ class Report:
 
         return pa.Table.from_arrays(data, names=self.columns)
 
-    def to_json(self, path: str, *, indent: int = 4) -> None:
-        """Write the report data to a JSON file.
-
-        .. note::
-            This method can also be run asynchronously by awaiting it.
-
-        Args:
-            path:
-                The path the file should be saved to.
-
-        Keyword Args:
-            indent:
-                The amount of indentation the data should be written
-                with. Defaults to ``4``.
-
-        Returns:
-            The report writer. This is done to allow this method to run
-            sync or async in a typed context.
-        """
-
-        if not path.endswith(".json"):
-            path += ".json"
-
-        with open(path, "w") as f:
-            json.dump(self.data, f, indent=indent)
-
-        return _log.info(f"Saved report as JSON to {Path(path).resolve()}")
-
-    def to_csv(self, path: str, *, delimiter: str = ",") -> None:
-        """Write the report data to a CSV file.
-
-        .. note::
-            This method can also be run asynchronously by awaiting it.
-
-        Args:
-            path:
-                The path the file should be saved to.
-
-        Keyword Args:
-            delimiter:
-                The delimiter to use. Defaults to a comma. Passing a tab
-                here will save the file as a TSV instead.
-
-        Returns:
-            The report writer. This is done to allow this method to run
-            sync or async in a typed context.
-        """
-
-        extension = ".tsv" if delimiter == "\t" else ".csv"
-
-        if not path.endswith(extension):
-            path += extension
-
-        with open(path, "w") as f:
-            f.write(f"{delimiter.join(self.columns)}\n")
-            for row in self.data["rows"]:
-                line = delimiter.join(f"{v}" for v in row)
-                f.write(f"{line}\n")
-
-        return _log.info(f"Saved report as CSV to {Path(path).resolve()}")
-
-    def to_excel(self, path: str, *, sheet_name: str = "Analytics") -> None:
-        """Write the report data to an Excel spreadsheet.
-
-        Args:
-            path:
-                The path the file should be saved to.
-
-        Keyword Args:
-            sheet_name:
-                The name for the worksheet.
-
-        .. versionadded:: 3.1.0
-        """
-
-        if analytix.can_use("openpyxl"):
-            from openpyxl import Workbook
-        else:
-            raise errors.MissingOptionalComponents("openpyxl")
-
-        if not path.endswith(".xlsx"):
-            path += ".xlsx"
-
-        wb = Workbook()
-        ws = wb.active
-        ws.title = sheet_name
-
-        ws.append(self.columns)
-        for row in self.data["rows"]:
-            ws.append(row)
-
-        wb.save(path)
-        _log.info(f"Saved report as spreadsheet to {Path(path).resolve()}")
-
-    def to_feather(self, path: str) -> None:
-        """Write the report data to an Apache Feather file.
-
-        Args:
-            path:
-                The path the file should be saved to.
-
-        .. versionadded:: 3.2.0
-        """
-
-        if analytix.can_use("pyarrow"):
+    def to_feather(
+        self,
+        path: PathLikeT,
+        *,
+        skip_date_conversion: bool = False,
+        overwrite: bool = True,
+    ) -> pa.Table:
+        if analytix.can_use("pyarrow", required=True):
             import pyarrow.feather as pf
-        else:
-            raise errors.MissingOptionalComponents("pyarrow")
 
-        if not path.endswith(".feather"):
-            path += ".feather"
+        path = self._set_and_validate_path(path, ".feather", overwrite)
+        pf.write_feather(
+            self.to_arrow_table(skip_date_conversion=skip_date_conversion), path
+        )
+        _log.info(f"Saved report as Apache Feather file to {path.resolve()}")
 
-        pf.write_feather(self.to_arrow_table(), path)
-        _log.info(f"Saved report as Apache Feather file to {Path(path).resolve()}")
-
-    def to_parquet(self, path: str) -> None:
-        """Write the report data to an Apache Parquet file.
-
-        Args:
-            path:
-                The path the file should be saved to.
-
-        .. versionadded:: 3.2.0
-        """
-
-        if analytix.can_use("pyarrow"):
+    def to_parquet(
+        self,
+        path: PathLikeT,
+        *,
+        skip_date_conversion: bool = False,
+        overwrite: bool = True,
+    ) -> pa.Table:
+        if analytix.can_use("pyarrow", required=True):
             import pyarrow.parquet as pq
-        else:
-            raise errors.MissingOptionalComponents("pyarrow")
 
-        if not path.endswith(".parquet"):
-            path += ".parquet"
-
-        pq.write_table(self.to_arrow_table(), path)
-        _log.info(f"Saved report as Apache Parquet file to {Path(path).resolve()}")
+        path = self._set_and_validate_path(path, ".parquet", overwrite)
+        pq.write_table(
+            self.to_arrow_table(skip_date_conversion=skip_date_conversion), path
+        )
+        _log.info(f"Saved report as Apache Parquet file to {path.resolve()}")

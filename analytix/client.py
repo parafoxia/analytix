@@ -37,10 +37,9 @@ import requests as rq
 
 import analytix
 from analytix import errors, oauth
+from analytix.oauth import Secrets, Tokens
 from analytix.queries import Query
-from analytix.reports import Report
-from analytix.secrets import Secrets
-from analytix.tokens import Tokens
+from analytix.reports import AnalyticsReport
 from analytix.webserver import RequestHandler, Server
 
 if t.TYPE_CHECKING:
@@ -50,6 +49,8 @@ _log = logging.getLogger(__name__)
 
 
 class Client:
+    __slots__ = ("secrets", "_token_path", "_tokens", "_ws_port", "_update_checked")
+
     def __init__(
         self,
         secrets_file: PathLikeT,
@@ -151,7 +152,9 @@ class Client:
             return
 
         _log.info("Refreshing access token...")
-        data, headers = oauth.refresh_data_and_headers(self._tokens.refresh_token, self.secrets)
+        data, headers = oauth.refresh_data_and_headers(
+            self._tokens.refresh_token, self.secrets
+        )
 
         resp = rq.post(self.secrets.token_uri, data=data, headers=headers)
         if resp.ok:
@@ -161,7 +164,6 @@ class Client:
             self._tokens = self._retrieve_tokens()
 
         self._tokens.write(self._token_path)
-
 
     def retrieve_report(
         self,
@@ -178,7 +180,7 @@ class Client:
         include_historical_data: bool = False,
         force_authorisation: bool = False,
         skip_update_check: bool = False,
-    ) -> Report:
+    ) -> AnalyticsReport:
         if not skip_update_check and not self._update_checked:
             self.can_update()
 
@@ -199,6 +201,9 @@ class Client:
         if not self.authorised or force_authorisation:
             self.authorise(force=force_authorisation)
 
+        if self.needs_token_refresh():
+            self.refresh_access_token()
+
         assert self._tokens is not None
         headers = {"Authorization": f"Bearer {self._tokens.access_token}"}
         resp = rq.get(query.url, headers=headers)
@@ -213,6 +218,6 @@ class Client:
             query.set_report_type()
 
         assert query.rtype is not None
-        report = Report(data, query.rtype)
+        report = AnalyticsReport(data, query.rtype)
         _log.info(f"Created report of shape {report.shape}!")
         return report

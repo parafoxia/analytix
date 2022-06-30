@@ -31,12 +31,19 @@ import warnings
 
 from pkg_resources import working_set
 
+from analytix import errors
+
 _log = logging.getLogger(__name__)
 
 
-def can_use(packages: str) -> bool:
+def can_use(*packages: str, required: bool = False) -> bool:
     ws = [p.key for p in working_set]
-    return all(p in ws for p in packages)
+    can_use = all(p in ws for p in packages)
+
+    if required and not can_use:
+        raise errors.MissingOptionalComponents(*packages)
+
+    return can_use
 
 
 def warn(message: str) -> None:
