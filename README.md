@@ -66,7 +66,7 @@ You can also install *analytix* with additional libraries to provide extra funct
 To install multiple at once, use commas:
 
 ```sh
-pip install "analytix[excel,modin,types]
+pip install "analytix[excel,modin,types]"
 ```
 
 ## OAuth authentication
