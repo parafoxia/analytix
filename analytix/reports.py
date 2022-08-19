@@ -299,11 +299,11 @@ class Report:
         df = pd.DataFrame(self.data["rows"], columns=self.columns)
 
         if not skip_date_conversion:
-            for col in ("day", "month"):
-                if col in df.columns:
-                    df[col] = pd.to_datetime(df[col], format="%Y-%m-%d")
-                    _log.info(f"Converted {col!r} column to datetime64[ns] format")
-                    break
+            s = {"day", "month"} & set(df.columns)
+            if len(s):
+                col = next(iter(s))
+                df[col] = pd.to_datetime(df[col], format="%Y-%m-%d")
+                _log.info(f"Converted {col!r} column to datetime64[ns] format")
 
         return df
 
@@ -313,30 +313,36 @@ class Report:
         Keyword Args:
             skip_date_conversion:
                 Whether to skip automatically converting date columns to
-                the ``timestamp[us]`` format. Defaults to ``False``.
+                the ``timestamp[ns]`` format. Defaults to ``False``.
 
         Returns:
             The newly constructed Apache Arrow Table.
 
         .. versionadded:: 3.2.0
+
+        .. versionchanged:: 3.6.0
+            Time series columns are now converted to ``timestamp[ns]``
+            format instead of ``timestamp[us]`` format.
         """
 
         if analytix.can_use("pyarrow"):
             import pyarrow as pa
+            import pyarrow.compute as pc
         else:
             raise errors.MissingOptionalComponents("pyarrow")
 
-        data = list(zip(*self.data["rows"]))
+        table = pa.table(list(zip(*self.data["rows"])), names=self.columns)
 
         if not skip_date_conversion:
-            for i, col in enumerate(data):
-                if isinstance(col[0], str) and "-" in col[0]:
-                    fmt = f"%Y-%m{'-%d'if len(col[0].split('-')) == 3 else ''}"
-                    data[i] = [dt.datetime.strptime(record, fmt) for record in data[i]]
-                    _log.info("Converted time-series column to timestamp[us] format")
-                    break
+            s = {"day", "month"} & set(table.column_names)
+            if len(s):
+                col = next(iter(s))
+                fmt = {"day": "%Y-%m-%d", "month": "%Y-%m"}[col]
+                dt_series = pc.strptime(table.column(col), format=fmt, unit="ns")
+                table = table.set_column(0, "day", dt_series)
+                _log.info(f"Converted {col!r} column to timestamp[ns] format")
 
-        return pa.Table.from_arrays(data, names=self.columns)
+        return table
 
     def to_polars(self, *, skip_date_conversion: bool = False) -> pl.DataFrame:
         """Export the report data to a Polars DataFrame.
@@ -344,7 +350,7 @@ class Report:
         Keyword Args:
             skip_date_conversion:
                 Whether to skip automatically converting date columns to
-                the ``datetime[μs]`` format. Defaults to ``False``.
+                the ``datetime[ns]`` format. Defaults to ``False``.
 
         Returns:
             The newly created DataFrame.
