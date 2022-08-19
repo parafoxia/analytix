@@ -703,6 +703,7 @@ VALID_FILTER_OPTIONS = {
     "gender": (
         "female",
         "male",
+        "user_specified",
     ),
     "sharingService": (
         "AMEBA",

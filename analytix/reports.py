@@ -28,7 +28,6 @@
 
 from __future__ import annotations
 
-import datetime as dt
 import json
 import logging
 import typing as t
@@ -42,6 +41,7 @@ from analytix.utils import requires
 
 if t.TYPE_CHECKING:
     import pandas as pd
+    import polars as pl
     import pyarrow as pa
 
     from analytix.abc import ReportType
@@ -212,7 +212,7 @@ class AnalyticsReport:
         wb.save(path)
         _log.info(f"Saved report as spreadsheet to {path.resolve()}")
 
-    def to_dataframe(self, *, skip_date_conversion: bool = False) -> pd.DataFrame:
+    def to_pandas(self, *, skip_date_conversion: bool = False) -> pd.DataFrame:
         if analytix.can_use("modin"):
             import modin.pandas as pd
         elif analytix.can_use("pandas", required=True):
@@ -226,29 +226,37 @@ class AnalyticsReport:
         df = pd.DataFrame(self.resource.data["rows"], columns=self.columns)
 
         if not skip_date_conversion:
-            for col in ("day", "month"):
-                if col in df.columns:
-                    df[col] = pd.to_datetime(df[col], format="%Y-%m-%d")
-                    _log.info(f"Converted {col!r} column to datetime64[ns] format")
-                    break
+            s = {"day", "month"} & set(df.columns)
+            if len(s):
+                col = next(iter(s))
+                df[col] = pd.to_datetime(df[col], format="%Y-%m-%d")
+                _log.info(f"Converted {col!r} column to datetime64[ns] format")
 
         return df
 
     @requires("pyarrow")
-    def to_arrow_table(self, *, skip_date_conversion: bool = False) -> pa.Table:
+    def to_arrow(self, *, skip_date_conversion: bool = False) -> pa.Table:
         import pyarrow as pa
+        import pyarrow.compute as pc
 
-        data = list(zip(*self.resource.data["rows"]))
+        table = pa.table(list(zip(*self.resource.data["rows"])), names=self.columns)
 
         if not skip_date_conversion:
-            for i, col in enumerate(data):
-                if isinstance(col[0], str) and "-" in col[0]:
-                    fmt = f"%Y-%m{'-%d'if len(col[0].split('-')) == 3 else ''}"
-                    data[i] = [dt.datetime.strptime(record, fmt) for record in data[i]]
-                    _log.info("Converted time-series column to timestamp[us] format")
-                    break
+            s = {"day", "month"} & set(table.column_names)
+            if len(s):
+                col = next(iter(s))
+                fmt = {"day": "%Y-%m-%d", "month": "%Y-%m"}[col]
+                dt_series = pc.strptime(table.column(col), format=fmt, unit="ns")
+                table = table.set_column(0, "day", dt_series)
+                _log.info(f"Converted {col!r} column to timestamp[ns] format")
 
-        return pa.Table.from_arrays(data, names=self.columns)
+        return table
+
+    @requires("polars", "pyarrow")
+    def to_polars(self, *, skip_date_conversion: bool = False) -> pl.DataFrame:
+        import polars as pl
+
+        return pl.from_arrow(self.to_arrow(skip_date_conversion=skip_date_conversion))
 
     @requires("pyarrow")
     def to_feather(
@@ -261,9 +269,7 @@ class AnalyticsReport:
         import pyarrow.feather as pf
 
         path = self._set_and_validate_path(path, ".feather", overwrite)
-        pf.write_feather(
-            self.to_arrow_table(skip_date_conversion=skip_date_conversion), path
-        )
+        pf.write_feather(self.to_arrow(skip_date_conversion=skip_date_conversion), path)
         _log.info(f"Saved report as Apache Feather file to {path.resolve()}")
 
     @requires("pyarrow")
@@ -277,7 +283,5 @@ class AnalyticsReport:
         import pyarrow.parquet as pq
 
         path = self._set_and_validate_path(path, ".parquet", overwrite)
-        pq.write_table(
-            self.to_arrow_table(skip_date_conversion=skip_date_conversion), path
-        )
+        pq.write_table(self.to_arrow(skip_date_conversion=skip_date_conversion), path)
         _log.info(f"Saved report as Apache Parquet file to {path.resolve()}")
