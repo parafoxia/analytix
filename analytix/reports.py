@@ -28,7 +28,6 @@
 
 from __future__ import annotations
 
-import datetime as dt
 import json
 import logging
 import typing as t

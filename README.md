@@ -61,6 +61,7 @@ You can also install *analytix* with additional libraries to provide extra funct
 * `analytix[excel]` — support for exporting reports to *Excel* spreadsheets
 * `analytix[modin]` — *Modin* support (note: this installs **all** engines; if you want to use a specific engine, you will need to do so manually)
 * `analytix[pandas]` — *pandas* support (`analytix[df]` does the same, but is deprecated)
+* `analytix[polars]` — *Polars* support (reliant on *Apache Arrow*)
 * `analytix[types]` — type stubs for type-hinted projects
 
 To install multiple at once, use commas:
