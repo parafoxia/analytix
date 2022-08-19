@@ -26,12 +26,21 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+from __future__ import annotations
+
+__all__ = ("can_use", "requires", "warn", "warn_on_call")
+
 import logging
+import typing as t
 import warnings
+from functools import wraps
 
 from pkg_resources import working_set
 
 from analytix import errors
+
+if t.TYPE_CHECKING:
+    _FuncT = t.Callable[..., t.Any]
 
 _log = logging.getLogger(__name__)
 
@@ -46,8 +55,32 @@ def can_use(*packages: str, required: bool = False) -> bool:
     return can_use
 
 
+def requires(*packages: str) -> t.Callable[[_FuncT], _FuncT]:
+    def decorator(func: _FuncT) -> _FuncT:
+        @wraps(func)
+        def wrapper(*args: t.Any, **kwargs: t.Any) -> t.Any:
+            can_use(*packages, required=True)
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    return decorator
+
+
 def warn(message: str) -> None:
     if _log.hasHandlers() and _log.getEffectiveLevel() <= 30:
         _log.warning(message)
     else:
         warnings.warn(message)
+
+
+def warn_on_call(message: str) -> t.Callable[[_FuncT], _FuncT]:
+    def decorator(func: _FuncT) -> _FuncT:
+        @wraps(func)
+        def wrapper(*args: t.Any, **kwargs: t.Any) -> t.Any:
+            warn(message)
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    return decorator

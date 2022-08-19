@@ -33,8 +33,10 @@ __all__ = (
     "Client",
     "enable_logger",
     "OAUTH_CHECK_URL",
+    "requires",
     "UPDATE_CHECK_URL",
     "warn",
+    "warn_on_call",
 )
 
 __productname__ = "analytix"
@@ -58,5 +60,5 @@ OAUTH_CHECK_URL = "https://www.googleapis.com/oauth2/v3/tokeninfo?access_token="
 UPDATE_CHECK_URL = "https://pypi.org/pypi/analytix/json"
 
 from .client import Client
-from .utils import can_use, warn
+from .utils import *
 from .ux import enable_logger

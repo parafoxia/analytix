@@ -38,6 +38,7 @@ from pathlib import Path
 
 import analytix
 from analytix import errors
+from analytix.utils import requires
 
 if t.TYPE_CHECKING:
     import pandas as pd
@@ -193,11 +194,11 @@ class AnalyticsReport:
 
         _log.info(f"Saved report as {extension[1:].upper()} to {path.resolve()}")
 
+    @requires("openpyxl")
     def to_excel(
         self, path: PathLikeT, *, sheet_name: str = "Analytics", overwrite: bool = True
     ) -> None:
-        if analytix.can_use("openpyxl", required=True):
-            from openpyxl import Workbook
+        from openpyxl import Workbook
 
         path = self._set_and_validate_path(path, ".xlsx", overwrite)
         wb = Workbook()
@@ -233,9 +234,9 @@ class AnalyticsReport:
 
         return df
 
+    @requires("pyarrow")
     def to_arrow_table(self, *, skip_date_conversion: bool = False) -> pa.Table:
-        if analytix.can_use("pyarrow", required=True):
-            import pyarrow as pa
+        import pyarrow as pa
 
         data = list(zip(*self.resource.data["rows"]))
 
@@ -249,6 +250,7 @@ class AnalyticsReport:
 
         return pa.Table.from_arrays(data, names=self.columns)
 
+    @requires("pyarrow")
     def to_feather(
         self,
         path: PathLikeT,
@@ -256,8 +258,7 @@ class AnalyticsReport:
         skip_date_conversion: bool = False,
         overwrite: bool = True,
     ) -> pa.Table:
-        if analytix.can_use("pyarrow", required=True):
-            import pyarrow.feather as pf
+        import pyarrow.feather as pf
 
         path = self._set_and_validate_path(path, ".feather", overwrite)
         pf.write_feather(
@@ -265,6 +266,7 @@ class AnalyticsReport:
         )
         _log.info(f"Saved report as Apache Feather file to {path.resolve()}")
 
+    @requires("pyarrow")
     def to_parquet(
         self,
         path: PathLikeT,
@@ -272,8 +274,7 @@ class AnalyticsReport:
         skip_date_conversion: bool = False,
         overwrite: bool = True,
     ) -> pa.Table:
-        if analytix.can_use("pyarrow", required=True):
-            import pyarrow.parquet as pq
+        import pyarrow.parquet as pq
 
         path = self._set_and_validate_path(path, ".parquet", overwrite)
         pq.write_table(
