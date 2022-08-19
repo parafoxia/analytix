@@ -120,6 +120,7 @@ setuptools.setup(
         "excel": parse_requirements("./requirements/excel.txt"),
         "modin": parse_requirements("./requirements/modin.txt"),
         "pandas": parse_requirements("./requirements/df.txt"),
+        "polars": parse_requirements("./requirements/polars.txt"),
         "types": parse_requirements("./requirements/types.txt"),
     },
     python_requires=">=3.7.0,<3.12",

@@ -62,6 +62,9 @@ if analytix.can_use("openpyxl"):
 if analytix.can_use("pandas"):
     import pandas as pd
 
+if analytix.can_use("polars"):
+    import polars as pl
+
 
 @pytest.fixture()
 def request_data():
@@ -626,4 +629,33 @@ def test_to_parquet_no_pyarrow(report):
         assert (
             str(exc.value)
             == "some necessary libraries are not installed (hint: pip install pyarrow)"
+        )
+
+
+@pytest.mark.skipif(
+    sys.version_info >= (3, 11, 0) or platform.python_implementation() != "CPython",
+    reason="PyArrow does not support Python 3.11, and it is required by Polars",
+)
+def test_to_polars_dataframe(report):
+    # This relies entirely on Arrow, so as long as those tests work,
+    # these should too.
+    df = report.to_polars()
+    df_csv = pl.read_csv(MOCK_CSV_PATH)
+    df_csv = df_csv.with_column(pl.col("day").str.strptime(pl.Date).cast(pl.Datetime))
+    assert df.frame_equal(df_csv)
+
+
+@pytest.mark.skipif(
+    sys.version_info >= (3, 11, 0) or platform.python_implementation() != "CPython",
+    reason="PyArrow does not support Python 3.11, and it is required by Polars",
+)
+def test_to_polars_dataframe_no_polars(report):
+    with mock.patch.object(analytix, "can_use") as mock_cu:
+        mock_cu.return_value = False
+
+        with pytest.raises(errors.MissingOptionalComponents) as exc:
+            report.to_polars()
+        assert (
+            str(exc.value)
+            == "some necessary libraries are not installed (hint: pip install polars)"
         )

@@ -72,7 +72,7 @@ def fetch_installs(*categories: str) -> list[str]:
 
 @nox.session(reuse_venv=True)
 def tests(session: nox.Session) -> None:
-    session.install(*fetch_installs("Tests"), ".[pandas,excel,arrow]")
+    session.install(*fetch_installs("Tests"), ".[pandas,excel,arrow,polars]")
     session.run(
         "coverage",
         "run",
@@ -154,9 +154,6 @@ def spelling(session: nox.Session) -> None:
 
 @nox.session(reuse_venv=True)
 def safety(session: nox.Session) -> None:
-    if sys.version_info >= (3, 11):
-        session.skip("Safety does not support Python 3.11")
-
     installs = []
 
     for p in list(PROJECT_DIR.glob("requirements/*.txt")):

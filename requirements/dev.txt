@@ -4,6 +4,7 @@
 -r ./base.txt
 -r ./df.txt
 -r ./excel.txt
+-r ./polars.txt
 -r ./types.txt
 
 # Sessions

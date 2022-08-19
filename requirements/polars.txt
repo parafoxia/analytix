@@ -1,0 +1,3 @@
+-r ./base.txt
+polars; platform_python_implementation=="CPython"
+pyarrow; python_version<"3.11" and platform_python_implementation=="CPython"

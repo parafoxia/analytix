@@ -45,6 +45,7 @@ from analytix.types import ReportRowT
 
 if t.TYPE_CHECKING:
     import pandas as pd
+    import polars as pl
     import pyarrow as pa
 
     from analytix.abc import ReportType
@@ -336,6 +337,29 @@ class Report:
                     break
 
         return pa.Table.from_arrays(data, names=self.columns)
+
+    def to_polars(self, *, skip_date_conversion: bool = False) -> pl.DataFrame:
+        """Export the report data to a Polars DataFrame.
+
+        Keyword Args:
+            skip_date_conversion:
+                Whether to skip automatically converting date columns to
+                the ``datetime[μs]`` format. Defaults to ``False``.
+
+        Returns:
+            The newly created DataFrame.
+
+        .. versionadded:: 3.6.0
+        """
+
+        if analytix.can_use("polars"):
+            import polars as pl
+        else:
+            raise errors.MissingOptionalComponents("polars")
+
+        return pl.from_arrow(
+            self.to_arrow_table(skip_date_conversion=skip_date_conversion)
+        )
 
     def to_json(self, path: str, *, indent: int = 4) -> JSONReportWriter:
         """Write the report data to a JSON file.
