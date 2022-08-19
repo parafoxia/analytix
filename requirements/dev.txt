@@ -1,13 +1,16 @@
 # Meta
 -e .
--r ./arrow.txt
 -r ./base.txt
--r ./df.txt
 -r ./excel.txt
 -r ./types.txt
 
+# Data libraries
+pandas; python_version<"3.11" and platform_python_implementation=="CPython"
+pyarrow; python_version<"3.11" and platform_python_implementation=="CPython"
+polars; python_version<"3.11" and platform_python_implementation=="CPython"
+
 # Sessions
-nox==2022.1.7
+nox==2022.8.7
 
 # Docs
 furo
@@ -17,17 +20,17 @@ sphinx>=5,<6
 black[jupyter]~=22.6.0
 
 # Imports
-flake8~=4.0.1
+flake8~=5.0.4
 isort~=5.10.0
 
 # Typing
-mypy==0.961
+mypy==0.971
 
 # Line lengths
 len8~=0.7.2
 
 # Spelling
-codespell~=2.1.0
+codespell~=2.2.1
 
 # Tests
 coverage~=6.4.1
@@ -35,7 +38,7 @@ mock~=4.0.3
 pytest~=7.1.0
 
 # Safety
-safety~=2.0.0
+safety~=2.1.1
 
 # Security
 bandit~=1.7.2

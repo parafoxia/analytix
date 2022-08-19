@@ -1,2 +1,2 @@
 -r ./base.txt
-openpyxl>=3
+openpyxl>=3,<4
