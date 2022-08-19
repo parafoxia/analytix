@@ -55,7 +55,7 @@ class Client:
         self,
         secrets_file: PathLikeT,
         *,
-        tokens_file: PathLikeT = ".",
+        tokens_file: PathLikeT = "tokens.json",
         ws_port: int = 8080,
     ) -> None:
         self.secrets = Secrets.from_file(secrets_file)
