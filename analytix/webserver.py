@@ -29,7 +29,6 @@
 from __future__ import annotations
 
 import logging
-import typing as t
 from http import server
 from pathlib import Path
 
@@ -37,7 +36,7 @@ _log = logging.getLogger(__name__)
 
 
 class RequestHandler(server.BaseHTTPRequestHandler):
-    def log_request(self, code: str = "-", _: str = "-") -> None:
+    def log_request(self, code: int | str = "-", _: int | str = "-") -> None:
         _log.debug(f"Received request ({code})")
 
     def do_GET(self) -> None:

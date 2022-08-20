@@ -153,7 +153,7 @@ class GroupItem(Resource):
 class GroupItemList(Resource):
     items: list[GroupItem]
 
-    def __getitem__(self, key: int) -> Group:
+    def __getitem__(self, key: int) -> GroupItem:
         return self.items[key]
 
     @classmethod
