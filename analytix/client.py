@@ -37,8 +37,9 @@ import requests as rq
 
 import analytix
 from analytix import errors, oauth
+from analytix.groups import GroupItemList, GroupList
 from analytix.oauth import Secrets, Tokens
-from analytix.queries import Query
+from analytix.queries import GroupItemQuery, GroupQuery, ReportQuery
 from analytix.reports import AnalyticsReport
 from analytix.webserver import Server
 
@@ -80,6 +81,24 @@ class Client:
     @property
     def authorised(self) -> bool:
         return self._tokens is not None
+
+    def _request(self, url: str) -> t.Any:
+        assert self._tokens is not None
+
+        headers = {"Authorization": f"Bearer {self._tokens.access_token}"}
+        resp = rq.get(url, headers=headers)
+
+        if not resp.ok:
+            raise errors.APIError(str(resp.status_code), resp.reason)
+
+        data = resp.json()
+        _log.debug(f"Data retrieved: {data}")
+
+        if next(iter(data)) == "error":
+            error = data["error"]
+            raise errors.APIError(error["code"], error["message"])
+
+        return data
 
     def can_update(self) -> bool:
         _log.debug("Checking for updates...")
@@ -185,7 +204,7 @@ class Client:
             if self.can_update():
                 _log.warning("You do not have the latest stable version of analytix")
 
-        query = Query(
+        query = ReportQuery(
             dimensions,
             filters,
             metrics,
@@ -205,15 +224,7 @@ class Client:
         if self.needs_token_refresh():
             self.refresh_access_token()
 
-        assert self._tokens is not None
-        headers = {"Authorization": f"Bearer {self._tokens.access_token}"}
-        resp = rq.get(query.url, headers=headers)
-        data = resp.json()
-        _log.debug(f"Data retrieved: {data}")
-
-        if next(iter(data)) == "error":
-            error = data["error"]
-            raise errors.APIError(error["code"], error["message"])
+        data = self._request(query.url)
 
         if not query.rtype:
             query.set_report_type()
@@ -222,3 +233,44 @@ class Client:
         report = AnalyticsReport(data, query.rtype)
         _log.info(f"Created report of shape {report.shape}!")
         return report
+
+    def fetch_groups(
+        self,
+        *,
+        ids: t.Collection[str] | None = None,
+        next_page_token: str | None = None,
+        force_authorisation: bool = False,
+        skip_update_check: bool = False,
+    ) -> GroupList:
+        if not skip_update_check and not self._update_checked:
+            if self.can_update():
+                _log.warning("You do not have the latest stable version of analytix")
+
+        if not self.authorised or force_authorisation:
+            self.authorise()
+
+        if self.needs_token_refresh():
+            self.refresh_access_token()
+
+        query = GroupQuery(ids, next_page_token)
+        return GroupList.from_json(self._request(query.url))
+
+    def fetch_group_items(
+        self,
+        group_id: str,
+        *,
+        force_authorisation: bool = False,
+        skip_update_check: bool = False,
+    ) -> GroupItemList:
+        if not skip_update_check and not self._update_checked:
+            if self.can_update():
+                _log.warning("You do not have the latest stable version of analytix")
+
+        if not self.authorised or force_authorisation:
+            self.authorise()
+
+        if self.needs_token_refresh():
+            self.refresh_access_token()
+
+        query = GroupItemQuery(group_id)
+        return GroupItemList.from_json(self._request(query.url))

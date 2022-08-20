@@ -28,6 +28,9 @@
 
 __all__ = (
     "API_BASE_URL",
+    "API_GROUPS_URL",
+    "API_GROUP_ITEMS_URL",
+    "API_REPORTS_URL",
     "API_SCOPES",
     "can_use",
     "Client",
@@ -51,7 +54,10 @@ __bugtracker__ = "https://github.com/parafoxia/analytix/issues"
 __ci__ = "https://github.com/parafoxia/analytix/actions"
 __changelog__ = "https://github.com/parafoxia/analytix/releases"
 
-API_BASE_URL = "https://youtubeanalytics.googleapis.com/v2/reports?"
+API_BASE_URL = "https://youtubeanalytics.googleapis.com/v2/"
+API_REPORTS_URL = API_BASE_URL + "reports?"
+API_GROUPS_URL = API_BASE_URL + "groups?"
+API_GROUP_ITEMS_URL = API_BASE_URL + "groupItems?"
 API_SCOPES = (
     "https://www.googleapis.com/auth/yt-analytics.readonly",
     "https://www.googleapis.com/auth/yt-analytics-monetary.readonly",

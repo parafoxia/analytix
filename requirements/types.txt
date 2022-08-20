@@ -1,3 +1,4 @@
 -r ./base.txt
+types-python-dateutil
 types-requests
 types-setuptools

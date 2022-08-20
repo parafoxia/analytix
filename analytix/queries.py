@@ -41,7 +41,7 @@ from analytix.errors import InvalidRequest
 _log = logging.getLogger(__name__)
 
 
-class Query:
+class ReportQuery:
     __slots__ = (
         "dimensions",
         "filters",
@@ -98,7 +98,7 @@ class Query:
     @property
     def url(self) -> str:
         filters = ";".join(f"{k}=={v}" for k, v in self.filters.items())
-        return analytix.API_BASE_URL + (
+        return analytix.API_REPORTS_URL + (
             "ids=channel==MINE"
             f"&dimensions={','.join(self.dimensions)}"
             f"&filters={filters}"
@@ -290,3 +290,29 @@ class Query:
     def set_report_type(self) -> None:
         self.rtype = self.determine_report_type()
         _log.info(f"Report type determined as {self.rtype.name!r}")
+
+
+class GroupQuery:
+    __slots__ = ("ids", "next_page_token")
+
+    def __init__(
+        self, ids: t.Collection[str] | None = None, next_page_token: str | None = None
+    ) -> None:
+        self.ids = ids or ()
+        self.next_page_token = next_page_token
+
+    @property
+    def url(self) -> str:
+        qstr = ("id=" + ",".join(self.ids)) if self.ids else "mine=true"
+        return analytix.API_GROUPS_URL + qstr
+
+
+class GroupItemQuery:
+    __slots__ = ("group_id",)
+
+    def __init__(self, group_id: str) -> None:
+        self.group_id = group_id
+
+    @property
+    def url(self) -> str:
+        return analytix.API_GROUP_ITEMS_URL + f"groupId={self.group_id}"
