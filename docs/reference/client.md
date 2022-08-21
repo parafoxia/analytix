@@ -1,3 +1,3 @@
-# Client
+# client
 
 ::: analytix.client

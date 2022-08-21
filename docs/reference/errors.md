@@ -1,3 +1,3 @@
-# Errors
+# errors
 
 ::: analytix.errors

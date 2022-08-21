@@ -1,3 +1,3 @@
-# OAuth
+# oauth
 
 ::: analytix.oauth

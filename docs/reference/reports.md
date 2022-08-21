@@ -1,3 +1,3 @@
-# Reports
+# reports
 
 ::: analytix.reports
