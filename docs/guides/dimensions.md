@@ -2,7 +2,11 @@
 
 ## Overview
 
-Dimensions provide a means to split data into smaller parts. This is useful when you wish to see how your channel is performing over time or compare the statistics for one attribute against those for another. Most report types require at least one dimension to be provided, and some report types can accept more.
+Dimensions provide a means to split data into smaller parts.
+This is useful when you wish to see how your channel is performing over time or compare the statistics for one attribute against those for another.
+Most report types require at least one dimension to be provided, and some report types can accept more.
+
+## Using a single dimension
 
 Here is some example data:
 
@@ -10,7 +14,11 @@ Here is some example data:
 |--:|----------:|--------:|---------:|
 | 1 | 1 000 000 | 100 000 | 20 000   |
 
-This data contains four columns (the ID column, and three metrics), and one row. This row represents the cumulative data over the course of 12 months. While this is useful if you want to know the totals, there is not a lot we can take from it. To remedy this, we can use the "month" dimension. After doing so, the data looks like this:
+This data contains four columns (the ID column, and three metrics), and one row.
+This row represents the cumulative data over the course of 12 months.
+While this is useful if you want to know the totals, there is not a lot we can take from it.
+To remedy this, we can use the "month" dimension.
+After doing so, the data looks like this:
 
 |    | month   | views   | likes  | comments |
 |---:|---------|--------:|-------:|---------:|
@@ -27,7 +35,11 @@ This data contains four columns (the ID column, and three metrics), and one row.
 | 11 | 2021-11 | 93 453  | 8 334  | 2 602    |
 | 12 | 2021-12 | 7 604   | 1 138  | 88       |
 
-As you can see, doing this has added an extra column (month), as well as split the original row into 12 separate ones. Using this, we can see that our channel performed the best in April and the worst in December. It might be worth seeing what sort of content was put out in April (as well as August and November) and trying to do more of that going forward.
+As you can see, doing this has added an extra column (month), as well as split the original row into 12 separate ones.
+Using this, we can see that our channel performed the best in April and the worst in December.
+It might be worth seeing what sort of content was put out in April (as well as August and November) and trying to do more of that going forward.
+
+## Using multiple dimensions
 
 For report types that allow it, we can even split the data further; lets add “subscribedStatus” as a dimension (the below data has been truncated for brevity):
 
@@ -41,7 +53,9 @@ For report types that allow it, we can even split the data further; lets add “
 |  6 | 2021-03 | UNSUBSCRIBED    | 19 509  | 3 663  | 122      |
 |... | ...     | ...             | ...     | ...    | ...      |
 
-Each month now has two rows, and the metrics for subscribed and unsubscribed viewers are now viewable. This data shows that our channel is being viewed by more unsubscribed viewers than subscribed ones, which is to be expected with any channel with at least a few thousand subscribers. January received a lot more likes from subscribed viewers than other months, so it might be worth looking at why that was.
+Each month now has two rows, and the metrics for subscribed and unsubscribed viewers are now viewable.
+This data shows that our channel is being viewed by more unsubscribed viewers than subscribed ones, which is to be expected with any channel with at least a few thousand subscribers.
+January received a lot more likes from subscribed viewers than other months, so it might be worth looking at why that was.
 
 ## Valid dimensions
 
