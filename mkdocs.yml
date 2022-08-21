@@ -1,6 +1,7 @@
 site_name: analytix
 
 plugins:
+  - search
   - autorefs
   - mkdocstrings:
       custom_templates: docs/templates
@@ -22,6 +23,9 @@ markdown_extensions:
   - pymdownx.superfences
   - admonition
   - pymdownx.details
+  - footnotes
+  - pymdownx.tabbed:
+      alternate_style: true
 
 theme:
   name: material
@@ -54,6 +58,7 @@ theme:
     - navigation.tabs
     - navigation.tabs.sticky
     - navigation.top
+    - content.tabs.link
 
   icon:
     repo: fontawesome/brands/github
