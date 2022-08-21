@@ -47,28 +47,31 @@ _log = logging.getLogger(__name__)
 @dataclass(frozen=True)
 class Secrets:
     """A dataclass representing a set of secrets for a Google Developers
-    project. This should generally be created using one of the available
+    project.
+
+    This should generally be created using one of the available
     classmethods.
 
-    Args:
-        client_id:
-            The client ID.
-        project_id:
-            The name of the project.
-        auth_uri:
-            The authorisation server endpoint URI.
-        token_uri:
-            The token server endpoint URI.
-        auth_provider_x509_cert_url:
-            The URL of the public x509 certificate, used to verify the
-            signature on JWTs, such as ID tokens, signed by the
-            authentication provider.
-        client_secret:
-            The client secret.
-        redirect_uris:
-            A list of valid redirection endpoint URIs. This list should
-            match the list entered for the client ID on the API Access
-            pane of the Google APIs Console.
+    Parameters
+    ----------
+    client_id : str
+        The client ID.
+    project_id : str
+        The name of the project.
+    auth_uri : str
+        The authorisation server endpoint URI.
+    token_uri : str
+        The token server endpoint URI.
+    auth_provider_x509_cert_url : str
+        The URL of the public x509 certificate, used to verify the
+        signature on JWTs, such as ID tokens, signed by the
+        authentication provider.
+    client_secret : str
+        The client secret.
+    redirect_uris : list of str
+        A list of valid redirection endpoint URIs. This list should
+        match the list entered for the client ID on the API Access
+        pane of the Google APIs Console.
     """
 
     client_id: str
@@ -90,12 +93,15 @@ class Secrets:
         """Load a set of secrets from a file downloaded from the Google
         Developers Console.
 
-        Args:
-            path:
-                The path to the secrets file.
+        Parameters
+        ----------
+        path : Path object or str
+            The path to the secrets file.
 
-        Returns:
-            The loaded secrets.
+        Returns
+        -------
+        Secrets
+            An instance representing your secrets.
         """
 
         if not isinstance(path, pathlib.Path):
@@ -112,7 +118,9 @@ class Secrets:
     def to_dict(self) -> dict[str, SecretT]:
         """Convert secrets to a dictionary.
 
-        Returns:
+        Parameters
+        ----------
+        dict of secrets
             A dictionary of secrets, where the keys are strings, and the
             values are either strings or lists of strings.
         """
@@ -131,24 +139,26 @@ class Secrets:
 @dataclass()
 class Tokens:
     """A dataclass representing a set of tokens for a Google Developers
-    project. This should generally be created using one of the available
+    project.
+
+    This should generally be created using one of the available
     classmethods.
 
-    Args:
-        access_token:
-            The token used to access services.
-        expires_in:
-            The number of seconds until the token expires. This is not
-            live updated by analytix, and so should not be used to track
-            a token's expiration.
-        refresh_token:
-            The token used to refresh the access token.
-        scope:
-            The scopes the token is authorised for. This is provided as
-            a single string, where separate scopes are separated by a
-            space.
-        token_type:
-            The type of token. Will probably be "Bearer".
+    Parameters
+    ----------
+    access_token : str
+        The token used to access services.
+    expires_in : int
+        The number of seconds until the token expires. This is not live
+        updated by analytix, and so should not be used to track a
+        token's expiration.
+    refresh_token : str
+        The token used to refresh the access token.
+    scope : str
+        The scopes the token is authorised for. This is provided as a
+        single string, where separate scopes are separated by a space.
+    token_type : str
+        The type of token. Will probably be "Bearer".
     """
 
     access_token: str
@@ -164,12 +174,15 @@ class Tokens:
     def from_json(cls, data: dict[str, TokenT]) -> Tokens:
         """Create an instance of this class from a dictionary.
 
-        Args:
-            data:
-                The tokens as a dictionary.
+        Parameters
+        ----------
+        data : dict of tokens
+            The tokens as a dictionary.
 
-        Returns:
-            The created instance.
+        Returns
+        -------
+        Tokens
+            An instance representing your tokens.
         """
 
         return cls(**data)  # type: ignore
@@ -178,12 +191,15 @@ class Tokens:
     def from_file(cls, path: pathlib.Path | str) -> Tokens:
         """Load a set of tokens from a file generated by analytix.
 
-        Args:
-            path:
-                The path to the tokens file.
+        Parameters
+        ----------
+        path : Path object or str
+            The path to the tokens file.
 
-        Returns:
-            The loaded tokens.
+        Returns
+        -------
+        Tokens
+            An instance representing your tokens.
         """
 
         if not isinstance(path, pathlib.Path):
@@ -200,7 +216,9 @@ class Tokens:
     def to_dict(self) -> dict[str, TokenT]:
         """Convert tokens to a dictionary.
 
-        Returns:
+        Returns
+        -------
+        dict of tokens
             A dictionary of tokens, where the keys are strings, and the
             values are either strings or integers.
         """
@@ -216,12 +234,13 @@ class Tokens:
     def update(self, data: dict[str, TokenT]) -> None:
         """Update token attributes.
 
-        .. warning::
-            This does not update the tokens on disk.
+        Parameters
+        ----------
+        data : dict of tokens
+            A dictionary of attributes to be updated.
 
-        Args:
-            data:
-                A dictionary of attributes to be updated.
+        !!! note
+            This does not update the tokens on disk.
         """
 
         for k, v in data.items():
@@ -232,9 +251,10 @@ class Tokens:
     def write(self, path: pathlib.Path | str) -> None:
         """Write tokens to a file.
 
-        Args:
-            path:
-                The path to the tokens file.
+        Parameters
+        ----------
+        path : Path object or str
+            The path to the tokens file.
         """
 
         if not isinstance(path, pathlib.Path):
@@ -249,7 +269,9 @@ class Tokens:
 def create_state() -> str:
     """Create a random state for requests.
 
-    Returns:
+    Returns
+    -------
+    str
         The state as a 64-character long hexadecimal string.
     """
 
@@ -259,13 +281,16 @@ def create_state() -> str:
 def auth_url_and_state(secrets: Secrets, redirect_uri: str) -> tuple[str, str]:
     """Get the authorisation URL and the state.
 
-    Args:
-        secrets:
-            The project secrets from the Google Developers Console.
-        redirect_uri:
-            The URI to redirect to after authorisation.
+    Parameters
+    ----------
+    secrets : Secrets
+        The project secrets from the Google Developers Console.
+    redirect_uri : str
+        The URI to redirect to after authorisation.
 
-    Returns:
+    Returns
+    -------
+    tuple of str
         A tuple containing the generated URL and state.
     """
 
@@ -286,15 +311,18 @@ def access_data_and_headers(
     """Get the required data and headers for retrieving tokens from
     the YouTube Token Endpoint.
 
-    Args:
-        code:
-            The authorisation code.
-        secrets:
-            The project secrets from the Google Developers Console.
-        redirect_uri:
-            The URI to redirect to after authorisation.
+    Parameters
+    ----------
+    code : str
+        The authorisation code.
+    secrets : Secrets
+        The project secrets from the Google Developers Console.
+    redirect_uri : str
+        The URI to redirect to after authorisation.
 
-    Returns:
+    Returns
+    -------
+    tuple of dicts (each str-str)
         A tuple containing the data and headers.
     """
 
@@ -313,13 +341,16 @@ def refresh_data_and_headers(token: str, secrets: Secrets) -> DataHeadersT:
     """Get the required data and headers for refreshing tokens using
     the YouTube Token Endpoint.
 
-    Args:
-        token:
-            The refresh token.
-        secrets:
-            The project secrets from the Google Developers Console.
+    Parameters
+    ----------
+    token : str
+        The refresh token.
+    secrets : Secrets
+        The project secrets from the Google Developers Console.
 
-    Returns:
+    Returns
+    -------
+    tuple of dicts (each str-str)
         A tuple containing the data and headers.
     """
 
