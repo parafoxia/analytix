@@ -7,7 +7,7 @@
 [![License](https://img.shields.io/github/license/parafoxia/analytix.svg)](https://github.com/parafoxia/analytix/blob/main/LICENSE)
 
 [![CI](https://github.com/parafoxia/analytix/actions/workflows/ci.yml/badge.svg)](https://github.com/parafoxia/analytix/actions/workflows/ci.yml)
-[![Read the Docs](https://img.shields.io/readthedocs/analytix)](https://analytix.readthedocs.io/en/latest/index.html)
+[![Docs](https://github.com/parafoxia/analytix/actions/workflows/pages/pages-build-deployment/badge.svg)](https://parafoxia.github.io/analytix)
 [![Maintainability](https://api.codeclimate.com/v1/badges/8819bdebb2d4aa8dfcb7/maintainability)](https://codeclimate.com/github/parafoxia/analytix/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/8819bdebb2d4aa8dfcb7/test_coverage)](https://codeclimate.com/github/parafoxia/analytix/test_coverage)
 
@@ -29,23 +29,25 @@ Windows, MacOS, and Linux are all supported.
 
 The YouTube Studio provides a fantastic interface where creators can view some incredibly detailed analytics for their channel.
 However, there's no way to perform programmatical operations on the data to do some proper analysis on it.
-This is where *analytix* comes in.
+This is where analytix comes in.
 
 The process of analysing data on the YouTube Studio is comprised of two steps:
 
 1. Retrieving the data to be analysed and visualised
 2. Presenting that data to the user
 
-*analytix* aims to handle step one as comprehensively as possible, allowing analysts to use tools such as *pandas* and *Matplotlib* to work on the data without having to faff around with Google's offerings.
+analytix aims to handle step one as comprehensively as possible, allowing analysts to use tools such as *pandas* and *Matplotlib* to work on the data without having to faff around with Google's offerings.
 
 ## Installation
 
-To install the latest stable version of *analytix*, use the following command:
+To install the latest stable version of analytix, use the following command:
+
 ```sh
 pip install analytix
 ```
 
 You can also install the latest development version using the following command:
+
 ```sh
 pip install git+https://github.com/parafoxia/analytix
 ```
@@ -54,9 +56,9 @@ You may need to prefix these commands with a call to the Python interpreter depe
 
 ## Additional support
 
-You can also install *analytix* with additional libraries to provide extra functionality:
+You can also install analytix with additional libraries to provide extra functionality:
 
-* `analytix[excel]` — support for exporting reports to *Excel* spreadsheets
+* `analytix[excel]` — support for exporting reports to Excel spreadsheets
 * `analytix[types]` — type stubs for type-hinted projects
 
 To install multiple at once, use commas:
@@ -65,7 +67,7 @@ To install multiple at once, use commas:
 pip install "analytix[excel,types]"
 ```
 
-Note that while *analytix* includes native support for DataFrame and Arrow table conversions, these libraries are not installed automatically.
+Note that while analytix includes native support for DataFrame and Arrow table conversions, these libraries are not installed automatically.
 You will need to install these libraries yourself to use these features.
 
 ## OAuth authentication
@@ -74,17 +76,17 @@ All requests to the YouTube Analytics API need to be authorised through OAuth 2.
 In order to do this, you will need a Google Developers project with the YouTube Analytics API enabled.
 You can find instructions on how to do that in the [API setup guide](https://parafoxia.github.io/analytix/getting%20started/2-googleapp/), or on [this video](https://www.youtube.com/watch?v=1Xday10ZWeg).
 
-When *analytix* boots up for the first time, it will display a link.
+When analytix boots up for the first time, it will display a link.
 You'll need to follow that link and run through the OAuth workflow.
-Once that's done, *analytix* saves the tokens to the disk (if you plan to run *analytix* on a server, make sure these are in a safe place).
-This includes your refresh token, which *analytix* will automatically use to refresh your access token when needed.
+Once that's done, analytix saves the tokens to the disk (if you plan to run analytix on a server, make sure these are in a safe place).
+This includes your refresh token, which analytix will automatically use to refresh your access token when needed.
 
-This means you should only have to authorise *analytix*, at most, every week.
+This means you should only have to authorise analytix, at most, every week.
 More details regarding how and when refresh tokens expire can be found on the [Google Identity documentation](https://developers.google.com/identity/protocols/oauth2#expiration).
 
 ## Logging
 
-If you want to see what *analytix* is doing, you can enable the packaged logger:
+If you want to see what analytix is doing, you can enable the packaged logger:
 
 ```py
 import analytix
@@ -92,7 +94,7 @@ import analytix
 analytix.enable_logger()
 ```
 
-If anything is going wrong, or *analytix* appears to be taking a long time to fetch data, try enabling the logger in DEBUG mode.
+If anything is going wrong, or analytix appears to be taking a long time to fetch data, try enabling the logger in DEBUG mode.
 
 ## Usage
 
@@ -136,7 +138,7 @@ groups = client.fetch_groups()
 items = client.fetch_group_items(groups[0].id)
 ```
 
-To read up further, [have a look at the documentation](https://analytix.readthedocs.io), or [have a look at some examples](https://github.com/parafoxia/analytix/tree/main/examples).
+To read up further, [have a look at the documentation](https://parafoxia.github.io/analytix), or [have a look at some examples](https://github.com/parafoxia/analytix/tree/main/examples).
 
 ## Contributing
 
@@ -147,4 +149,4 @@ Contributions are very much welcome! To get started:
 
 ## License
 
-The *analytix* module for Python is licensed under the [BSD 3-Clause License](https://github.com/parafoxia/analytix/blob/main/LICENSE).
+The analytix module for Python is licensed under the [BSD 3-Clause License](https://github.com/parafoxia/analytix/blob/main/LICENSE).
