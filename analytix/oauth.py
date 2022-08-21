@@ -26,6 +26,14 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+"""A module containing authorisation interfaces.
+
+Contained here are methods through which authorisation can be performed,
+and classes that represent different authorisation credentials.
+Generally speaking, you won't need to call any of these functions or
+instantiate any of these classes.
+"""
+
 from __future__ import annotations
 
 import hashlib
