@@ -65,7 +65,7 @@ To install multiple at once, use commas:
 pip install "analytix[excel,types]"
 ```
 
-Note that while *analytix* includes native support for DataFrame conversions, these libraries are not installed automatically.
+Note that while *analytix* includes native support for DataFrame and Arrow table conversions, these libraries are not installed automatically.
 You will need to install these libraries yourself to use these features.
 
 ## OAuth authentication
