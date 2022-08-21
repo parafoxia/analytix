@@ -1,6 +1,7 @@
 ### Custom ###
 dev/
 secrets/
+old-docs/
 *.json
 *.xlsx
 *.feather

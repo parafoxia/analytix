@@ -38,9 +38,10 @@ class MissingOptionalComponents(AnalytixError):
     default are required for a specific operation, but are not
     installed.
 
-    Args:
-        *args:
-            The libraries that need to be installed.
+    Parameters
+    ----------
+    *args : str
+        The libraries that need to be installed.
     """
 
     def __init__(self, *args: str) -> None:
@@ -54,14 +55,15 @@ class APIError(AnalytixError):
     """Exception thrown when the YouTube Analytics API throws an
     error.
 
-    Args:
-        code:
-            The error code.
-        message:
-            The error message.
+    Parameters
+    ----------
+    code : str or int
+        The error code.
+    message : str
+        The error message.
     """
 
-    def __init__(self, code: str, message: str) -> None:
+    def __init__(self, code: str | int, message: str) -> None:
         super().__init__(f"API returned {code}: {message}")
 
 
@@ -69,11 +71,12 @@ class AuthenticationError(AnalytixError):
     """Exception thrown when something goes wrong during the OAuth
     authentication process.
 
-    Args:
-        error:
-            The error type.
-        error_description:
-            A description of the error.
+    Parameters
+    ----------
+    error : str
+        The error type.
+    error_description : str
+        A description of the error.
     """
 
     def __init__(self, error: str, error_description: str) -> None:
@@ -91,20 +94,19 @@ class InvalidRequest(AnalytixError):
 
 
 class MissingMetrics(InvalidRequest):
-    """Exception thrown when no metrics are provided. Inherits from
-    :obj:`InvalidRequest`."""
+    """Exception thrown when no metrics are provided."""
 
     def __init__(self) -> None:
         super().__init__("expected at least 1 metric, got 0")
 
 
 class InvalidMetrics(InvalidRequest):
-    """Exception thrown when one or more metrics are not valid. Inherits
-    from :obj:`InvalidRequest`.
+    """Exception thrown when one or more metrics are not valid.
 
-    Args:
-        diff:
-            The invalid metrics.
+    Parameters
+    ----------
+    diff : set of str
+        The invalid metrics.
     """
 
     def __init__(self, diff: set[str]) -> None:
@@ -114,12 +116,12 @@ class InvalidMetrics(InvalidRequest):
 
 class UnsupportedMetrics(InvalidRequest):
     """Exception thrown when one or more metrics are valid, but not
-    compatible with the report type that has been selected. Inherits
-    from :obj:`InvalidRequest`.
+    compatible with the report type that has been selected.
 
-    Args:
-        diff:
-            The unsupported metrics.
+    Parameters
+    ----------
+    diff : set of str
+        The unsupported metrics.
     """
 
     def __init__(self, diff: set[str]) -> None:
@@ -129,7 +131,7 @@ class UnsupportedMetrics(InvalidRequest):
 
 class MissingSortOptions(InvalidRequest):
     """Exception thrown when no sort options are provided when
-    necessary. Inherits from :obj:`InvalidRequest`."""
+    necessary."""
 
     def __init__(self) -> None:
         super().__init__("expected at least 1 sort option, got 0")
@@ -137,11 +139,11 @@ class MissingSortOptions(InvalidRequest):
 
 class InvalidSortOptions(InvalidRequest):
     """Exception thrown when one or more sort options are not valid.
-    Inherits from :obj:`InvalidRequest`.
 
-    Args:
-        diff:
-            The invalid sort options.
+    Parameters
+    ----------
+    diff : set of str
+        The invalid sort options.
     """
 
     def __init__(self, diff: set[str]) -> None:
@@ -151,17 +153,14 @@ class InvalidSortOptions(InvalidRequest):
 
 class UnsupportedSortOptions(InvalidRequest):
     """Exception thrown when one or more sort options are valid, but not
-    compatible with the report type that has been selected. Inherits
-    from :obj:`InvalidRequest`.
+    compatible with the report type that has been selected.
 
-    Args:
-        diff:
-            The unsupported sort options.
-
-    Keyword args:
-        descending_only:
-            Whether only descending sort options were expected. Defaults
-            to ``False``.
+    Parameters
+    ----------
+    diff : set of str
+        The unsupported sort options.
+    descending_only : bool
+        Whether only descending sort options were expected.
     """
 
     def __init__(self, diff: set[str], *, descending_only: bool = False) -> None:
@@ -183,12 +182,13 @@ class InvalidDimensions(InvalidRequest):
     """Exception thrown when one or more dimensions are not valid.
     Inherits from :obj:`InvalidRequest`.
 
-    Args:
-        diff:
-            The invalid dimensions.
-        depr:
-            Dimensions that are deprecated (this will only ever be
-            "7DayTotals" and "30DayTotals").
+    Parameters
+    ----------
+    diff : set of str
+        The invalid dimensions.
+    depr : set of str
+        Dimensions that are deprecated (this will only ever be
+        "7DayTotals" and "30DayTotals").
     """
 
     def __init__(self, diff: set[str], depr: set[str]) -> None:
@@ -199,12 +199,12 @@ class InvalidDimensions(InvalidRequest):
 
 class UnsupportedDimensions(InvalidRequest):
     """Exception thrown when one or more dimensions are valid, but not
-    compatible with the report type that has been selected. Inherits
-    from :obj:`InvalidRequest`.
+    compatible with the report type that has been selected.
 
-    Args:
-        diff:
-            The unsupported dimensions.
+    Parameters
+    ----------
+    diff : set of str
+        The unsupported dimensions.
     """
 
     def __init__(self, diff: set[str]) -> None:
@@ -214,15 +214,16 @@ class UnsupportedDimensions(InvalidRequest):
 
 class InvalidSetOfDimensions(InvalidRequest):
     """Exception thrown when a set of dimensions contravenes the API
-    specification. Inherits from :obj:`InvalidRequest`.
+    specification.
 
-    Args:
-        expd:
-            The number of dimensions expected from the given set.
-        recv:
-            The number of dimensions received from the given set.
-        values:
-            The full set of possible dimensions in this context.
+    Parameters
+    ----------
+    expd : str
+        The number of dimensions expected from the given set.
+    recv : int
+        The number of dimensions received from the given set.
+    values : set of str
+        The full set of possible dimensions in this context.
     """
 
     def __init__(self, expd: str, recv: int, values: set[str]) -> None:
@@ -231,12 +232,12 @@ class InvalidSetOfDimensions(InvalidRequest):
 
 
 class InvalidFilters(InvalidRequest):
-    """Exception thrown when one or more filters are not valid. Inherits
-    from :obj:`InvalidRequest`.
+    """Exception thrown when one or more filters are not valid.
 
-    Args:
-        diff:
-            The invalid filters.
+    Parameters
+    ----------
+    diff : set of str
+        The invalid filters.
     """
 
     def __init__(self, diff: set[str]) -> None:
@@ -246,12 +247,12 @@ class InvalidFilters(InvalidRequest):
 
 class UnsupportedFilters(InvalidRequest):
     """Exception thrown when one or more filters are valid, but not
-    compatible with the report type that has been selected. Inherits
-    from :obj:`InvalidRequest`.
+    compatible with the report type that has been selected.
 
-    Args:
-        diff:
-            The unsupported filters.
+    Parameters
+    ----------
+    diff : set of str
+        The unsupported filters.
     """
 
     def __init__(self, diff: set[str]) -> None:
@@ -261,15 +262,16 @@ class UnsupportedFilters(InvalidRequest):
 
 class InvalidSetOfFilters(InvalidRequest):
     """Exception thrown when a set of filters contravenes the API
-    specification. Inherits from :obj:`InvalidRequest`.
+    specification.
 
-    Args:
-        expd:
-            The number of filters expected from the given set.
-        recv:
-            The number of filters received from the given set.
-        values:
-            The full set of possible filters in this context.
+    Parameters
+    ----------
+    expd : str
+        The number of filters expected from the given set.
+    recv : int
+        The number of filters received from the given set.
+    values : set of str
+        The full set of possible filters in this context.
     """
 
     def __init__(self, expd: str, recv: int, values: set[str]) -> None:
@@ -279,13 +281,13 @@ class InvalidSetOfFilters(InvalidRequest):
 
 class InvalidFilterValue(InvalidRequest):
     """Exception thrown when an invalid value is provided for a filter.
-    Inherits from :obj:`InvalidRequest`.
 
-    Args:
-        key:
-            The filter key.
-        value:
-            The invalid filter value.
+    Parameters
+    ----------
+    key : str
+        The filter key.
+    value : str
+        The invalid filter value.
     """
 
     def __init__(self, key: str, value: str) -> None:
@@ -294,14 +296,14 @@ class InvalidFilterValue(InvalidRequest):
 
 class UnsupportedFilterValue(InvalidRequest):
     """Exception thrown when a valid value is provided for a filter, but
-    cannot be used for the report type that has been selected. Inherits
-    from :obj:`InvalidRequest`.
+    cannot be used for the report type that has been selected.
 
-    Args:
-        key:
-            The filter key.
-        value:
-            The unsupported filter value.
+    Parameters
+    ----------
+    key : str
+        The filter key.
+    value : str
+        The unsupported filter value.
     """
 
     def __init__(self, key: str, value: str) -> None:
@@ -312,13 +314,14 @@ class UnsupportedFilterValue(InvalidRequest):
 
 class InvalidAmountOfResults(InvalidRequest):
     """Exception thrown when the provided maximum number of results is
-    not valid. Inherits from :obj:`InvalidRequest`.
+    not valid.
 
-    Args:
-        actual:
-            The input value from the user.
-        maximum:
-            The maximum allowed value.
+    Parameters
+    ----------
+    actual : int
+        The input value from the user.
+    maximum : int
+        The maximum allowed value.
     """
 
     def __init__(self, actual: int, maximum: int) -> None:

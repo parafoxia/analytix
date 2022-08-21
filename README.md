@@ -56,18 +56,17 @@ You may need to prefix these commands with a call to the Python interpreter depe
 
 You can also install *analytix* with additional libraries to provide extra functionality:
 
-* `analytix[arrow]` — *Apache Arrow* support (including Feather and Parquet files)
-* `analytix[dev]` — development dependencies
 * `analytix[excel]` — support for exporting reports to *Excel* spreadsheets
-* `analytix[modin]` — *Modin* support (note: this installs **all** engines; if you want to use a specific engine, you will need to do so manually)
-* `analytix[pandas]` — *pandas* support (`analytix[df]` does the same, but is deprecated)
 * `analytix[types]` — type stubs for type-hinted projects
 
 To install multiple at once, use commas:
 
 ```sh
-pip install "analytix[excel,modin,types]
+pip install "analytix[excel,types]
 ```
+
+Note that while *analytix* includes native support for DataFrame conversions, these libraries are not installed automatically.
+You will need to install these libraries yourself to use these features.
 
 ## OAuth authentication
 
@@ -90,7 +89,7 @@ If you want to see what *analytix* is doing, you can enable the packaged logger:
 ```py
 import analytix
 
-analytix.setup_logging()
+analytix.enable_logger()
 ```
 
 If anything is going wrong, or *analytix* appears to be taking a long time to fetch data, try enabling the logger in DEBUG mode.
@@ -98,35 +97,43 @@ If anything is going wrong, or *analytix* appears to be taking a long time to fe
 ## Usage
 
 Retrieving reports from the YouTube Analytics API is easy.
-The below example loads credentials from a secrets file, and gets as much information as possible from the last 28 days:
+The below example loads credentials from a secrets file, and gets day-by-day data on views, likes, and comments from US from the last 28 days:
 
 ```py
-from analytix import Analytics
+from analytix import Client
 
-client = Analytics.with_secrets("./secrets.json")
-report = client.retrieve(dimensions=("day",))
+client = Client("./secrets.json")
+report = client.retrieve_report(
+    dimensions=("day",),
+    filters={"country": "US"},
+    metrics=("views", "likes", "comments"),
+)
 report.to_csv("./analytics.csv")
 ```
 
-This can also be done asynchronously:
+If you want to analyse this data using additional tools such as *pandas*, you can directly export the report as a DataFrame:
 
 ```py
-import datetime as dt
+# Return as a pandas DataFrame:
+df = report.to_pandas()
 
-from analytix import AsyncAnalytics
+# Return as an Apache Arrow table:
+table = report.to_arrow()
 
-client = await AsyncAnalytics.with_secrets("./secrets.json")
-report = await client.retrieve(
-    dimensions=("country",),
-    start_date=dt.date.today() - dt.timedelta(days=7),
-)
-await report.to_csv("./async-analytics.csv")
+# Return as a Polars DataFrame:
+df = report.to_polars()
 ```
 
-If you want to analyse this data using additional tools such as *pandas*, you can directly export the report as a DataFrame (note that *pandas* is an optional dependency — [see above](#additional-support)):
+You can also fetch groups and group items:
 
 ```py
-df = report.to_dataframe()
+from analytix import Client
+
+client = Client("./secrets.json")
+groups = client.fetch_groups()
+
+# If you want to get the items within a group:
+items = client.fetch_group_items(groups[0].id)
 ```
 
 To read up further, [have a look at the documentation](https://analytix.readthedocs.io), or [have a look at some examples](https://github.com/parafoxia/analytix/tree/main/examples).

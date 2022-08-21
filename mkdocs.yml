@@ -1,0 +1,73 @@
+site_name: analytix
+
+plugins:
+  - autorefs
+  - mkdocstrings:
+      custom_templates: docs/templates
+      handlers:
+        python:
+          options:
+            # members_order: source
+            # heading_level: 3
+            docstring_style: numpy
+            # docstring_section_style: list
+            show_signature_annotations: true
+            separate_signature: true
+  - include-markdown
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.superfences
+  - admonition
+  - pymdownx.details
+
+theme:
+  name: material
+
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: light blue
+      accent: pink
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: blue
+      accent: pink
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+  font:
+    text: Hind
+    code: Fira Code
+
+  logo: logo_white.png
+
+  features:
+    - navigation.instant
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.top
+
+  icon:
+    repo: fontawesome/brands/github
+
+extra:
+  social:
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/analytix/
+      name: PyPI
+    - icon: fontawesome/brands/github
+      link: https://github.com/parafoxia/analytix
+      name: Source
+
+copyright: Copyright &copy; 2021-present Ethan Henderson
+
+repo_name: parafoxia/analytix
+repo_url: https://github.com/parafoxia/analytix
