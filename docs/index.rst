@@ -1,6 +1,12 @@
 analytix
 ========
 
+.. note::
+   These docs are moving! From version 4.0, the docs will be hosted on
+   `GitHub Pages <https://parafoxia.github.io/analytix>`__. While these
+   docs are not finished, they should provide a good insight into what
+   will change in version 4.0.
+
 |PyPi version| |PyPI - Status| |Downloads| |GitHub last commit|
 |License|
 
