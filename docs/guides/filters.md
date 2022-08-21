@@ -32,6 +32,7 @@ There are a few other special cases worth keeping in mind:
     * YT_CHANNEL
     * YT_OTHER_PAGE
     * YT_SEARCH
+* The "video" filter cannot accept a comma-separated list of video IDs when "elapsedVideoTimeRatio" is passed as a dimension
 
 ## Valid filters
 
@@ -334,7 +335,7 @@ There are a few other special cases worth keeping in mind:
 </details>
 
 <details>
-    <summary>operatingSystem</summary>
+    <summary>subContinent</summary>
     <ul>
         <li>014</li>
         <li>017</li>
@@ -365,7 +366,7 @@ There are a few other special cases worth keeping in mind:
     <summary>subscribedStatus</summary>
     <ul>
         <li>SUBSCRIBED</li>
-        <li>UBSUBSCRIBED</li>
+        <li>UNSUBSCRIBED</li>
     </ul>
 </details>
 
