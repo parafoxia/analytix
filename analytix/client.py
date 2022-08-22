@@ -409,7 +409,7 @@ class Client:
         )
         query.validate()
 
-        if not self.authorised or force_authorisation:
+        if not self.is_authorised or force_authorisation:
             self.authorise(force=force_authorisation)
 
         if self.needs_token_refresh():
@@ -486,7 +486,7 @@ class Client:
             if self.can_update():
                 _log.warning("You do not have the latest stable version of analytix")
 
-        if not self.authorised or force_authorisation:
+        if not self.is_authorised or force_authorisation:
             self.authorise()
 
         if self.needs_token_refresh():
@@ -537,7 +537,7 @@ class Client:
             if self.can_update():
                 _log.warning("You do not have the latest stable version of analytix")
 
-        if not self.authorised or force_authorisation:
+        if not self.is_authorised or force_authorisation:
             self.authorise()
 
         if self.needs_token_refresh():
