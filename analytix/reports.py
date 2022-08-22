@@ -533,7 +533,7 @@ class AnalyticsReport:
 
         return table
 
-    @requires("polars", "pyarrow")
+    @requires("polars")
     def to_polars(self, *, skip_date_conversion: bool = False) -> pl.DataFrame:
         """Return the data as a Polars DataFrame.
 
@@ -541,32 +541,32 @@ class AnalyticsReport:
         ----------
         skip_date_conversion : bool
             Whether or not to skip the conversion of "day" and "month"
-            columns into the `timestamp[ns]` format. If you choose to
-            skip this, these columns will be left as strings.
+            columns into the `date` format. If you choose to skip this,
+            these columns will be left as strings.
 
         Returns
         -------
         polars.DataFrame
             A Polars DataFrame.
 
-        !!! warning
-            This implementation is due to change once
-            [pola-rs/polars#4489](https://github.com/pola-rs/polars/
-            issues/4489) is resolved. This change will see a Polars
-            DataFrame built from scratch rather than from an Arrow
-            table, but once this change has been made, months will be
-            handled differently. Currently, Arrow's default resolves
-            months to the last date, whereas Polars resolves to the
-            first.
-
         !!! note
-            This requires `pyarrow` and `polars` to be installed to use,
-            which are optional dependencies.
+            This requires `polars` to be installed to use, which is an
+            optional dependency.
         """
 
         import polars as pl
 
-        return pl.from_arrow(self.to_arrow(skip_date_conversion=skip_date_conversion))
+        df = pl.DataFrame(self.resource.data["rows"], columns=self.columns)
+
+        if not skip_date_conversion:
+            s = {"day", "month"} & set(df.columns)
+            if len(s):
+                col = next(iter(s))
+                fmt = {"day": "%Y-%m-%d", "month": "%Y-%m"}[col]
+                df = df.with_column(pl.col(col).str.strptime(pl.Date, fmt=fmt))
+                _log.info(f"Converted {col!r} column to date format")
+
+        return df
 
     @requires("pyarrow")
     def to_feather(
