@@ -1,4 +1,4 @@
-# Understanding dimensions
+# What are dimensions?
 
 ## Overview
 

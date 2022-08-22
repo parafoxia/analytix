@@ -1,8 +1,10 @@
-# Understanding filters
+# What are filters?
 
 ## Overview
 
-Filters allow for unwanted data to be omitted, leaving only the relevant data. This is useful when you only want data for a specific demographic, or in some cases, when setting what type of information you want. The vast majority of report types do not require you to provide a filter, though many report types can accept multiple filters.
+Filters allow for unwanted data to be omitted, leaving only the relevant data.
+This is useful when you only want data for a specific demographic, or in some cases, when setting what type of information you want.
+The vast majority of report types do not require you to provide a filter, though many report types can accept multiple filters.
 
 ## Retrieving playlist information
 
@@ -35,6 +37,8 @@ There are a few other special cases worth keeping in mind:
 * The "video" filter cannot accept a comma-separated list of video IDs when "elapsedVideoTimeRatio" is passed as a dimension
 
 ## Valid filters
+
+Click on a box to view the filter's possible values.
 
 <details>
     <summary>adType</summary>
