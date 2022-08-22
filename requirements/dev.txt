@@ -1,6 +1,7 @@
 # Meta
 -e .
 -r ./base.txt
+-r ./docs.txt
 -r ./excel.txt
 -r ./types.txt
 
