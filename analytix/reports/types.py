@@ -78,6 +78,7 @@ __all__ = (
 
 from analytix import errors
 from analytix.abc import DetailedReportType, ReportType
+from analytix.reports import data
 from analytix.reports.features import (
     Dimensions,
     ExactlyOne,
@@ -90,7 +91,6 @@ from analytix.reports.features import (
     ZeroOrMore,
     ZeroOrOne,
 )
-from analytix.reports import data
 
 
 class BasicUserActivity(ReportType):

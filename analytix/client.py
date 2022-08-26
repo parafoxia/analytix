@@ -183,7 +183,10 @@ class Client:
         rd_addr = f"{rd_url}:{self._ws_port}"
 
         url, _ = oauth.auth_url_and_state(self.secrets, rd_addr)
-        print(f"\33[38;5;45mYou need to authorise analytix. To do so, visit this URL:\33[0m \33[4m{url}\33[0m")
+        print(
+            "\33[38;5;45mYou need to authorise analytix. "
+            f"To do so, visit this URL:\33[0m \33[4m{url}\33[0m"
+        )
 
         ws = Server(rd_url[7:], self._ws_port)
         try:
@@ -245,7 +248,8 @@ class Client:
             Whether the refresh tokens need to be refreshed.
 
         !!! note
-            If the client is authorised, this will always return `False`.
+            If the client is authorised, this will always return
+            `False`.
         """
 
         if not self._tokens:
@@ -371,7 +375,7 @@ class Client:
         Raises
         ------
         APIError
-            An error occured when retrieving the report.
+            An error occurred when retrieving the report.
 
         !!! warning
             If `end_date` is set to (or near to) the current date, some
@@ -478,7 +482,7 @@ class Client:
         Raises
         ------
         APIError
-            An error occured when retrieving the report.
+            An error occurred when retrieving the report.
 
         !!! note
             A next page token is always included irrespective of how
@@ -541,7 +545,7 @@ class Client:
         Raises
         ------
         APIError
-            An error occured when retrieving the report.
+            An error occurred when retrieving the report.
 
         Examples
         --------
