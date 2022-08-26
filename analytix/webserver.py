@@ -48,7 +48,7 @@ class RequestHandler(server.BaseHTTPRequestHandler):
         self.server.code = self.path.split("&")[1][5:]
         _log.debug(f"Code: {self.server.code}")
 
-        self.wfile.write((Path(__file__).parent / "data/landing.html").read_bytes())
+        self.wfile.write((Path(__file__).parent / "landing.html").read_bytes())
 
 
 class Server(server.HTTPServer):
