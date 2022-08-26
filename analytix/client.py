@@ -61,10 +61,10 @@ class Client:
 
     Parameters
     ----------
-    secrets_file : pathlib.Path | str
+    secrets_file : Path object or str
         The path to your secrets file. This is relative from your
         current working directory.
-    tokens_file : pathlib.Path | str
+    tokens_file : Path object or str
         The path to your token file. This is relative from your current
         working directory.
     ws_port : int
@@ -74,6 +74,19 @@ class Client:
     ----------
     secrets : Secrets
         A `Secrets` object represting your client secrets.
+
+    Examples
+    --------
+    ```py
+    >>> client = Client("secrets.json")
+
+    # If you wanted to specify a custom token dir and webserver port:
+    >>> client = Client(
+    ...     "secrets/secrets.json",
+    ...     tokens_file="secrets/tokens.json",
+    ...     ws_port=9999,
+    ... )
+    ```
     """
 
     __slots__ = ("secrets", "_token_path", "_tokens", "_ws_port", "_update_checked")
@@ -168,7 +181,7 @@ class Client:
         rd_addr = f"{rd_url}:{self._ws_port}"
 
         url, _ = oauth.auth_url_and_state(self.secrets, rd_addr)
-        print(f"You need to authorise analytix. To do so, visit this URL: {url}")
+        print(f"\33[38;5;45mYou need to authorise analytix. To do so, visit this URL:\33[0m \33[4m{url}\33[0m")
 
         ws = Server(rd_url[7:], self._ws_port)
         try:
