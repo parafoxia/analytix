@@ -28,6 +28,8 @@
 
 from __future__ import annotations
 
+__all__ = ("Group", "GroupList", "GroupItem", "GroupItemList")
+
 import datetime as dt
 import typing as t
 from dataclasses import dataclass
@@ -39,13 +41,13 @@ if t.TYPE_CHECKING:
 
 
 @dataclass(frozen=True)
-class Resource:
+class _Resource:
     kind: str
     etag: str | None
 
 
 @dataclass(frozen=True)
-class Group(Resource):
+class Group(_Resource):
     id: str
     published_at: dt.datetime
     title: str
@@ -84,7 +86,7 @@ class Group(Resource):
 
 
 @dataclass(frozen=True)
-class GroupList(Resource):
+class GroupList(_Resource):
     items: list[Group]
     next_page_token: str
 
@@ -111,16 +113,16 @@ class GroupList(Resource):
 
 
 @dataclass(frozen=True)
-class GroupItemResource:
+class _GroupItemResource:
     kind: str
     id: str
 
 
 @dataclass(frozen=True)
-class GroupItem(Resource):
+class GroupItem(_Resource):
     id: str
     group_id: str
-    resource: GroupItemResource
+    resource: _GroupItemResource
 
     @classmethod
     def from_json(cls, data: ResponseT) -> GroupItem:
@@ -129,7 +131,7 @@ class GroupItem(Resource):
             data["etag"],
             data["id"],
             data["groupId"],
-            GroupItemResource(
+            _GroupItemResource(
                 data["resource"]["kind"],
                 data["resource"]["id"],
             ),
@@ -150,7 +152,7 @@ class GroupItem(Resource):
 
 
 @dataclass(frozen=True)
-class GroupItemList(Resource):
+class GroupItemList(_Resource):
     items: list[GroupItem]
 
     def __getitem__(self, key: int) -> GroupItem:

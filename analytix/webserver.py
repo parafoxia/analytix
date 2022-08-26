@@ -28,6 +28,8 @@
 
 from __future__ import annotations
 
+__all__ = ("RequestHandler", "Server")
+
 import logging
 from http import server
 from pathlib import Path

@@ -28,6 +28,8 @@
 
 from __future__ import annotations
 
+__all__ = ("ReportQuery", "GroupQuery")
+
 import datetime as dt
 import logging
 import typing as t

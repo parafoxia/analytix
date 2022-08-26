@@ -30,6 +30,52 @@ from __future__ import annotations
 
 import typing as t
 
+__all__ = (
+    "BasicUserActivity",
+    "BasicUserActivityUS",
+    "TimeBasedActivity",
+    "TimeBasedActivityUS",
+    "GeographyBasedActivity",
+    "GeographyBasedActivityUS",
+    "PlaybackDetailsSubscribedStatus",
+    "PlaybackDetailsSubscribedStatusUS",
+    "PlaybackDetailsLiveTimeBased",
+    "PlaybackDetailsViewPercentageTimeBased",
+    "PlaybackDetailsLiveGeographyBased",
+    "PlaybackDetailsViewPercentageGeographyBased",
+    "PlaybackDetailsLiveGeographyBasedUS",
+    "PlaybackDetailsViewPercentageGeographyBasedUS",
+    "PlaybackLocation",
+    "PlaybackLocationDetail",
+    "TrafficSource",
+    "TrafficSourceDetail",
+    "DeviceType",
+    "OperatingSystem",
+    "DeviceTypeAndOperatingSystem",
+    "ViewerDemographics",
+    "EngagementAndContentSharing",
+    "AudienceRetention",
+    "TopVideosRegional",
+    "TopVideosUS",
+    "TopVideosSubscribed",
+    "TopVideosYouTubeProduct",
+    "TopVideosPlaybackDetail",
+    "BasicUserActivityPlaylist",
+    "TimeBasedActivityPlaylist",
+    "GeographyBasedActivityPlaylist",
+    "GeographyBasedActivityUSPlaylist",
+    "PlaybackLocationPlaylist",
+    "PlaybackLocationDetailPlaylist",
+    "TrafficSourcePlaylist",
+    "TrafficSourceDetailPlaylist",
+    "DeviceTypePlaylist",
+    "OperatingSystemPlaylist",
+    "DeviceTypeAndOperatingSystemPlaylist",
+    "ViewerDemographicsPlaylist",
+    "TopPlaylists",
+    "AdPerformance",
+)
+
 from analytix import errors
 from analytix.abc import DetailedReportType, ReportType
 from analytix.reports.features import (

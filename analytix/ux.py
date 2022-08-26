@@ -30,6 +30,8 @@
 
 from __future__ import annotations
 
+__all__ = ("display_splash", "enable_logger")
+
 import logging
 import platform
 import typing as t

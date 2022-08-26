@@ -28,6 +28,15 @@
 
 from __future__ import annotations
 
+__all__ = (
+    "ReportType",
+    "DetailedReportType",
+    "FeatureType",
+    "SegmentedFeatureType",
+    "MappingFeatureType",
+    "SetType",
+)
+
 import abc
 import typing as t
 from dataclasses import dataclass

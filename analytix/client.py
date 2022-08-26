@@ -35,6 +35,8 @@ You can find out how to do that in the API setup guide.
 
 from __future__ import annotations
 
+__all__ = ("Client",)
+
 import datetime
 import logging
 import pathlib
