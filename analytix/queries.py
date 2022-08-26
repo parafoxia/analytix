@@ -33,10 +33,10 @@ import logging
 import typing as t
 
 import analytix
-from analytix import data
-from analytix import report_types as rt
 from analytix.abc import ReportType
 from analytix.errors import InvalidRequest
+from analytix.reports import data
+from analytix.reports import types as rt
 
 _log = logging.getLogger(__name__)
 

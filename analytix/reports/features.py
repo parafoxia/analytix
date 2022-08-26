@@ -30,7 +30,8 @@ from __future__ import annotations
 
 import typing as t
 
-from analytix import abc, data, errors
+from analytix import abc, errors
+from analytix.reports import data
 
 
 class CompareMixin:

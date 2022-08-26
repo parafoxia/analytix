@@ -30,9 +30,9 @@ from __future__ import annotations
 
 import typing as t
 
-from analytix import data, errors
+from analytix import errors
 from analytix.abc import DetailedReportType, ReportType
-from analytix.features import (
+from analytix.reports.features import (
     Dimensions,
     ExactlyOne,
     Filters,
@@ -44,6 +44,7 @@ from analytix.features import (
     ZeroOrMore,
     ZeroOrOne,
 )
+from analytix.reports import data
 
 
 class BasicUserActivity(ReportType):

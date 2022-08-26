@@ -35,7 +35,7 @@ from dataclasses import dataclass
 from analytix.errors import InvalidAmountOfResults, MissingSortOptions
 
 if t.TYPE_CHECKING:
-    from analytix.features import Dimensions, Filters, Metrics, SortOptions
+    from analytix.reports.features import Dimensions, Filters, Metrics, SortOptions
 
 
 @dataclass()
