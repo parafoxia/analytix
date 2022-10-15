@@ -206,7 +206,7 @@ class Analytics:
             rd_addr = redirect_uris[0]
         else:
             ru = redirect_uris[-1]
-            rd_addr = f"{ru}:{port}"
+            rd_addr = f"{ru}:{port}" if port != 80 else ru
 
         url, _ = oauth.auth_url_and_state(self.secrets, rd_addr)
         code = self._mcp(url) if self.legacy_auth else self._ws(url, ru, port)
