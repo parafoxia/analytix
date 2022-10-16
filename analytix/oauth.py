@@ -55,8 +55,7 @@ from dataclasses import dataclass
 
 import analytix
 
-if t.TYPE_CHECKING:
-    from analytix.types import DataHeadersT, SecretT, TokenT
+from analytix.types import DataHeadersT, SecretT, TokenT
 
 _log = logging.getLogger(__name__)
 

@@ -180,7 +180,7 @@ class Client:
 
     def _retrieve_tokens(self) -> Tokens:
         rd_url = self.secrets.redirect_uris[-1]
-        rd_addr = f"{rd_url}:{self._ws_port}"
+        rd_addr = f"{rd_url}:{self._ws_port}" if self._ws_port != 80 else rd_url
 
         url, _ = oauth.auth_url_and_state(self.secrets, rd_addr)
         print(
