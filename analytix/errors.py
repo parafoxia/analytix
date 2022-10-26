@@ -26,7 +26,12 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""A module containing analytix's exception classes."""
+"""Exception classes for analytix.
+
+!!! note
+    All exception classes that inherit from `InvalidRequest` are
+    deprecated.
+"""
 
 from __future__ import annotations
 
@@ -69,20 +74,18 @@ class APIError(AnalytixError):
         super().__init__(f"API returned {code}: {message}")
 
 
-class AuthenticationError(AnalytixError):
-    """Exception thrown when something goes wrong during the OAuth
-    authentication process.
+class AuthorisationError(AnalytixError):
+    """Exception thrown when something goes wrong during the
+    authorisation process."""
 
-    Parameters
-    ----------
-    error : str
-        The error type.
-    error_description : str
-        A description of the error.
-    """
 
-    def __init__(self, error: str, error_description: str) -> None:
-        super().__init__(f"Authorisation error ({error}): {error_description}")
+class NotAuthorised(AuthorisationError):
+    """Exception thrown when the client does not have sufficient
+    authorisation to complete the operation."""
+
+
+class RefreshTokenExpired(AuthorisationError):
+    """Exception thrown when your refresh token has expired."""
 
 
 class DataFrameConversionError(AnalytixError):
@@ -93,6 +96,9 @@ class DataFrameConversionError(AnalytixError):
 class InvalidRequest(AnalytixError):
     """Exception thrown when a request to be made to the YouTube
     Analytics API is not valid."""
+
+
+# DEPRECATED -----------------------------------------------------------
 
 
 class MissingMetrics(InvalidRequest):

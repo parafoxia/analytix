@@ -33,8 +33,12 @@ from pathlib import Path
 
 ResponseT = t.Dict[str, t.Any]
 PathLikeT = str | Path
+OptionalPathLikeT = str | Path | None
 
-DataHeadersT = t.Tuple[t.Dict[str, str], t.Dict[str, str]]
+RequestParamsT = t.Tuple[str, t.Dict[str, str], t.Dict[str, str]]
 SecretT = t.Union[str, t.List[str]]
 TokenT = t.Union[str, int]
 ReportRowT = t.List[t.List[t.Union[str, int, float]]]
+
+AuthUriT = t.Tuple[str, t.Dict[str, str]]
+TokenUriT = t.Tuple[str, t.Dict[str, str], t.Dict[str, str]]

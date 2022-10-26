@@ -26,7 +26,7 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""A module containing user experience utilities."""
+"""User experience utilities for analytix."""
 
 from __future__ import annotations
 
@@ -91,7 +91,7 @@ def display_splash() -> None:
     )
 
 
-def enable_logger(level: int = logging.INFO) -> logging.StreamHandler[t.TextIO]:
+def enable_logging(level: int = logging.INFO) -> logging.StreamHandler[t.TextIO]:
     """Enable analytix's preconfigured logger.
 
     Parameters
@@ -103,6 +103,11 @@ def enable_logger(level: int = logging.INFO) -> logging.StreamHandler[t.TextIO]:
     -------
     StreamHandler object
         The created log handler.
+
+    ??? example
+        ```py
+        analytix.enable_logging(logging.DEBUG)
+        ```
     """
 
     FMT = "{relativeCreated:>05.0f} [{levelname:^9}] {name}: {message}"

@@ -32,9 +32,10 @@ __all__ = (
     "API_GROUP_ITEMS_URL",
     "API_REPORTS_URL",
     "API_SCOPES",
+    "AsyncBaseClient",
+    "AsyncClient",
     "can_use",
-    "Client",
-    "enable_logger",
+    "enable_logging",
     "groups",
     "OAUTH_CHECK_URL",
     "reports",
@@ -45,10 +46,10 @@ __all__ = (
 )
 
 __productname__ = "analytix"
-__version__ = "4.0.0rc1"
+__version__ = "4.0.0.dev1"
 __description__ = "A simple yet powerful wrapper for the YouTube Analytics API."
 __url__ = "https://github.com/parafoxia/analytix"
-__docs__ = "https://analytix.readthedocs.io"
+__docs__ = "https://parafoxia.github.io/analytix/"
 __author__ = "Ethan Henderson"
 __author_email__ = "ethan.henderson.1998@gmail.com"
 __license__ = "BSD 3-Clause 'New' or 'Revised' License"
@@ -68,6 +69,6 @@ OAUTH_CHECK_URL = "https://www.googleapis.com/oauth2/v3/tokeninfo?access_token="
 UPDATE_CHECK_URL = "https://pypi.org/pypi/analytix/json"
 
 from . import groups, reports
-from .client import Client
+from .client import AsyncBaseClient, AsyncClient
 from .utils import *
-from .ux import enable_logger
+from .ux import enable_logging

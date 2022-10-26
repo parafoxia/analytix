@@ -89,11 +89,11 @@ nav:
     - "guides/metrics.md"
     - "guides/sort-options.md"
     - "guides/report-types.md"
-    - "guides/dependencies.md"
+    - "guides/webapps.md"
     - "guides/migrating.md"
   - "Reference":
     - "reference/client.md"
     - "reference/errors.md"
-    - "reference/oauth.md"
+    - "reference/oidc.md"
     - "reference/reports.md"
     - "reference/ux.md"

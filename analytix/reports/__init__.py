@@ -26,7 +26,15 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__all__ = ("data", "features", "response", "types", "AnalyticsReport", "ResultTable")
+"""Report inferfaces for analytix.
 
-from . import data, features, response, types
-from .response import AnalyticsReport, ResultTable
+!!! note
+    This page is a draft, and is due to be rewritten. While the
+    information on this page is likely all correct, it may not be as
+    detailed as other pages.
+"""
+
+__all__ = ("data", "features", "interfaces", "types", "AnalyticsReport", "ResultTable")
+
+from . import data, features, interfaces, types
+from .interfaces import AnalyticsReport, ResultTable
