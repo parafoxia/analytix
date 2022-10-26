@@ -1,5 +1,8 @@
 # Creating a Google Developers application
 
+!!! warning
+    This page is outdated and is due for a rewrite.
+
 This guide will run you through the process of configuring a project for analytix to use.
 
 By the end of this guide, you will know:

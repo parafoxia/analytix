@@ -544,6 +544,11 @@ class AsyncClient(AsyncBaseClient):
             The client tried and failed to automatically open a web
             browser for authentication.
 
+        !!! info "See also"
+            You can learn more about dimensions, filters, metrics, and
+            sort options by reading the [detailed guides](../../guides/
+            dimensions).
+
         !!! important
             To get playlist reports, you must set the `"isCurated"`
             filter to `"1"`. View the playlist example to see how this
