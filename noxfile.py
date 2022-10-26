@@ -72,7 +72,7 @@ def fetch_installs(*categories: str) -> list[str]:
 
 @nox.session(reuse_venv=True)
 def tests(session: nox.Session) -> None:
-    session.install(*fetch_installs("Tests"), ".[pandas,excel,arrow]")
+    session.install(*fetch_installs("Tests"), ".[excel]")
     session.run(
         "coverage",
         "run",

@@ -18,14 +18,14 @@ furo
 sphinx>=5,<6
 
 # Formatting
-black[jupyter]~=22.6.0
+black[jupyter]~=22.10.0
 
 # Imports
 flake8~=5.0.4
 isort~=5.10.0
 
 # Typing
-mypy==0.971
+mypy==0.982
 
 # Line lengths
 len8~=0.7.2
@@ -34,12 +34,12 @@ len8~=0.7.2
 codespell~=2.2.1
 
 # Tests
-coverage~=6.4.1
+coverage~=6.5.0
 mock~=4.0.3
-pytest~=7.1.0
+pytest~=7.2.0
 
 # Safety
-safety~=2.1.1
+safety~=2.3.1
 
 # Security
 bandit~=1.7.2
