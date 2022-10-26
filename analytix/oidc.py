@@ -116,7 +116,7 @@ class Secrets:
         "redirect_uris",
     )
 
-    type: t.Literal["installed", "web"]
+    type: str
     client_id: str
     project_id: str
     auth_uri: str
@@ -165,7 +165,7 @@ class Secrets:
         _log.info(f"Secrets loaded (type: {key})!")
         return cls(type=key, **data[key])
 
-    def to_dict(self) -> dict[str, SecretT]:
+    def to_dict(self) -> dict[str, dict[str, SecretT]]:
         """Returns the secrets as a dictionary.
 
         Returns
@@ -176,8 +176,7 @@ class Secrets:
         """
 
         return {
-            self.type,
-            {
+            self.type: {
                 "client_id": self.client_id,
                 "project_id": self.project_id,
                 "auth_uri": self.auth_uri,
@@ -220,7 +219,7 @@ class Tokens:
     expires_in: int
     refresh_token: str
     scope: str
-    token_type: t.Literal["Bearer"]
+    token_type: str
 
     def __getitem__(self, key: str) -> TokenT:
         return t.cast(TokenT, getattr(self, key))
@@ -261,8 +260,7 @@ class Tokens:
         FileNotFoundError
             No tokens file exists at the given path.
         JSONDecodeError
-            The given file is not a valid JSON file. Tokens.from_file("tokens.json")
-            ```
+            The given file is not a valid JSON file.
         """
 
         if not isinstance(path, Path):
@@ -339,7 +337,7 @@ class Tokens:
 
 def state_token() -> str:
     """Generates a state token.
-    
+
     Returns
     -------
     str
@@ -469,7 +467,7 @@ class _Server(server.HTTPServer):
 
 def authenticate(auth_params: dict[str, str]) -> str:
     """Start a webserver and listen for an authentication code.
-    
+
     Parameters
     ----------
     auth_params : Mapping of str-str

@@ -112,7 +112,7 @@ class AsyncBaseClient:
         ```py
         client = AsyncBaseClient("secrets.json")
         ```
-    
+
     ??? example "Context manager example"
         ```py
         with AsyncBaseClient("secrets.json") as client:
@@ -272,7 +272,7 @@ class AsyncClient(AsyncBaseClient):
         ```py
         client = AsyncClient("secrets.json")
         ```
-    
+
     ??? example "Context manager example"
         ```py
         with AsyncClient("secrets.json") as client:
