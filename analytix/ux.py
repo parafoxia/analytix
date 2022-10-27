@@ -110,7 +110,7 @@ def enable_logging(level: int = logging.INFO) -> logging.StreamHandler[t.TextIO]
         ```
     """
 
-    FMT = "{relativeCreated:>05.0f} [{levelname:^9}] {name}: {message}"
+    FMT = "{relativeCreated:>7,.0f}ms [ {levelname:<7} ] {name}: {message}"
     FORMATS = {
         logging.DEBUG: f"\33[38;5;244m{FMT}\33[0m",
         logging.INFO: f"\33[38;5;248m{FMT}\33[0m",
