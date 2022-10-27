@@ -84,10 +84,8 @@ class Shard:
         _log.info("Access token needs refreshing")
         return True
 
-    async def refresh_access_token(
-        self, *, check_need: bool = False
-    ) -> oidc.Tokens | None:
-        if check_need and (not await self.token_refresh_required()):
+    async def refresh_access_token(self, *, check: bool = False) -> oidc.Tokens | None:
+        if check and (not await self.token_refresh_required()):
             return None
 
         _log.info("Refreshing access token")

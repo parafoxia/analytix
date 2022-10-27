@@ -91,9 +91,6 @@ class AsyncBaseClient:
     ----------
     secrets_file : Path object or str
         The path to your secrets file.
-    offline_access : bool, optional
-        Whether the client should have offline access. If this is
-        `False`, the client will not be able to refresh access tokens.
 
     Other Parameters
     ----------------
@@ -120,13 +117,12 @@ class AsyncBaseClient:
         ```
     """
 
-    __slots__ = ("_loop", "_secrets", "_offline_access", "_session")
+    __slots__ = ("_loop", "_secrets", "_session")
 
     def __init__(
         self,
         secrets_file: PathLikeT,
         *,
-        offline_access: bool = True,
         loop: asyncio.AbstractEventLoop | None = None,
         session: ClientSession | None = None,
         **kwargs: t.Any,
@@ -141,7 +137,6 @@ class AsyncBaseClient:
             )
 
         self._secrets = oidc.Secrets.from_file(secrets_file)
-        self._offline_access = offline_access
         self._session = session or ClientSession(loop=self._loop, **kwargs)
 
     def __str__(self) -> str:
@@ -229,9 +224,6 @@ class AsyncClient(AsyncBaseClient):
     ----------
     secrets_file : Path object or str
         The path to your secrets file.
-    offline_access : bool, optional
-        Whether the client should have offline access. If this is
-        `False`, the client will not be able to refresh access tokens.
     tokens_dir : Path object or str, optional
         The directory in which tokens should be stored. If this is not
         provided, the current working directory is used.
@@ -305,14 +297,12 @@ class AsyncClient(AsyncBaseClient):
         tokens_dir: OptionalPathLikeT = ".",
         ws_port: int = 8080,
         auto_open_browser: bool = False,
-        offline_access: bool = True,
         loop: asyncio.AbstractEventLoop | None = None,
         session: ClientSession | None = None,
         **kwargs: t.Any,
     ) -> None:
         super().__init__(
             secrets_file,
-            offline_access=offline_access,
             loop=loop,
             session=session,
             **kwargs,
@@ -346,7 +336,6 @@ class AsyncClient(AsyncBaseClient):
 
     async def _get_existing_tokens(self, token_id: str | None) -> oidc.Tokens | None:
         if self._shard and (token_id == self._active_tokens):
-            _log.info(f"Using active tokens ({token_id})")
             return self._shard._tokens
 
         if not self._tokens_dir:
@@ -417,9 +406,7 @@ class AsyncClient(AsyncBaseClient):
             self._shard = Shard(self._session, self._secrets, tokens)
 
             try:
-                refreshed = bool(
-                    await self._shard.refresh_access_token(check_need=True)
-                )
+                refreshed = bool(await self._shard.refresh_access_token(check=True))
                 if refreshed and self._tokens_dir:
                     await self._shard._tokens.write(
                         self._tokens_dir / f"{token_id}.json"
@@ -429,7 +416,7 @@ class AsyncClient(AsyncBaseClient):
                 return
 
             except RefreshTokenExpired:
-                _log.info("Refresh token has expired, starting auth flow")
+                _log.info("Refresh token expired or not present, starting auth flow")
 
         # If no valid tokens by this point, start auth flow.
         auth_uri, params = oidc.auth_uri(self._secrets, self._ws_port)

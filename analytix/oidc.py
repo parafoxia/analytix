@@ -203,14 +203,14 @@ class Tokens:
         A token that can be sent to a Google API.
     expires_in : int
         The remaining lifetime of the access token in seconds.
-    refresh_token : str
-        A token that can be used to refresh your access token.
     scope : str
         The scopes of access granted by the access_token expressed as a
         list of space-delimited, case-sensitive strings.
     token_type : Bearer
         Identifies the type of token returned. This will always be
         "Bearer".
+    refresh_token : str
+        A token that can be used to refresh your access token.
 
     !!! warning
         The `expires_in` field is never updated by analytix, and as such
@@ -219,9 +219,9 @@ class Tokens:
 
     access_token: str
     expires_in: int
-    refresh_token: str
     scope: str
     token_type: str
+    refresh_token: str
 
     def __getitem__(self, key: str) -> TokenT:
         return t.cast(TokenT, getattr(self, key))
@@ -289,9 +289,9 @@ class Tokens:
         return {
             "access_token": self.access_token,
             "expires_in": self.expires_in,
-            "refresh_token": self.refresh_token,
             "scope": self.scope,
             "token_type": self.token_type,
+            "refresh_token": self.refresh_token,
         }
 
     def update(self, data: dict[str, TokenT]) -> None:

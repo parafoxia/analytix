@@ -85,7 +85,8 @@ class NotAuthorised(AuthorisationError):
 
 
 class RefreshTokenExpired(AuthorisationError):
-    """Exception thrown when your refresh token has expired."""
+    """Exception thrown when refreshing an access token is not
+    possible."""
 
 
 class DataFrameConversionError(AnalytixError):
