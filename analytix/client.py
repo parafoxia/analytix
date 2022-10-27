@@ -344,7 +344,7 @@ class AsyncClient(AsyncBaseClient):
 
         return self._active_tokens
 
-    def _get_existing_tokens(self, token_id: str | None) -> oidc.Tokens | None:
+    async def _get_existing_tokens(self, token_id: str | None) -> oidc.Tokens | None:
         if self._shard and (token_id == self._active_tokens):
             _log.info(f"Using active tokens ({token_id})")
             return self._shard._tokens
@@ -356,7 +356,7 @@ class AsyncClient(AsyncBaseClient):
         if not token_path.exists():
             return None
 
-        return oidc.Tokens.from_file(token_path)
+        return await oidc.Tokens.from_file(token_path)
 
     async def authorise(self, token_id: str | None = None) -> None:
         """Authorise the client.
@@ -410,7 +410,7 @@ class AsyncClient(AsyncBaseClient):
         # Determine token ID.
         token_id = token_id or self._active_tokens or self._secrets.project_id
         tokens: oidc.Tokens | None = None
-        tokens = self._get_existing_tokens(token_id)
+        tokens = await self._get_existing_tokens(token_id)
 
         # Handle existing tokens.
         if tokens:
@@ -421,7 +421,9 @@ class AsyncClient(AsyncBaseClient):
                     await self._shard.refresh_access_token(check_need=True)
                 )
                 if refreshed and self._tokens_dir:
-                    self._shard._tokens.write(self._tokens_dir / f"{token_id}.json")
+                    await self._shard._tokens.write(
+                        self._tokens_dir / f"{token_id}.json"
+                    )
                 self._active_tokens = token_id
                 _log.info("Authorisation complete!")
                 return
@@ -467,7 +469,7 @@ class AsyncClient(AsyncBaseClient):
         tokens = oidc.Tokens.from_json(resp_data)
         self._shard = Shard(self._session, self._secrets, tokens)
         if self._tokens_dir:
-            tokens.write(self._tokens_dir / f"{token_id}.json")
+            await tokens.write(self._tokens_dir / f"{token_id}.json")
         self._active_tokens = token_id
 
         _log.info("Authorisation complete!")

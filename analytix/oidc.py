@@ -52,6 +52,8 @@ from http import server
 from pathlib import Path
 from urllib.parse import parse_qsl, urlencode
 
+from aiofiles import open as aopen
+
 import analytix
 from analytix.errors import AuthorisationError
 
@@ -159,7 +161,7 @@ class Secrets:
         _log.debug(f"Loading secrets from {path.resolve()}")
 
         with open(path) as f:
-            data = json.load(f)
+            data = json.loads(f.read())
 
         key = next(iter(data.keys()))
         _log.info(f"Secrets loaded (type: {key})!")
@@ -242,7 +244,7 @@ class Tokens:
         return cls(**data)  # type: ignore
 
     @classmethod
-    def from_file(cls, path: Path | str) -> Tokens:
+    async def from_file(cls, path: Path | str) -> Tokens:
         """Load tokens from a JSON file.
 
         Parameters
@@ -268,8 +270,8 @@ class Tokens:
 
         _log.debug(f"Loading tokens from {path.resolve()}")
 
-        with open(path) as f:
-            data = json.load(f)
+        async with aopen(path) as f:
+            data = json.loads(await f.read())
 
         _log.info("Tokens loaded!")
         return cls(**data)
@@ -313,7 +315,7 @@ class Tokens:
 
         _log.info("Tokens updated!")
 
-    def write(self, path: Path | str) -> None:
+    async def write(self, path: Path | str) -> None:
         """Writes the tokens to disk.
 
         Parameters
@@ -329,8 +331,8 @@ class Tokens:
         if not isinstance(path, Path):
             path = Path(path)
 
-        with open(path, "w") as f:
-            json.dump(self.to_dict(), f, indent=4)
+        async with aopen(path, "w") as f:
+            await f.write(json.dumps(self.to_dict()))
 
         _log.info(f"Tokens saved to {path.resolve()}")
 
