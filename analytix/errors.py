@@ -35,6 +35,17 @@
 
 from __future__ import annotations
 
+__all__ = (
+    "AnalytixError",
+    "MissingOptionalComponents",
+    "APIError",
+    "AuthorisationError",
+    "NotAuthorised",
+    "RefreshTokenExpired",
+    "DataFrameConversionError",
+    "InvalidRequest",
+)
+
 
 class AnalytixError(Exception):
     """The base exception class for analytix."""

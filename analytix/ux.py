@@ -30,7 +30,7 @@
 
 from __future__ import annotations
 
-__all__ = ("display_splash", "enable_logger")
+__all__ = ("display_splash", "enable_logging")
 
 import logging
 import platform

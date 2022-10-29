@@ -54,6 +54,8 @@ this, it is not threadsafe.
 
 from __future__ import annotations
 
+__all__ = ("AsyncBaseClient", "AsyncClient")
+
 import asyncio
 import datetime
 import logging

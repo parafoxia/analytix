@@ -28,6 +28,8 @@
 
 from __future__ import annotations
 
+__all__ = ("Shard",)
+
 import datetime
 import logging
 import typing as t

@@ -28,7 +28,7 @@
 
 from __future__ import annotations
 
-__all__ = ("ReportQuery", "GroupQuery")
+__all__ = ("ReportQuery", "GroupQuery", "GroupItemQuery")
 
 import datetime as dt
 import logging
