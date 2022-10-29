@@ -1,7 +1,6 @@
 # Meta
 -e .
 -r ./base.txt
--r ./docs.txt
 -r ./excel.txt
 -r ./types.txt
 
@@ -14,8 +13,7 @@ polars; platform_python_implementation=="CPython"
 nox==2022.8.7
 
 # Docs
-furo
-sphinx>=5,<6
+-r ./docs.txt
 
 # Formatting
 black[jupyter]~=22.10.0
