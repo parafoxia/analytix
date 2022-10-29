@@ -48,13 +48,13 @@ You should only use the `AsyncBaseClient` if:
 
 The `Client` provides a sync interface for analytix operations, which is
 perfect if you are running simple scripts. This client acts as a wrapper
-to the `AsyncClient` and is not a separate implementation. Because of
+for the `AsyncClient` and is not a separate implementation. Because of
 this, it is not threadsafe.
 """
 
 from __future__ import annotations
 
-__all__ = ("AsyncBaseClient", "AsyncClient")
+__all__ = ("AsyncBaseClient", "AsyncClient", "Client")
 
 import asyncio
 import datetime
@@ -69,7 +69,7 @@ from types import TracebackType
 from aiohttp import ClientSession
 
 import analytix
-from analytix import UPDATE_CHECK_URL, oidc
+from analytix import oidc
 from analytix.errors import AuthorisationError, RefreshTokenExpired
 from analytix.groups import GroupItemList, GroupList
 from analytix.reports import AnalyticsReport
@@ -164,7 +164,7 @@ class AsyncBaseClient:
     async def _check_for_updates(self) -> None:
         _log.debug("Checking for updates")
 
-        async with self._session.get(UPDATE_CHECK_URL) as resp:
+        async with self._session.get(analytix.UPDATE_CHECK_URL) as resp:
             if not resp.ok:
                 # If we can't get the info, just ignore it.
                 _log.debug("Failed to get version information")
@@ -689,3 +689,99 @@ class AsyncClient(AsyncBaseClient):
         await self.authorise()
         assert self._shard
         return await self._shard.fetch_group_items(group_id)
+
+
+class Client:
+    """A sync client interface for the YouTube Analytics API.
+
+    This client acts as a sync wrapper for the `AsyncClient` allowing
+    you to use analytix without having to worry about creating async
+    event loops. If you are creating simple scripts, this client is
+    probably the one you want to use.
+
+    !!! info "See also"
+        This client is functionally identical to the `AsyncClient`.
+        Refer to that client's documentation for descriptions of this
+        client's methods.
+
+    !!! warning
+        This client is still async under the hood and as such is not
+        threadsafe.
+    """
+
+    __slots__ = ("_client",)
+
+    def __init__(
+        self,
+        secrets_file: PathLikeT,
+        *,
+        tokens_dir: OptionalPathLikeT = ".",
+        ws_port: int = 8080,
+        auto_open_browser: bool = False,
+        loop: asyncio.AbstractEventLoop | None = None,
+        session: ClientSession | None = None,
+        **kwargs: t.Any,
+    ) -> None:
+        self._client = AsyncClient(
+            secrets_file,
+            tokens_dir=tokens_dir,
+            ws_port=ws_port,
+            auto_open_browser=auto_open_browser,
+            loop=loop,
+            session=session,
+            **kwargs,
+        )
+
+    @property
+    def active_tokens(self) -> str | None:
+        return self._client._active_tokens
+
+    def teardown(self) -> None:
+        self._client._loop.run_until_complete(self._client.teardown())
+
+    def authorise(self, token_id: str | None = None) -> None:
+        self._client._loop.run_until_complete(self._client.authorise(token_id))
+
+    def retrieve_report(
+        self,
+        *,
+        dimensions: t.Collection[str] | None = None,
+        filters: dict[str, str] | None = None,
+        metrics: t.Collection[str] | None = None,
+        start_date: datetime.date | None = None,
+        end_date: datetime.date | None = None,
+        sort_options: t.Collection[str] | None = None,
+        max_results: int = 0,
+        currency: str = "USD",
+        start_index: int = 1,
+        include_historical_data: bool = False,
+    ) -> AnalyticsReport:
+        return self._client._loop.run_until_complete(
+            self._client.retrieve_report(
+                dimensions=dimensions,
+                filters=filters,
+                metrics=metrics,
+                start_date=start_date,
+                end_date=end_date,
+                sort_options=sort_options,
+                max_results=max_results,
+                currency=currency,
+                start_index=start_index,
+                include_historical_data=include_historical_data,
+            )
+        )
+
+    def fetch_groups(
+        self,
+        *,
+        ids: t.Collection[str] | None = None,
+        next_page_token: str | None = None,
+    ) -> GroupList:
+        return self._client._loop.run_until_complete(
+            self._client.fetch_groups(ids=ids, next_page_token=next_page_token)
+        )
+
+    def fetch_group_items(self, group_id: str) -> GroupItemList:
+        return self._client._loop.run_until_complete(
+            self._client.fetch_group_items(group_id)
+        )

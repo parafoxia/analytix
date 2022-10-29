@@ -35,6 +35,7 @@ __all__ = (
     "AsyncBaseClient",
     "AsyncClient",
     "can_use",
+    "Client",
     "enable_logging",
     "groups",
     "OAUTH_CHECK_URL",
@@ -69,6 +70,6 @@ OAUTH_CHECK_URL = "https://www.googleapis.com/oauth2/v3/tokeninfo?access_token="
 UPDATE_CHECK_URL = "https://pypi.org/pypi/analytix/json"
 
 from . import groups, reports
-from .client import AsyncBaseClient, AsyncClient
+from .client import AsyncBaseClient, AsyncClient, Client
 from .utils import *
 from .ux import enable_logging
