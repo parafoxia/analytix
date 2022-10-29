@@ -66,7 +66,8 @@ from types import TracebackType
 
 from aiohttp import ClientSession
 
-from analytix import oidc
+import analytix
+from analytix import UPDATE_CHECK_URL, oidc
 from analytix.errors import AuthorisationError, RefreshTokenExpired
 from analytix.groups import GroupItemList, GroupList
 from analytix.reports import AnalyticsReport
@@ -139,6 +140,8 @@ class AsyncBaseClient:
         self._secrets = oidc.Secrets.from_file(secrets_file)
         self._session = session or ClientSession(loop=self._loop, **kwargs)
 
+        self._loop.create_task(self._check_for_updates())
+
     def __str__(self) -> str:
         return self._secrets.project_id
 
@@ -155,6 +158,22 @@ class AsyncBaseClient:
         exc_tb: TracebackType | None,
     ) -> None:
         await self.teardown()
+
+    async def _check_for_updates(self) -> None:
+        _log.debug("Checking for updates")
+
+        async with self._session.get(UPDATE_CHECK_URL) as resp:
+            if not resp.ok:
+                # If we can't get the info, just ignore it.
+                _log.debug("Failed to get version information")
+                return
+
+            latest = (await resp.json())["info"]["version"]
+
+        if analytix.__version__ != latest:
+            _log.warning(
+                f"You do not have the latest stable version of analytix (v{latest})"
+            )
 
     async def teardown(self) -> None:
         """Tears the client down.
