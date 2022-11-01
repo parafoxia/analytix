@@ -1,0 +1,3 @@
+# shard
+
+::: analytix.shard

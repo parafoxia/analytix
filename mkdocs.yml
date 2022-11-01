@@ -93,6 +93,7 @@ nav:
     - "guides/migrating.md"
   - "Reference":
     - "reference/client.md"
+    - "reference/shard.md"
     - "reference/errors.md"
     - "reference/oidc.md"
     - "reference/reports.md"

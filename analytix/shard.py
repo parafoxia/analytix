@@ -26,6 +26,17 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+"""A shard interface for analytix.
+
+Shards are used by clients as an interface through which to make
+requests, and are particularly useful when multiple users are likely to
+make requests at the same time.
+
+If you are building a script or desktop application, you will probably
+be fine using the `AsyncClient`, which performs shard management for
+you.
+"""
+
 from __future__ import annotations
 
 __all__ = ("Shard",)
@@ -48,6 +59,19 @@ _log = logging.getLogger(__name__)
 
 @dataclass()
 class Shard:
+    """A shard interface capable of interacting with the YouTube
+    Analytics API.
+
+    Shards functions as mini-clients of sorts that allow multiple users
+    to use your analytix-based program at once. You only need interact
+    directory with shards if you are using the `AsyncBaseClient`.
+
+    !!! info "See also"
+        If you're building simple scripts or a desktop-based
+        application, the `AsyncClient` performs shard management for
+        you.
+    """
+
     __slots__ = ("_session", "_secrets", "_tokens")
 
     _session: ClientSession
@@ -121,6 +145,13 @@ class Shard:
         start_index: int = 1,
         include_historical_data: bool = False,
     ) -> AnalyticsReport:
+        """Retrieves a report.
+
+        !!! info "See also"
+            [`AsyncClient.retrieve_report()`](../client/#analytix.
+            client.AsyncClient.retrieve_report)
+        """
+
         query = ReportQuery(
             dimensions,
             filters,
@@ -151,9 +182,21 @@ class Shard:
         ids: t.Collection[str] | None = None,
         next_page_token: str | None = None,
     ) -> GroupList:
+        """Fetch the list of all your channel's groups.
+
+        !!! info "See also"
+            [`AsyncClient.fetch_groups()`](../client/#analytix.client.
+            AsyncClient.fetch_groups)
+        """
         query = GroupQuery(ids, next_page_token)
         return GroupList.from_json(await self._request(query.url))
 
     async def fetch_group_items(self, group_id: str) -> GroupItemList:
+        """Fetch the items of a specific group.
+
+        !!! info "See also"
+            [`AsyncClient.fetch_group_items()`](../client/#analytix.
+            client.AsyncClient.fetch_group_items)
+        """
         query = GroupItemQuery(group_id)
         return GroupItemList.from_json(await self._request(query.url))
