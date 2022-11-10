@@ -26,17 +26,20 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from pathlib import Path
 
-DATA_PATH = Path(__file__).parent / "data"
-MOCK_DATA_PATH = DATA_PATH / "test_data.json"
-MOCK_CSV_PATH = DATA_PATH / "test_data.csv"
-JSON_OUTPUT_PATH = DATA_PATH / "output.json"
-CSV_OUTPUT_PATH = DATA_PATH / "output.csv"
-TSV_OUTPUT_PATH = DATA_PATH / "output.tsv"
-EXCEL_OUTPUT_PATH = DATA_PATH / "output.xlsx"
-FEATHER_OUTPUT_PATH = DATA_PATH / "output.feather"
-PARQUET_OUTPUT_PATH = DATA_PATH / "output.parquet"
+class AsyncFile:
+    def __init__(self, data):
+        self.read_data = data
+        self.write_data = ""
 
-SECRETS_PATH = Path(__file__).parent / "data/test_secrets.json"
-TOKENS_PATH = Path(__file__).parent / "data/test_tokens.json"
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, *args):
+        ...
+
+    async def read(self):
+        return self.read_data
+
+    async def write(self, data):
+        self.write_data = data

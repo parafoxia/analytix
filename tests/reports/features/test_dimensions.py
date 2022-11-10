@@ -29,7 +29,7 @@
 import pytest
 
 from analytix import errors
-from analytix.features import (
+from analytix.reports.features import (
     Dimensions,
     ExactlyOne,
     OneOrMore,

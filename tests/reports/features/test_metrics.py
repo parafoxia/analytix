@@ -29,7 +29,7 @@
 import pytest
 
 from analytix import errors
-from analytix.features import Metrics
+from analytix.reports.features import Metrics
 
 
 @pytest.fixture()

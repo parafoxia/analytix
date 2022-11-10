@@ -26,46 +26,56 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from analytix import report_types as rt
+import pytest
 
-# AD PERFORMANCE
-
-
-def test_ad_performance_1():
-    report = rt.AdPerformance()
-    assert report.name == "Ad performance"
-    d = ["adType", "day"]
-    f = {"video": "nf97ng98bg9", "country": "US"}
-    m = ["grossRevenue", "adImpressions", "cpm"]
-    s = ["grossRevenue", "adImpressions", "cpm"]
-    report.validate(d, f, m, s)
+from analytix import utils
+from analytix.errors import MissingOptionalComponents
 
 
-def test_ad_performance_2():
-    report = rt.AdPerformance()
-    assert report.name == "Ad performance"
-    d = ["adType"]
-    f = {"group": "nf97ng98bg9", "continent": "002"}
-    m = ["grossRevenue", "adImpressions", "cpm"]
-    s = ["grossRevenue", "adImpressions", "cpm"]
-    report.validate(d, f, m, s)
+def test_can_use_installed():
+    assert utils.can_use("analytix")
 
 
-def test_ad_performance_3():
-    report = rt.AdPerformance()
-    assert report.name == "Ad performance"
-    d = ["adType"]
-    f = {"subContinent": "014"}
-    m = ["grossRevenue", "adImpressions", "cpm"]
-    s = ["grossRevenue", "adImpressions", "cpm"]
-    report.validate(d, f, m, s)
+def test_can_use_not_installed():
+    assert not utils.can_use("rickroll")
 
 
-def test_ad_performance_4():
-    report = rt.AdPerformance()
-    assert report.name == "Ad performance"
-    d = ["adType"]
-    f = {}
-    m = ["grossRevenue", "adImpressions", "cpm"]
-    s = ["grossRevenue", "adImpressions", "cpm"]
-    report.validate(d, f, m, s)
+def test_can_use_required_installed():
+    assert utils.can_use("analytix", required=True)
+
+
+def test_can_use_required_not_installed():
+    with pytest.raises(MissingOptionalComponents) as exc:
+        utils.can_use("rickroll", required=True)
+    assert (
+        str(exc.value)
+        == "some necessary libraries are not installed (hint: pip install rickroll)"
+    )
+
+    with pytest.raises(MissingOptionalComponents) as exc:
+        utils.can_use("rickroll", "barney", required=True)
+    assert (
+        str(exc.value)
+        == "some necessary libraries are not installed (hint: pip install rickroll barney)"
+    )
+
+
+def test_requires_installed():
+    @utils.requires("analytix")
+    def test():
+        return True
+
+    assert test()
+
+
+def test_requires_not_installed():
+    @utils.requires("rickroll")
+    def test():
+        return True
+
+    with pytest.raises(MissingOptionalComponents) as exc:
+        test()
+    assert (
+        str(exc.value)
+        == "some necessary libraries are not installed (hint: pip install rickroll)"
+    )

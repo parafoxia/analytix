@@ -29,7 +29,7 @@
 import pytest
 
 from analytix import errors
-from analytix.features import SortOptions
+from analytix.reports.features import SortOptions
 
 
 @pytest.fixture()
