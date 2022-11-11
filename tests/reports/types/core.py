@@ -28,9 +28,9 @@
 
 import pytest
 
-from analytix.reports import types as rt
-from analytix.reports import data
 from analytix.errors import InvalidRequest
+from analytix.reports import data
+from analytix.reports import types as rt
 
 
 def test_str_output():

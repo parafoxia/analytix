@@ -76,8 +76,8 @@ __all__ = (
     "AdPerformance",
 )
 
-from analytix.errors import InvalidRequest
 from analytix.abc import DetailedReportType, ReportType
+from analytix.errors import InvalidRequest
 from analytix.reports import data
 from analytix.reports.features import (
     Dimensions,

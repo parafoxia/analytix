@@ -43,7 +43,7 @@ __all__ = (
 
 import typing as t
 
-from analytix import abc, errors
+from analytix import abc
 from analytix.errors import InvalidFeatures, InvalidFeatureSet, InvalidRequest
 from analytix.reports import data
 
@@ -129,8 +129,8 @@ class SortOptions(abc.FeatureType, _CompareMixin):
             diff = {i for i in inputs if not i.startswith("-")}
             if diff:
                 raise InvalidRequest(
-                    "dimensions and filters are incompatible with ascending sort options "
-                    "(hint: prefix with '-')"
+                    "dimensions and filters are incompatible with ascending sort "
+                    "options (hint: prefix with '-')"
                 )
 
 

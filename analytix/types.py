@@ -44,8 +44,8 @@ import typing as t
 from pathlib import Path
 
 ResponseT = t.Dict[str, t.Any]
-PathLikeT = str | Path
-OptionalPathLikeT = str | Path | None
+PathLikeT = t.Union[str, Path]
+OptionalPathLikeT = t.Union[str, Path, None]
 
 RequestParamsT = t.Tuple[str, t.Dict[str, str], t.Dict[str, str]]
 SecretT = t.Union[str, t.List[str]]
