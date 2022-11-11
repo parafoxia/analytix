@@ -28,7 +28,7 @@
 
 import pytest
 
-from analytix import errors
+from analytix.errors import InvalidRequest
 from analytix.reports.features import (
     Dimensions,
     ExactlyOne,
@@ -50,7 +50,7 @@ def test_dimensions_every(dimensions_required):
 
 
 def test_dimensions_invalid(dimensions_required):
-    with pytest.raises(errors.InvalidDimensions) as exc:
+    with pytest.raises(InvalidRequest) as exc:
         dimensions_required.validate(["day", "month", "henlo", "testing"])
     assert str(exc.value) in (
         "invalid dimension(s) provided: henlo, testing",
@@ -59,11 +59,23 @@ def test_dimensions_invalid(dimensions_required):
 
 
 def test_dimensions_unsupported(dimensions_required):
-    with pytest.raises(errors.UnsupportedDimensions) as exc:
+    with pytest.raises(InvalidRequest) as exc:
         dimensions_required.validate(["day", "month", "country"])
-    assert (
-        str(exc.value) == "unsupported dimension(s) for selected report type: country"
+    assert str(exc.value) in (
+        "incompatible combination of dimensions: day, month, country",
+        "incompatible combination of dimensions: day, country, month",
+        "incompatible combination of dimensions: month, day, country",
+        "incompatible combination of dimensions: month, country, day",
+        "incompatible combination of dimensions: country, day, month",
+        "incompatible combination of dimensions: country, month, day",
     )
+
+
+def test_dimensions_hash(dimensions_required):
+    assert isinstance(hash(dimensions_required), int)
+
+
+# -----
 
 
 def test_dimensions_required_repr_output(dimensions_required):
@@ -76,42 +88,30 @@ def test_dimensions_required_repr_output(dimensions_required):
     assert f"{dimensions_required!r}" in outputs
 
 
-def test_dimensions_hash(dimensions_required):
-    assert isinstance(hash(dimensions_required), int)
-
-
-def test_dimensions_equal(dimensions_required):
+def test_dimensions_required_equal(dimensions_required):
     assert dimensions_required == Dimensions(Required("day", "month"))
 
 
-def test_dimensions_not_equal(dimensions_required):
+def test_dimensions_required_not_equal(dimensions_required):
     assert dimensions_required != Dimensions(Required("country", "subContinent"))
 
 
-def test_dimensions_not_equal_required(dimensions_required):
-    assert dimensions_required != Dimensions(Required("country", "subContinent"))
-
-
-def test_dimensions_required(dimensions_required):
+def test_dimensions_required_valid(dimensions_required):
     dimensions_required.validate(["day", "month"])
 
 
 def test_dimensions_required_invalid_set(dimensions_required):
-    with pytest.raises(errors.InvalidSetOfDimensions) as exc:
+    with pytest.raises(InvalidRequest) as exc:
         dimensions_required.validate(["day"])
     assert str(exc.value) in (
-        "expected all dimension(s) from 'day, month', got 1",
-        "expected all dimension(s) from 'month, day', got 1",
+        "expected all dimension(s) from [ day, month ], got 1",
+        "expected all dimension(s) from [ month, day ], got 1",
     )
 
 
 @pytest.fixture()
 def dimensions_exactly_one() -> Dimensions:
     return Dimensions(ExactlyOne("day", "month"))
-
-
-def test_dimensions_not_equal_exactly_one(dimensions_required, dimensions_exactly_one):
-    assert dimensions_required != dimensions_exactly_one
 
 
 def test_dimensions_exactly_one_repr_output(dimensions_exactly_one):
@@ -124,26 +124,34 @@ def test_dimensions_exactly_one_repr_output(dimensions_exactly_one):
     assert f"{dimensions_exactly_one!r}" in outputs
 
 
-def test_dimensions_exactly_one(dimensions_exactly_one):
+def test_dimensions_exactly_one_equal(dimensions_exactly_one):
+    assert dimensions_exactly_one == Dimensions(ExactlyOne("day", "month"))
+
+
+def test_dimensions_exactly_one_not_equal(dimensions_required, dimensions_exactly_one):
+    assert dimensions_required != dimensions_exactly_one
+
+
+def test_dimensions_exactly_one_valid(dimensions_exactly_one):
     dimensions_exactly_one.validate(["day"])
     dimensions_exactly_one.validate(["month"])
 
 
 def test_dimensions_exactly_one_invalid_set_zero(dimensions_exactly_one):
-    with pytest.raises(errors.InvalidSetOfDimensions) as exc:
+    with pytest.raises(InvalidRequest) as exc:
         dimensions_exactly_one.validate([])
     assert str(exc.value) in (
-        "expected 1 dimension(s) from 'day, month', got 0",
-        "expected 1 dimension(s) from 'month, day', got 0",
+        "expected 1 dimension(s) from [ day, month ], got 0",
+        "expected 1 dimension(s) from [ month, day ], got 0",
     )
 
 
 def test_dimensions_exactly_one_invalid_set_two(dimensions_exactly_one):
-    with pytest.raises(errors.InvalidSetOfDimensions) as exc:
+    with pytest.raises(InvalidRequest) as exc:
         dimensions_exactly_one.validate(["day", "month"])
     assert str(exc.value) in (
-        "expected 1 dimension(s) from 'day, month', got 2",
-        "expected 1 dimension(s) from 'month, day', got 2",
+        "expected 1 dimension(s) from [ day, month ], got 2",
+        "expected 1 dimension(s) from [ month, day ], got 2",
     )
 
 
@@ -162,18 +170,26 @@ def test_dimensions_one_or_more_repr_output(dimensions_one_or_more):
     assert f"{dimensions_one_or_more!r}" in outputs
 
 
-def test_dimensions_one_or_more(dimensions_one_or_more):
+def test_dimensions_one_or_more_equal(dimensions_one_or_more):
+    assert dimensions_one_or_more == Dimensions(OneOrMore("day", "month"))
+
+
+def test_dimensions_one_or_more_not_equal(dimensions_required, dimensions_one_or_more):
+    assert dimensions_required != dimensions_one_or_more
+
+
+def test_dimensions_one_or_more_valid(dimensions_one_or_more):
     dimensions_one_or_more.validate(["day"])
     dimensions_one_or_more.validate(["month"])
     dimensions_one_or_more.validate(["day", "month"])
 
 
 def test_dimensions_one_or_more_invalid_set_zero(dimensions_one_or_more):
-    with pytest.raises(errors.InvalidSetOfDimensions) as exc:
+    with pytest.raises(InvalidRequest) as exc:
         dimensions_one_or_more.validate([])
     assert str(exc.value) in (
-        "expected at least 1 dimension(s) from 'day, month', got 0",
-        "expected at least 1 dimension(s) from 'month, day', got 0",
+        "expected at least 1 dimension(s) from [ day, month ], got 0",
+        "expected at least 1 dimension(s) from [ month, day ], got 0",
     )
 
 
@@ -192,7 +208,15 @@ def test_dimensions_optional_repr_output(dimensions_optional):
     assert f"{dimensions_optional!r}" in outputs
 
 
-def test_dimensions_optional(dimensions_optional):
+def test_dimensions_optional_equal(dimensions_optional):
+    assert dimensions_optional == Dimensions(Optional("day", "month"))
+
+
+def test_dimensions_optional_not_equal(dimensions_required, dimensions_optional):
+    assert dimensions_required != dimensions_optional
+
+
+def test_dimensions_optional_valid(dimensions_optional):
     dimensions_optional.validate([])
     dimensions_optional.validate(["day"])
     dimensions_optional.validate(["month"])
@@ -214,18 +238,26 @@ def test_dimensions_zero_or_one_repr_output(dimensions_zero_or_one):
     assert f"{dimensions_zero_or_one!r}" in outputs
 
 
-def test_dimensions_zero_or_one(dimensions_zero_or_one):
+def test_dimensions_zero_or_one_equal(dimensions_zero_or_one):
+    assert dimensions_zero_or_one == Dimensions(ZeroOrOne("day", "month"))
+
+
+def test_dimensions_zero_or_one_not_equal(dimensions_required, dimensions_zero_or_one):
+    assert dimensions_required != dimensions_zero_or_one
+
+
+def test_dimensions_zero_or_one_valid(dimensions_zero_or_one):
     dimensions_zero_or_one.validate(["day"])
     dimensions_zero_or_one.validate(["month"])
     dimensions_zero_or_one.validate([])
 
 
 def test_dimensions_zero_or_one_invalid_set_two(dimensions_zero_or_one):
-    with pytest.raises(errors.InvalidSetOfDimensions) as exc:
+    with pytest.raises(InvalidRequest) as exc:
         dimensions_zero_or_one.validate(["day", "month"])
     assert str(exc.value) in (
-        "expected 0 or 1 dimension(s) from 'day, month', got 2",
-        "expected 0 or 1 dimension(s) from 'month, day', got 2",
+        "expected 0 or 1 dimension(s) from [ day, month ], got 2",
+        "expected 0 or 1 dimension(s) from [ month, day ], got 2",
     )
 
 
@@ -244,7 +276,17 @@ def test_dimensions_zero_or_more_repr_output(dimensions_zero_or_more):
     assert f"{dimensions_zero_or_more!r}" in outputs
 
 
-def test_dimensions_zero_or_more(dimensions_zero_or_more):
+def test_dimensions_zero_or_more_equal(dimensions_zero_or_more):
+    assert dimensions_zero_or_more == Dimensions(ZeroOrMore("day", "month"))
+
+
+def test_dimensions_zero_or_more_not_equal(
+    dimensions_required, dimensions_zero_or_more
+):
+    assert dimensions_required != dimensions_zero_or_more
+
+
+def test_dimensions_zero_or_more_valid(dimensions_zero_or_more):
     dimensions_zero_or_more.validate([])
     dimensions_zero_or_more.validate(["day"])
     dimensions_zero_or_more.validate(["month"])

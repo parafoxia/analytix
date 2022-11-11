@@ -28,13 +28,17 @@
 
 import pytest
 
-from analytix import errors
+from analytix.errors import InvalidRequest
 from analytix.reports.features import Metrics
 
 
 @pytest.fixture()
 def metrics() -> Metrics:
     return Metrics("views", "likes", "comments")
+
+
+def test_metrics_hash(metrics):
+    assert isinstance(hash(metrics), int)
 
 
 def test_metrics_repr_output(metrics):
@@ -51,10 +55,6 @@ def test_metrics_repr_output(metrics):
     assert f"{metrics!r}" in outputs
 
 
-def test_metrics_hash(metrics):
-    assert isinstance(hash(metrics), int)
-
-
 def test_metrics_equal(metrics):
     assert metrics == Metrics("views", "likes", "comments")
 
@@ -63,12 +63,12 @@ def test_metrics_not_equal(metrics):
     assert metrics != Metrics("estimatedRevenue", "estimatedAdRevenue", "grossRevenue")
 
 
-def test_metrics(metrics):
+def test_metrics_valid(metrics):
     metrics.validate(["views", "likes", "comments"])
 
 
 def test_metrics_invalid(metrics):
-    with pytest.raises(errors.InvalidMetrics) as exc:
+    with pytest.raises(InvalidRequest) as exc:
         metrics.validate(["views", "likes", "henlo", "testing"])
     assert str(exc.value) in (
         "invalid metric(s) provided: henlo, testing",
@@ -76,16 +76,16 @@ def test_metrics_invalid(metrics):
     )
 
 
-def test_metrics_unsupported(metrics):
-    with pytest.raises(errors.UnsupportedMetrics) as exc:
+def test_metrics_incompatible(metrics):
+    with pytest.raises(InvalidRequest) as exc:
         metrics.validate(["views", "likes", "dislikes", "shares"])
     assert str(exc.value) in (
-        "unsupported metric(s) for selected report type: dislikes, shares",
-        "unsupported metric(s) for selected report type: shares, dislikes",
+        "dimensions and filters are incompatible with metric(s): dislikes, shares",
+        "dimensions and filters are incompatible with metric(s): shares, dislikes",
     )
 
 
 def test_missing_metrics(metrics):
-    with pytest.raises(errors.MissingMetrics) as exc:
+    with pytest.raises(InvalidRequest) as exc:
         metrics.validate([])
     assert str(exc.value) == "expected at least 1 metric, got 0"

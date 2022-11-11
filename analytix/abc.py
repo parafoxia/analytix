@@ -41,7 +41,7 @@ import abc
 import typing as t
 from dataclasses import dataclass
 
-from analytix.errors import InvalidAmountOfResults, MissingSortOptions
+from analytix.errors import InvalidRequest
 
 if t.TYPE_CHECKING:
     from analytix.reports.features import Dimensions, Filters, Metrics, SortOptions
@@ -91,10 +91,14 @@ class DetailedReportType(ReportType, metaclass=abc.ABCMeta):
         super().validate(dimensions, filters, metrics, sort_options)
 
         if not max_results or max_results > self.max_results:
-            raise InvalidAmountOfResults(max_results, self.max_results)
+            if max_results == 0:
+                raise InvalidRequest("expected a maximum number of results")
+            raise InvalidRequest(
+                f"expected no more than {self.max_results} results, got {max_results:,}"
+            )
 
         if not sort_options:
-            raise MissingSortOptions()
+            raise InvalidRequest("expected at least 1 sort option, got 0")
 
 
 class FeatureType(metaclass=abc.ABCMeta):

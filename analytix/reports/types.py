@@ -76,7 +76,7 @@ __all__ = (
     "AdPerformance",
 )
 
-from analytix import errors
+from analytix.errors import InvalidRequest
 from analytix.abc import DetailedReportType, ReportType
 from analytix.reports import data
 from analytix.reports.features import (
@@ -371,7 +371,10 @@ class TrafficSourceDetail(DetailedReportType):
 
         itst = filters["insightTrafficSourceType"]
         if itst not in data.VALID_FILTER_OPTIONS["insightTrafficSourceDetail"]:
-            raise errors.UnsupportedFilterValue("insightTrafficSourceType", itst)
+            raise InvalidRequest(
+                "dimensions and filters are incompatible with value "
+                f"{itst!r} for filter 'insightTrafficSourceType'"
+            )
 
 
 class DeviceType(ReportType):
@@ -485,8 +488,11 @@ class AudienceRetention(ReportType):
     ) -> None:
         super().validate(dimensions, filters, metrics, sort_options)
 
-        if "," in filters["video"]:
-            raise errors.UnsupportedFilterValue("video", filters["video"])
+        v = filters["video"]
+        if "," in v:
+            raise InvalidRequest(
+                "dimensions and filters are incompatible with multiple videos"
+            )
 
 
 class TopVideosRegional(DetailedReportType):
@@ -705,7 +711,10 @@ class TrafficSourceDetailPlaylist(DetailedReportType):
 
         itst = filters["insightTrafficSourceType"]
         if itst not in data.VALID_FILTER_OPTIONS["insightTrafficSourceDetail"]:
-            raise errors.UnsupportedFilterValue("insightTrafficSourceType", itst)
+            raise InvalidRequest(
+                "dimensions and filters are incompatible with value "
+                f"{itst!r} for filter 'insightTrafficSourceType'"
+            )
 
 
 class DeviceTypePlaylist(ReportType):

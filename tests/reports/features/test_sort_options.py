@@ -28,13 +28,17 @@
 
 import pytest
 
-from analytix import errors
+from analytix.errors import InvalidRequest
 from analytix.reports.features import SortOptions
 
 
 @pytest.fixture()
 def sort_options() -> SortOptions:
     return SortOptions("views", "likes", "comments")
+
+
+def test_sort_options_hash(sort_options):
+    assert isinstance(hash(sort_options), int)
 
 
 def test_sort_options_repr_output(sort_options):
@@ -51,10 +55,6 @@ def test_sort_options_repr_output(sort_options):
     assert f"{sort_options!r}" in outputs
 
 
-def test_sort_options_hash(sort_options):
-    assert isinstance(hash(sort_options), int)
-
-
 def test_sort_options_equal(sort_options):
     assert sort_options == SortOptions("views", "likes", "comments")
 
@@ -65,19 +65,14 @@ def test_sort_options_not_equal(sort_options):
     )
 
 
-@pytest.fixture()
-def sort_options_descending() -> SortOptions:
-    return SortOptions("views", "likes", "comments", descending_only=True)
-
-
-def test_sort_options(sort_options):
+def test_sort_options_valid(sort_options):
     sort_options.validate(["views", "likes", "comments"])
     sort_options.validate(["views", "-likes", "comments"])
     sort_options.validate(["-views", "-likes", "-comments"])
 
 
 def test_sort_options_invalid(sort_options):
-    with pytest.raises(errors.InvalidSortOptions) as exc:
+    with pytest.raises(InvalidRequest) as exc:
         sort_options.validate(["views", "likes", "henlo", "testing"])
     assert str(exc.value) in (
         "invalid sort option(s) provided: henlo, testing",
@@ -86,22 +81,27 @@ def test_sort_options_invalid(sort_options):
 
 
 def test_sort_options_unsupported(sort_options):
-    with pytest.raises(errors.UnsupportedSortOptions) as exc:
+    with pytest.raises(InvalidRequest) as exc:
         sort_options.validate(["views", "likes", "dislikes", "shares"])
     assert str(exc.value) in (
-        "unsupported sort option(s) for selected report type: dislikes, shares",
-        "unsupported sort option(s) for selected report type: shares, dislikes",
+        "dimensions and filters are incompatible with sort option(s): dislikes, shares",
+        "dimensions and filters are incompatible with sort option(s): shares, dislikes",
     )
 
 
-def test_sort_options_descending(sort_options_descending):
+@pytest.fixture()
+def sort_options_descending() -> SortOptions:
+    return SortOptions("views", "likes", "comments", descending_only=True)
+
+
+def test_sort_options_descending_valid(sort_options_descending):
     sort_options_descending.validate(["-views", "-likes", "-comments"])
 
 
-def test_sort_options_descending(sort_options_descending):
-    with pytest.raises(errors.UnsupportedSortOptions) as exc:
+def test_sort_options_descending_invalid(sort_options_descending):
+    with pytest.raises(InvalidRequest) as exc:
         sort_options_descending.validate(["views", "-likes", "-comments"])
     assert (
         str(exc.value)
-        in "unsupported sort option(s) for selected report type: views -- only descending options are supported (hint: '-views')"
+        in "dimensions and filters are incompatible with ascending sort options (hint: prefix with '-')"
     )

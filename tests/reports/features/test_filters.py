@@ -28,7 +28,7 @@
 
 import pytest
 
-from analytix import errors
+from analytix.errors import InvalidRequest
 from analytix.reports.features import (
     ExactlyOne,
     Filters,
@@ -58,7 +58,7 @@ def test_filters_locked(filters_required):
 
 
 def test_filters_invalid(filters_required):
-    with pytest.raises(errors.InvalidFilters) as exc:
+    with pytest.raises(InvalidRequest) as exc:
         filters_required.validate(
             {
                 "country": "US",
@@ -74,15 +74,22 @@ def test_filters_invalid(filters_required):
 
 
 def test_filters_unsupported(filters_required):
-    with pytest.raises(errors.UnsupportedFilters) as exc:
+    with pytest.raises(InvalidRequest) as exc:
         filters_required.validate(
             {"country": "US", "video": "nf94bg4b397gb", "group": "nf74ng984b98g"}
         )
-    assert str(exc.value) == "unsupported filter(s) for selected report type: group"
+    assert str(exc.value) in (
+        "incompatible combination of filters: country, video, group",
+        "incompatible combination of filters: country, group, video",
+        "incompatible combination of filters: video, country, group",
+        "incompatible combination of filters: video, group, country",
+        "incompatible combination of filters: group, country, video",
+        "incompatible combination of filters: group, video, country",
+    )
 
 
 def test_filters_invalid_value(filters_required):
-    with pytest.raises(errors.InvalidFilterValue) as exc:
+    with pytest.raises(InvalidRequest) as exc:
         filters_required.validate({"country": "UK", "video": "nf94bg4b397gb"})
     assert str(exc.value) == "invalid value for filter 'country': 'UK'"
 
@@ -111,12 +118,19 @@ def test_filters_locked_locked(filters_required_locked):
 
 
 def test_filters_unsupported_value(filters_required_locked):
-    with pytest.raises(errors.UnsupportedFilterValue) as exc:
+    with pytest.raises(InvalidRequest) as exc:
         filters_required_locked.validate({"country": "GB", "video": "nf94bg4b397gb"})
     assert (
         str(exc.value)
-        == "unsupported value for filter 'country' for selected report type: 'GB'"
+        == "dimensions and filters are incompatible with value 'GB' for filter 'country'"
     )
+
+
+def test_filters_hash(filters_required):
+    assert isinstance(hash(filters_required), int)
+
+
+# -----
 
 
 def test_filters_required_repr_output(filters_required):
@@ -129,42 +143,30 @@ def test_filters_required_repr_output(filters_required):
     assert f"{filters_required!r}" in outputs
 
 
-def test_filters_hash(filters_required):
-    assert isinstance(hash(filters_required), int)
-
-
-def test_filters_equal(filters_required):
+def test_filters_required_equal(filters_required):
     assert filters_required == Filters(Required("country", "video"))
 
 
-def test_filters_not_equal(filters_required):
+def test_filters_required_not_equal(filters_required):
     assert filters_required != Filters(Required("country", "subContinent"))
 
 
-def test_filters_not_equal_required(filters_required):
-    assert filters_required != Filters(Required("country", "subContinent"))
-
-
-def test_filters_required(filters_required):
+def test_filters_required_valid(filters_required):
     filters_required.validate({"country": "US", "video": "nf94bg4b397gb"})
 
 
 def test_filters_required_invalid_set(filters_required):
-    with pytest.raises(errors.InvalidSetOfFilters) as exc:
+    with pytest.raises(InvalidRequest) as exc:
         filters_required.validate({"country": "US"})
     assert str(exc.value) in (
-        "expected all filter(s) from 'country, video', got 1",
-        "expected all filter(s) from 'video, country', got 1",
+        "expected all filter(s) from [ country, video ], got 1",
+        "expected all filter(s) from [ video, country ], got 1",
     )
 
 
 @pytest.fixture()
 def filters_exactly_one() -> Filters:
     return Filters(ExactlyOne("country", "video"))
-
-
-def test_filters_not_equal_exactly_one(filters_required, filters_exactly_one):
-    assert filters_required != filters_exactly_one
 
 
 def test_filters_exactly_one_repr_output(filters_exactly_one):
@@ -177,26 +179,34 @@ def test_filters_exactly_one_repr_output(filters_exactly_one):
     assert f"{filters_exactly_one!r}" in outputs
 
 
-def test_filters_exactly_one(filters_exactly_one):
+def test_filters_exactly_one_equal(filters_exactly_one):
+    assert filters_exactly_one == Filters(ExactlyOne("country", "video"))
+
+
+def test_filters_exactly_one_not_equal(filters_required, filters_exactly_one):
+    assert filters_required != filters_exactly_one
+
+
+def test_filters_exactly_one_valid(filters_exactly_one):
     filters_exactly_one.validate({"country": "US"})
     filters_exactly_one.validate({"video": "nf94bg4b397gb"})
 
 
 def test_filters_exactly_one_invalid_set_zero(filters_exactly_one):
-    with pytest.raises(errors.InvalidSetOfFilters) as exc:
+    with pytest.raises(InvalidRequest) as exc:
         filters_exactly_one.validate({})
     assert str(exc.value) in (
-        "expected 1 filter(s) from 'country, video', got 0",
-        "expected 1 filter(s) from 'video, country', got 0",
+        "expected 1 filter(s) from [ country, video ], got 0",
+        "expected 1 filter(s) from [ video, country ], got 0",
     )
 
 
 def test_filters_exactly_one_invalid_set_two(filters_exactly_one):
-    with pytest.raises(errors.InvalidSetOfFilters) as exc:
+    with pytest.raises(InvalidRequest) as exc:
         filters_exactly_one.validate({"country": "US", "video": "nf94bg4b397gb"})
     assert str(exc.value) in (
-        "expected 1 filter(s) from 'country, video', got 2",
-        "expected 1 filter(s) from 'video, country', got 2",
+        "expected 1 filter(s) from [ country, video ], got 2",
+        "expected 1 filter(s) from [ video, country ], got 2",
     )
 
 
@@ -215,18 +225,26 @@ def test_filters_one_or_more_repr_output(filters_one_or_more):
     assert f"{filters_one_or_more!r}" in outputs
 
 
-def test_filters_one_or_more(filters_one_or_more):
+def test_filters_one_or_more_equal(filters_one_or_more):
+    assert filters_one_or_more == Filters(OneOrMore("country", "video"))
+
+
+def test_filters_one_or_more_not_equal(filters_required, filters_one_or_more):
+    assert filters_required != filters_one_or_more
+
+
+def test_filters_one_or_more_valid(filters_one_or_more):
     filters_one_or_more.validate({"country": "US"})
     filters_one_or_more.validate({"video": "nf94bg4b397gb"})
     filters_one_or_more.validate({"country": "US", "video": "nf94bg4b397gb"})
 
 
 def test_filters_one_or_more_invalid_set_zero(filters_one_or_more):
-    with pytest.raises(errors.InvalidSetOfFilters) as exc:
+    with pytest.raises(InvalidRequest) as exc:
         filters_one_or_more.validate({})
     assert str(exc.value) in (
-        "expected at least 1 filter(s) from 'country, video', got 0",
-        "expected at least 1 filter(s) from 'video, country', got 0",
+        "expected at least 1 filter(s) from [ country, video ], got 0",
+        "expected at least 1 filter(s) from [ video, country ], got 0",
     )
 
 
@@ -245,7 +263,15 @@ def test_filters_optional_repr_output(filters_optional):
     assert f"{filters_optional!r}" in outputs
 
 
-def test_filters_optional(filters_optional):
+def test_filters_optional_equal(filters_optional):
+    assert filters_optional == Filters(Optional("country", "video"))
+
+
+def test_filters_optional_not_equal(filters_required, filters_optional):
+    assert filters_required != filters_optional
+
+
+def test_filters_optional_valid(filters_optional):
     filters_optional.validate({})
     filters_optional.validate({"country": "US"})
     filters_optional.validate({"video": "nf94bg4b397gb"})
@@ -267,18 +293,26 @@ def test_filters_zero_or_one_repr_output(filters_zero_or_one):
     assert f"{filters_zero_or_one!r}" in outputs
 
 
-def test_filters_zero_or_one(filters_zero_or_one):
+def test_filters_zero_or_one_equal(filters_zero_or_one):
+    assert filters_zero_or_one == Filters(ZeroOrOne("country", "video"))
+
+
+def test_filters_zero_or_one_not_equal(filters_required, filters_zero_or_one):
+    assert filters_required != filters_zero_or_one
+
+
+def test_filters_zero_or_one_valid(filters_zero_or_one):
     filters_zero_or_one.validate({})
     filters_zero_or_one.validate({"country": "US"})
     filters_zero_or_one.validate({"video": "nf94bg4b397gb"})
 
 
 def test_filters_zero_or_one_invalid_set_two(filters_zero_or_one):
-    with pytest.raises(errors.InvalidSetOfFilters) as exc:
+    with pytest.raises(InvalidRequest) as exc:
         filters_zero_or_one.validate({"country": "US", "video": "nf94bg4b397gb"})
     assert str(exc.value) in (
-        "expected 0 or 1 filter(s) from 'country, video', got 2",
-        "expected 0 or 1 filter(s) from 'video, country', got 2",
+        "expected 0 or 1 filter(s) from [ country, video ], got 2",
+        "expected 0 or 1 filter(s) from [ video, country ], got 2",
     )
 
 
@@ -297,7 +331,15 @@ def test_filters_zero_or_more_repr_output(filters_zero_or_more):
     assert f"{filters_zero_or_more!r}" in outputs
 
 
-def test_filters_zero_or_more(filters_zero_or_more):
+def test_filters_zero_or_more_equal(filters_zero_or_more):
+    assert filters_zero_or_more == Filters(ZeroOrMore("country", "video"))
+
+
+def test_filters_zero_or_more_not_equal(filters_required, filters_zero_or_more):
+    assert filters_required != filters_zero_or_more
+
+
+def test_filters_zero_or_more_valid(filters_zero_or_more):
     filters_zero_or_more.validate({})
     filters_zero_or_more.validate({"country": "US"})
     filters_zero_or_more.validate({"video": "nf94bg4b397gb"})
