@@ -75,6 +75,8 @@ def tests(session: nox.Session) -> None:
     session.run(
         "coverage",
         "run",
+        "--source",
+        PROJECT_NAME,
         "--omit",
         "tests/*",
         "-m",
