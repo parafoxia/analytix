@@ -117,7 +117,7 @@ setuptools.setup(
         "excel": parse_requirements("./requirements/excel.txt"),
         "types": parse_requirements("./requirements/types.txt"),
     },
-    python_requires=">=3.7.0,<3.12",
+    python_requires=">=3.7.0,<3.13",
     packages=setuptools.find_packages(),
     include_package_data=True,
 )
