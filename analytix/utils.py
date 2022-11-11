@@ -37,7 +37,7 @@ from functools import wraps
 
 from pkg_resources import working_set
 
-from analytix import errors
+from analytix.errors import MissingOptionalComponents
 
 if t.TYPE_CHECKING:
     _FuncT = t.Callable[..., t.Any]
@@ -50,7 +50,7 @@ def can_use(*packages: str, required: bool = False) -> bool:
     can_use = all(p in ws for p in packages)
 
     if required and not can_use:
-        raise errors.MissingOptionalComponents(*packages)
+        raise MissingOptionalComponents(*packages)
 
     return can_use
 

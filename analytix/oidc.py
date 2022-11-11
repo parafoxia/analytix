@@ -62,13 +62,14 @@ from http import server
 from pathlib import Path
 from urllib.parse import parse_qsl, urlencode
 
-from aiofiles import open as aopen
+import aiofiles
 
 import analytix
 from analytix.errors import AuthorisationError
+from analytix.types import SecretT, TokenT
 
 if t.TYPE_CHECKING:
-    from analytix.types import AuthUriT, SecretT, TokenT, TokenUriT
+    from analytix.types import AuthUriT, TokenUriT
 
 REDIRECT_URI_PATTERN = re.compile("[^//]*//([^:]*):?([0-9]*)")
 
@@ -251,6 +252,8 @@ class Tokens:
         Tokens
             The newly created instance.
         """
+
+        # TODO: Change to from_dict?
         return cls(**data)  # type: ignore
 
     @classmethod
@@ -280,7 +283,7 @@ class Tokens:
 
         _log.debug(f"Loading tokens from {path.resolve()}")
 
-        async with aopen(path) as f:
+        async with aiofiles.open(path) as f:
             data = json.loads(await f.read())
 
         _log.info("Tokens loaded!")
@@ -341,7 +344,7 @@ class Tokens:
         if not isinstance(path, Path):
             path = Path(path)
 
-        async with aopen(path, "w") as f:
+        async with aiofiles.open(path, "w") as f:
             await f.write(json.dumps(self.to_dict()))
 
         _log.info(f"Tokens saved to {path.resolve()}")
