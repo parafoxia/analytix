@@ -59,6 +59,7 @@ __all__ = ("AsyncBaseClient", "AsyncClient", "Client")
 import asyncio
 import datetime
 import logging
+import os
 import sys
 import typing as t
 import webbrowser
@@ -142,13 +143,28 @@ class AsyncBaseClient:
         self._secrets = oidc.Secrets.from_file(secrets_file)
         self._session = session or ClientSession(loop=self._loop, **kwargs)
 
-        self._loop.create_task(self._check_for_updates())
+        if not os.environ.get("PYTEST_CURRENT_TEST"):
+            # This causes issues when run in testing, so we'll just make
+            # sure we only run it when we want to.
+            self._loop.create_task(self._check_for_updates())
 
     def __str__(self) -> str:
         return self._secrets.project_id
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(project_id={self._secrets.project_id})"
+        return f"{self.__class__.__name__}(project_id={self._secrets.project_id!r})"
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, self.__class__):
+            return False
+
+        return self._secrets.project_id == other._secrets.project_id
+
+    def __ne__(self, other: object) -> bool:
+        if not isinstance(other, self.__class__):
+            return True
+
+        return self._secrets.project_id != other._secrets.project_id
 
     async def __aenter__(self) -> AsyncBaseClient:
         return self

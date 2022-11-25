@@ -49,7 +49,7 @@ def test_dimensions_every(dimensions_required):
     assert dimensions_required.every in ({"day", "month"}, {"month", "day"})
 
 
-def test_dimensions_invalid(dimensions_required):
+async def test_dimensions_invalid(dimensions_required):
     with pytest.raises(InvalidRequest) as exc:
         dimensions_required.validate(["day", "month", "henlo", "testing"])
     assert str(exc.value) in (

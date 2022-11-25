@@ -32,38 +32,23 @@ from unittest import mock
 import pytest
 
 from analytix import oidc
-from tests import AsyncFile
+from tests import (
+    MockAsyncFile,
+    create_secrets,
+    create_secrets_file,
+    create_tokens,
+    create_tokens_file,
+)
 
 
 @pytest.fixture()
 def secrets_file():
-    return json.dumps(
-        {
-            "installed": {
-                "client_id": "a1b2c3d4e5",
-                "project_id": "rickroll",
-                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-                "token_uri": "https://oauth2.googleapis.com/token",
-                "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-                "client_secret": "f6g7h8i9j0",
-                "redirect_uris": ["http://localhost"],
-            }
-        }
-    )
+    return create_secrets_file()
 
 
 @pytest.fixture()
 def secrets():
-    return oidc.Secrets(
-        type="installed",
-        client_id="a1b2c3d4e5",
-        project_id="rickroll",
-        auth_uri="https://accounts.google.com/o/oauth2/auth",
-        token_uri="https://oauth2.googleapis.com/token",
-        auth_provider_x509_cert_url="https://www.googleapis.com/oauth2/v1/certs",
-        client_secret="f6g7h8i9j0",
-        redirect_uris=["http://localhost"],
-    )
+    return create_secrets()
 
 
 def test_secrets_str(secrets: oidc.Secrets):
@@ -89,9 +74,9 @@ def test_secrets_getitem(secrets: oidc.Secrets):
     assert secrets.redirect_uris == secrets["redirect_uris"]
 
 
-def test_secrets_from_file(secrets: oidc.Secrets, secrets_file):
-    with mock.patch("builtins.open", mock.mock_open(read_data=secrets_file)):
-        assert secrets == oidc.Secrets.from_file("secrets.json")
+@mock.patch("builtins.open", mock.mock_open(read_data=create_secrets_file()))
+def test_secrets_from_file(secrets: oidc.Secrets):
+    assert secrets == oidc.Secrets.from_file("secrets.json")
 
 
 def test_secrets_to_dict(secrets: oidc.Secrets, secrets_file):
@@ -100,26 +85,12 @@ def test_secrets_to_dict(secrets: oidc.Secrets, secrets_file):
 
 @pytest.fixture()
 def tokens_file():
-    return json.dumps(
-        {
-            "access_token": "a1b2c3d4e5",
-            "expires_in": 3599,
-            "scope": "https://www.googleapis.com/auth/yt-analytics.readonly https://www.googleapis.com/auth/yt-analytics-monetary.readonly",
-            "token_type": "Bearer",
-            "refresh_token": "f6g7h8i9j0",
-        }
-    )
+    return create_tokens_file()
 
 
 @pytest.fixture()
 def tokens():
-    return oidc.Tokens(
-        access_token="a1b2c3d4e5",
-        expires_in=3599,
-        scope="https://www.googleapis.com/auth/yt-analytics.readonly https://www.googleapis.com/auth/yt-analytics-monetary.readonly",
-        token_type="Bearer",
-        refresh_token="f6g7h8i9j0",
-    )
+    return create_tokens()
 
 
 def test_tokens_repr(tokens: oidc.Tokens):
@@ -143,7 +114,7 @@ def test_tokens_from_json(tokens: oidc.Tokens, tokens_file):
 
 @mock.patch("aiofiles.open")
 async def test_tokens_from_file(mock_open, tokens: oidc.Tokens, tokens_file):
-    mock_open.return_value = AsyncFile(tokens_file)
+    mock_open.return_value = MockAsyncFile(tokens_file)
     assert tokens == await oidc.Tokens.from_file("tokens.json")
 
 
@@ -158,7 +129,7 @@ def test_tokens_update(tokens: oidc.Tokens):
 
 @mock.patch("aiofiles.open")
 async def test_tokens_write(mock_open, tokens: oidc.Tokens, tokens_file):
-    f = AsyncFile(tokens_file)
+    f = MockAsyncFile(tokens_file)
     mock_open.return_value = f
     await tokens.write("tokens.json")
     assert f.write_data == tokens_file
@@ -177,6 +148,7 @@ def auth_params():
     }
 
 
+@pytest.mark.dependency()
 @mock.patch("os.urandom", return_value=b"rickroll")
 def test_state_token(mock_urand):
     assert (
@@ -185,6 +157,7 @@ def test_state_token(mock_urand):
     )
 
 
+@pytest.mark.dependency(depends=["test_state_token"])
 @mock.patch("os.urandom", return_value=b"rickroll")
 def test_auth_uri(mock_urand, secrets, auth_params):
     uri, params = oidc.auth_uri(secrets, 8080)

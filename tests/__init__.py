@@ -26,8 +26,30 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import json
 
-class AsyncFile:
+from analytix import oidc
+
+
+class MockFile:
+    def __init__(self, data):
+        self.read_data = data
+        self.write_data = ""
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        ...
+
+    def read(self):
+        return self.read_data
+
+    def write(self, data):
+        self.write_data = data
+
+
+class MockAsyncFile:
     def __init__(self, data):
         self.read_data = data
         self.write_data = ""
@@ -43,3 +65,69 @@ class AsyncFile:
 
     async def write(self, data):
         self.write_data = data
+
+
+class MockVersionResponse:
+    def __init__(self, version, ok=True):
+        self.version = version
+        self.ok = ok
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, *args):
+        ...
+
+    async def json(self):
+        return {"info": {"version": self.version}}
+
+
+def create_secrets_file(other=False):
+    return json.dumps(
+        {
+            "installed": {
+                "client_id": "a1b2c3d4e5",
+                "project_id": "rickroll" if not other else "barney",
+                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+                "token_uri": "https://oauth2.googleapis.com/token",
+                "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+                "client_secret": "f6g7h8i9j0",
+                "redirect_uris": ["http://localhost"],
+            }
+        }
+    )
+
+
+def create_secrets():
+    return oidc.Secrets(
+        type="installed",
+        client_id="a1b2c3d4e5",
+        project_id="rickroll",
+        auth_uri="https://accounts.google.com/o/oauth2/auth",
+        token_uri="https://oauth2.googleapis.com/token",
+        auth_provider_x509_cert_url="https://www.googleapis.com/oauth2/v1/certs",
+        client_secret="f6g7h8i9j0",
+        redirect_uris=["http://localhost"],
+    )
+
+
+def create_tokens_file():
+    return json.dumps(
+        {
+            "access_token": "a1b2c3d4e5",
+            "expires_in": 3599,
+            "scope": "https://www.googleapis.com/auth/yt-analytics.readonly https://www.googleapis.com/auth/yt-analytics-monetary.readonly",
+            "token_type": "Bearer",
+            "refresh_token": "f6g7h8i9j0",
+        }
+    )
+
+
+def create_tokens():
+    return oidc.Tokens(
+        access_token="a1b2c3d4e5",
+        expires_in=3599,
+        scope="https://www.googleapis.com/auth/yt-analytics.readonly https://www.googleapis.com/auth/yt-analytics-monetary.readonly",
+        token_type="Bearer",
+        refresh_token="f6g7h8i9j0",
+    )

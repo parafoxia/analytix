@@ -35,6 +35,7 @@ codespell~=2.2.1
 coverage~=6.5.0
 pytest~=7.2.0
 pytest-asyncio~=0.20.1
+pytest-dependency~=0.5.1
 
 # Safety
 safety~=2.3.1
