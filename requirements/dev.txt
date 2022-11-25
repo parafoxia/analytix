@@ -10,7 +10,7 @@ pyarrow; python_version<"3.11" and platform_python_implementation=="CPython"
 polars; platform_python_implementation=="CPython"
 
 # Sessions
-nox==2022.8.7
+nox==2022.11.21
 
 # Docs
 -r ./docs.txt
@@ -19,11 +19,11 @@ nox==2022.8.7
 black[jupyter]~=22.10.0
 
 # Imports
-flake8~=5.0.4
+flake8~=6.0.0
 isort~=5.10.0
 
 # Typing
-mypy==0.990
+mypy==0.991
 
 # Line lengths
 len8~=0.7.2
