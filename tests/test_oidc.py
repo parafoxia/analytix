@@ -27,7 +27,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import json
-from unittest import mock
+import sys
 
 import pytest
 
@@ -39,6 +39,11 @@ from tests import (
     create_tokens,
     create_tokens_file,
 )
+
+if sys.version_info >= (3, 8):
+    from unittest import mock
+else:
+    import mock
 
 
 @pytest.fixture()

@@ -29,8 +29,8 @@
 from __future__ import annotations
 
 import json
+import sys
 from asyncio import AbstractEventLoop
-from unittest import mock
 
 import pytest
 from aiohttp import ClientSession
@@ -44,11 +44,15 @@ from tests import (
     create_tokens_file,
 )
 
+if sys.version_info >= (3, 8):
+    from unittest import mock
+else:
+    import mock
+
 
 @pytest.fixture()
 @mock.patch("builtins.open", mock.mock_open(read_data=create_secrets_file()))
 async def client():
-    # We mock the update checker out for most tests as
     return AsyncBaseClient("secrets.json")
 
 
