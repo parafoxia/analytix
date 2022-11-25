@@ -28,10 +28,15 @@
 
 import json
 import sys
+import time
+from functools import partial
+from multiprocessing.pool import ThreadPool
+from urllib import request
 
 import pytest
 
 from analytix import oidc
+from analytix.errors import AuthorisationError
 from tests import (
     MockAsyncFile,
     create_secrets,
@@ -194,3 +199,48 @@ def test_refresh_uri(secrets):
         "grant_type": "refresh_token",
     }
     assert headers == {"Content-Type": "application/x-www-form-urlencoded"}
+
+
+def test_authentication(auth_params, caplog):
+    def req():
+        # Sleeping for a tick makes sure the server is set up before a
+        # request is made to it.
+        time.sleep(0.1)
+        url = "http://localhost:8080?state=34c5f166f6abb229ee092be1e7e92ca71434bcb1a27ba0664cd2fea834d85927&code=a1b2c3d4e5"
+        request.urlopen(url)
+
+    pool = ThreadPool(processes=2)
+    res = pool.map(lambda f: f(), [partial(oidc.authenticate, auth_params), req])
+    pool.close()
+    pool.join()
+
+    assert res[0] == "a1b2c3d4e5"
+    assert "Received request (200)" in caplog.text
+
+
+def test_authentication_invalid_uri(auth_params):
+    auth_params["redirect_uri"] = "barney_the_dinosaur"
+
+    def req():
+        time.sleep(0.1)
+        url = "http://localhost:8080?state=34c5f166f6abb229ee092be1e7e92ca71434bcb1a27ba0664cd2fea834d85927&code=a1b2c3d4e5"
+        request.urlopen(url)
+
+    pool = ThreadPool(processes=2)
+    with pytest.raises(AuthorisationError, match="invalid redirect URI"):
+        pool.map(lambda f: f(), [partial(oidc.authenticate, auth_params), req])
+    pool.close()
+    pool.join()
+
+
+def test_authentication_invalid_state(auth_params):
+    def req():
+        time.sleep(0.1)
+        url = "http://localhost:8080?state=f6g7h8i9j0&code=a1b2c3d4e5"
+        request.urlopen(url)
+
+    pool = ThreadPool(processes=2)
+    with pytest.raises(AuthorisationError, match="invalid state"):
+        pool.map(lambda f: f(), [partial(oidc.authenticate, auth_params), req])
+    pool.close()
+    pool.join()
