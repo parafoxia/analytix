@@ -305,8 +305,9 @@ class GroupQuery:
 
     @property
     def url(self) -> str:
-        qstr = ("id=" + ",".join(self.ids)) if self.ids else "mine=true"
-        return analytix.API_GROUPS_URL + qstr
+        ids = ("id=" + ",".join(self.ids)) if self.ids else "mine=true"
+        npt = f"&next_page_token={self.next_page_token}" if self.next_page_token else ""
+        return analytix.API_GROUPS_URL + ids + npt
 
 
 class GroupItemQuery:

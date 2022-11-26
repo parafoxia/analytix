@@ -104,16 +104,16 @@ def test_include_historical_data_property(query):
 def test_url_property(query):
     assert query.url == analytix.API_REPORTS_URL + (
         "ids=channel==MINE"
-        f"&dimensions=day,country"
-        f"&filters=continent==002;deviceType==MOBILE"
-        f"&metrics=views,likes,comments"
-        f"&sort=shares,dislikes"
-        f"&maxResults=0"
-        f"&startDate=2021-01-01"
-        f"&endDate=2021-12-31"
-        f"&currency=USD"
-        f"&startIndex=1"
-        f"&includeHistoricalData=false"
+        "&dimensions=day,country"
+        "&filters=continent==002;deviceType==MOBILE"
+        "&metrics=views,likes,comments"
+        "&sort=shares,dislikes"
+        "&maxResults=0"
+        "&startDate=2021-01-01"
+        "&endDate=2021-12-31"
+        "&currency=USD"
+        "&startIndex=1"
+        "&includeHistoricalData=false"
     )
 
 
