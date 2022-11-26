@@ -67,9 +67,9 @@ class MockAsyncFile:
         self.write_data = data
 
 
-class MockVersionResponse:
-    def __init__(self, version, ok=True):
-        self.version = version
+class MockResponse:
+    def __init__(self, data, ok=True):
+        self.data = data
         self.ok = ok
 
     async def __aenter__(self):
@@ -79,7 +79,7 @@ class MockVersionResponse:
         ...
 
     async def json(self):
-        return {"info": {"version": self.version}}
+        return json.loads(self.data)
 
 
 def create_secrets_file(other=False):
@@ -131,3 +131,15 @@ def create_tokens():
         token_type="Bearer",
         refresh_token="f6g7h8i9j0",
     )
+
+
+def create_auth_params():
+    return {
+        "client_id": "a1b2c3d4e5",
+        "nonce": "34c5f166f6abb229ee092be1e7e92ca71434bcb1a27ba0664cd2fea834d85927",
+        "response_type": "code",
+        "redirect_uri": "http://localhost:8080",
+        "scope": "https://www.googleapis.com/auth/yt-analytics.readonly https://www.googleapis.com/auth/yt-analytics-monetary.readonly",
+        "state": "34c5f166f6abb229ee092be1e7e92ca71434bcb1a27ba0664cd2fea834d85927",
+        "access_type": "offline",
+    }

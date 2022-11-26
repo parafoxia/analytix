@@ -349,7 +349,7 @@ class AsyncClient(AsyncBaseClient):
             if not isinstance(tokens_dir, Path):
                 tokens_dir = Path(tokens_dir)
 
-            if tokens_dir.is_file():
+            if tokens_dir.suffix:
                 raise NotADirectoryError("the token directory must not be a file")
 
         self._tokens_dir = tokens_dir
@@ -435,7 +435,6 @@ class AsyncClient(AsyncBaseClient):
 
         # Determine token ID.
         token_id = token_id or self._active_tokens or self._secrets.project_id
-        tokens: oidc.Tokens | None = None
         tokens = await self._get_existing_tokens(token_id)
 
         # Handle existing tokens.
@@ -453,18 +452,17 @@ class AsyncClient(AsyncBaseClient):
                 return
 
             except RefreshTokenExpired:
-                _log.info("Refresh token expired or not present, starting auth flow")
+                _log.info("Refresh token expired, starting auth flow")
 
         # If no valid tokens by this point, start auth flow.
         auth_uri, params = oidc.auth_uri(self._secrets, self._ws_port)
         _log.debug(f"Auth parameters: {params}")
 
         if self._auto_open_browser:
-            # TODO: Write WSLU warning.
             _log.info(f"Opening browser at {self._secrets.auth_uri}?...")
             if not webbrowser.open(auth_uri, 0, True):
                 raise RuntimeError(
-                    "Web browser failed to open — if you use WSL, refer to the docs"
+                    "web browser failed to open — if you use WSL, refer to the docs"
                 )
         else:
             print(

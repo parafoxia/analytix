@@ -39,6 +39,7 @@ from analytix import oidc
 from analytix.errors import AuthorisationError
 from tests import (
     MockAsyncFile,
+    create_auth_params,
     create_secrets,
     create_secrets_file,
     create_tokens,
@@ -147,15 +148,7 @@ async def test_tokens_write(mock_open, tokens: oidc.Tokens, tokens_file):
 
 @pytest.fixture()
 def auth_params():
-    return {
-        "client_id": "a1b2c3d4e5",
-        "nonce": "34c5f166f6abb229ee092be1e7e92ca71434bcb1a27ba0664cd2fea834d85927",
-        "response_type": "code",
-        "redirect_uri": "http://localhost:8080",
-        "scope": "https://www.googleapis.com/auth/yt-analytics.readonly https://www.googleapis.com/auth/yt-analytics-monetary.readonly",
-        "state": "34c5f166f6abb229ee092be1e7e92ca71434bcb1a27ba0664cd2fea834d85927",
-        "access_type": "offline",
-    }
+    return create_auth_params()
 
 
 @pytest.mark.dependency()
@@ -172,7 +165,16 @@ def test_state_token(mock_urand):
 def test_auth_uri(mock_urand, secrets, auth_params):
     uri, params = oidc.auth_uri(secrets, 8080)
     # We don't need to test Python's URL encoder.
-    assert uri.startswith("https://accounts.google.com/o/oauth2/auth")
+    assert uri == (
+        "https://accounts.google.com/o/oauth2/auth"
+        "?client_id=a1b2c3d4e5"
+        "&nonce=34c5f166f6abb229ee092be1e7e92ca71434bcb1a27ba0664cd2fea834d85927"
+        "&response_type=code"
+        "&redirect_uri=http%3A%2F%2Flocalhost%3A8080"
+        "&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fyt-analytics.readonly+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fyt-analytics-monetary.readonly"
+        "&state=34c5f166f6abb229ee092be1e7e92ca71434bcb1a27ba0664cd2fea834d85927"
+        "&access_type=offline"
+    )
     assert params == auth_params
 
 

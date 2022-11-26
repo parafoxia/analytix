@@ -37,7 +37,7 @@ from aiohttp import ClientSession
 
 from analytix import AsyncBaseClient
 from tests import (
-    MockVersionResponse,
+    MockResponse,
     create_secrets,
     create_secrets_file,
     create_tokens,
@@ -124,16 +124,23 @@ async def test_client_context_manager(client: AsyncBaseClient):
     assert other._session.closed
 
 
-@mock.patch.object(ClientSession, "get", return_value=MockVersionResponse("1.0.0"))
+@mock.patch.object(
+    ClientSession,
+    "get",
+    return_value=MockResponse('{"info": {"version": "0.69.420"}}'),
+)
 async def test_client_check_for_updates(_, client: AsyncBaseClient, caplog):
     await client._check_for_updates()
     assert (
-        "You do not have the latest stable version of analytix (v1.0.0)" in caplog.text
+        "You do not have the latest stable version of analytix (v0.69.420)"
+        in caplog.text
     )
 
 
 @mock.patch.object(
-    ClientSession, "get", return_value=MockVersionResponse("1.0.0", ok=False)
+    ClientSession,
+    "get",
+    return_value=MockResponse('{"info": {"version": "0.69.420"}}', ok=False),
 )
 async def test_client_check_for_updates_failed(_, client: AsyncBaseClient, caplog):
     await client._check_for_updates()
