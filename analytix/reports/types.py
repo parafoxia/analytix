@@ -491,7 +491,7 @@ class AudienceRetention(ReportType):
         v = filters["video"]
         if "," in v:
             raise InvalidRequest(
-                "dimensions and filters are incompatible with multiple videos"
+                "only one video ID can be provided when 'elapsedVideoTimeRatio' is a dimension"
             )
 
 
