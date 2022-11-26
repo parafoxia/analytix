@@ -870,7 +870,10 @@ def test_traffic_source_detail_invalid_source():
     m = data.LOCATION_AND_TRAFFIC_METRICS
     s = [f"-{o}" for o in data.LOCATION_AND_TRAFFIC_SORT_OPTIONS]
 
-    with pytest.raises(InvalidRequest, match="dimensions and filters are incompatible with value 'ANNOTATION' for filter 'insightTrafficSourceType'"):
+    with pytest.raises(
+        InvalidRequest,
+        match="dimensions and filters are incompatible with value 'ANNOTATION' for filter 'insightTrafficSourceType'",
+    ):
         report.validate(d, f, m, s, 25)
 
 
@@ -1251,7 +1254,10 @@ def test_audience_retention_invalid_video_filters():
     f = {"video": "fn849bng984b,f327b98g3b8g"}
     m = ["audienceWatchRatio", "relativeRetentionPerformance"]
     s = ["audienceWatchRatio", "relativeRetentionPerformance"]
-    with pytest.raises(InvalidRequest, match="only one video ID can be provided when 'elapsedVideoTimeRatio' is a dimension"):
+    with pytest.raises(
+        InvalidRequest,
+        match="only one video ID can be provided when 'elapsedVideoTimeRatio' is a dimension",
+    ):
         report.validate(d, f, m, s)
 
 

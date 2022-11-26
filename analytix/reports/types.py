@@ -491,7 +491,8 @@ class AudienceRetention(ReportType):
         v = filters["video"]
         if "," in v:
             raise InvalidRequest(
-                "only one video ID can be provided when 'elapsedVideoTimeRatio' is a dimension"
+                "only one video ID can be provided when 'elapsedVideoTimeRatio' "
+                "is a dimension"
             )
 
 
