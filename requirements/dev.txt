@@ -6,7 +6,7 @@
 
 # Data libraries
 pandas; platform_python_implementation=="CPython"
-pyarrow; python_version<"3.11" and platform_python_implementation=="CPython"
+pyarrow; platform_python_implementation=="CPython"
 polars; platform_python_implementation=="CPython"
 
 # Sessions
