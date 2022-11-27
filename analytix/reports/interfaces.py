@@ -37,7 +37,6 @@ from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 
-import analytix
 from analytix import errors
 from analytix.utils import requires
 
@@ -448,9 +447,10 @@ class AnalyticsReport:
         for row in self.resource.data["rows"]:
             ws.append(row)
 
-        wb.save(path)
+        wb.save(str(path))
         _log.info(f"Saved report as spreadsheet to {path.resolve()}")
 
+    @requires("pandas")
     def to_pandas(self, *, skip_date_conversion: bool = False) -> pd.DataFrame:
         """Return this report as a pandas DataFrame.
 
@@ -475,10 +475,7 @@ class AnalyticsReport:
             optional dependency.
         """
 
-        if analytix.can_use("modin"):
-            import modin.pandas as pd
-        elif analytix.can_use("pandas", required=True):
-            import pandas as pd
+        import pandas as pd
 
         if not self._shape[0]:
             raise errors.DataFrameConversionError(
