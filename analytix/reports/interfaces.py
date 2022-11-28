@@ -340,7 +340,7 @@ class AnalyticsReport:
         return path
 
     def to_json(
-        self, path: PathLikeT, *, indent: int = 4, overwrite: bool = True
+        self, path: PathLikeT, *, indent: int | None = 4, overwrite: bool = True
     ) -> ResponseT:
         """Save this report in JSON format.
 
@@ -351,9 +351,10 @@ class AnalyticsReport:
         ----------
         path : pathlib.Path | str
             The path to save the file to.
-        indent : int
-            The number of spaces to indent each line of the data.
-        overwrite : bool
+        indent : int, optional
+            The number of spaces to indent each line of the data. To
+            create a one-line file, pass `None`.
+        overwrite : bool, optional
             Whether to overwrite an existing file.
 
         Returns
@@ -405,7 +406,7 @@ class AnalyticsReport:
 
         with open(path, "w") as f:
             f.write(f"{delimiter.join(self.columns)}\n")
-            for row in self.resource.data["rows"]:
+            for row in self.resource.rows:
                 line = delimiter.join(f"{v}" for v in row)
                 f.write(f"{line}\n")
 
@@ -439,12 +440,12 @@ class AnalyticsReport:
         from openpyxl import Workbook
 
         path = self._set_and_validate_path(path, ".xlsx", overwrite)
-        wb = Workbook()
+        wb = Workbook(write_only=True)
         ws = wb.active
         ws.title = sheet_name
 
         ws.append(self.columns)
-        for row in self.resource.data["rows"]:
+        for row in self.resource.rows:
             ws.append(row)
 
         wb.save(str(path))
@@ -482,7 +483,7 @@ class AnalyticsReport:
                 "cannot convert to DataFrame as the returned data has no rows"
             )
 
-        df = pd.DataFrame(self.resource.data["rows"], columns=self.columns)
+        df = pd.DataFrame(self.resource.rows, columns=self.columns)
 
         if not skip_date_conversion:
             s = {"day", "month"} & set(df.columns)
@@ -517,7 +518,7 @@ class AnalyticsReport:
         import pyarrow as pa
         import pyarrow.compute as pc
 
-        table = pa.table(list(zip(*self.resource.data["rows"])), names=self.columns)
+        table = pa.table(list(zip(*self.resource.rows)), names=self.columns)
 
         if not skip_date_conversion:
             s = {"day", "month"} & set(table.column_names)
@@ -553,7 +554,7 @@ class AnalyticsReport:
 
         import polars as pl
 
-        df = pl.DataFrame(self.resource.data["rows"], columns=self.columns)
+        df = pl.DataFrame(self.resource.rows, columns=self.columns)
 
         if not skip_date_conversion:
             s = {"day", "month"} & set(df.columns)
@@ -605,6 +606,7 @@ class AnalyticsReport:
         table = self.to_arrow(skip_date_conversion=skip_date_conversion)
         pf.write_feather(table, path)
         _log.info(f"Saved report as Apache Feather file to {path.resolve()}")
+        return table
 
     @requires("pyarrow")
     def to_parquet(
@@ -646,3 +648,4 @@ class AnalyticsReport:
         table = self.to_arrow(skip_date_conversion=skip_date_conversion)
         pq.write_table(table, path)
         _log.info(f"Saved report as Apache Parquet file to {path.resolve()}")
+        return table

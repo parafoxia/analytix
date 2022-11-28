@@ -71,7 +71,9 @@ def fetch_installs(*categories: str) -> list[str]:
 
 @nox.session(reuse_venv=True)
 def tests(session: nox.Session) -> None:
-    session.install(*fetch_installs("Tests"), ".[excel]")
+    session.install(
+        *fetch_installs("Tests"), *fetch_installs("Data libraries"), ".[excel]"
+    )
     session.run(
         "coverage",
         "run",

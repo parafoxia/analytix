@@ -46,7 +46,7 @@ class MockFile:
         return self.read_data
 
     def write(self, data):
-        self.write_data = data
+        self.write_data += data
 
 
 class MockAsyncFile:
