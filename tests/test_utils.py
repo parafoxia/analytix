@@ -45,19 +45,17 @@ def test_can_use_required_installed():
 
 
 def test_can_use_required_not_installed():
-    with pytest.raises(MissingOptionalComponents) as exc:
+    with pytest.raises(
+        MissingOptionalComponents,
+        match=r"some necessary libraries are not installed \(hint: pip install rickroll\)",
+    ):
         utils.can_use("rickroll", required=True)
-    assert (
-        str(exc.value)
-        == "some necessary libraries are not installed (hint: pip install rickroll)"
-    )
 
-    with pytest.raises(MissingOptionalComponents) as exc:
+    with pytest.raises(
+        MissingOptionalComponents,
+        match=r"some necessary libraries are not installed \(hint: pip install rickroll barney\)",
+    ):
         utils.can_use("rickroll", "barney", required=True)
-    assert (
-        str(exc.value)
-        == "some necessary libraries are not installed (hint: pip install rickroll barney)"
-    )
 
 
 def test_requires_installed():
@@ -73,9 +71,8 @@ def test_requires_not_installed():
     def test():
         return True
 
-    with pytest.raises(MissingOptionalComponents) as exc:
+    with pytest.raises(
+        MissingOptionalComponents,
+        match=r"some necessary libraries are not installed \(hint: pip install rickroll\)",
+    ):
         test()
-    assert (
-        str(exc.value)
-        == "some necessary libraries are not installed (hint: pip install rickroll)"
-    )
