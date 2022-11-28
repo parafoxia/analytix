@@ -304,7 +304,8 @@ def test_report_to_tsv(mock_open, report_tsv, report: AnalyticsReport, caplog):
 @mock.patch.object(Workbook, "save", return_value=None)
 @mock.patch.object(Workbook, "active", new_callable=mock.PropertyMock)
 def test_report_to_excel(mock_active, mock_save, report: AnalyticsReport, caplog):
-    mock_active.return_value = (wb := Workbook()).create_sheet()
+    wb = Workbook()
+    mock_active.return_value = wb.create_sheet()
 
     report.to_excel("report.xlsx")
     mock_save.assert_called_with("report.xlsx")
