@@ -26,10 +26,19 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import logging
+import sys
+import warnings
+
 import pytest
 
 from analytix import utils
 from analytix.errors import MissingOptionalComponents
+
+if sys.version_info >= (3, 8):
+    from unittest import mock
+else:
+    import mock
 
 
 def test_can_use_installed():
@@ -76,3 +85,39 @@ def test_requires_not_installed():
         match=r"some necessary libraries are not installed \(hint: pip install rickroll\)",
     ):
         test()
+
+
+def test_warn_with_logger(caplog):
+    utils.warn("Rickroll warning!")
+    assert "Rickroll warning!" in caplog.text
+
+
+@mock.patch.object(logging.Logger, "hasHandlers", return_value=False)
+def test_warn_without_logger(_):
+    with warnings.catch_warnings(record=True) as w:
+        utils.warn("Sandstorm warning!")
+        assert len(w) == 1
+        assert issubclass(w[-1].category, Warning)
+        assert "Sandstorm warning!" in str(w[-1].message)
+
+
+def test_warn_on_call_with_logger(caplog):
+    @utils.warn_on_call("Rickroll warning!")
+    def test():
+        return True
+
+    test()
+    assert "Rickroll warning!" in caplog.text
+
+
+@mock.patch.object(logging.Logger, "hasHandlers", return_value=False)
+def test_warn_on_call_without_logger(_):
+    @utils.warn_on_call("Sandstorm warning!")
+    def test():
+        return True
+
+    with warnings.catch_warnings(record=True) as w:
+        test()
+        assert len(w) == 1
+        assert issubclass(w[-1].category, Warning)
+        assert "Sandstorm warning!" in str(w[-1].message)
