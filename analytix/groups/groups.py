@@ -31,6 +31,7 @@ from __future__ import annotations
 __all__ = ("Group", "GroupList", "GroupItem", "GroupItemList")
 
 import datetime as dt
+import os
 import typing as t
 from dataclasses import dataclass
 
@@ -62,7 +63,7 @@ class Group(_Resource):
             data["id"],
             du_parse(data["snippet"]["publishedAt"]),
             data["snippet"]["title"],
-            data["contentDetails"]["itemCount"],
+            int(data["contentDetails"]["itemCount"]),
             data["contentDetails"]["itemType"],
         )
 
@@ -79,7 +80,7 @@ class Group(_Resource):
                 "title": self.title,
             },
             "contentDetails": {
-                "itemCount": self.item_count,
+                "itemCount": str(self.item_count),
                 "itemType": self.item_type,
             },
         }
