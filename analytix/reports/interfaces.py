@@ -222,15 +222,15 @@ class AnalyticsReport:
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, self.__class__):
-            return False
+            return NotImplemented
 
         return self.resource == other.resource and self.type == other.type
 
     def __ne__(self, other: object) -> bool:
         if not isinstance(other, self.__class__):
-            return True
+            return NotImplemented
 
-        return self.resource != other.resource and self.type != other.type
+        return self.resource != other.resource or self.type != other.type
 
     @property
     def shape(self) -> tuple[int, int]:

@@ -43,7 +43,7 @@ from analytix.reports.interfaces import (
     DataType,
     ResultTable,
 )
-from analytix.reports.types import TimeBasedActivity
+from analytix.reports.types import GeographyBasedActivity, TimeBasedActivity
 from tests import MockFile, create_request_data
 
 if sys.version_info >= (3, 8):
@@ -139,6 +139,18 @@ def test_create_report(report, result_table, report_type):
     assert report.resource == result_table
     assert report.type == report_type
     assert report._shape == (7, 5)
+
+
+def test_report_equal(report, request_data):
+    assert report == AnalyticsReport(request_data, TimeBasedActivity())
+    assert not report == AnalyticsReport(request_data, GeographyBasedActivity())
+    assert not report == TimeBasedActivity()
+
+
+def test_report_not_equal(report, request_data):
+    assert not report != AnalyticsReport(request_data, TimeBasedActivity())
+    assert report != AnalyticsReport(request_data, GeographyBasedActivity())
+    assert report != TimeBasedActivity()
 
 
 def test_report_shape_property(report):
