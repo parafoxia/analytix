@@ -452,7 +452,7 @@ class AnalyticsReport:
         from openpyxl import Workbook
 
         path = self._set_and_validate_path(path, ".xlsx", overwrite)
-        wb = Workbook(write_only=True)
+        wb = Workbook()
         ws = wb.active
         ws.title = sheet_name
 
