@@ -92,7 +92,7 @@ If you want to see what analytix is doing, you can enable the packaged logger:
 ```py
 import analytix
 
-analytix.enable_logger()
+analytix.enable_logging()
 ```
 
 If anything is going wrong, or analytix appears to be taking a long time to fetch data, try enabling the logger in DEBUG mode.
@@ -103,7 +103,7 @@ Retrieving reports from the YouTube Analytics API is easy.
 The below example loads credentials from a secrets file, and gets day-by-day data on views, likes, and comments from US from the last 28 days:
 
 ```py
-from analytix import Client
+from analytix import Client  # or AsyncClient
 
 client = Client("./secrets.json")
 report = client.retrieve_report(
