@@ -62,7 +62,7 @@ class Shard:
     """A shard interface capable of interacting with the YouTube
     Analytics API.
 
-    Shards functions as mini-clients of sorts that allow multiple users
+    Shards function as mini-clients of sorts that allow multiple users
     to use your analytix-based program at once. You only need interact
     directory with shards if you are using the `AsyncBaseClient`.
 
@@ -82,7 +82,7 @@ class Shard:
         return self._secrets.project_id
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(project_id={self._secrets.project_id})"
+        return f"{self.__class__.__name__}(project_id={self._secrets.project_id!r})"
 
     async def _request(self, url: str) -> dict[str, t.Any]:
         headers = {"Authorization": f"Bearer {self._tokens.access_token}"}
@@ -166,12 +166,8 @@ class Shard:
         )
 
         query.validate()
-        data = await self._request(query.url)
-
-        if not query.rtype:
-            query.set_report_type()
-
         assert query.rtype is not None
+        data = await self._request(query.url)
         report = AnalyticsReport(data, query.rtype)
         _log.info(f"Created report of shape {report.shape}!")
         return report
@@ -188,6 +184,7 @@ class Shard:
             [`AsyncClient.fetch_groups()`](../client/#analytix.client.
             AsyncClient.fetch_groups)
         """
+
         query = GroupQuery(ids, next_page_token)
         return GroupList.from_json(await self._request(query.url))
 
@@ -198,5 +195,6 @@ class Shard:
             [`AsyncClient.fetch_group_items()`](../client/#analytix.
             client.AsyncClient.fetch_group_items)
         """
+
         query = GroupItemQuery(group_id)
         return GroupItemList.from_json(await self._request(query.url))

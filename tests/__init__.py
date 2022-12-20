@@ -169,3 +169,57 @@ def create_request_data():
             ],
         }
     )
+
+
+def create_group_data():
+    return json.dumps(
+        {
+            "kind": "youtube#group",
+            "etag": "f6g7h8i9j0",
+            "id": "a1b2c3d4e5",
+            "snippet": {
+                "publishedAt": "2022-11-30T12:34:56.789Z",
+                "title": "Barney the Dinosaur",
+            },
+            "contentDetails": {
+                "itemCount": "69",
+                "itemType": "youtube#video",
+            },
+        }
+    )
+
+
+def create_group_list_data():
+    return json.dumps(
+        {
+            "kind": "youtube#groupListResponse",
+            "etag": "f6g7h8i9j0",
+            "items": [json.loads(create_group_data())],
+            "nextPageToken": "a1b2c3d4e5",
+        }
+    )
+
+
+def create_group_item_data():
+    return json.dumps(
+        {
+            "kind": "youtube#groupItem",
+            "etag": "f6g7h8i9j0",
+            "id": "e5d4c3b2a1",
+            "groupId": "a1b2c3d4e5",
+            "resource": {
+                "kind": "youtube#video",
+                "id": "j0i9h8g7f6",
+            },
+        }
+    )
+
+
+def create_group_item_list_data():
+    return json.dumps(
+        {
+            "kind": "youtube#groupItemListResponse",
+            "etag": "a1b2c3d4e5",
+            "items": [json.loads(create_group_item_data())],
+        }
+    )
