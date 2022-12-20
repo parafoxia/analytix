@@ -111,11 +111,7 @@ class InvalidFeatures(InvalidRequest):
     """A helper exception class for `InvalidRequest`. When catching
     exceptions, use `InvalidRequest` instead."""
 
-    def __init__(self, ctx: str, errors: set[str] | None = None) -> None:
-        if not errors:
-            super().__init__(ctx)
-            return
-
+    def __init__(self, ctx: str, errors: set[str]) -> None:
         err_list = ", ".join(errors)
         super().__init__(f"{ctx}: {err_list}")
 

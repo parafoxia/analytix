@@ -44,7 +44,7 @@ from analytix.reports.interfaces import (
     ResultTable,
 )
 from analytix.reports.types import TimeBasedActivity
-from tests import MockFile
+from tests import MockFile, create_request_data
 
 if sys.version_info >= (3, 8):
     from unittest import mock
@@ -91,25 +91,7 @@ def test_column_header_data_property(column_header):
 
 @pytest.fixture()
 def request_data():
-    return {
-        "kind": "youtubeAnalytics#resultTable",
-        "columnHeaders": [
-            {"name": "day", "dataType": "STRING", "columnType": "DIMENSION"},
-            {"name": "views", "dataType": "INTEGER", "columnType": "METRIC"},
-            {"name": "likes", "dataType": "INTEGER", "columnType": "METRIC"},
-            {"name": "comments", "dataType": "INTEGER", "columnType": "METRIC"},
-            {"name": "grossRevenue", "dataType": "FLOAT", "columnType": "METRIC"},
-        ],
-        "rows": [
-            ["2022-06-20", 778, 8, 0, 2.249],
-            ["2022-06-21", 1062, 32, 8, 3.558],
-            ["2022-06-22", 946, 38, 6, 2.91],
-            ["2022-06-23", 5107, 199, 15, 24.428],
-            ["2022-06-24", 2137, 61, 2, 6.691],
-            ["2022-06-25", 1005, 31, 6, 4.316],
-            ["2022-06-26", 888, 12, 1, 4.206],
-        ],
-    }
+    return json.loads(create_request_data())
 
 
 @pytest.fixture()

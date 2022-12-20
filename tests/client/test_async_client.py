@@ -88,6 +88,16 @@ async def test_client_init_tokens_dir_as_file():
         AsyncClient("secrets.json", tokens_dir="./tokens.json")
 
 
+async def test_client_str(client: AsyncClient):
+    assert str(client) == "rickroll"
+    assert f"{client}" == "rickroll"
+
+
+async def test_client_repr(client: AsyncClient):
+    assert repr(client) == "AsyncClient(project_id='rickroll')"
+    assert f"{client!r}" == "AsyncClient(project_id='rickroll')"
+
+
 def test_client_active_tokens_property(client: AsyncClient):
     assert client.active_tokens == client._active_tokens
     assert not client.active_tokens

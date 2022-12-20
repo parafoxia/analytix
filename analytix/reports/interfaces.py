@@ -220,6 +220,18 @@ class AnalyticsReport:
         self.type = type
         self._shape = (len(data["rows"]), len(self.resource.column_headers))
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, self.__class__):
+            return False
+
+        return self.resource == other.resource and self.type == other.type
+
+    def __ne__(self, other: object) -> bool:
+        if not isinstance(other, self.__class__):
+            return True
+
+        return self.resource != other.resource and self.type != other.type
+
     @property
     def shape(self) -> tuple[int, int]:
         """The shape of the report.
