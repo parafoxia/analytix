@@ -28,9 +28,11 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 import sys
 from asyncio import AbstractEventLoop
+from os import _Environ
 
 import pytest
 from aiohttp import ClientSession
@@ -124,6 +126,7 @@ async def test_client_context_manager(client: AsyncBaseClient):
     assert other._session.closed
 
 
+@pytest.mark.dependency()
 @mock.patch.object(
     ClientSession,
     "get",
@@ -131,6 +134,23 @@ async def test_client_context_manager(client: AsyncBaseClient):
 )
 async def test_client_check_for_updates(_, client: AsyncBaseClient, caplog):
     await client._check_for_updates()
+    assert (
+        "You do not have the latest stable version of analytix (v0.69.420)"
+        in caplog.text
+    )
+
+
+@pytest.mark.dependency(depends=["test_client_check_for_updates"])
+@mock.patch.object(_Environ, "get", return_value=False)
+@mock.patch.object(
+    ClientSession,
+    "get",
+    return_value=MockResponse('{"info": {"version": "0.69.420"}}'),
+)
+@mock.patch("builtins.open", mock.mock_open(read_data=create_secrets_file()))
+async def test_client_check_for_updates_on_init(_, __, caplog):
+    AsyncBaseClient("secrets.json")
+    await asyncio.sleep(0.1)
     assert (
         "You do not have the latest stable version of analytix (v0.69.420)"
         in caplog.text

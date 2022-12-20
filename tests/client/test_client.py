@@ -38,7 +38,7 @@ import pytest
 import pytz
 from aiohttp import ClientSession
 
-from analytix import AsyncClient, oidc
+from analytix import AsyncClient, Client, oidc
 from analytix.errors import AuthorisationError, RefreshTokenExpired
 from analytix.groups import Group, GroupItem, GroupItemList, GroupList
 from analytix.reports import AnalyticsReport
@@ -66,19 +66,19 @@ else:
 
 @pytest.fixture()
 @mock.patch("builtins.open", mock.mock_open(read_data=create_secrets_file()))
-async def client():
-    return AsyncClient("secrets.json")
+def client():
+    return Client("secrets.json")
 
 
 @pytest.fixture()
 @mock.patch("builtins.open", mock.mock_open(read_data=create_secrets_file()))
-async def shard_client(client: AsyncClient):
+def shard_client(client: Client):
     client._shard = Shard(client._session, client._secrets, create_tokens())
     client._active_tokens = "sandstorm"
     return client
 
 
-def test_client_init(client: AsyncClient):
+def test_client_init(client: Client):
     assert isinstance(client._loop, AbstractEventLoop)
     assert client._secrets == create_secrets()
     assert isinstance(client._session, ClientSession)
@@ -91,57 +91,53 @@ def test_client_init(client: AsyncClient):
 
 
 @mock.patch("builtins.open", mock.mock_open(read_data=create_secrets_file()))
-async def test_client_init_tokens_dir_as_file():
+def test_client_init_tokens_dir_as_file():
     with pytest.raises(
         NotADirectoryError, match="the token directory must not be a file"
     ):
-        AsyncClient("secrets.json", tokens_dir="./tokens.json")
+        Client("secrets.json", tokens_dir="./tokens.json")
 
 
-async def test_client_str(client: AsyncClient):
+def test_client_str(client: Client):
     assert str(client) == "rickroll"
     assert f"{client}" == "rickroll"
 
 
-async def test_client_repr(client: AsyncClient):
-    assert repr(client) == "AsyncClient(project_id='rickroll')"
-    assert f"{client!r}" == "AsyncClient(project_id='rickroll')"
+def test_client_repr(client: Client):
+    assert repr(client) == "Client(project_id='rickroll')"
+    assert f"{client!r}" == "Client(project_id='rickroll')"
 
 
-def test_client_active_tokens_property(client: AsyncClient):
+def test_client_active_tokens_property(client: Client):
     assert client.active_tokens == client._active_tokens
     assert not client.active_tokens
 
 
-async def test_client_get_existing_tokens_when_active(shard_client: AsyncClient):
-    assert await shard_client._get_existing_tokens("sandstorm") == create_tokens()
+# def test_client_get_existing_tokens_when_active(shard_client: Client):
+#     assert shard_client._get_existing_tokens("sandstorm") == create_tokens()
 
 
-async def test_client_get_existing_tokens_when_no_tokens_dir(client: AsyncClient):
-    client._tokens_dir = None
-    assert not await client._get_existing_tokens("sandstorm")
+# def test_client_get_existing_tokens_when_no_tokens_dir(client: Client):
+#     client._tokens_dir = None
+#     assert not client._get_existing_tokens("sandstorm")
 
 
-async def test_client_get_existing_tokens_no_existing_file(client: AsyncClient):
-    assert not await client._get_existing_tokens("sandstorm")
+# def test_client_get_existing_tokens_no_existing_file(client: Client):
+#     assert not client._get_existing_tokens("sandstorm")
 
 
-@mock.patch("aiofiles.open")
-@mock.patch.object(Path, "exists", return_value=True)
-async def test_client_get_existing_tokens_existing_file(
-    _, mock_open, client: AsyncClient
-):
-    mock_open.return_value = MockAsyncFile(create_tokens_file())
-    client._tokens_dir = Path("./tokens")
-    assert await client._get_existing_tokens("sandstorm") == create_tokens()
+# @mock.patch("aiofiles.open")
+# @mock.patch.object(Path, "exists", return_value=True)
+# def test_client_get_existing_tokens_existing_file(_, mock_open, client: Client):
+#     mock_open.return_value = MockAsyncFile(create_tokens_file())
+#     client._tokens_dir = Path("./tokens")
+#     assert client._get_existing_tokens("sandstorm") == create_tokens()
 
 
 @mock.patch.object(AsyncClient, "_get_existing_tokens", return_value=create_tokens())
 @mock.patch.object(Shard, "refresh_access_token", return_value=False)
-async def test_client_authenticate_existing_tokens_no_refresh(
-    _, __, client: AsyncClient, caplog
-):
-    await client.authorise("sandstorm")
+def test_client_authenticate_existing_tokens_no_refresh(_, __, client: Client, caplog):
+    client.authorise("sandstorm")
     assert client._shard == Shard(client._session, client._secrets, create_tokens())
     assert client.active_tokens == "sandstorm"
     assert "Authorisation complete!" in caplog.text
@@ -150,13 +146,13 @@ async def test_client_authenticate_existing_tokens_no_refresh(
 @mock.patch.object(AsyncClient, "_get_existing_tokens", return_value=create_tokens())
 @mock.patch.object(Shard, "refresh_access_token", return_value=True)
 @mock.patch("aiofiles.open")
-async def test_client_authenticate_existing_tokens_with_refresh(
-    mock_open, _, __, client: AsyncClient, caplog
+def test_client_authenticate_existing_tokens_with_refresh(
+    mock_open, _, __, client: Client, caplog
 ):
     f = MockAsyncFile(create_tokens_file())
     mock_open.return_value = f
 
-    await client.authorise("sandstorm")
+    client.authorise("sandstorm")
 
     assert client._shard == Shard(client._session, client._secrets, create_tokens())
     assert client.active_tokens == "sandstorm"
@@ -172,13 +168,13 @@ async def test_client_authenticate_existing_tokens_with_refresh(
 )
 @mock.patch("os.urandom", return_value=b"rickroll")
 @mock.patch("aiofiles.open")
-async def test_client_authenticate_auth_flow(
-    mock_open, _, __, ___, ____, client: AsyncClient, caplog
+def test_client_authenticate_auth_flow(
+    mock_open, _, __, ___, ____, client: Client, caplog
 ):
     f = MockAsyncFile(create_tokens_file())
     mock_open.return_value = f
 
-    await client.authorise("sandstorm")
+    client.authorise("sandstorm")
 
     data = {
         "code": "barney",
@@ -217,13 +213,13 @@ async def test_client_authenticate_auth_flow(
 )
 @mock.patch("os.urandom", return_value=b"rickroll")
 @mock.patch("aiofiles.open")
-async def test_client_authenticate_auth_flow_request_not_ok(
-    mock_open, _, __, ___, ____, _____, client: AsyncClient, caplog
+def test_client_authenticate_auth_flow_request_not_ok(
+    mock_open, _, __, ___, ____, _____, client: Client, caplog
 ):
     with pytest.raises(
         AuthorisationError, match=r"could not authorise: You gave up. \(rick_roll\)"
     ):
-        await client.authorise("sandstorm")
+        client.authorise("sandstorm")
 
 
 @pytest.mark.dependency(depends=["test_client_authenticate_auth_flow"])
@@ -239,10 +235,10 @@ async def test_client_authenticate_auth_flow_request_not_ok(
 )
 @mock.patch("os.urandom", return_value=b"rickroll")
 @mock.patch("aiofiles.open")
-async def test_client_authenticate_auth_flow_refresh_token_expired(
-    mock_open, _, __, ___, ____, _____, client: AsyncClient, caplog
+def test_client_authenticate_auth_flow_refresh_token_expired(
+    mock_open, _, __, ___, ____, _____, client: Client, caplog
 ):
-    await client.authorise("sandstorm")
+    client.authorise("sandstorm")
     assert "Refresh token expired, starting auth flow" in caplog.text
 
     # We don't need to check everything else.
@@ -258,11 +254,11 @@ async def test_client_authenticate_auth_flow_refresh_token_expired(
 @mock.patch("os.urandom", return_value=b"rickroll")
 @mock.patch("webbrowser.open", return_value=True)
 @mock.patch("aiofiles.open")
-async def test_client_authenticate_auth_flow_open_browser(
-    mock_open, mock_wb, __, ___, ____, _____, client: AsyncClient, caplog
+def test_client_authenticate_auth_flow_open_browser(
+    mock_open, mock_wb, __, ___, ____, _____, client: Client, caplog
 ):
     client._auto_open_browser = True
-    await client.authorise("sandstorm")
+    client.authorise("sandstorm")
 
     # If it gets to this point, it works fine.
     assert "Authorisation complete!" in caplog.text
@@ -277,8 +273,8 @@ async def test_client_authenticate_auth_flow_open_browser(
 @mock.patch("os.urandom", return_value=b"rickroll")
 @mock.patch("webbrowser.open", return_value=False)
 @mock.patch("aiofiles.open")
-async def test_client_authenticate_auth_flow_open_browser_fails(
-    mock_open, mock_wb, __, ___, ____, _____, client: AsyncClient, caplog
+def test_client_authenticate_auth_flow_open_browser_fails(
+    mock_open, mock_wb, __, ___, ____, _____, client: Client, caplog
 ):
     client._auto_open_browser = True
 
@@ -286,15 +282,21 @@ async def test_client_authenticate_auth_flow_open_browser_fails(
         RuntimeError,
         match="web browser failed to open — if you use WSL, refer to the docs",
     ):
-        await client.authorise("sandstorm")
+        client.authorise("sandstorm")
+
+
+def test_client_teardown(client: Client):
+    assert not client._session.closed
+    client.teardown()
+    assert client._session.closed
 
 
 @mock.patch.object(
     ClientSession, "get", return_value=MockResponse(create_request_data())
 )
 @mock.patch.object(AsyncClient, "authorise", return_value=None)
-async def test_client_retrieve_report(_, __, shard_client: AsyncClient, caplog):
-    assert await shard_client.retrieve_report(
+def test_client_retrieve_report(_, __, shard_client: AsyncClient, caplog):
+    assert shard_client.retrieve_report(
         dimensions=("day",),
         metrics=("views", "likes", "comments", "grossRevenue"),
         start_date=dt.date(2022, 6, 20),
@@ -307,8 +309,8 @@ async def test_client_retrieve_report(_, __, shard_client: AsyncClient, caplog):
     ClientSession, "get", return_value=MockResponse(create_group_list_data())
 )
 @mock.patch.object(AsyncClient, "authorise", return_value=None)
-async def test_client_fetch_groups(_, __, shard_client: AsyncClient):
-    assert await shard_client.fetch_groups() == GroupList(
+def test_client_fetch_groups(_, __, shard_client: AsyncClient):
+    assert shard_client.fetch_groups() == GroupList(
         kind="youtube#groupListResponse",
         etag="f6g7h8i9j0",
         items=[
@@ -332,8 +334,8 @@ async def test_client_fetch_groups(_, __, shard_client: AsyncClient):
     ClientSession, "get", return_value=MockResponse(create_group_item_list_data())
 )
 @mock.patch.object(AsyncClient, "authorise", return_value=None)
-async def test_client_fetch_group_items(_, __, shard_client: AsyncClient):
-    assert await shard_client.fetch_group_items("a1b2c3d4e5") == GroupItemList(
+def test_client_fetch_group_items(_, __, shard_client: AsyncClient):
+    assert shard_client.fetch_group_items("a1b2c3d4e5") == GroupItemList(
         kind="youtube#groupItemListResponse",
         etag="a1b2c3d4e5",
         items=[GroupItem.from_json(json.loads(create_group_item_data()))],

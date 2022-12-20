@@ -156,13 +156,13 @@ class AsyncBaseClient:
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, self.__class__):
-            return False
+            return NotImplemented
 
         return self._secrets.project_id == other._secrets.project_id
 
     def __ne__(self, other: object) -> bool:
         if not isinstance(other, self.__class__):
-            return True
+            return NotImplemented
 
         return self._secrets.project_id != other._secrets.project_id
 
@@ -723,7 +723,17 @@ class Client:
         threadsafe.
     """
 
-    __slots__ = ("_client",)
+    __slots__ = ()
+
+    _client: AsyncClient
+    _loop: asyncio.AbstractEventLoop
+    _secrets: oidc.Secrets
+    _session: ClientSession
+    _tokens_dir: Path | None
+    _ws_port: int
+    _auto_open_browser: bool
+    _active_tokens: str
+    _shard: Shard
 
     def __init__(
         self,
@@ -736,7 +746,7 @@ class Client:
         session: ClientSession | None = None,
         **kwargs: t.Any,
     ) -> None:
-        self._client = AsyncClient(
+        self.__class__._client = AsyncClient(
             secrets_file,
             tokens_dir=tokens_dir,
             ws_port=ws_port,
@@ -746,9 +756,17 @@ class Client:
             **kwargs,
         )
 
-    @property
-    def active_tokens(self) -> str | None:
-        return self._client._active_tokens
+    def __str__(self) -> str:
+        return self._secrets.project_id
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(project_id={self._secrets.project_id!r})"
+
+    def __getattr__(self, name: str) -> t.Any:
+        return getattr(self.__class__._client, name)
+
+    def __setattr__(self, name: str, value: t.Any) -> None:
+        setattr(self._client, name, value)
 
     def teardown(self) -> None:
         self._client._loop.run_until_complete(self._client.teardown())
