@@ -31,7 +31,6 @@ from __future__ import annotations
 __all__ = ("Group", "GroupList", "GroupItem", "GroupItemList")
 
 import datetime as dt
-import os
 import typing as t
 from dataclasses import dataclass
 
