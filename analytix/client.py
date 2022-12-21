@@ -244,7 +244,7 @@ class AsyncBaseClient:
         """
 
         if not isinstance(tokens, oidc.Tokens):
-            tokens = oidc.Tokens.from_json(tokens)
+            tokens = oidc.Tokens.from_dict(tokens)
 
         shard = Shard(self._session, self._secrets, tokens)
         yield shard
@@ -489,7 +489,7 @@ class AsyncClient(AsyncBaseClient):
                 )
 
         # Configure tokens using response data.
-        tokens = oidc.Tokens.from_json(resp_data)
+        tokens = oidc.Tokens.from_dict(resp_data)
         self._shard = Shard(self._session, self._secrets, tokens)
         if self._tokens_dir:
             await tokens.write(self._tokens_dir / f"{token_id}.json")

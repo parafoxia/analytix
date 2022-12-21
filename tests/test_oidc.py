@@ -119,8 +119,8 @@ def test_tokens_getitem(tokens: oidc.Tokens):
     assert tokens.refresh_token == tokens["refresh_token"]
 
 
-def test_tokens_from_json(tokens: oidc.Tokens, tokens_file):
-    assert tokens.from_json(json.loads(tokens_file))
+def test_tokens_from_dict(tokens: oidc.Tokens, tokens_file):
+    assert tokens.from_dict(json.loads(tokens_file))
 
 
 @mock.patch("aiofiles.open")
