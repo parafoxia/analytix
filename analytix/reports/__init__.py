@@ -26,13 +26,7 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""Report inferfaces for analytix.
-
-!!! note
-    This page is a draft, and is due to be rewritten. While the
-    information on this page is likely all correct, it may not be as
-    detailed as other pages.
-"""
+"""Report inferfaces for analytix."""
 
 __all__ = ("data", "features", "interfaces", "types", "AnalyticsReport", "ResultTable")
 

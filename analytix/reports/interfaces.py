@@ -72,10 +72,10 @@ class ColumnType(Enum):
 
 @dataclass(frozen=True)
 class ColumnHeader:
-    """A dataclass representing a column header.
+    """A representation of a column header.
 
     Column headers contain various information about the columns in the
-    report.
+    report. You will never need to create one of these yourself.
 
     Parameters
     ----------
@@ -121,7 +121,7 @@ class ColumnHeader:
 
 @dataclass(frozen=True)
 class ResultTable:
-    """A dataclass representing a resultTable resource.
+    """A representation of a resultTable resource.
 
     This is the resource type that gets sent from the YouTube Analytics
     API.
@@ -147,6 +147,10 @@ class ResultTable:
         and the column type.
     rows : list of list of str int and float
         The rows in the report. This will be a list of lists.
+
+    !!! info "See also"
+        Instances of this class are presented as part of
+        `AnalyticsReport` instances.
     """
 
     kind: str
@@ -159,8 +163,13 @@ class ResultTable:
 
         Parameters
         ----------
-        data : dict of str-Any
+        data : JSON object
             The raw JSON data from the API.
+
+        Returns
+        -------
+        ResultTable
+            The newly created instance.
         """
 
         return cls(
@@ -194,7 +203,7 @@ class ResultTable:
 
 
 class AnalyticsReport:
-    """A class representing an analytics report.
+    """A representation of an analytics report.
 
     This does not represent a direct resultTable resource, but instead
     provides additional methods on top of one, largely designed to save
@@ -202,7 +211,7 @@ class AnalyticsReport:
 
     Parameters
     ----------
-    data : dict of str-Any
+    data : JSON object
         The raw JSON data from the API.
     type : ReportType
         The report type.
@@ -243,16 +252,17 @@ class AnalyticsReport:
         tuple of two ints
             The shape of the report.
 
-        Examples
-        --------
-        ```py
-        >>> report.shape
-        (120, 42)
+        ??? example "Basic example"
+            ```py
+            >>> report.shape
+            (120, 42)
+            ```
 
-        # Just get the number of rows.
-        >>> report.shape[0]
-        120
-        ```
+        ??? example "Getting the number of rows only"
+            ```py
+            >>> report.shape[0]
+            120
+            ```
         """
 
         return self._shape
@@ -266,7 +276,7 @@ class AnalyticsReport:
         list of str
             The column list.
 
-        !!! note
+        !!! info "See also"
             This does not return a list of column headers. If you want
             that, use `report.resource.column_headers` instead.
         """
@@ -361,7 +371,7 @@ class AnalyticsReport:
 
         Parameters
         ----------
-        path : pathlib.Path | str
+        path : Path object or str
             The path to save the file to.
         indent : int, optional
             The number of spaces to indent each line of the data. To
@@ -373,6 +383,18 @@ class AnalyticsReport:
         -------
         dict of str-Any
             The raw JSON data.
+
+        ??? example "Basic example"
+            ```py
+            >>> report.to_json("output.json")
+            ```
+
+        ??? example "Saving in a minimal format"
+            ```py
+            # Note that passing `indent=0` will not have the same
+            # effect.
+            >>> report.to_json("output.json", indent=None)
+            ```
         """
 
         path = self._set_and_validate_path(path, ".json", overwrite)
@@ -395,22 +417,26 @@ class AnalyticsReport:
 
         Parameters
         ----------
-        path : pathlib.Path | str
+        path : Path object or str
             The path to save the file to.
-        delimiter : int
+        delimiter : int, optional
             The character to use as a delimiter.
-        overwrite : bool
+        overwrite : bool, optional
             Whether to overwrite an existing file.
 
-        Examples
-        --------
-        ```py
-        >>> report.to_csv()
+        Returns
+        -------
+        None
 
-        # Save the file as a TSV. Note that passing 4 spaces will not
-        # result in the same outcome.
-        >>> report.to_csv(delimiter="\\t")
-        ```
+        ??? example "Basic example"
+            ```py
+            >>> report.to_csv("output.csv")
+            ```
+
+        ??? example "Saving as a TSV"
+            ```py
+            >>> report.to_csv("output.tsv", delimiter="\\t")
+            ```
         """
 
         extension = ".tsv" if delimiter == "\t" else ".csv"
@@ -432,12 +458,16 @@ class AnalyticsReport:
 
         Parameters
         ----------
-        path : pathlib.Path | str
+        path : Path object or str
             The path to save the spreadsheet to.
-        sheet_name : str
+        sheet_name : str, optional
             The name to give the sheet the data will be inserted into.
-        overwrite : bool
+        overwrite : bool, optional
             Whether to overwrite an existing file.
+
+        Returns
+        -------
+        None
 
         !!! warning
             The data cannot be saved to a sheet in an existing workbook.
@@ -447,6 +477,16 @@ class AnalyticsReport:
         !!! note
             This requires `openpyxl` to be installed to use, which is an
             optional dependency.
+
+        ??? example "Basic example"
+            ```py
+            >>> report.to_excel("output.xlsx")
+            ```
+
+        ??? example "Saving with a custom sheet name"
+            ```py
+            >>> report.to_excel("output.xlsx", sheet_name="My Sheet")
+            ```
         """
 
         from openpyxl import Workbook
@@ -473,19 +513,31 @@ class AnalyticsReport:
 
         Parameters
         ----------
-        skip_date_conversion : bool
+        skip_date_conversion : bool, optional
             Whether or not to skip the conversion of "day" and "month"
             columns into the `datetime64[ns]` format. If you choose to
             skip this, these columns will be left as strings.
 
         Returns
         -------
-        pandas.DataFrame
+        pandas DataFrame
             A pandas DataFrame.
 
         !!! note
             This requires `pandas` to be installed to use, which is an
             optional dependency.
+
+        ??? example "Basic example"
+            ```py
+            >>> df = report.to_pandas()
+            >>> df.head(5)
+                     day  views  likes  comments  grossRevenue
+            0 2022-06-20    778      8         0         2.249
+            1 2022-06-21   1062     32         8         3.558
+            2 2022-06-22    946     38         6         2.910
+            3 2022-06-23   5107    199        15        24.428
+            4 2022-06-24   2137     61         2         6.691
+            ```
         """
 
         import pandas as pd
@@ -512,19 +564,37 @@ class AnalyticsReport:
 
         Parameters
         ----------
-        skip_date_conversion : bool
+        skip_date_conversion : bool, optional
             Whether or not to skip the conversion of "day" and "month"
             columns into the `timestamp[ns]` format. If you choose to
             skip this, these columns will be left as strings.
 
         Returns
         -------
-        pyarrow.Table
+        PyArrow Table
             An Apache Arrow table.
 
         !!! note
             This requires `pyarrow` to be installed to use, which is an
             optional dependency.
+
+        ??? example "Basic example"
+            ```py
+            >>> table = report.to_arrow()
+            >>> table.slice(length=3)
+            pyarrow.Table
+            day: timestamp[ns]
+            views: int64
+            likes: int64
+            comments: int64
+            grossRevenue: double
+            ----
+            day: [[2022-06-20 00:00:00.000000000,...]]
+            views: [[778,1062,946,5107,2137]]
+            likes: [[8,32,38,199,61]]
+            comments: [[0,8,6,15,2]]
+            grossRevenue: [[2.249,3.558,2.91,24.428,6.691]]
+            ```
         """
 
         import pyarrow as pa
@@ -549,19 +619,41 @@ class AnalyticsReport:
 
         Parameters
         ----------
-        skip_date_conversion : bool
+        skip_date_conversion : bool, optional
             Whether or not to skip the conversion of "day" and "month"
             columns into the `date` format. If you choose to skip this,
             these columns will be left as strings.
 
         Returns
         -------
-        polars.DataFrame
+        Polars DataFrame
             A Polars DataFrame.
 
         !!! note
             This requires `polars` to be installed to use, which is an
             optional dependency.
+
+        ??? example "Basic example"
+            ```py
+            >>> df = report.to_polars()
+            >>> df.head(5)
+            shape: (5, 5)
+            ┌────────────┬───────┬───────┬──────────┬──────────────┐
+            │ day        ┆ views ┆ likes ┆ comments ┆ grossRevenue │
+            │ ---        ┆ ---   ┆ ---   ┆ ---      ┆ ---          │
+            │ date       ┆ i64   ┆ i64   ┆ i64      ┆ f64          │
+            ╞════════════╪═══════╪═══════╪══════════╪══════════════╡
+            │ 2022-06-20 ┆ 778   ┆ 8     ┆ 0        ┆ 2.249        │
+            ├╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤
+            │ 2022-06-21 ┆ 1062  ┆ 32    ┆ 8        ┆ 3.558        │
+            ├╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤
+            │ 2022-06-22 ┆ 946   ┆ 38    ┆ 6        ┆ 2.91         │
+            ├╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤
+            │ 2022-06-23 ┆ 5107  ┆ 199   ┆ 15       ┆ 24.428       │
+            ├╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤
+            │ 2022-06-24 ┆ 2137  ┆ 61    ┆ 2        ┆ 6.691        │
+            └────────────┴───────┴───────┴──────────┴──────────────┘
+            ```
         """
 
         import polars as pl
@@ -593,23 +685,30 @@ class AnalyticsReport:
 
         Parameters
         ----------
-        path : pathlib.Path | str
+        path : Path object or str
             The path to save the file to.
-        skip_date_conversion : bool
+        skip_date_conversion : bool, optional
             Whether or not to skip the conversion of "day" and "month"
             columns into the `timestamp[ns]` format. If you choose to
             skip this, these columns will be left as strings.
-        overwrite : bool
+        overwrite : bool, optional
             Whether to overwrite an existing file.
 
         Returns
         -------
-        pyarrow.Table
+        PyArrow Table
             The Apache Arrow table that was saved.
 
         !!! note
             This requires `pyarrow` to be installed to use, which is an
             optional dependency.
+
+        ??? example "Basic example"
+            ```py
+            >>> table = report.to_feather("output.feather")
+            >>> table.shape
+            (7, 5)
+            ```
         """
 
         import pyarrow.feather as pf
@@ -635,23 +734,30 @@ class AnalyticsReport:
 
         Parameters
         ----------
-        path : pathlib.Path | str
+        path : Path object or str
             The path to save the file to.
-        skip_date_conversion : bool
+        skip_date_conversion : bool, optional
             Whether or not to skip the conversion of "day" and "month"
             columns into the `timestamp[ns]` format. If you choose to
             skip this, these columns will be left as strings.
-        overwrite : bool
+        overwrite : bool, optional
             Whether to overwrite an existing file.
 
         Returns
         -------
-        pyarrow.Table
+        PyArrow Table
             The Apache Arrow table that was saved.
 
         !!! note
             This requires `pyarrow` to be installed to use, which is an
             optional dependency.
+
+        ??? example "Basic example"
+            ```py
+            >>> table = report.to_parquet("output.parquet")
+            >>> table.shape
+            (7, 5)
+            ```
         """
 
         import pyarrow.parquet as pq
