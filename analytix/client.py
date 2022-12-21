@@ -64,6 +64,7 @@ import sys
 import typing as t
 import webbrowser
 from contextlib import contextmanager
+from functools import partial
 from pathlib import Path
 from types import TracebackType
 
@@ -723,9 +724,8 @@ class Client:
         threadsafe.
     """
 
-    __slots__ = ()
+    __slots__ = ("_client",)
 
-    _client: AsyncClient
     _loop: asyncio.AbstractEventLoop
     _secrets: oidc.Secrets
     _session: ClientSession
@@ -746,7 +746,7 @@ class Client:
         session: ClientSession | None = None,
         **kwargs: t.Any,
     ) -> None:
-        self.__class__._client = AsyncClient(
+        self._client = AsyncClient(
             secrets_file,
             tokens_dir=tokens_dir,
             ws_port=ws_port,
@@ -756,17 +756,47 @@ class Client:
             **kwargs,
         )
 
+        getter = lambda attr, self: getattr(self._client, attr)
+        setter = lambda attr, self, value: setattr(self._client, attr, value)
+        for attr in AsyncBaseClient.__slots__ + AsyncClient.__slots__:
+            setattr(
+                self.__class__,
+                attr,
+                property(partial(getter, attr), partial(setter, attr)),
+            )
+
     def __str__(self) -> str:
         return self._secrets.project_id
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(project_id={self._secrets.project_id!r})"
 
-    def __getattr__(self, name: str) -> t.Any:
-        return getattr(self.__class__._client, name)
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, self.__class__):
+            return NotImplemented
 
-    def __setattr__(self, name: str, value: t.Any) -> None:
-        setattr(self._client, name, value)
+        return self._secrets.project_id == other._secrets.project_id
+
+    def __ne__(self, other: object) -> bool:
+        if not isinstance(other, self.__class__):
+            return NotImplemented
+
+        return self._secrets.project_id != other._secrets.project_id
+
+    def __enter__(self) -> Client:
+        return self
+
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> None:
+        self.teardown()
+
+    @property
+    def active_tokens(self) -> str | None:
+        return self._client._active_tokens
 
     def teardown(self) -> None:
         self._client._loop.run_until_complete(self._client.teardown())

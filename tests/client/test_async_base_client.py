@@ -87,7 +87,6 @@ async def test_client_eq(client: AsyncBaseClient):
     assert not client == create_secrets()
 
 
-@pytest.mark.dependency()
 async def test_client_ne(client: AsyncBaseClient):
     with mock.patch("builtins.open", mock.mock_open(read_data=create_secrets_file())):
         assert not client != AsyncBaseClient("secrets.json")

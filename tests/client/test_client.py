@@ -108,6 +108,49 @@ def test_client_repr(client: Client):
     assert f"{client!r}" == "Client(project_id='rickroll')"
 
 
+def test_client_eq(client: Client):
+    with mock.patch("builtins.open", mock.mock_open(read_data=create_secrets_file())):
+        print(repr(client), repr(Client("secrets.json")))
+        assert client == Client("secrets.json")
+
+    with mock.patch(
+        "builtins.open", mock.mock_open(read_data=create_secrets_file(other=True))
+    ):
+        print(repr(client), repr(Client("secrets.json")))
+        assert not client == Client("secrets.json")
+
+    assert not client == create_secrets()
+
+
+def test_client_ne(client: Client):
+    with mock.patch("builtins.open", mock.mock_open(read_data=create_secrets_file())):
+        assert not client != Client("secrets.json")
+
+    with mock.patch(
+        "builtins.open", mock.mock_open(read_data=create_secrets_file(other=True))
+    ):
+        assert client != Client("secrets.json")
+
+    assert client != create_secrets()
+
+
+@pytest.mark.dependency()
+def test_client_teardown(client: Client):
+    assert not client._session.closed
+    client.teardown()
+    assert client._session.closed
+
+
+@pytest.mark.dependency(depends=["test_client_teardown"])
+@mock.patch("builtins.open", mock.mock_open(read_data=create_secrets_file()))
+def test_client_context_manager(client: Client):
+    with Client("secrets.json") as other:
+        assert client == other
+        assert not other._session.closed
+
+    assert other._session.closed
+
+
 def test_client_active_tokens_property(client: Client):
     assert client.active_tokens == client._active_tokens
     assert not client.active_tokens
@@ -283,12 +326,6 @@ def test_client_authenticate_auth_flow_open_browser_fails(
         match="web browser failed to open — if you use WSL, refer to the docs",
     ):
         client.authorise("sandstorm")
-
-
-def test_client_teardown(client: Client):
-    assert not client._session.closed
-    client.teardown()
-    assert client._session.closed
 
 
 @mock.patch.object(
