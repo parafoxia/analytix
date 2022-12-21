@@ -21,7 +21,7 @@ Windows, MacOS, and Linux are all supported.
 ## Features
 
 - Pythonic syntax lets you feel right at home
-- Dynamic error handling saves hours of troubleshooting, and makes sure only valid requests count toward your API quota
+- Dynamic error handling saves hours of troubleshooting and makes sure only valid requests count toward your API quota
 - A clever interface allows you to make multiple requests across multiple sessions without reauthorising
 - Extra support allows the native saving of CSV files and conversion to DataFrame objects
 - Easy enough for beginners, but powerful enough for advanced users
@@ -100,7 +100,7 @@ If anything is going wrong, or analytix appears to be taking a long time to fetc
 ## Usage
 
 Retrieving reports from the YouTube Analytics API is easy.
-The below example loads credentials from a secrets file, and gets day-by-day data on views, likes, and comments from US from the last 28 days:
+The below example loads credentials from a secrets file, and gets day-by-day data on views, likes, and comments from the US over the last 28 days:
 
 ```py
 from analytix import Client  # or AsyncClient

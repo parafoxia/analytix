@@ -1,14 +1,13 @@
 # analytix: examples
 
-This folder contains various examples of how *analytix* can be used to retrieve data. This set does not aim to be exhaustive, but instead cover the most common use cases (predominantly things you can do on the "Channel analytics" page on the YouTube Studio).
+This folder contains various examples of how analytix can be used to retrieve data.
+This set does not aim to be exhaustive, but instead cover the most common use cases.
 
 Note that each example requires a secrets file, which is not provided.
 
 ## Directory
 
-* [daily-views.py](https://github.com/parafoxia/analytix/blob/main/examples/daily-views.py) — Plots your channel's daily views for 2021 on a lineplot.
-* [monthly-likes.py](https://github.com/parafoxia/analytix/blob/main/examples/monthly-likes.py) — Plots your channel's monthly likes for 2021 on a violinplot (a type of boxplot). Each month is split by days you received dislikes, and days you didn't.
-* [revenue-ecdf.py](https://github.com/parafoxia/analytix/blob/main/examples/revenue-ecdf.py) — Plots your channel's revenue, ad revenue, and gross revenue for the first quarter of 2022 as a ECDF graph.
+* [overview28.py](https://github.com/parafoxia/analytix/blob/main/examples/overview.py) — Plots your channel's views, watch time, subscribers, and estimated revenue over the last 28 days.
 
 ## License
 
