@@ -228,6 +228,8 @@ class Tokens:
         will always be `3599` unless you update it yourself.
     """
 
+    __slots__ = ("access_token", "expires_in", "scope", "token_type", "refresh_token")
+
     access_token: str
     expires_in: int
     scope: str
@@ -238,12 +240,12 @@ class Tokens:
         return t.cast(TokenT, getattr(self, key))
 
     @classmethod
-    def from_json(cls, data: dict[str, TokenT]) -> Tokens:
-        """Load tokens from a JSON object.
+    def from_dict(cls, data: dict[str, TokenT]) -> Tokens:
+        """Load tokens from a dictionary.
 
         Parameters
         ----------
-        data : JSON object
+        data : dict of str-TokenT
             The token data. Usually the response data from the Google
             OAuth API.
 
@@ -253,7 +255,6 @@ class Tokens:
             The newly created instance.
         """
 
-        # TODO: Change to from_dict?
         return cls(**data)  # type: ignore
 
     @classmethod

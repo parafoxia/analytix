@@ -42,12 +42,16 @@ if t.TYPE_CHECKING:
 
 @dataclass(frozen=True)
 class _Resource:
+    __slots__ = ("kind", "etag")
+
     kind: str
     etag: str | None
 
 
 @dataclass(frozen=True)
 class Group(_Resource):
+    __slots__ = ("id", "published_at", "title", "item_count", "item_type")
+
     id: str
     published_at: dt.datetime
     title: str
@@ -87,6 +91,8 @@ class Group(_Resource):
 
 @dataclass(frozen=True)
 class GroupList(_Resource):
+    __slots__ = ("items", "next_page_token")
+
     items: list[Group]
     next_page_token: str
 
@@ -114,12 +120,16 @@ class GroupList(_Resource):
 
 @dataclass(frozen=True)
 class _GroupItemResource:
+    __slots__ = ("kind", "id")
+
     kind: str
     id: str
 
 
 @dataclass(frozen=True)
 class GroupItem(_Resource):
+    __slots__ = ("id", "group_id", "resource")
+
     id: str
     group_id: str
     resource: _GroupItemResource
@@ -153,6 +163,8 @@ class GroupItem(_Resource):
 
 @dataclass(frozen=True)
 class GroupItemList(_Resource):
+    __slots__ = "items"
+
     items: list[GroupItem]
 
     def __getitem__(self, key: int) -> GroupItem:
