@@ -1,4 +1,66 @@
-# Migrating to version 4.0
+# Migrating to version 4
 
-!!! info
-    This page is currently only a placeholder.
+This page provides information to help users transition from version 3 to version 4 of analytix.
+
+!!! important
+    Only changes between v3.6.1 and v4.0.0 are detailed here.
+    For additional changes, view the [changelog](https://github.com/parafoxia/analytix/releases).
+
+!!! note
+    If you believe this page is incomplete, please [open an issue](https://github.com/parafoxia/analytix/issues) on the GitHub repo.
+
+## The Clients
+
+* The `Analytics` class has been renamed to `Client`
+* The `AsyncAnalytics` class has been renamed to `AsyncClient`
+* There is a new `AsyncBaseClient` which can be used when building web applications
+* The `with_secrets()` classmethod no longer exists -- you should now pass the path to your secrets file directly to the constructor
+* The `close_session()` method has been renamed to `teardown()`
+* The `retrieve()` method has been renamed to `retrieve_report()`
+* The sync client no longer has a separate implementation, and is instead a wrapper of the async client
+* The clients now use *AIOHTTP* instead of *HTTPX* for requests
+* Update checks now happen upon client construction and cannot be surpressed
+* The clients now have better support for multiple channels
+
+## Authorisation
+
+* Out-of-bounds (manual copy/paste) authorisation is no longer supported
+* Authorisation parameters should now be passed to the client constructor rather than to instance methods
+* Authorisation can no longer be forced using the `force` kwarg
+* The access token refresh token can no longer be skipped
+* State token confirmation is now performed
+* Replay protection is now present
+* Web secrets are now supported
+* The `Secrets.to_dict()` method now returns the data as a complete file, rather than just the inner-most dictionary
+* The `Tokens.from_data()` method has been renamed `Tokens.from_dict()`
+* Secrets files can no longer be opened asynchronously
+* Token files can no longer be opened or written to synchronously
+
+## Reports
+
+* The `Report` class has been renamed to `AnalyticsReport`
+* The `ColumnHeader.from_json()` classmethod has been removed
+* The `ColumnHeader.data` property has been added
+* `AnalyticsReport.data` has been replaced with `AnalyticsReport.resource`, which is a `ResultTable` instance
+    * You can still access the raw data using the `data` attribute of the `resource` instance
+* `AnalyticsReport.column_headers` is now `AnalyticsReport.resource.column_headers`
+* The `AnalyticsReport.rows` property has been removed
+* The `AnalyticsReport.ordered_dimensions` and `.ordered_metrics` properties have been removed
+* The `AnalyticsReport.dimensions` and `.metrics` properties now mirror the behaviours of their ordered counterparts
+* The `AnalyticsReport.numeric` and `.non_numeric` properties have been added
+* JSON reports can now be properly written as one-line files
+* JSON and CSV reports can no longer be written asynchronously
+* You can now control whether JSON, CSV, Excel, Feather, and Parquet files are overwritten (the default is `True`)
+* Modin support has been removed
+* `AnalyticsReport.to_dataframe()` has been renamed to `.to_pandas()`
+* Converting to a Polars DataFrame no longer requires the use of PyArrow
+
+## Groups
+
+* You can now fetch information on groups and group items!
+    * `client.fetch_groups()`
+    * `client.fetch_group_items()`
+
+## Miscellaneous
+
+* Errors have been simplified, and some error messages have been improved
