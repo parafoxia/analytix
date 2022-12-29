@@ -64,4 +64,4 @@ cd analytix
 pip install -r requirements/dev.txt
 ```
 
-where `<username>` is the GitHub username that owns your fork.
+where `<username>` is your GitHub username.

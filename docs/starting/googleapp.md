@@ -1,24 +1,21 @@
 # Creating a Google Developers application
 
-!!! warning
-    This page is outdated and is due for a rewrite.
-
 This guide will run you through the process of configuring a project for analytix to use.
 
 By the end of this guide, you will know:
 
-1. How to set up an application on the [Google Developers Console](https://console.cloud.google.com/home)
-2. How to enable the YouTube Analytics API in your application
-3. How to make analytix aware of your application
+1. how to set up an application on the [Google Developers Console](https://console.cloud.google.com/home)
+2. how to enable the YouTube Analytics API in your application
+3. how to make analytix aware of your application
 
 ## Creating a project
 
 To create a project:
 
-1. Sign into your Google account. This does not need to be the same account as the one you are retrieving data from.
-2. On the navbar, click on the dropdown that says "Select a project".
-3. Click on "NEW PROJECT".
-4. Enter your project name, then click "CREATE". You do not need to set an organisation.
+1. sign into your Google account. This does not need to be the same account as the one you are retrieving data from.
+2. on the navbar, click on the dropdown that says "Select a project".
+3. click "NEW PROJECT".
+4. enter your project name, then click "CREATE". You do not need to set an organisation.
 
 After this, you'll be redirected back to the dashboard. It may take some time to create the project.
 
@@ -32,36 +29,33 @@ After this, you'll be redirected back to the dashboard. It may take some time to
 
 ### Configuring the consent screen
 
-1. Click "Credentials" on the side bar.
-2. Click "CONFIGURE CONSENT SCREEN".
-3. Select "External" from the options, then click "CREATE".
-4. Enter the following information:
-    * App name: The name of your application. This does not need to be the same as your project's name.
-    * User support email: This is required even though your project will remain private to you.
-    * Developer contact information: Same as User support email.
-5. Click "SAVE AND CONTINUE" — no other information is necessary.
-6. Click "ADD OR REMOVE SCOPES".
-7. Select the final two, then click "UPDATE":
-    * .../auth/yt-analytics.readonly
-    * .../auth/yt-analytics-monetary.readonly
-8. Click "SAVE AND CONTINUE".
-9. Click "ADD USERS".
-10. Enter the email address associated with your YouTube channel, then click "ADD". If there are multiple, you only need to enter one.
-11. Click "SAVE AND CONTINUE".
-12. Click "BACK TO DASHBOARD".
+Click "CREATE CREDENTIALS" in the top-right corner, then proceed with the following steps.
 
-## Creating an OAuth client ID
-
-1. Click "Credentials" on the side bar.
-2. Click "CREATE CREDENTIALS".
-3. Click "OAuth client ID".
-4. In the dropdown, select "Desktop app", and give this a name. Your project's name will be fine.
-5. Click "OK".
-6. Click the download button to download your secrets file.
-7. Save this file with an easy to remember name ("secrets.json" is good) where your project can access it.
+1. **Credential type**
+    * Under "What data will you be accessing?", select "User data"
+    * Click "NEXT".
+2. **OAuth consent screen**
+    * Enter the following information:
+        * App name: the name of your application; this does not need to be the same as your project's name
+        * User support email: this is required even though your project will remain private to you
+        * App logo: an optional logo for your application
+        * Developer contact information: same as User support email
+    * Click "SAVE AND CONTINUE".
+3. **Scopes**
+    * Click "ADD OR REMOVE SCOPES".
+    * Select the `.../auth/yt-analytics.readonly` and `.../auth/yt-analytics-monetary.readonly` scopes; these should be the last two in the list.
+    * Click "UPDATE".
+    * Click "SAVE AND CONTINUE".
+4. **OAuth Client ID**
+    * Select your application type. If you're not sure which option to select, choose "Desktop app".
+    * Enter a name for your OAuth 2 client. This does not need to be the same as your project name.
+5. **Your credentials**
+    * Click "DOWNLOAD".
+    * Save your secrets file in the root directory (or subdirectory thereof) of your project. It is recommended you give it an easy name to remember, such as "secrets.json".
+    * Click "DONE".
 
 !!! warning
-    You should **never** share this secrets file with anyone.
+    You should **never** share your secrets file with anyone.
 
 !!! success
     You're all done! You can now start working with analytix.
