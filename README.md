@@ -75,7 +75,7 @@ You will need to install these libraries yourself to use these features.
 
 All requests to the YouTube Analytics API need to be authorised through OAuth 2.
 In order to do this, you will need a Google Developers project with the YouTube Analytics API enabled.
-You can find instructions on how to do that in the [API setup guide](https://parafoxia.github.io/analytix/getting%20started/2-googleapp/), or on [this video](https://www.youtube.com/watch?v=1Xday10ZWeg).
+You can find instructions on how to do that in the [API setup guide](https://parafoxia.github.io/analytix/starting/googleapp/), or on [this video](https://www.youtube.com/watch?v=1Xday10ZWeg).
 
 When analytix boots up for the first time, it will display a link.
 You'll need to follow that link and run through the OAuth workflow.
