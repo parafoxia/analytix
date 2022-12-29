@@ -49,8 +49,8 @@ theme:
         name: Switch to light mode
 
   font:
-    text: Hind
-    code: Oxygen Mono
+    text: Work Sans
+    code: Chivo Mono
 
   logo: logo_white.png
 
