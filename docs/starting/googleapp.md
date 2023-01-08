@@ -57,5 +57,14 @@ Click "CREATE CREDENTIALS" in the top-right corner, then proceed with the follow
 !!! warning
     You should **never** share your secrets file with anyone.
 
+### Setting yourself as a test user
+
+In order to use your application, you need to add yourself as a test user. To do so:
+
+1. click "OAuth consent screen"
+2. under the "Test users" heading, click "+ ADD USERS"
+3. type your email address into the box
+4. click "SAVE"
+
 !!! success
     You're all done! You can now start working with analytix.
