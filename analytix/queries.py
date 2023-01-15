@@ -185,6 +185,9 @@ class ReportQuery:
         if "playlist" in self.dimensions:
             return rt.TopPlaylists()
 
+        if "city" in self.dimensions:
+            return rt.GeographyBasedActivityByCity()
+
         if "insightPlaybackLocationType" in self.dimensions:
             if curated:
                 return rt.PlaybackLocationPlaylist()

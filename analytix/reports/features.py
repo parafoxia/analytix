@@ -183,7 +183,6 @@ class Filters(abc.MappingFeatureType, _NestedCompareMixin):
 
             if k in locked.keys():
                 if v != locked[k]:
-                    # raise errors.UnsupportedFilterValue(k, v)
                     raise InvalidRequest(
                         "dimensions and filters are incompatible with value "
                         f"{v!r} for filter {k!r}"

@@ -28,8 +28,6 @@
 
 from __future__ import annotations
 
-import typing as t
-
 __all__ = (
     "BasicUserActivity",
     "BasicUserActivityUS",
@@ -37,6 +35,7 @@ __all__ = (
     "TimeBasedActivityUS",
     "GeographyBasedActivity",
     "GeographyBasedActivityUS",
+    "GeographyBasedActivityByCity",
     "PlaybackDetailsSubscribedStatus",
     "PlaybackDetailsSubscribedStatusUS",
     "PlaybackDetailsLiveTimeBased",
@@ -76,6 +75,9 @@ __all__ = (
     "AdPerformance",
 )
 
+import logging
+import typing as t
+
 from analytix.abc import DetailedReportType, ReportType
 from analytix.errors import InvalidRequest
 from analytix.reports import data
@@ -91,6 +93,8 @@ from analytix.reports.features import (
     ZeroOrMore,
     ZeroOrOne,
 )
+
+_log = logging.getLogger(__name__)
 
 
 class BasicUserActivity(ReportType):
@@ -171,6 +175,51 @@ class GeographyBasedActivityUS(ReportType):
         )
         self.metrics = Metrics(*data.ALL_PROVINCE_METRICS)
         self.sort_options = SortOptions(*self.metrics.values)
+
+
+class GeographyBasedActivityByCity(DetailedReportType):
+    def __init__(self) -> None:
+        self.name = "Geography-based activity (by city)"
+        self.dimensions = Dimensions(
+            Required("city"),
+            ZeroOrMore("creatorContentType", "country", "province", "subscribedStatus"),
+            ZeroOrOne("day", "month"),
+        )
+        self.filters = Filters(
+            ZeroOrOne("country", "province", "continent", "subContinent"),
+            ZeroOrOne("video", "group"),
+        )
+        self.metrics = Metrics(
+            "views",
+            "estimatedMinutesWatched",
+            "averageViewDuration",
+            "averageViewPercentage",
+        )
+        self.sort_options = SortOptions(
+            *data.LOCATION_AND_TRAFFIC_SORT_OPTIONS, descending_only=True
+        )
+        self.max_results = 25
+
+    def validate(
+        self,
+        dimensions: t.Collection[str],
+        filters: dict[str, str],
+        metrics: t.Collection[str],
+        sort_options: t.Collection[str],
+        max_results: int = 0,
+    ) -> None:
+        if 25 < max_results <= 250:
+            _log.warning(
+                "While the documentation says city reports can have a maximum of 250 "
+                "results, the actual maxiumum the API accepts (currently) is 25"
+            )
+
+        if "province" in dimensions:
+            # Change the filters on the fly to confirm with special
+            # rules for this report type.
+            self.filters = Filters(Required("country==US"), ZeroOrOne("video", "group"))
+
+        super().validate(dimensions, filters, metrics, sort_options, max_results)
 
 
 class PlaybackDetailsSubscribedStatus(ReportType):

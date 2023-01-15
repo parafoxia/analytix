@@ -565,6 +565,7 @@ ALL_DIMENSIONS = {
     "video",
     "playlist",
     "channel",
+    "creatorContentType",
     "country",
     "province",
     "city",
