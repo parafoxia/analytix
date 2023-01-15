@@ -1160,8 +1160,8 @@ def test_engagement_and_content_sharing_1():
     assert report.name == "Engagement and content sharing"
     d = ["sharingService", "subscribedStatus"]
     f = {"country": "US", "video": "fn849bng984b", "subscribedStatus": "SUBSCRIBED"}
-    m = ["viewerPercentage"]
-    s = ["viewerPercentage"]
+    m = ["shares"]
+    s = ["shares"]
     report.validate(d, f, m, s)
 
 
@@ -1170,8 +1170,8 @@ def test_engagement_and_content_sharing_2():
     assert report.name == "Engagement and content sharing"
     d = ["sharingService"]
     f = {"continent": "002", "group": "fn849bng984b"}
-    m = ["viewerPercentage"]
-    s = ["viewerPercentage"]
+    m = ["shares"]
+    s = ["shares"]
     report.validate(d, f, m, s)
 
 
@@ -1180,8 +1180,8 @@ def test_engagement_and_content_sharing_3():
     assert report.name == "Engagement and content sharing"
     d = ["sharingService"]
     f = {"subContinent": "014"}
-    m = ["viewerPercentage"]
-    s = ["viewerPercentage"]
+    m = ["shares"]
+    s = ["shares"]
     report.validate(d, f, m, s)
 
 
@@ -1190,8 +1190,8 @@ def test_engagement_and_content_sharing_4():
     assert report.name == "Engagement and content sharing"
     d = ["sharingService"]
     f = {}
-    m = ["viewerPercentage"]
-    s = ["viewerPercentage"]
+    m = ["shares"]
+    s = ["shares"]
     report.validate(d, f, m, s)
 
 

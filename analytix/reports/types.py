@@ -510,7 +510,7 @@ class EngagementAndContentSharing(ReportType):
             ZeroOrOne("video", "group"),
             Optional("subscribedStatus"),
         )
-        self.metrics = Metrics("viewerPercentage")
+        self.metrics = Metrics("shares")
         self.sort_options = SortOptions(*self.metrics.values)
 
 
