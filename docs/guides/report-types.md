@@ -31,6 +31,12 @@ Oftentimes, they are also far more picky about what filters can be provided and 
 
 ## List of report types
 
+Below is a list of all possible report types, complete with links to official documentation resources.
+
+!!! warning
+    The official documentation is not 100% accurate.
+    analytix does account for this wherever possible, but note some behaviour may not be as expected.
+
 ### Video report types
 
 * [Basic user activity](https://developers.google.com/youtube/analytics/channel_reports#basic-user-activity-statistics)
@@ -39,6 +45,7 @@ Oftentimes, they are also far more picky about what filters can be provided and 
 * [Time-based activity (US)](https://developers.google.com/youtube/analytics/channel_reports#user-activity-in-u.s.-states-for-specific-time-periods)
 * [Geography-based activity](https://developers.google.com/youtube/analytics/channel_reports#user-activity-by-country)
 * [Geography-based activity (US)](https://developers.google.com/youtube/analytics/channel_reports#user-activity-by-province)
+* [Geography-based activity (by city)](https://developers.google.com/youtube/analytics/channel_reports#user-activity-by-city-=-250-results) [^1] [^2]
 * [User activity by subscribed status](https://developers.google.com/youtube/analytics/channel_reports#user-activity-by-subscribed-status)
 * [User activity by subscribed status (US)](https://developers.google.com/youtube/analytics/channel_reports#user-activity-by-subscribed-status-for-provinces)
 * [Time-based playback details (live)](https://developers.google.com/youtube/analytics/channel_reports#playback-details-with-optional-time-dimension-and-liveorondemand-statistics)
@@ -48,20 +55,20 @@ Oftentimes, they are also far more picky about what filters can be provided and 
 * [Geography-based playback details (live, US)](https://developers.google.com/youtube/analytics/channel_reports#playback-details-by-province-with-liveorondemand-statistics)
 * [Geography-based playback details (view percentage, US)](https://developers.google.com/youtube/analytics/channel_reports#playback-details-by-province-with-averageviewpercentage-metric)
 * [Playback locations](https://developers.google.com/youtube/analytics/channel_reports#video-playback-location-report)
-* [Playback locations (detailed) [^1]](https://developers.google.com/youtube/analytics/channel_reports#playback-location-detail-=-25-results)
+* [Playback locations (detailed)](https://developers.google.com/youtube/analytics/channel_reports#playback-location-detail-=-25-results) [^1]
 * [Traffic sources](https://developers.google.com/youtube/analytics/channel_reports#traffic-source)
-* [Traffic sources (detailed) [^1]](https://developers.google.com/youtube/analytics/channel_reports#traffic-source-detail-=-25-results)
+* [Traffic sources (detailed)](https://developers.google.com/youtube/analytics/channel_reports#traffic-source-detail-=-25-results) [^1]
 * [Device types](https://developers.google.com/youtube/analytics/channel_reports#device-type)
 * [Operating systems](https://developers.google.com/youtube/analytics/channel_reports#operating-system)
 * [Device types and operating systems](https://developers.google.com/youtube/analytics/channel_reports#operating-system-and-device-type)
 * [Viewer demographics](https://developers.google.com/youtube/analytics/channel_reports#demographic-reports)
 * [Engagement and content sharing](https://developers.google.com/youtube/analytics/channel_reports#social-reports)
 * [Audience retention](https://developers.google.com/youtube/analytics/channel_reports#audience-retention-reports)
-* [Top videos by region [^1]](https://developers.google.com/youtube/analytics/channel_reports#top-videos-with-optional-regional-filters-=-200-results)
-* [Top videos by state [^1]](https://developers.google.com/youtube/analytics/channel_reports#top-videos-by-state-=-200-results)
-* [Top videos by subscription status [^1]](https://developers.google.com/youtube/analytics/channel_reports#top-videos-for-subscribed-or-unsubscribed-viewers=-200-results)
-* [Top videos by YouTube product [^1]](https://developers.google.com/youtube/analytics/channel_reports#top-videos-by-youtube-product-=-200-results)
-* [Top videos by playback detail [^1]](https://developers.google.com/youtube/analytics/channel_reports#top-videos-with-playback-detail-filters-=-200-results)
+* [Top videos by region](https://developers.google.com/youtube/analytics/channel_reports#top-videos-with-optional-regional-filters-=-200-results) [^1]
+* [Top videos by state](https://developers.google.com/youtube/analytics/channel_reports#top-videos-by-state-=-200-results) [^1]
+* [Top videos by subscription status](https://developers.google.com/youtube/analytics/channel_reports#top-videos-for-subscribed-or-unsubscribed-viewers=-200-results) [^1]
+* [Top videos by YouTube product](https://developers.google.com/youtube/analytics/channel_reports#top-videos-by-youtube-product-=-200-results) [^1]
+* [Top videos by playback detail](https://developers.google.com/youtube/analytics/channel_reports#top-videos-with-playback-detail-filters-=-200-results) [^1]
 
 ### Playlist report types
 
@@ -70,17 +77,18 @@ Oftentimes, they are also far more picky about what filters can be provided and 
 * [Geography-based activity for playlists](https://developers.google.com/youtube/analytics/channel_reports#playlist-activity-by-country)
 * [Geography-based activity for playlists (US)](https://developers.google.com/youtube/analytics/channel_reports#playlist-activity-by-province)
 * [Playback locations for playlists](https://developers.google.com/youtube/analytics/channel_reports#playback-location-playlist-reports)
-* [Playback locations for playlists (detailed) [^1]](https://developers.google.com/youtube/analytics/channel_reports#playback-location-detail-=-25-results_1)
+* [Playback locations for playlists (detailed)](https://developers.google.com/youtube/analytics/channel_reports#playback-location-detail-=-25-results_1) [^1]
 * [Traffic sources for playlists](https://developers.google.com/youtube/analytics/channel_reports#traffic-source-playlist-reports)
-* [Traffic sources for playlists (detailed) [^1]](https://developers.google.com/youtube/analytics/channel_reports#traffic-source-detail-=-25-results_1)
+* [Traffic sources for playlists (detailed)](https://developers.google.com/youtube/analytics/channel_reports#traffic-source-detail-=-25-results_1) [^1]
 * [Device types for playlists](https://developers.google.com/youtube/analytics/channel_reports#device-type_1)
 * [Operating systems for playlists](https://developers.google.com/youtube/analytics/channel_reports#operating-system_1)
 * [Device types and operating systems for playlists](https://developers.google.com/youtube/analytics/channel_reports#operating-system-and-device-type_1)
 * [Viewer demographics for playlists](https://developers.google.com/youtube/analytics/channel_reports#demographic-playlist-reports)
-* [Top playlists [^1]](https://developers.google.com/youtube/analytics/channel_reports#top-playlists-reports)
+* [Top playlists](https://developers.google.com/youtube/analytics/channel_reports#top-playlists-reports) [^1]
 
 ### Ad performance report types
 
 * [Ad performance](https://developers.google.com/youtube/analytics/channel_reports#ad-performance-by-ad-type)
 
 [^1]: Detailed report type
+[^2]: The documentation for this report type is incorrect (as of 15 Jan 2023). The actual max number of results is 25.

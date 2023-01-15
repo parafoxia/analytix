@@ -64,7 +64,9 @@ January received a lot more likes from subscribed viewers than other months, so 
 * audienceType
 * channel [^1] [^2]
 * claimedStatus [^2]
+* city
 * country [^1]
+* creatorContentType
 * day [^1]
 * deviceType
 * elapsedVideoTimeRatio
