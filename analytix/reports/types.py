@@ -120,7 +120,9 @@ class BasicUserActivityUS(ReportType):
 class TimeBasedActivity(ReportType):
     def __init__(self) -> None:
         self.name = "Time-based activity"
-        self.dimensions = Dimensions(ExactlyOne("day", "month"))
+        self.dimensions = Dimensions(
+            ExactlyOne("day", "month"), Optional("creatorContentType")
+        )
         self.filters = Filters(
             ZeroOrOne("country", "continent", "subContinent"),
             ZeroOrOne("video", "group"),
@@ -132,7 +134,9 @@ class TimeBasedActivity(ReportType):
 class TimeBasedActivityUS(ReportType):
     def __init__(self) -> None:
         self.name = "Time-based activity (US)"
-        self.dimensions = Dimensions(ExactlyOne("day", "month"))
+        self.dimensions = Dimensions(
+            ExactlyOne("day", "month"), Optional("creatorContentType")
+        )
         self.filters = Filters(
             Required("province"),
             ZeroOrOne("video", "group"),
@@ -144,7 +148,9 @@ class TimeBasedActivityUS(ReportType):
 class GeographyBasedActivity(ReportType):
     def __init__(self) -> None:
         self.name = "Geography-based activity"
-        self.dimensions = Dimensions(Required("country"))
+        self.dimensions = Dimensions(
+            Required("country"), Optional("creatorContentType")
+        )
         self.filters = Filters(
             ZeroOrOne("continent", "subContinent"),
             ZeroOrOne("video", "group"),
@@ -156,7 +162,9 @@ class GeographyBasedActivity(ReportType):
 class GeographyBasedActivityUS(ReportType):
     def __init__(self) -> None:
         self.name = "Geography-based activity (US)"
-        self.dimensions = Dimensions(Required("province"))
+        self.dimensions = Dimensions(
+            Required("province"), Optional("creatorContentType")
+        )
         self.filters = Filters(
             Required("country==US"),
             ZeroOrOne("video", "group"),
@@ -169,7 +177,8 @@ class PlaybackDetailsSubscribedStatus(ReportType):
     def __init__(self) -> None:
         self.name = "User activity by subscribed status"
         self.dimensions = Dimensions(
-            Optional("subscribedStatus"), ZeroOrOne("day", "month")
+            ZeroOrMore("creatorContentType", "subscribedStatus"),
+            ZeroOrOne("day", "month"),
         )
         self.filters = Filters(
             ZeroOrOne("country", "continent", "subContinent"),
@@ -184,7 +193,8 @@ class PlaybackDetailsSubscribedStatusUS(ReportType):
     def __init__(self) -> None:
         self.name = "User activity by subscribed status (US)"
         self.dimensions = Dimensions(
-            Optional("subscribedStatus"), ZeroOrOne("day", "month")
+            ZeroOrMore("creatorContentType", "subscribedStatus"),
+            ZeroOrOne("day", "month"),
         )
         self.filters = Filters(
             ZeroOrOne("video", "group"),
@@ -198,7 +208,12 @@ class PlaybackDetailsLiveTimeBased(ReportType):
     def __init__(self) -> None:
         self.name = "Time-based playback details (live)"
         self.dimensions = Dimensions(
-            ZeroOrMore("liveOrOnDemand", "subscribedStatus", "youtubeProduct"),
+            ZeroOrMore(
+                "creatorContentType",
+                "liveOrOnDemand",
+                "subscribedStatus",
+                "youtubeProduct",
+            ),
             ZeroOrOne("day", "month"),
         )
         self.filters = Filters(
@@ -214,7 +229,7 @@ class PlaybackDetailsViewPercentageTimeBased(ReportType):
     def __init__(self) -> None:
         self.name = "Time-based playback details (view percentage)"
         self.dimensions = Dimensions(
-            ZeroOrMore("subscribedStatus", "youtubeProduct"),
+            ZeroOrMore("creatorContentType", "subscribedStatus", "youtubeProduct"),
             ZeroOrOne("day", "month"),
         )
         self.filters = Filters(
@@ -231,7 +246,12 @@ class PlaybackDetailsLiveGeographyBased(ReportType):
         self.name = "Geography-based playback details (live)"
         self.dimensions = Dimensions(
             Required("country"),
-            ZeroOrMore("liveOrOnDemand", "subscribedStatus", "youtubeProduct"),
+            ZeroOrMore(
+                "creatorContentType",
+                "liveOrOnDemand",
+                "subscribedStatus",
+                "youtubeProduct",
+            ),
         )
         self.filters = Filters(
             ZeroOrOne("continent", "subContinent"),
@@ -247,7 +267,7 @@ class PlaybackDetailsViewPercentageGeographyBased(ReportType):
         self.name = "Geography-based playback details (view percentage)"
         self.dimensions = Dimensions(
             Required("country"),
-            ZeroOrMore("subscribedStatus", "youtubeProduct"),
+            ZeroOrMore("creatorContentType", "subscribedStatus", "youtubeProduct"),
         )
         self.filters = Filters(
             ZeroOrOne("continent", "subContinent"),
@@ -263,7 +283,12 @@ class PlaybackDetailsLiveGeographyBasedUS(ReportType):
         self.name = "Geography-based playback details (live, US)"
         self.dimensions = Dimensions(
             Required("province"),
-            ZeroOrMore("liveOrOnDemand", "subscribedStatus", "youtubeProduct"),
+            ZeroOrMore(
+                "creatorContentType",
+                "liveOrOnDemand",
+                "subscribedStatus",
+                "youtubeProduct",
+            ),
         )
         self.filters = Filters(
             Required("country==US"),
@@ -279,7 +304,7 @@ class PlaybackDetailsViewPercentageGeographyBasedUS(ReportType):
         self.name = "Geography-based playback details (view percentage, US)"
         self.dimensions = Dimensions(
             Required("province"),
-            ZeroOrMore("subscribedStatus", "youtubeProduct"),
+            ZeroOrMore("creatorContentType", "subscribedStatus", "youtubeProduct"),
         )
         self.filters = Filters(
             Required("country==US"),
@@ -295,7 +320,9 @@ class PlaybackLocation(ReportType):
         self.name = "Playback locations"
         self.dimensions = Dimensions(
             Required("insightPlaybackLocationType"),
-            ZeroOrMore("day", "liveOrOnDemand", "subscribedStatus"),
+            ZeroOrMore(
+                "creatorContentType", "day", "liveOrOnDemand", "subscribedStatus"
+            ),
         )
         self.filters = Filters(
             ZeroOrOne("country", "province", "continent", "subContinent"),
@@ -310,7 +337,7 @@ class PlaybackLocationDetail(DetailedReportType):
     def __init__(self) -> None:
         self.name = "Playback locations (detailed)"
         self.dimensions = Dimensions(
-            Required("insightPlaybackLocationDetail"),
+            Required("insightPlaybackLocationDetail"), Optional("creatorContentType")
         )
         self.filters = Filters(
             Required("insightPlaybackLocationType==EMBEDDED"),
@@ -330,7 +357,9 @@ class TrafficSource(ReportType):
         self.name = "Traffic sources"
         self.dimensions = Dimensions(
             Required("insightTrafficSourceType"),
-            ZeroOrMore("day", "liveOrOnDemand", "subscribedStatus"),
+            ZeroOrMore(
+                "creatorContentType", "day", "liveOrOnDemand", "subscribedStatus"
+            ),
         )
         self.filters = Filters(
             ZeroOrOne("country", "province", "continent", "subContinent"),
@@ -345,7 +374,7 @@ class TrafficSourceDetail(DetailedReportType):
     def __init__(self) -> None:
         self.name = "Traffic sources (detailed)"
         self.dimensions = Dimensions(
-            Required("insightTrafficSourceDetail"),
+            Required("insightTrafficSourceDetail"), Optional("creatorContentType")
         )
         self.filters = Filters(
             Required("insightTrafficSourceType"),
@@ -382,7 +411,13 @@ class DeviceType(ReportType):
         self.name = "Device types"
         self.dimensions = Dimensions(
             Required("deviceType"),
-            ZeroOrMore("day", "liveOrOnDemand", "subscribedStatus", "youtubeProduct"),
+            ZeroOrMore(
+                "creatorContentType",
+                "day",
+                "liveOrOnDemand",
+                "subscribedStatus",
+                "youtubeProduct",
+            ),
         )
         self.filters = Filters(
             ZeroOrOne("country", "province", "continent", "subContinent"),
@@ -403,7 +438,13 @@ class OperatingSystem(ReportType):
         self.name = "Operating systems"
         self.dimensions = Dimensions(
             Required("operatingSystem"),
-            ZeroOrMore("day", "liveOrOnDemand", "subscribedStatus", "youtubeProduct"),
+            ZeroOrMore(
+                "creatorContentType",
+                "day",
+                "liveOrOnDemand",
+                "subscribedStatus",
+                "youtubeProduct",
+            ),
         )
         self.filters = Filters(
             ZeroOrOne("country", "province", "continent", "subContinent"),
@@ -424,7 +465,13 @@ class DeviceTypeAndOperatingSystem(ReportType):
         self.name = "Device types and operating systems"
         self.dimensions = Dimensions(
             Required("deviceType", "operatingSystem"),
-            ZeroOrMore("day", "liveOrOnDemand", "subscribedStatus", "youtubeProduct"),
+            ZeroOrMore(
+                "creatorContentType",
+                "day",
+                "liveOrOnDemand",
+                "subscribedStatus",
+                "youtubeProduct",
+            ),
         )
         self.filters = Filters(
             ZeroOrOne("country", "province", "continent", "subContinent"),
@@ -440,7 +487,7 @@ class ViewerDemographics(ReportType):
         self.name = "Viewer demographics"
         self.dimensions = Dimensions(
             OneOrMore("ageGroup", "gender"),
-            ZeroOrMore("liveOrOnDemand", "subscribedStatus"),
+            ZeroOrMore("creatorContentType", "liveOrOnDemand", "subscribedStatus"),
         )
         self.filters = Filters(
             ZeroOrOne("country", "province", "continent", "subContinent"),
@@ -456,7 +503,7 @@ class EngagementAndContentSharing(ReportType):
         self.name = "Engagement and content sharing"
         self.dimensions = Dimensions(
             Required("sharingService"),
-            Optional("subscribedStatus"),
+            ZeroOrMore("creatorContentType", "subscribedStatus"),
         )
         self.filters = Filters(
             ZeroOrOne("country", "continent", "subContinent"),
@@ -470,7 +517,9 @@ class EngagementAndContentSharing(ReportType):
 class AudienceRetention(ReportType):
     def __init__(self) -> None:
         self.name = "Audience retention"
-        self.dimensions = Dimensions(Required("elapsedVideoTimeRatio"))
+        self.dimensions = Dimensions(
+            Required("elapsedVideoTimeRatio"), Optional("creatorContentType")
+        )
         self.filters = Filters(
             Required("video"),
             ZeroOrMore("audienceType", "subscribedStatus", "youtubeProduct"),
@@ -499,7 +548,7 @@ class AudienceRetention(ReportType):
 class TopVideosRegional(DetailedReportType):
     def __init__(self) -> None:
         self.name = "Top videos by region"
-        self.dimensions = Dimensions(Required("video"))
+        self.dimensions = Dimensions(Required("video"), Optional("creatorContentType"))
         self.filters = Filters(ZeroOrOne("country", "continent", "subContinent"))
         self.metrics = Metrics(*data.ALL_VIDEO_METRICS)
         self.sort_options = SortOptions(
@@ -511,7 +560,7 @@ class TopVideosRegional(DetailedReportType):
 class TopVideosUS(DetailedReportType):
     def __init__(self) -> None:
         self.name = "Top videos by state"
-        self.dimensions = Dimensions(Required("video"))
+        self.dimensions = Dimensions(Required("video"), Optional("creatorContentType"))
         self.filters = Filters(Required("province"), Optional("subscribedStatus"))
         self.metrics = Metrics(*data.ALL_PROVINCE_METRICS)
         self.sort_options = SortOptions(
@@ -523,7 +572,7 @@ class TopVideosUS(DetailedReportType):
 class TopVideosSubscribed(DetailedReportType):
     def __init__(self) -> None:
         self.name = "Top videos by subscription status"
-        self.dimensions = Dimensions(Required("video"))
+        self.dimensions = Dimensions(Required("video"), Optional("creatorContentType"))
         self.filters = Filters(
             Optional("subscribedStatus"),
             ZeroOrOne("country", "continent", "subContinent"),
@@ -538,7 +587,7 @@ class TopVideosSubscribed(DetailedReportType):
 class TopVideosYouTubeProduct(DetailedReportType):
     def __init__(self) -> None:
         self.name = "Top videos by YouTube product"
-        self.dimensions = Dimensions(Required("video"))
+        self.dimensions = Dimensions(Required("video"), Optional("creatorContentType"))
         self.filters = Filters(
             ZeroOrOne("country", "province", "continent", "subContinent"),
             ZeroOrMore("subscribedStatus", "youtubeProduct"),
@@ -553,7 +602,7 @@ class TopVideosYouTubeProduct(DetailedReportType):
 class TopVideosPlaybackDetail(DetailedReportType):
     def __init__(self) -> None:
         self.name = "Top videos by playback detail"
-        self.dimensions = Dimensions(Required("video"))
+        self.dimensions = Dimensions(Required("video"), Optional("creatorContentType"))
         self.filters = Filters(
             ZeroOrOne("country", "province", "continent", "subContinent"),
             ZeroOrMore("liveOrOnDemand", "subscribedStatus", "youtubeProduct"),

@@ -567,6 +567,7 @@ ALL_DIMENSIONS = {
     "channel",
     "country",
     "province",
+    "city",
     "day",
     "month",
     "insightPlaybackLocationType",
@@ -595,6 +596,7 @@ VALID_FILTER_OPTIONS = {
     "group": (),
     "country": COUNTRIES,
     "province": SUBDIVISIONS,
+    "city": (),
     "continent": (
         "002",
         "019",
