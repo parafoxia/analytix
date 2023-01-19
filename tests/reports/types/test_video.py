@@ -367,7 +367,7 @@ def test_geography_based_activity_by_city_7(caplog):
         report.validate(d, f, m, s, 26)
 
     assert (
-        "While the documentation says city reports can have a maximum of 250 results, the actual maxiumum the API accepts (currently) is 25"
+        "While the documentation says city reports can have a maximum of 250 results, the actual maximum the API accepts (currently) is 25"
         in caplog.text
     )
 

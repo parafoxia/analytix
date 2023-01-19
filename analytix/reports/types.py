@@ -211,7 +211,7 @@ class GeographyBasedActivityByCity(DetailedReportType):
         if 25 < max_results <= 250:
             _log.warning(
                 "While the documentation says city reports can have a maximum of 250 "
-                "results, the actual maxiumum the API accepts (currently) is 25"
+                "results, the actual maximum the API accepts (currently) is 25"
             )
 
         if "province" in dimensions:
