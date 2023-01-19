@@ -31,6 +31,7 @@ import pytest
 from analytix.errors import InvalidRequest
 from analytix.reports import data
 from analytix.reports import types as rt
+from analytix.reports.features import Filters, Required, ZeroOrOne
 
 # BASIC USER ACTIVITY
 
@@ -248,6 +249,127 @@ def test_geography_based_activity_us_3():
     m = data.ALL_PROVINCE_METRICS
     s = data.ALL_PROVINCE_METRICS
     report.validate(d, f, m, s)
+
+
+# GEOGRAPHY-BASED ACTIVITY (BY CITY)
+
+
+def test_geography_based_activity_by_city_1():
+    report = rt.GeographyBasedActivityByCity()
+    assert report.name == "Geography-based activity (by city)"
+    d = ["city", "creatorContentType", "day"]
+    f = {"country": "US", "video": "fn849bng984b"}
+    m = (
+        "views",
+        "estimatedMinutesWatched",
+        "averageViewDuration",
+        "averageViewPercentage",
+    )
+    s = [f"-{o}" for o in data.LOCATION_AND_TRAFFIC_SORT_OPTIONS]
+    report.validate(d, f, m, s, 25)
+
+
+def test_geography_based_activity_by_city_2():
+    report = rt.GeographyBasedActivityByCity()
+    assert report.name == "Geography-based activity (by city)"
+    d = ["city", "country", "month"]
+    f = {"province": "US-OH", "group": "fn849bng984b"}
+    m = (
+        "views",
+        "estimatedMinutesWatched",
+        "averageViewDuration",
+        "averageViewPercentage",
+    )
+    s = [f"-{o}" for o in data.LOCATION_AND_TRAFFIC_SORT_OPTIONS]
+    report.validate(d, f, m, s, 25)
+
+
+def test_geography_based_activity_by_city_3():
+    report = rt.GeographyBasedActivityByCity()
+    assert report.name == "Geography-based activity (by city)"
+    d = ["city", "province"]
+    f = {"country": "US"}
+    m = (
+        "views",
+        "estimatedMinutesWatched",
+        "averageViewDuration",
+        "averageViewPercentage",
+    )
+    s = [f"-{o}" for o in data.LOCATION_AND_TRAFFIC_SORT_OPTIONS]
+    report.validate(d, f, m, s, 25)
+
+    assert report.filters == Filters(
+        Required("country==US"), ZeroOrOne("video", "group")
+    )
+
+
+def test_geography_based_activity_by_city_4():
+    report = rt.GeographyBasedActivityByCity()
+    assert report.name == "Geography-based activity (by city)"
+    d = ["city", "subscribedStatus"]
+    f = {"continent": "002"}
+    m = (
+        "views",
+        "estimatedMinutesWatched",
+        "averageViewDuration",
+        "averageViewPercentage",
+    )
+    s = [f"-{o}" for o in data.LOCATION_AND_TRAFFIC_SORT_OPTIONS]
+    report.validate(d, f, m, s, 25)
+
+
+def test_geography_based_activity_by_city_5():
+    report = rt.GeographyBasedActivityByCity()
+    assert report.name == "Geography-based activity (by city)"
+    d = ["city"]
+    f = {"subContinent": "014"}
+    m = (
+        "views",
+        "estimatedMinutesWatched",
+        "averageViewDuration",
+        "averageViewPercentage",
+    )
+    s = [f"-{o}" for o in data.LOCATION_AND_TRAFFIC_SORT_OPTIONS]
+    report.validate(d, f, m, s, 25)
+
+
+def test_geography_based_activity_by_city_6():
+    report = rt.GeographyBasedActivityByCity()
+    assert report.name == "Geography-based activity (by city)"
+    d = ["city"]
+    f = {}
+    m = (
+        "views",
+        "estimatedMinutesWatched",
+        "averageViewDuration",
+        "averageViewPercentage",
+    )
+    s = [f"-{o}" for o in data.LOCATION_AND_TRAFFIC_SORT_OPTIONS]
+    report.validate(d, f, m, s, 25)
+
+
+def test_geography_based_activity_by_city_7(caplog):
+    report = rt.GeographyBasedActivityByCity()
+    assert report.name == "Geography-based activity (by city)"
+    d = ["city"]
+    f = {}
+    m = (
+        "views",
+        "estimatedMinutesWatched",
+        "averageViewDuration",
+        "averageViewPercentage",
+    )
+    s = [f"-{o}" for o in data.LOCATION_AND_TRAFFIC_SORT_OPTIONS]
+
+    with pytest.raises(
+        InvalidRequest, match="expected no more than 25 results, got 26"
+    ):
+        report.validate(d, f, m, s, 26)
+
+    assert (
+        "While the documentation says city reports can have a maximum of 250 results, the actual maxiumum the API accepts (currently) is 25"
+        in caplog.text
+    )
 
 
 # PLAYBACK DETAILS: SUBSCRIBED STATUS

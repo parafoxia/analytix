@@ -191,6 +191,11 @@ def test_determine_top_playlists():
     assert isinstance(query.determine_report_type(), rt.TopPlaylists)
 
 
+def test_determine_geography_based_activity_by_city():
+    query = ReportQuery(dimensions=["city"])
+    assert isinstance(query.determine_report_type(), rt.GeographyBasedActivityByCity)
+
+
 def test_determine_playback_location():
     query = ReportQuery(dimensions=["insightPlaybackLocationType"])
     assert isinstance(query.determine_report_type(), rt.PlaybackLocation)
