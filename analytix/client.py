@@ -34,10 +34,17 @@ This module contains three clients:
 * `AsyncClient`
 * `Client`
 
-The first of these requires you to handle authorisation and shard
-management yourself, and is designed for use in web applications. The
-other two handle both authorisation and shard management for you, and
-are designed for use in desktop applications.
+Most people will be perfectly fine with the `Client`, which provides a
+simple-to-use interface with which to create scripts.
+
+If you plan to use analytix in an async application, such as a bot, the
+`AsyncClient` will be better suited to you. Its functionally identical
+to the `Client` (in fact, the `Client` is a sync wrapper around the
+`AsyncClient`!).
+
+If you need more control over how analytix handles data, you may find
+value in the `AsyncBaseClient`. This client requires you to handle
+authorisation yourself, and is designed for use in web applications.
 
 You should only use the `AsyncBaseClient` if:
 
@@ -45,11 +52,6 @@ You should only use the `AsyncBaseClient` if:
 * you want control over how your application is authorised
 * you want to store tokens in a database
 * you need access to ID tokens
-
-The `Client` provides a sync interface for analytix operations, which is
-perfect if you are running simple scripts. This client acts as a wrapper
-for the `AsyncClient` and is not a separate implementation. Because of
-this, it is not threadsafe.
 """
 
 from __future__ import annotations
@@ -84,13 +86,13 @@ _log = logging.getLogger(__name__)
 
 
 class AsyncBaseClient:
-    """A basic client interface for the YouTube Analytics API.
+    """A basic async client interface for the YouTube Analytics API.
 
     This client provides methods for retrieving reports and group data
     from the YouTube Analytics API, but requires you to implement your
-    own authorisation routine. It also requires you to perform shard
-    management yourself, though utilities are available to help with
-    that.
+    own authorisation routine. It also requires you to manually create
+    and manage analytix "shards", though utilities are available to help
+    with that.
 
     Parameters
     ----------
@@ -108,7 +110,7 @@ class AsyncBaseClient:
 
     !!! info "See also"
         If you want a client with self-authorising capabilities, see
-        `AsyncClient`.
+        `Client` or `AsyncClient`.
 
     ??? example "Basic example"
         ```py
@@ -197,8 +199,8 @@ class AsyncBaseClient:
     async def teardown(self) -> None:
         """Tears the client down.
 
-        This should be called before your program ends unless you're
-        using the client in a context manager.
+        This should be called before your program ends. If you're using
+        the client in a context manager, this is done automatically.
 
         Returns
         -------
@@ -217,11 +219,15 @@ class AsyncBaseClient:
         """A context manager inside which shard operations can be
         performed.
 
-        As many shards as necessary can be spawned, each sharing the
-        client's session and secrets, but using their own tokens. If
-        you have multiple users using your application at once, one
-        shard should be spawned for each user. The shard is destroyed
-        upon exiting the context.
+        You can think of shards as mini-clients, each with their own
+        tokens, but all sharing a single client session. Requests are
+        made from within shards; this is true even of other clients,
+        though that is abstracted away from you.
+
+        As many shards as necessary can be spawned. If you have multiple
+        users using your application at once, one shard should be
+        spawned for each user. The shard is destroyed upon exiting the
+        context.
 
         Parameters
         ----------
@@ -252,51 +258,15 @@ class AsyncBaseClient:
 
 
 class AsyncClient(AsyncBaseClient):
-    """A client interface for the YouTube Analytics API.
+    """An async client interface for the YouTube Analytics API.
 
-    This client adds self-authorisation routines on top of the base
-    client. This client is not suitable for web applications; use the
-    `AsyncBaseClient` instead.
-
-    Parameters
-    ----------
-    secrets_file : Path object or str
-        The path to your secrets file.
-    tokens_dir : Path object or str, optional
-        The directory in which tokens should be stored. If this is not
-        provided, the current working directory is used.
-    ws_port : int, optional
-        The webserver port to use when authenticating.
-    auto_open_browser : bool, optional
-        Whether to automatically open the browser for authentication
-        when necessary. If this is `False`, the auth URI is printed to
-        the console.
-
-    Other Parameters
-    ----------------
-    loop : AbstractEventLoop, optional
-        The asyncio event loop to use. If this is not provided, the
-        client will create one.
-    session : ClientSession, optional
-        The AIOHTTP client session to use. If this is not provided, the
-        client will create one.
-
-    Raises
-    ------
-    NotADirectoryError
-        The token directory passed is not, in fact, a directory.
-
-    !!! warning
-        If you use WSL, the browser may not open even if
-        `auto_open_browser` is `True`.
-
-        To fix the issue:
-
-        1. install [WSLU](https://github.com/wslutilities/wslu)
-        2. add `export BROWSER="wslview"` to your shell's rc file
+    This client is functionally identical to the standard client, but
+    aimed at use in async applications.
 
     !!! info "See also"
-        If you want to build a web application, see `AsyncBaseClient`.
+        This client is functionally identical to the `Client`. Refer to
+        that client's documentation for descriptions of this client's
+        methods.
 
     ??? example "Basic example"
         ```py
@@ -306,6 +276,7 @@ class AsyncClient(AsyncBaseClient):
     ??? example "Context manager example"
         ```py
         with AsyncClient("secrets.json") as client:
+            # Perform operations here.
             await client.teardown()
         ```
 
@@ -362,14 +333,6 @@ class AsyncClient(AsyncBaseClient):
 
     @property
     def active_tokens(self) -> str | None:
-        """Return the ID of the currently active tokens.
-
-        Returns
-        -------
-        str
-            The ID of the currently active tokens.
-        """
-
         return self._active_tokens
 
     async def _get_existing_tokens(self, token_id: str | None) -> oidc.Tokens | None:
@@ -386,54 +349,6 @@ class AsyncClient(AsyncBaseClient):
         return await oidc.Tokens.from_file(token_path)
 
     async def authorise(self, token_id: str | None = None) -> None:
-        """Authorise the client.
-
-        If you only want to pull data for a single channel, you don't
-        need to call this manually. If you want to pull data for
-        multiple channels, you will need to call this manually each time
-        you want to switch channel.
-
-        This method always does the minimum possible work necessary to
-        authorise the client. This means that active and loadable tokens
-        will be prioritised, and the full auth flow will only trigger
-        when necessary. Token refreshing is handled automatically.
-
-        Parameters
-        ----------
-        token_id : str, optional
-            The ID of the tokens you want to use. If you own multiple
-            channels, each one will use a different set of tokens and
-            thus a different token ID. This ID will be the filename the
-            tokens are stored as. If this is not provided, the client
-            will use the currently active tokens. If no there are no
-            active tokens, the client will use the project ID as defined
-            in the secrets file.
-
-        Returns
-        -------
-        None
-
-        Raises
-        ------
-        AuthorisationError
-            The client could not be authorised.
-        RuntimeError
-            The client tried and failed to automatically open a web
-            browser for authentication.
-
-        ??? example "Basic example"
-            ```py
-            await client.authorise()
-            ```
-
-        ??? example "Selecting tokens"
-            ```py
-            await client.authorise("my-tokens")
-            # later on...
-            await client.authorise("my-other-tokens")
-            ```
-        """
-
         # Determine token ID.
         token_id = token_id or self._active_tokens or self._secrets.project_id
         tokens = await self._get_existing_tokens(token_id)
@@ -498,6 +413,261 @@ class AsyncClient(AsyncBaseClient):
         _log.info("Authorisation complete!")
 
     async def retrieve_report(
+        self,
+        *,
+        dimensions: t.Collection[str] | None = None,
+        filters: dict[str, str] | None = None,
+        metrics: t.Collection[str] | None = None,
+        start_date: datetime.date | None = None,
+        end_date: datetime.date | None = None,
+        sort_options: t.Collection[str] | None = None,
+        max_results: int = 0,
+        currency: str = "USD",
+        start_index: int = 1,
+        include_historical_data: bool = False,
+    ) -> AnalyticsReport:
+        await self.authorise()
+        assert self._shard
+        return await self._shard.retrieve_report(
+            dimensions=dimensions,
+            filters=filters,
+            metrics=metrics,
+            start_date=start_date,
+            end_date=end_date,
+            sort_options=sort_options,
+            max_results=max_results,
+            currency=currency,
+            start_index=start_index,
+            include_historical_data=include_historical_data,
+        )
+
+    async def fetch_groups(
+        self,
+        *,
+        ids: t.Collection[str] | None = None,
+        next_page_token: str | None = None,
+    ) -> GroupList:
+        await self.authorise()
+        assert self._shard
+        return await self._shard.fetch_groups(ids=ids, next_page_token=next_page_token)
+
+    async def fetch_group_items(self, group_id: str) -> GroupItemList:
+        await self.authorise()
+        assert self._shard
+        return await self._shard.fetch_group_items(group_id)
+
+
+class Client:
+    """A sync client interface for the YouTube Analytics API.
+
+    This client adds self-authorisation routines on top of the base
+    client, and as such is more suitable to the everyday user.
+
+    Parameters
+    ----------
+    secrets_file : Path object or str
+        The path to your secrets file.
+    tokens_dir : Path object or str, optional
+        The directory in which tokens should be stored. If this is not
+        provided, the current working directory is used.
+    ws_port : int, optional
+        The webserver port to use when authenticating.
+    auto_open_browser : bool, optional
+        Whether to automatically open the browser for authentication
+        when necessary. If this is `False`, the auth URI is printed to
+        the console.
+
+    Other Parameters
+    ----------------
+    loop : AbstractEventLoop, optional
+        The asyncio event loop to use. If this is not provided, the
+        client will create one.
+    session : ClientSession, optional
+        The AIOHTTP client session to use. If this is not provided, the
+        client will create one.
+
+    Raises
+    ------
+    NotADirectoryError
+        The token directory passed is not, in fact, a directory.
+
+    !!! warning
+        This client is a sync wrapper of the `AsyncClient`, so is still
+        async under the hood. As such, it is not threadsafe.
+
+    !!! warning
+        If you use WSL, the browser may not open even if
+        `auto_open_browser` is `True`.
+
+        To fix the issue:
+
+        1. install [WSLU](https://github.com/wslutilities/wslu)
+        2. add `export BROWSER="wslview"` to your shell's rc file
+
+    !!! info "See also"
+        If you're building an async application, use the `AsyncClient`
+        instead.
+
+    ??? example "Basic example"
+        ```py
+        client = Client("secrets.json")
+        ```
+
+    ??? example "Context manager example"
+        ```py
+        with Client("secrets.json") as client:
+            # Perform operations here.
+            client.teardown()
+        ```
+
+    ??? example "Advanced example"
+        ```py
+        client = Client(
+            "secrets.json",
+            tokens_dir="./tokens",
+            ws_port=9999,
+            auto_open_browser=True,
+        )
+        ```
+    """
+
+    __slots__ = ("_client",)
+
+    _loop: asyncio.AbstractEventLoop
+    _secrets: oidc.Secrets
+    _session: ClientSession
+    _tokens_dir: Path | None
+    _ws_port: int
+    _auto_open_browser: bool
+    _active_tokens: str
+    _shard: Shard
+
+    def __init__(
+        self,
+        secrets_file: PathLikeT,
+        *,
+        tokens_dir: OptionalPathLikeT = ".",
+        ws_port: int = 8080,
+        auto_open_browser: bool = False,
+        loop: asyncio.AbstractEventLoop | None = None,
+        session: ClientSession | None = None,
+        **kwargs: t.Any,
+    ) -> None:
+        self._client = AsyncClient(
+            secrets_file,
+            tokens_dir=tokens_dir,
+            ws_port=ws_port,
+            auto_open_browser=auto_open_browser,
+            loop=loop,
+            session=session,
+            **kwargs,
+        )
+
+        getter = lambda attr, self: getattr(self._client, attr)
+        setter = lambda attr, self, value: setattr(self._client, attr, value)
+        for attr in AsyncBaseClient.__slots__ + AsyncClient.__slots__:
+            setattr(
+                self.__class__,
+                attr,
+                property(partial(getter, attr), partial(setter, attr)),
+            )
+
+    def __str__(self) -> str:
+        return self._secrets.project_id
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(project_id={self._secrets.project_id!r})"
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, self.__class__):
+            return NotImplemented
+
+        return self._secrets.project_id == other._secrets.project_id
+
+    def __ne__(self, other: object) -> bool:
+        if not isinstance(other, self.__class__):
+            return NotImplemented
+
+        return self._secrets.project_id != other._secrets.project_id
+
+    def __enter__(self) -> Client:
+        return self
+
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> None:
+        self.teardown()
+
+    @property
+    def active_tokens(self) -> str | None:
+        """Return the ID of the currently active tokens.
+
+        Returns
+        -------
+        str
+            The ID of the currently active tokens.
+        """
+
+        return self._client._active_tokens
+
+    def teardown(self) -> None:
+        self._client._loop.run_until_complete(self._client.teardown())
+
+    def authorise(self, token_id: str | None = None) -> None:
+        """Authorise the client.
+
+        If you only want to pull data for a single channel, you don't
+        need to call this manually. If you want to pull data for
+        multiple channels, you will need to call this manually each time
+        you want to switch channel.
+
+        This method always does the minimum possible work necessary to
+        authorise the client. This means that active and loadable tokens
+        will be prioritised, and the full auth flow will only trigger
+        when necessary. Token refreshing is handled automatically.
+
+        Parameters
+        ----------
+        token_id : str, optional
+            The ID of the tokens you want to use. If you own multiple
+            channels, each one will use a different set of tokens and
+            thus a different token ID. This ID will be the filename the
+            tokens are stored as. If this is not provided, the client
+            will use the currently active tokens. If no there are no
+            active tokens, the client will use the project ID as defined
+            in the secrets file.
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        AuthorisationError
+            The client could not be authorised.
+        RuntimeError
+            The client tried and failed to automatically open a web
+            browser for authentication.
+
+        ??? example "Basic example"
+            ```py
+            client.authorise()
+            ```
+
+        ??? example "Selecting tokens"
+            ```py
+            client.authorise("my-tokens")
+            # Later on...
+            client.authorise("my-other-tokens")
+            ```
+        """
+
+        self._client._loop.run_until_complete(self._client.authorise(token_id))
+
+    def retrieve_report(
         self,
         *,
         dimensions: t.Collection[str] | None = None,
@@ -582,12 +752,12 @@ class AsyncClient(AsyncBaseClient):
         ??? example "Basic example"
             ```py
             # Fetch a report with the default settings.
-            await client.retrieve_report()
+            client.retrieve_report()
             ```
 
         ??? example "Advanced example"
             ```py
-            await client.retrieve_report(
+            client.retrieve_report(
                 dimensions=("day", "subscribedStatus"),
                 filters={"country": "GB"},
                 metrics=("views", "likes", "comments"),
@@ -604,26 +774,26 @@ class AsyncClient(AsyncBaseClient):
         ??? example "Playlist example"
             ```py
             # This filter is required for playlist reports.
-            await client.retrieve_report(filters={"isCurated": "1"})
+            client.retrieve_report(filters={"isCurated": "1"})
             ```
         """
 
-        await self.authorise()
-        assert self._shard
-        return await self._shard.retrieve_report(
-            dimensions=dimensions,
-            filters=filters,
-            metrics=metrics,
-            start_date=start_date,
-            end_date=end_date,
-            sort_options=sort_options,
-            max_results=max_results,
-            currency=currency,
-            start_index=start_index,
-            include_historical_data=include_historical_data,
+        return self._client._loop.run_until_complete(
+            self._client.retrieve_report(
+                dimensions=dimensions,
+                filters=filters,
+                metrics=metrics,
+                start_date=start_date,
+                end_date=end_date,
+                sort_options=sort_options,
+                max_results=max_results,
+                currency=currency,
+                start_index=start_index,
+                include_historical_data=include_historical_data,
+            )
         )
 
-    async def fetch_groups(
+    def fetch_groups(
         self,
         *,
         ids: t.Collection[str] | None = None,
@@ -659,17 +829,17 @@ class AsyncClient(AsyncBaseClient):
 
         ??? example "Basic example"
             ```py
-            >>> groups = await client.fetch_groups()
+            >>> groups = client.fetch_groups()
             >>> print(groups[0].id)
             "a1b2c3d4e5"
             ```
         """
 
-        await self.authorise()
-        assert self._shard
-        return await self._shard.fetch_groups(ids=ids, next_page_token=next_page_token)
+        return self._client._loop.run_until_complete(
+            self._client.fetch_groups(ids=ids, next_page_token=next_page_token)
+        )
 
-    async def fetch_group_items(self, group_id: str) -> GroupItemList:
+    def fetch_group_items(self, group_id: str) -> GroupItemList:
         """Fetch the items of a specific group.
 
         Parameters
@@ -695,155 +865,12 @@ class AsyncClient(AsyncBaseClient):
         ??? example "Basic example"
             ```py
             # groups = response from client.fetch_groups()
-            >>> group_items = await client.fetch_groups(groups[0].id)
+            >>> group_items = client.fetch_groups(groups[0].id)
             >>> print(group_items[0].id)
             "f6g7h8i9j0"
             ```
         """
 
-        await self.authorise()
-        assert self._shard
-        return await self._shard.fetch_group_items(group_id)
-
-
-class Client:
-    """A sync client interface for the YouTube Analytics API.
-
-    This client acts as a sync wrapper for the `AsyncClient` allowing
-    you to use analytix without having to worry about creating async
-    event loops. If you are creating simple scripts, this client is
-    probably the one you want to use.
-
-    !!! info "See also"
-        This client is functionally identical to the `AsyncClient`.
-        Refer to that client's documentation for descriptions of this
-        client's methods.
-
-    !!! warning
-        This client is still async under the hood and as such is not
-        threadsafe.
-    """
-
-    __slots__ = ("_client",)
-
-    _loop: asyncio.AbstractEventLoop
-    _secrets: oidc.Secrets
-    _session: ClientSession
-    _tokens_dir: Path | None
-    _ws_port: int
-    _auto_open_browser: bool
-    _active_tokens: str
-    _shard: Shard
-
-    def __init__(
-        self,
-        secrets_file: PathLikeT,
-        *,
-        tokens_dir: OptionalPathLikeT = ".",
-        ws_port: int = 8080,
-        auto_open_browser: bool = False,
-        loop: asyncio.AbstractEventLoop | None = None,
-        session: ClientSession | None = None,
-        **kwargs: t.Any,
-    ) -> None:
-        self._client = AsyncClient(
-            secrets_file,
-            tokens_dir=tokens_dir,
-            ws_port=ws_port,
-            auto_open_browser=auto_open_browser,
-            loop=loop,
-            session=session,
-            **kwargs,
-        )
-
-        getter = lambda attr, self: getattr(self._client, attr)
-        setter = lambda attr, self, value: setattr(self._client, attr, value)
-        for attr in AsyncBaseClient.__slots__ + AsyncClient.__slots__:
-            setattr(
-                self.__class__,
-                attr,
-                property(partial(getter, attr), partial(setter, attr)),
-            )
-
-    def __str__(self) -> str:
-        return self._secrets.project_id
-
-    def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(project_id={self._secrets.project_id!r})"
-
-    def __eq__(self, other: object) -> bool:
-        if not isinstance(other, self.__class__):
-            return NotImplemented
-
-        return self._secrets.project_id == other._secrets.project_id
-
-    def __ne__(self, other: object) -> bool:
-        if not isinstance(other, self.__class__):
-            return NotImplemented
-
-        return self._secrets.project_id != other._secrets.project_id
-
-    def __enter__(self) -> Client:
-        return self
-
-    def __exit__(
-        self,
-        exc_type: type[BaseException] | None,
-        exc_value: BaseException | None,
-        exc_tb: TracebackType | None,
-    ) -> None:
-        self.teardown()
-
-    @property
-    def active_tokens(self) -> str | None:
-        return self._client._active_tokens
-
-    def teardown(self) -> None:
-        self._client._loop.run_until_complete(self._client.teardown())
-
-    def authorise(self, token_id: str | None = None) -> None:
-        self._client._loop.run_until_complete(self._client.authorise(token_id))
-
-    def retrieve_report(
-        self,
-        *,
-        dimensions: t.Collection[str] | None = None,
-        filters: dict[str, str] | None = None,
-        metrics: t.Collection[str] | None = None,
-        start_date: datetime.date | None = None,
-        end_date: datetime.date | None = None,
-        sort_options: t.Collection[str] | None = None,
-        max_results: int = 0,
-        currency: str = "USD",
-        start_index: int = 1,
-        include_historical_data: bool = False,
-    ) -> AnalyticsReport:
-        return self._client._loop.run_until_complete(
-            self._client.retrieve_report(
-                dimensions=dimensions,
-                filters=filters,
-                metrics=metrics,
-                start_date=start_date,
-                end_date=end_date,
-                sort_options=sort_options,
-                max_results=max_results,
-                currency=currency,
-                start_index=start_index,
-                include_historical_data=include_historical_data,
-            )
-        )
-
-    def fetch_groups(
-        self,
-        *,
-        ids: t.Collection[str] | None = None,
-        next_page_token: str | None = None,
-    ) -> GroupList:
-        return self._client._loop.run_until_complete(
-            self._client.fetch_groups(ids=ids, next_page_token=next_page_token)
-        )
-
-    def fetch_group_items(self, group_id: str) -> GroupItemList:
         return self._client._loop.run_until_complete(
             self._client.fetch_group_items(group_id)
         )
