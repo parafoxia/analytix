@@ -66,7 +66,8 @@ class ReportType(metaclass=abc.ABCMeta):
         filters: dict[str, str],
         metrics: t.Collection[str],
         sort_options: t.Collection[str],
-        _: int = 0,
+        max_results: int = 0,
+        start_index: int = 1,
     ) -> None:
         self.dimensions.validate(dimensions)
         self.filters.validate(filters)
@@ -87,6 +88,7 @@ class DetailedReportType(ReportType, metaclass=abc.ABCMeta):
         metrics: t.Collection[str],
         sort_options: t.Collection[str],
         max_results: int = 0,
+        start_index: int = 1,
     ) -> None:
         super().validate(dimensions, filters, metrics, sort_options)
 
@@ -96,6 +98,9 @@ class DetailedReportType(ReportType, metaclass=abc.ABCMeta):
             raise InvalidRequest(
                 f"expected no more than {self.max_results} results, got {max_results:,}"
             )
+
+        if self.max_results and start_index + max_results > self.max_results + 1:
+            raise InvalidRequest("the start index is too high")
 
         if not sort_options:
             raise InvalidRequest("expected at least 1 sort option, got 0")

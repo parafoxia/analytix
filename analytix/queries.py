@@ -165,6 +165,7 @@ class ReportQuery:
             self.metrics,
             self.sort_options,
             self.max_results,
+            self.start_index,
         )
 
         # If it gets to this point, it's fine.

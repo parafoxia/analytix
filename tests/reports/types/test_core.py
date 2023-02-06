@@ -72,6 +72,23 @@ def test_detailed_report_too_high_max_results():
     assert str(exc.value) == "expected no more than 25 results, got 100"
 
 
+def test_detailed_report_start_index_too_high():
+    report = rt.PlaybackLocationDetail()
+    assert report.name == "Playback locations (detailed)"
+    d = ["insightPlaybackLocationDetail"]
+    f = {
+        "insightPlaybackLocationType": "EMBEDDED",
+        "country": "US",
+        "video": "fn849bng984b",
+        "liveOrOnDemand": "LIVE",
+    }
+    m = data.LOCATION_AND_TRAFFIC_METRICS
+    s = [f"-{o}" for o in data.LOCATION_AND_TRAFFIC_SORT_OPTIONS]
+    with pytest.raises(InvalidRequest) as exc:
+        report.validate(d, f, m, s, 25, 20)
+    assert str(exc.value) == "the start index is too high"
+
+
 def test_detailed_report_no_sort_options():
     report = rt.PlaybackLocationDetail()
     assert report.name == "Playback locations (detailed)"
