@@ -207,6 +207,7 @@ class GeographyBasedActivityByCity(DetailedReportType):
         metrics: t.Collection[str],
         sort_options: t.Collection[str],
         max_results: int = 0,
+        start_index: int = 1,
     ) -> None:
         if 25 < max_results <= 250:
             _log.warning(
@@ -219,7 +220,9 @@ class GeographyBasedActivityByCity(DetailedReportType):
             # rules for this report type.
             self.filters = Filters(Required("country==US"), ZeroOrOne("video", "group"))
 
-        super().validate(dimensions, filters, metrics, sort_options, max_results)
+        super().validate(
+            dimensions, filters, metrics, sort_options, max_results, start_index
+        )
 
 
 class PlaybackDetailsSubscribedStatus(ReportType):
@@ -444,8 +447,11 @@ class TrafficSourceDetail(DetailedReportType):
         metrics: t.Collection[str],
         sort_options: t.Collection[str],
         max_results: int = 0,
+        start_index: int = 1,
     ) -> None:
-        super().validate(dimensions, filters, metrics, sort_options, max_results)
+        super().validate(
+            dimensions, filters, metrics, sort_options, max_results, start_index
+        )
 
         itst = filters["insightTrafficSourceType"]
         if itst not in data.VALID_FILTER_OPTIONS["insightTrafficSourceDetail"]:
@@ -583,6 +589,7 @@ class AudienceRetention(ReportType):
         metrics: t.Collection[str],
         sort_options: t.Collection[str],
         max_results: int = 0,
+        start_index: int = 1,
     ) -> None:
         super().validate(dimensions, filters, metrics, sort_options)
 
@@ -805,8 +812,11 @@ class TrafficSourceDetailPlaylist(DetailedReportType):
         metrics: t.Collection[str],
         sort_options: t.Collection[str],
         max_results: int = 0,
+        start_index: int = 1,
     ) -> None:
-        super().validate(dimensions, filters, metrics, sort_options, max_results)
+        super().validate(
+            dimensions, filters, metrics, sort_options, max_results, start_index
+        )
 
         itst = filters["insightTrafficSourceType"]
         if itst not in data.VALID_FILTER_OPTIONS["insightTrafficSourceDetail"]:
