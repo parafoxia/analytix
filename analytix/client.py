@@ -865,7 +865,7 @@ class Client:
         ??? example "Basic example"
             ```py
             # groups = response from client.fetch_groups()
-            >>> group_items = client.fetch_groups(groups[0].id)
+            >>> group_items = client.fetch_group_items(groups[0].id)
             >>> print(group_items[0].id)
             "f6g7h8i9j0"
             ```
