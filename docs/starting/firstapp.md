@@ -3,8 +3,8 @@
 ## Creating a client
 
 In order to make requests to the YouTube Analytics API, you need a client.
-analytix provides a few different clients you can use; to find out the differences between them, see the [client documentation](../reference/client.md).
-For this guide, we'll just use the standard `Client`.
+analytix provides a few different clients you can use — to find out the differences between them, see the [client documentation](../reference/client.md).
+For this guide, we'll just use the standard [`Client`](../reference/client.md#analytix.client.Client).
 
 You can create a client like so:
 
@@ -29,7 +29,7 @@ The way you create your client is up to you, but bear that difference in mind.
 
 !!! info
     If you are looking to build an async application, the [`AsyncClient`](../reference/client.md#analytix.client.AsyncClient) would be more suited to you.
-    For web application development, you will probably want the [`AsyncBaseClient`](../reference/client.md#analytix.client.AsyncBaseClient)
+    For web application development, you will probably want the [`AsyncBaseClient`](../reference/client.md#analytix.client.AsyncBaseClient).
 
 ## Authorisation
 
@@ -69,14 +69,14 @@ report = client.retrieve_report(
 )
 ```
 
-The above example gets your day-by-day analytics for the 2022 calendar year -- each row in the resultant report will be for a different day.
+The above example gets your day-by-day analytics for the 2022 calendar year — each row in the resultant report will be for a different day.
 
 Now let's spice it up a bit:
 
 ```py
 report = client.retrieve_report(
     dimensions=("video",),
-    filters={"subscribedStatus": "UNSUBSCRIBED"},
+    filters={"country": "US"},
     sort_options=("-views"),
     start_date=date(2022, 1, 1),
     end_date=date(2022, 12, 31),
@@ -84,22 +84,22 @@ report = client.retrieve_report(
 )
 ```
 
-This more complex example gets the ten best performing videos (by views) in the 2022 calendar year for unsubscribed viewers.
+This more complex example gets the ten best performing videos (by views) in the 2022 calendar year in the US.
 
-There's a lot more to creating reports than this though, which is why there is some [helpful guides](../guides/dimensions.md) which should hopefully help.
+There's a lot more to creating reports than this though, which is why there is some [helpful guides](../guides/dimensions.md) you can use to learn more about it.
 
 ## Processing and saving analytics data
 
-Once you have your reports, you can either process them using a data manipulation library such as pandas, or save them to disk.
+Once you have your reports, you can either process them using a data manipulation library such as pandas or save them to disk.
 
-pandas, Arrow, and Polars are all supported natively:
+pandas, PyArrow, and Polars are all supported natively:
 
 === "pandas"
     ```py
     df = report.to_pandas()
     ```
 
-=== "Arrow"
+=== "PyArrow"
     ```py
     table = report.to_arrow()
     ```
