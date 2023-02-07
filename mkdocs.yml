@@ -83,6 +83,7 @@ nav:
   - "Getting started":
     - "starting/installation.md"
     - "starting/googleapp.md"
+    - "starting/firstapp.md"
   - "Guides":
     - "guides/dimensions.md"
     - "guides/filters.md"
