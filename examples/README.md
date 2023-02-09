@@ -2,12 +2,9 @@
 
 This folder contains various examples of how analytix can be used to retrieve data.
 This set does not aim to be exhaustive, but instead cover the most common use cases.
+Examples are generally derived from the [sample requests](https://developers.google.com/youtube/analytics/sample-requests) on the YouTube Analytics API documentation.
 
 Note that each example requires a secrets file, which is not provided.
-
-## Directory
-
-* [overview28.py](https://github.com/parafoxia/analytix/blob/main/examples/overview.py) — Plots your channel's views, watch time, subscribers, and estimated revenue over the last 28 days.
 
 ## License
 
