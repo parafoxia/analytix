@@ -55,6 +55,7 @@ jobs:
           - "pypy-3.9"
 
     name: Test
+    needs: [run-checks]
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -85,7 +86,7 @@ jobs:
   upload-coverage:
     if: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' }}
     name: Upload coverage
-    needs: [run-checks, run-tests]
+    needs: [run-tests]
     runs-on: ubuntu-latest
 
     steps:
