@@ -10,4 +10,4 @@ Note that each example requires a secrets file, which is not provided.
 
 These examples (and ONLY these examples) are put into the public domain via [The Unlicense](https://github.com/parafoxia/analytix/blob/main/examples/LICENSE).
 
-The *analytix* module for Python is licensed under the [BSD 3-Clause License](https://github.com/parafoxia/analytix/blob/main/LICENSE).
+The analytix module for Python is licensed under the [BSD 3-Clause License](https://github.com/parafoxia/analytix/blob/main/LICENSE).
