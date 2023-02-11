@@ -54,6 +54,8 @@ _log = logging.getLogger(__name__)
 class DataType(Enum):
     """An enum representing data types. Can be `STRING`, `INTEGER`,
     or `FLOAT`.
+
+    *New in version 3.0.0.*
     """
 
     STRING = "STRING"
@@ -64,6 +66,8 @@ class DataType(Enum):
 class ColumnType(Enum):
     """An enum representing column types. Can be `DIMENSION` or
     `METRIC`.
+
+    *New in version 3.0.0.*
     """
 
     DIMENSION = "DIMENSION"
@@ -76,6 +80,8 @@ class ColumnHeader:
 
     Column headers contain various information about the columns in the
     report. You will never need to create one of these yourself.
+
+    *New in version 3.0.0.*
 
     Parameters
     ----------
@@ -106,6 +112,8 @@ class ColumnHeader:
     def data(self) -> ResponseT:
         """The raw data for this column header in JSON format.
 
+        *New in version 4.0.0.*
+
         Returns
         -------
         dict of str-Any
@@ -125,6 +133,8 @@ class ResultTable:
 
     This is the resource type that gets sent from the YouTube Analytics
     API.
+
+    *New in version 4.0.0.*
 
     Parameters
     ----------
@@ -161,6 +171,8 @@ class ResultTable:
     def from_json(cls, data: ResponseT) -> ResultTable:
         """Create a new `ResultTable` instance from JSON data.
 
+        *New in version 4.0.0.*
+
         Parameters
         ----------
         data : JSON object
@@ -189,6 +201,8 @@ class ResultTable:
     def data(self) -> ResponseT:
         """The raw data for this result table in JSON format.
 
+        *New in version 4.0.0.*
+
         Returns
         -------
         dict of str-Any
@@ -208,6 +222,9 @@ class AnalyticsReport:
     This does not represent a direct resultTable resource, but instead
     provides additional methods on top of one, largely designed to save
     the report data into different formats.
+
+    *Changed in version 4.0.0:* The `data` attribute no longer exists,
+    and the `resource` attribute has been added in its place.
 
     Parameters
     ----------
@@ -249,6 +266,8 @@ class AnalyticsReport:
 
         This is presented in (rows, columns) format.
 
+        *New in version 2.0.0.*
+
         Returns
         -------
         tuple of two ints
@@ -273,6 +292,10 @@ class AnalyticsReport:
     def columns(self) -> list[str]:
         """A list of all columns names in the report.
 
+        *New in version 2.0.0.*
+
+        *Changed in version 3.5.0:* This is now a property.
+
         Returns
         -------
         list of str
@@ -288,6 +311,11 @@ class AnalyticsReport:
     @property
     def dimensions(self) -> list[str]:
         """A list of all dimensions in the report.
+
+        *New in version 3.3.0.*
+
+        *Changed in version 4.0.0:* This now returns a list of ordered
+        dimensions.
 
         Returns
         -------
@@ -305,6 +333,11 @@ class AnalyticsReport:
     def metrics(self) -> list[str]:
         """A list of all metrics in the report.
 
+        *New in version 3.3.0.*
+
+        *Changed in version 4.0.0:* This now returns a list of ordered
+        metrics.
+
         Returns
         -------
         list of str
@@ -321,6 +354,8 @@ class AnalyticsReport:
     def numeric(self) -> list[str]:
         """A list of all numerical columns in the report.
 
+        *New in version 4.0.0.*
+
         Returns
         -------
         list of str
@@ -336,6 +371,8 @@ class AnalyticsReport:
     @property
     def non_numeric(self) -> list[str]:
         """A list of all non-numerical columns in the report.
+
+        *New in version 4.0.0.*
 
         Returns
         -------
@@ -356,6 +393,10 @@ class AnalyticsReport:
 
         This saves the data as it arrived from the YouTube Analytics
         API.
+
+        *New in version 1.0.0.*
+
+        *Changed in version 4.0.0:* Added the `overwrite` parameter.
 
         Parameters
         ----------
@@ -403,6 +444,12 @@ class AnalyticsReport:
         pass a tab character as a delimiter, the file will be saved as
         a TSV. It will be saved as a CSV in all other cases.
 
+        *New in version 1.0.0.*
+
+        *Changed in version 3.0.0:* Added TSV support.
+
+        *Changed in version 4.0.0:* Added the `overwrite` parameter.
+
         Parameters
         ----------
         path : Path object or str
@@ -443,6 +490,10 @@ class AnalyticsReport:
         self, path: PathLikeT, *, sheet_name: str = "Analytics", overwrite: bool = True
     ) -> None:
         """Save this report as an Excel spreadsheet.
+
+        *New in version 3.1.0.*
+
+        *Changed in version 4.0.0:* Added the `overwrite` parameter.
 
         Parameters
         ----------
@@ -495,9 +546,14 @@ class AnalyticsReport:
     def to_pandas(self, *, skip_date_conversion: bool = False) -> pd.DataFrame:
         """Return this report as a pandas DataFrame.
 
-        If Modin is installed, it will automatically be used instead of
-        pandas. However, you will need to select and initialise your
-        preferred engine before calling this method.
+        *New in version 1.0.0.*
+
+        *Changed in version 3.0.0:* Added `skip_date_conversion`
+        parameter.
+
+        *Changed in version 3.1.0:* Added native Modin support.
+
+        *Changed in version 4.0.0:* Removed native Modin support.
 
         Parameters
         ----------
@@ -549,6 +605,8 @@ class AnalyticsReport:
     @requires("pyarrow")
     def to_arrow(self, *, skip_date_conversion: bool = False) -> pa.Table:
         """Return this report as a Apache Arrow table.
+
+        *New in version 3.2.0.*
 
         Parameters
         ----------
@@ -604,6 +662,8 @@ class AnalyticsReport:
     @requires("polars")
     def to_polars(self, *, skip_date_conversion: bool = False) -> pl.DataFrame:
         """Return the data as a Polars DataFrame.
+
+        *New in version 3.6.0.*
 
         Parameters
         ----------
@@ -671,6 +731,8 @@ class AnalyticsReport:
         To do this, the data is first converted to an Apache Arrow
         table, which is returned from the method.
 
+        *New in version 3.2.0*.
+
         Parameters
         ----------
         path : Path object or str
@@ -719,6 +781,8 @@ class AnalyticsReport:
 
         To do this, the data is first converted to an Apache Arrow
         table, which is returned from the method.
+
+        *New in version 3.2.0*.
 
         Parameters
         ----------
