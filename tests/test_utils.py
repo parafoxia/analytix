@@ -29,6 +29,7 @@
 import logging
 import sys
 import warnings
+from pathlib import Path
 
 import pytest
 
@@ -121,3 +122,29 @@ def test_warn_on_call_without_logger(_):
         assert len(w) == 1
         assert issubclass(w[-1].category, Warning)
         assert "Sandstorm warning!" in str(w[-1].message)
+
+
+def test_process_path_string_no_extension():
+    assert utils.process_path("report", ".json", False) == Path("report.json")
+
+
+@pytest.mark.dependency()
+def test_process_path_string_with_extension():
+    assert utils.process_path("report.json", ".json", False) == Path("report.json")
+
+
+def test_process_path_pathlib():
+    assert utils.process_path(Path("report"), ".json", False) == Path("report.json")
+
+
+@mock.patch.object(Path, "is_file", return_value=True)
+def test_process_path_file_exists_overwrite(_):
+    assert utils.process_path("report", ".json", True) == Path("report.json")
+
+
+@mock.patch.object(Path, "is_file", return_value=True)
+def test_process_path_file_exists_dont_overwrite(_):
+    with pytest.raises(
+        FileExistsError, match="file already exists and `overwrite` is set to False"
+    ):
+        assert utils.process_path("report", ".json", False)
