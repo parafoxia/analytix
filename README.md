@@ -60,12 +60,13 @@ You may need to prefix these commands with a call to the Python interpreter depe
 You can also install analytix with additional libraries to provide extra functionality:
 
 * `analytix[excel]` — support for exporting reports to Excel spreadsheets
+* `analytix[plots]` — support for plotting graphs for reports
 * `analytix[types]` — type stubs for type-hinted projects
 
 To install multiple at once, use commas:
 
 ```sh
-pip install "analytix[excel,types]"
+pip install "analytix[excel,plots,types]"
 ```
 
 Note that while analytix includes native support for DataFrame and Arrow table conversions, these libraries are not installed automatically.
@@ -125,6 +126,13 @@ table = report.to_arrow()
 
 # Return as a Polars DataFrame:
 df = report.to_polars()
+```
+
+If you want to quickly plot the data, you can use the in-built plotter:
+
+```py
+plot = report.plot(("views",), size=(12, 6))
+plot.save("figure.png")
 ```
 
 You can also fetch groups and group items:
