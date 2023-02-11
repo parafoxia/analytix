@@ -72,8 +72,8 @@ class Plot(metaclass=abc.ABCMeta):
     @cache
     def subplots(self) -> tuple[int, int]:
         x = len(self.metrics)
-        rows = math.ceil(x**0.5)
-        return rows, math.ceil(x / rows)
+        columns = math.ceil(x**0.5)
+        return math.ceil(x / columns), columns
 
     @property
     def dimension(self) -> str:
@@ -142,7 +142,6 @@ class PiePlot(Plot):
             _log.debug(f"Using labels: {labels}")
             axs[i].pie(sizes, labels=labels, autopct="%.0f%%", pctdistance=0.75)
             axs[i].set_title(metric)
-            axs[i].axis("equal")
 
         fig.suptitle(self.title)
         return fig
