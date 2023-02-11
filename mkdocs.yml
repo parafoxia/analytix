@@ -98,4 +98,5 @@ nav:
     - "reference/errors.md"
     - "reference/oidc.md"
     - "reference/reports.md"
+    - "reference/reports-plots.md"
     - "reference/ux.md"

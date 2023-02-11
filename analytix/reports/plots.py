@@ -26,6 +26,8 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+"""Plotting inferfaces for analytix."""
+
 from __future__ import annotations
 
 import abc
@@ -52,6 +54,37 @@ _log = logging.getLogger(__name__)
 
 
 class Plot(metaclass=abc.ABCMeta):
+    """An abstract base class for all plot types.
+
+    You should never instantiate this class manually.
+
+    Parameters
+    ----------
+    resource : ResultTable
+        The resource to extract the data from.
+    title : str
+        The title which will be displayed at the top of the plot.
+    metrics : t.Collection[str]
+        The metrics to plot.
+    size : tuple[int, int] | None
+        The width and height of the report in inches.
+
+    Attributes
+    ----------
+    data : dict[str, tuple[int | float, ...]]
+        The processed data ready to plot.
+    title : str
+        The title which will be displayed at the top of the plot.
+    metrics : t.Collection[str]
+        The metrics to plot.
+    size : tuple[int, int] | None
+        The width and height of the report in inches.
+    figure : Figure object
+        The created Matplotlib figure.
+    """
+
+    __slots__ = ("data", "title", "metrics", "size", "figure")
+
     def __init__(
         self,
         resource: ResultTable,
@@ -71,12 +104,33 @@ class Plot(metaclass=abc.ABCMeta):
     @property
     @cache
     def subplots(self) -> tuple[int, int]:
+        """The number of rows and columns to use for a given number of
+        plots.
+
+        This tends to skew toward squareness over utilisation, meaning,
+        for example, if there are 7 metrics to plot, it will select 3x3
+        over 4x2.
+
+        Returns
+        -------
+        tuple[int, int]
+            The number of rows and columns to use.
+        """
+
         x = len(self.metrics)
         columns = math.ceil(x**0.5)
         return math.ceil(x / columns), columns
 
     @property
     def dimension(self) -> str:
+        """The dimension for the plot.
+
+        Returns
+        -------
+        str
+            The dimension for the plot.
+        """
+
         return tuple(self.data.keys())[0]
 
     def _build_subplots(self) -> tuple[Figure, list[Axes]]:
@@ -87,18 +141,54 @@ class Plot(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def plot(self) -> Figure:
+        """Plot the report.
+
+        This method needs to be reimplemented in every child class.
+
+        Returns
+        -------
+        Figure
+            The created Matplotlib figure.
+        """
+
         raise NotImplementedError
 
     def show(self) -> None:
+        """Show the plot.
+
+        Returns
+        -------
+        None
+        """
+
         plt.show()
 
     def save(self, path: PathLikeT, *, overwrite: bool = True) -> None:
+        """Save the plot to disk.
+
+        Parameters
+        ----------
+        path : Path object or str
+            The path to save the plot to.
+        overwrite : bool, optional
+            Whether to overwrite an existing file.
+
+        Returns
+        -------
+        None
+        """
+
         path = process_path(path, "", overwrite)
         self.figure.savefig(path)
         _log.info(f"Saved plot to {path.resolve()}")
 
 
 class TimeSeriesPlot(Plot):
+    """A representation of a time-series analytics report plot.
+
+    This will be plotted as a line graph.
+    """
+
     def plot(self) -> Figure:
         fig, axs = self._build_subplots()
         _log.debug(f"Created figure with {len(axs)} axes")
@@ -115,10 +205,16 @@ class TimeSeriesPlot(Plot):
 
         fig.suptitle(self.title)
         fig.autofmt_xdate(rotation=45)
+        fig.tight_layout()
         return fig
 
 
-class PiePlot(Plot):
+class CategoricalPlot(Plot):
+    """A representation of a categorical analytics report plot.
+
+    This will be plotted as a pie chart.
+    """
+
     def plot(self) -> Figure:
         fig, axs = self._build_subplots()
         _log.debug(f"Created figure with {len(axs)} axes")
@@ -144,4 +240,5 @@ class PiePlot(Plot):
             axs[i].set_title(metric)
 
         fig.suptitle(self.title)
+        fig.tight_layout()
         return fig

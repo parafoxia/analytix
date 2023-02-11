@@ -224,6 +224,8 @@ class AnalyticsReport:
         The report type.
     """
 
+    __slots__ = ("resource", "type", "_shape")
+
     def __init__(self, data: ResponseT, type: ReportType) -> None:
         self.resource = ResultTable.from_json(data)
         self.type = type
@@ -761,6 +763,66 @@ class AnalyticsReport:
         *,
         size: tuple[int, int] | None = None,
     ) -> Plot:
+        """Plots report data.
+
+        This method is largely automatic in that analytix will
+        automatically select the most conventionally appropriate way to
+        represent the data. Many formatting options are abstracted away
+        from you, so you will need to do you own plotting if you need
+        more than what this method can do.
+
+        If a pie chart is created, only a maximum of 10 wedges are
+        included. The first 9 will represent the data with the largest
+        values, and the final wedge will represent the rest of the data.
+
+        Parameters
+        ----------
+        metrics : Collection of str, optional
+            The metrics to plot. Each metric is plotted on it's own
+            subplot. If no metrics are provided, the first available
+            metric is used.
+        size : tuple of two ints, optional
+            The width and height of the figure in inches. If this is
+            not provided, Matplotlib determines the size automatically.
+
+        Returns
+        -------
+        Plot
+            The plot instance.
+
+        Raises
+        ------
+        PlottingError
+            Something went wrong during plotting.
+
+        !!! note
+            This requires `matplotlib` to be installed to use, which is
+            an optional dependency. It can be installed using `pip
+            install analytix[plots]`.
+
+        ??? example "Basic example"
+            ```py
+            >>> plot = report.plot()
+            ```
+
+        ??? example "Advanced example"
+            ```py
+            >>> plot = report.plot(("views", "likes"), size=(12, 6))
+            ```
+
+        ??? example "Showing the plot"
+            ```py
+            >>> plot = report.plot(("views",))
+            >>> plot.show()
+            ```
+
+        ??? example "Saving the plot"
+            ```py
+            >>> plot = report.plot(("views",))
+            >>> plot.save("figure.png")
+            ```
+        """
+
         from analytix.reports import plots
 
         if len(self.dimensions) != 1:
@@ -769,9 +831,15 @@ class AnalyticsReport:
         dimension = self.dimensions[0]
         metrics = metrics or (self.metrics[0],)
 
+        diff = set(metrics) - set(self.metrics)
+        if diff:
+            raise errors.PlottingError(
+                f"cannot plot non-existent metrics: {', '.join(diff)}"
+            )
+
         if dimension in ("day", "month"):
             _log.info("Plotting line graph for time-series data")
             return plots.TimeSeriesPlot(self.resource, str(self.type), metrics, size)
 
         _log.info("Plotting pie chart for categorical data")
-        return plots.PiePlot(self.resource, str(self.type), metrics, size)
+        return plots.CategoricalPlot(self.resource, str(self.type), metrics, size)
