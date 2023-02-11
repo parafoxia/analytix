@@ -123,3 +123,7 @@ class InvalidFeatureSet(InvalidRequest):
     def __init__(self, type: str, expd: str, recv: int, values: set[str]) -> None:
         val_list = ", ".join(values)
         super().__init__(f"expected {expd} {type}(s) from [ {val_list} ], got {recv}")
+
+
+class PlottingError(AnalytixError):
+    """Exception thrown when plotting a report fails."""

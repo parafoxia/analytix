@@ -45,6 +45,7 @@ if t.TYPE_CHECKING:
     import pyarrow as pa
 
     from analytix.abc import ReportType
+    from analytix.reports.plots import Plot
     from analytix.types import PathLikeT, ResponseT
 
 _log = logging.getLogger(__name__)
@@ -752,3 +753,25 @@ class AnalyticsReport:
         pq.write_table(table, path)
         _log.info(f"Saved report as Apache Parquet file to {path.resolve()}")
         return table
+
+    @requires("matplotlib")
+    def plot(
+        self,
+        metrics: t.Collection[str] | None = None,
+        *,
+        size: tuple[int, int] | None = None,
+    ) -> Plot:
+        from analytix.reports import plots
+
+        if len(self.dimensions) != 1:
+            raise errors.PlottingError("the report must have exactly one dimension")
+
+        dimension = self.dimensions[0]
+        metrics = metrics or (self.metrics[0],)
+
+        if dimension in ("day", "month"):
+            _log.info("Plotting line graph for time-series data")
+            return plots.TimeSeriesPlot(self.resource, str(self.type), metrics, size)
+
+        _log.info("Plotting pie chart for categorical data")
+        return plots.PiePlot(self.resource, str(self.type), metrics, size)
