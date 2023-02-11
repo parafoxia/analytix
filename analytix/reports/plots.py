@@ -200,7 +200,31 @@ class TimeSeriesPlot(Plot):
 
         for i, metric in enumerate(self.metrics):
             _log.debug(f"Plotting subplot for {metric!r}")
+
             axs[i].plot(x_axis, self.data[metric])
+            axs[i].set_ylabel(metric)
+
+        fig.suptitle(self.title)
+        fig.autofmt_xdate(rotation=45)
+        fig.tight_layout()
+        return fig
+
+
+class LinearPlot(Plot):
+    """A representation of a linear analytics report plot.
+
+    This will be plotted as a line graph.
+    """
+
+    def plot(self) -> Figure:
+        fig, axs = self._build_subplots()
+        _log.debug(f"Created figure with {len(axs)} axes")
+
+        for i, metric in enumerate(self.metrics):
+            _log.debug(f"Plotting subplot for {metric!r}")
+
+            axs[i].plot(self.data[self.dimension], self.data[metric])
+            axs[i].set_xlabel(self.dimension)
             axs[i].set_ylabel(metric)
 
         fig.suptitle(self.title)
@@ -222,6 +246,8 @@ class CategoricalPlot(Plot):
         all_labels = np.array(self.data[self.dimension])
 
         for i, metric in enumerate(self.metrics):
+            _log.debug(f"Plotting subplot for {metric!r}")
+
             if max(self.data[metric]) == 0:
                 raise PlottingError(f"no data to plot for {metric!r}")
 

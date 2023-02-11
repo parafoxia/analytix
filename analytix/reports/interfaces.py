@@ -841,5 +841,9 @@ class AnalyticsReport:
             _log.info("Plotting line graph for time-series data")
             return plots.TimeSeriesPlot(self.resource, str(self.type), metrics, size)
 
+        if dimension == "elapsedVideoTimeRatio":
+            _log.info("Plotting line graph for linear data")
+            return plots.LinearPlot(self.resource, str(self.type), metrics, size)
+
         _log.info("Plotting pie chart for categorical data")
         return plots.CategoricalPlot(self.resource, str(self.type), metrics, size)
