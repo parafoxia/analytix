@@ -775,6 +775,8 @@ class AnalyticsReport:
         included. The first 9 will represent the data with the largest
         values, and the final wedge will represent the rest of the data.
 
+        *New in version 4.2.0.*
+
         Parameters
         ----------
         metrics : Collection of str, optional

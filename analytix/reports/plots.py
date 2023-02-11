@@ -58,6 +58,8 @@ class Plot(metaclass=abc.ABCMeta):
 
     You should never instantiate this class manually.
 
+    *New in version 4.2.0.*
+
     Parameters
     ----------
     resource : ResultTable
@@ -111,6 +113,8 @@ class Plot(metaclass=abc.ABCMeta):
         for example, if there are 7 metrics to plot, it will select 3x3
         over 4x2.
 
+        *New in version 4.2.0.*
+
         Returns
         -------
         tuple[int, int]
@@ -124,6 +128,8 @@ class Plot(metaclass=abc.ABCMeta):
     @property
     def dimension(self) -> str:
         """The dimension for the plot.
+
+        *New in version 4.2.0.*
 
         Returns
         -------
@@ -145,6 +151,8 @@ class Plot(metaclass=abc.ABCMeta):
 
         This method needs to be reimplemented in every child class.
 
+        *New in version 4.2.0.*
+
         Returns
         -------
         Figure
@@ -156,6 +164,8 @@ class Plot(metaclass=abc.ABCMeta):
     def show(self) -> None:
         """Show the plot.
 
+        *New in version 4.2.0.*
+
         Returns
         -------
         None
@@ -165,6 +175,8 @@ class Plot(metaclass=abc.ABCMeta):
 
     def save(self, path: PathLikeT, *, overwrite: bool = True) -> None:
         """Save the plot to disk.
+
+        *New in version 4.2.0.*
 
         Parameters
         ----------
@@ -187,6 +199,8 @@ class LinearPlot(Plot):
     """A representation of a linear analytics report plot.
 
     This will be plotted as a line graph.
+
+    *New in version 4.2.0.*
     """
 
     @property
@@ -215,6 +229,8 @@ class TimeSeriesPlot(LinearPlot):
     """A representation of a time-series analytics report plot.
 
     This will be plotted as a line graph.
+
+    *New in version 4.2.0.*
     """
 
     @property
@@ -230,6 +246,8 @@ class CategoricalPlot(Plot):
     """A representation of a categorical analytics report plot.
 
     This will be plotted as a pie chart.
+
+    *New in version 4.2.0.*
     """
 
     def plot(self) -> Figure:
