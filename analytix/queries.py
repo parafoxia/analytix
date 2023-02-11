@@ -115,7 +115,7 @@ class ReportQuery:
         )
 
     def validate(self) -> None:
-        _log.info("Validating request...")
+        _log.info("Validating request")
 
         if self.max_results < 0:
             raise InvalidRequest(
