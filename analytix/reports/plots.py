@@ -183,39 +183,17 @@ class Plot(metaclass=abc.ABCMeta):
         _log.info(f"Saved plot to {path.resolve()}")
 
 
-class TimeSeriesPlot(Plot):
-    """A representation of a time-series analytics report plot.
-
-    This will be plotted as a line graph.
-    """
-
-    def plot(self) -> Figure:
-        fig, axs = self._build_subplots()
-        _log.debug(f"Created figure with {len(axs)} axes")
-
-        x_axis = [
-            dt.datetime.strptime(x, "%Y-%m-%d" if self.dimension == "day" else "%Y-%m")
-            for x in self.data[self.dimension]
-        ]
-
-        for i, metric in enumerate(self.metrics):
-            _log.debug(f"Plotting subplot for {metric!r}")
-
-            axs[i].plot(x_axis, self.data[metric])
-            axs[i].set_ylabel(metric)
-
-        fig.suptitle(self.title)
-        fig.autofmt_xdate(rotation=45)
-        fig.tight_layout()
-        return fig
-
-
 class LinearPlot(Plot):
     """A representation of a linear analytics report plot.
 
     This will be plotted as a line graph.
     """
 
+    @property
+    @cache
+    def _x_axis(self) -> list[t.Any]:
+        return list(self.data[self.dimension])
+
     def plot(self) -> Figure:
         fig, axs = self._build_subplots()
         _log.debug(f"Created figure with {len(axs)} axes")
@@ -223,7 +201,7 @@ class LinearPlot(Plot):
         for i, metric in enumerate(self.metrics):
             _log.debug(f"Plotting subplot for {metric!r}")
 
-            axs[i].plot(self.data[self.dimension], self.data[metric])
+            axs[i].plot(self._x_axis, self.data[metric])
             axs[i].set_xlabel(self.dimension)
             axs[i].set_ylabel(metric)
 
@@ -231,6 +209,21 @@ class LinearPlot(Plot):
         fig.autofmt_xdate(rotation=45)
         fig.tight_layout()
         return fig
+
+
+class TimeSeriesPlot(LinearPlot):
+    """A representation of a time-series analytics report plot.
+
+    This will be plotted as a line graph.
+    """
+
+    @property
+    @cache
+    def _x_axis(self) -> list[t.Any]:
+        return [
+            dt.datetime.strptime(x, "%Y-%m-%d" if self.dimension == "day" else "%Y-%m")
+            for x in self.data[self.dimension]
+        ]
 
 
 class CategoricalPlot(Plot):
