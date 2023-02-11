@@ -94,6 +94,8 @@ class AsyncBaseClient:
     and manage analytix "shards", though utilities are available to help
     with that.
 
+    *New in version 4.0.0.*
+
     Parameters
     ----------
     secrets_file : Path object or str
@@ -202,6 +204,8 @@ class AsyncBaseClient:
         This should be called before your program ends. If you're using
         the client in a context manager, this is done automatically.
 
+        *New in version 4.0.0.*
+
         Returns
         -------
         None
@@ -228,6 +232,8 @@ class AsyncBaseClient:
         users using your application at once, one shard should be
         spawned for each user. The shard is destroyed upon exiting the
         context.
+
+        *New in version 4.0.0.*
 
         Parameters
         ----------
@@ -262,6 +268,10 @@ class AsyncClient(AsyncBaseClient):
 
     This client is functionally identical to the standard client, but
     aimed at use in async applications.
+
+    *New in version 3.0.0.*
+
+    *Changed in version 4.0.0:* Completely rewrote class.
 
     !!! info "See also"
         This client is functionally identical to the `Client`. Refer to
@@ -463,6 +473,10 @@ class Client:
     This client adds self-authorisation routines on top of the base
     client, and as such is more suitable to the everyday user.
 
+    *New in version 1.0.0.*
+
+    *Changed in version 2.0.0-4.0.0:* Complete rewrites.
+
     Parameters
     ----------
     secrets_file : Path object or str
@@ -605,6 +619,8 @@ class Client:
     def active_tokens(self) -> str | None:
         """Return the ID of the currently active tokens.
 
+        *New in version 4.0.0.*
+
         Returns
         -------
         str
@@ -628,6 +644,19 @@ class Client:
         authorise the client. This means that active and loadable tokens
         will be prioritised, and the full auth flow will only trigger
         when necessary. Token refreshing is handled automatically.
+
+        *New in version 2.0.0.*
+
+        *Changed in version 3.0.0:* You can now choose where tokens are
+        stored.
+
+        *Changed in version 3.4.0:* Added the `port` parameter. Added
+        support for loopback IP address authorisation.
+
+        *Changed in version 4.0.0:* Added support for multiple sets of
+        tokens and automatic refreshing of access tokens. The `port`
+        parameter is now part of the class constructor. Removed support
+        for out-of-bounds authorisation.
 
         Parameters
         ----------
@@ -685,6 +714,17 @@ class Client:
 
         If the client is not already authorised, it will try and
         authorise itself.
+
+        *New in version 1.0.0.*
+
+        *Changed in version 2.0.0:* Verification is now required. Made
+        the `start_date` parameter required.
+
+        *Changed in version 3.0.0:* Made the `start_date` optional.
+
+        *Changed in version 4.0.0:* Removed the `skip_validation`,
+        `force_authorisation`, `skip_update_check`,
+        `skip_refresh_check`, `token_path`, and `port` parameters.
 
         Parameters
         ----------
@@ -801,6 +841,8 @@ class Client:
     ) -> GroupList:
         """Fetch the list of all your channel's groups.
 
+        *New in version 4.0.0.*
+
         Parameters
         ----------
         ids : Collection of str, optional
@@ -841,6 +883,8 @@ class Client:
 
     def fetch_group_items(self, group_id: str) -> GroupItemList:
         """Fetch the items of a specific group.
+
+        *New in version 4.0.0.*
 
         Parameters
         ----------
