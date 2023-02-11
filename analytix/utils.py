@@ -28,18 +28,21 @@
 
 from __future__ import annotations
 
-__all__ = ("can_use", "requires", "warn", "warn_on_call")
+__all__ = ("can_use", "requires", "warn", "warn_on_call", "process_path")
 
 import logging
 import typing as t
 import warnings
 from functools import wraps
+from pathlib import Path
 
 from pkg_resources import working_set
 
 from analytix.errors import MissingOptionalComponents
 
 if t.TYPE_CHECKING:
+    from analytix.types import PathLikeT
+
     _FuncT = t.Callable[..., t.Any]
 
 _log = logging.getLogger(__name__)
@@ -84,3 +87,16 @@ def warn_on_call(message: str) -> t.Callable[[_FuncT], _FuncT]:
         return wrapper
 
     return decorator
+
+
+def process_path(path: PathLikeT, extension: str, overwrite: bool) -> Path:
+    if not isinstance(path, Path):
+        path = Path(path)
+
+    if path.suffix != extension:
+        path = Path(path.name + extension)
+
+    if not overwrite and path.is_file():
+        raise FileExistsError("file already exists and `overwrite` is set to False")
+
+    return path

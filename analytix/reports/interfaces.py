@@ -35,10 +35,9 @@ import logging
 import typing as t
 from dataclasses import dataclass
 from enum import Enum
-from pathlib import Path
 
 from analytix import errors
-from analytix.utils import requires
+from analytix.utils import process_path, requires
 
 if t.TYPE_CHECKING:
     import pandas as pd
@@ -347,20 +346,6 @@ class AnalyticsReport:
             if c.data_type == DataType.STRING
         ]
 
-    def _set_and_validate_path(
-        self, path: PathLikeT, extension: str, overwrite: bool
-    ) -> Path:
-        if not isinstance(path, Path):
-            path = Path(path)
-
-        if path.suffix != extension:
-            path = Path(path.name + extension)
-
-        if not overwrite and path.is_file():
-            raise FileExistsError("file already exists and `overwrite` is set to False")
-
-        return path
-
     def to_json(
         self, path: PathLikeT, *, indent: int | None = 4, overwrite: bool = True
     ) -> ResponseT:
@@ -397,7 +382,7 @@ class AnalyticsReport:
             ```
         """
 
-        path = self._set_and_validate_path(path, ".json", overwrite)
+        path = process_path(path, ".json", overwrite)
         data = self.resource.data
 
         with open(path, "w") as f:
@@ -440,7 +425,7 @@ class AnalyticsReport:
         """
 
         extension = ".tsv" if delimiter == "\t" else ".csv"
-        path = self._set_and_validate_path(path, extension, overwrite)
+        path = process_path(path, extension, overwrite)
 
         with open(path, "w") as f:
             f.write(f"{delimiter.join(self.columns)}\n")
@@ -491,7 +476,7 @@ class AnalyticsReport:
 
         from openpyxl import Workbook
 
-        path = self._set_and_validate_path(path, ".xlsx", overwrite)
+        path = process_path(path, ".xlsx", overwrite)
         wb = Workbook()
         ws = wb.active
         ws.title = sheet_name
@@ -713,7 +698,7 @@ class AnalyticsReport:
 
         import pyarrow.feather as pf
 
-        path = self._set_and_validate_path(path, ".feather", overwrite)
+        path = process_path(path, ".feather", overwrite)
         table = self.to_arrow(skip_date_conversion=skip_date_conversion)
         pf.write_feather(table, path)
         _log.info(f"Saved report as Apache Feather file to {path.resolve()}")
@@ -762,7 +747,7 @@ class AnalyticsReport:
 
         import pyarrow.parquet as pq
 
-        path = self._set_and_validate_path(path, ".parquet", overwrite)
+        path = process_path(path, ".parquet", overwrite)
         table = self.to_arrow(skip_date_conversion=skip_date_conversion)
         pq.write_table(table, path)
         _log.info(f"Saved report as Apache Parquet file to {path.resolve()}")
