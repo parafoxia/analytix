@@ -131,4 +131,6 @@ def enable_logging(level: int = logging.INFO) -> logging.StreamHandler[t.TextIO]
         level=level,
         handlers=[handler],
     )
+
+    logging.getLogger("matplotlib.font_manager").setLevel(logging.WARNING)
     return handler
