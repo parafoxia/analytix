@@ -69,6 +69,7 @@ from contextlib import contextmanager
 from functools import partial
 from pathlib import Path
 from types import TracebackType
+from warnings import warn
 
 from aiohttp import ClientSession
 
@@ -194,9 +195,7 @@ class AsyncBaseClient:
             latest = (await resp.json())["info"]["version"]
 
         if analytix.__version__ != latest:
-            _log.warning(
-                f"You do not have the latest stable version of analytix (v{latest})"
-            )
+            warn(f"You do not have the latest stable version of analytix (v{latest})")
 
     async def teardown(self) -> None:
         """Tears the client down.

@@ -31,6 +31,7 @@ from __future__ import annotations
 import asyncio
 import json
 import sys
+import warnings
 from asyncio import AbstractEventLoop
 from os import _Environ
 
@@ -131,12 +132,13 @@ async def test_client_context_manager(client: AsyncBaseClient):
     "get",
     return_value=MockResponse('{"info": {"version": "0.69.420"}}'),
 )
-async def test_client_check_for_updates(_, client: AsyncBaseClient, caplog):
-    await client._check_for_updates()
-    assert (
-        "You do not have the latest stable version of analytix (v0.69.420)"
-        in caplog.text
-    )
+async def test_client_check_for_updates(_, client: AsyncBaseClient):
+    with warnings.catch_warnings(record=True) as warns:
+        await client._check_for_updates()
+        assert (
+            "You do not have the latest stable version of analytix (v0.69.420)"
+            in str(warns[0].message)
+        )
 
 
 @pytest.mark.dependency(depends=["test_client_check_for_updates"])
@@ -148,12 +150,13 @@ async def test_client_check_for_updates(_, client: AsyncBaseClient, caplog):
 )
 @mock.patch("builtins.open", mock.mock_open(read_data=create_secrets_file()))
 async def test_client_check_for_updates_on_init(_, __, caplog):
-    AsyncBaseClient("secrets.json")
-    await asyncio.sleep(0.1)
-    assert (
-        "You do not have the latest stable version of analytix (v0.69.420)"
-        in caplog.text
-    )
+    with warnings.catch_warnings(record=True) as warns:
+        AsyncBaseClient("secrets.json")
+        await asyncio.sleep(0.1)  # This is needed to let it catch up.
+        assert (
+            "You do not have the latest stable version of analytix (v0.69.420)"
+            in str(warns[0].message)
+        )
 
 
 @mock.patch.object(
