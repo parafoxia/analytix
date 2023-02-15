@@ -33,8 +33,11 @@ from __future__ import annotations
 __all__ = ("display_splash", "enable_logging")
 
 import logging
+import os
 import platform
+import sys
 import typing as t
+import warnings
 from importlib.util import find_spec
 
 import analytix
@@ -127,8 +130,28 @@ def enable_logging(level: int = logging.INFO) -> logging.StreamHandler[t.TextIO]
 
     handler = logging.StreamHandler()
     handler.setFormatter(CustomFormatter())
-    logging.basicConfig(
-        level=level,
-        handlers=[handler],
-    )
+    logging.basicConfig(level=level, handlers=[handler])
+    logging.logThreads = False
+    logging.logProcesses = False
+    logging.logMultiprocessing = False
+
+    def showwarning(
+        message: Warning | str,
+        category: type[Warning],
+        filename: str,
+        lineno: int,
+        file: t.TextIO | None = None,
+        line: str | None = None,
+    ) -> None:
+        for module_name, module in sys.modules.items():
+            module_path = getattr(module, "__file__", None)
+            if module_path and os.path.samefile(module_path, filename):
+                break
+        else:
+            module_name = os.path.splitext(os.path.split(filename)[1])[0]
+        log = logging.getLogger(module_name)
+        log.warning(message)
+
+    warnings.showwarning = showwarning
+
     return handler

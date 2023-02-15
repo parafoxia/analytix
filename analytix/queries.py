@@ -33,12 +33,14 @@ __all__ = ("ReportQuery", "GroupQuery", "GroupItemQuery")
 import datetime as dt
 import logging
 import typing as t
+import warnings
 
 import analytix
 from analytix.abc import ReportType
 from analytix.errors import InvalidRequest
 from analytix.reports import data
 from analytix.reports import types as rt
+from analytix.warnings import InvalidMonthFormatWarning
 
 _log = logging.getLogger(__name__)
 
@@ -133,9 +135,10 @@ class ReportQuery:
 
         if "month" in self.dimensions:
             if self._start_date.day != 1 or self._end_date.day != 1:
-                _log.warning(
+                warnings.warn(
                     "Correcting start and end dates -- if 'month' is passed as a "
-                    "dimension, these should always be the first day of the month"
+                    "dimension, these should always be the first day of the month",
+                    InvalidMonthFormatWarning,
                 )
                 self._start_date = dt.date(
                     self._start_date.year, self._start_date.month, 1

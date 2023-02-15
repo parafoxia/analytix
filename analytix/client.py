@@ -64,6 +64,7 @@ import logging
 import os
 import sys
 import typing as t
+import warnings
 import webbrowser
 from contextlib import contextmanager
 from functools import partial
@@ -78,6 +79,7 @@ from analytix.errors import AuthorisationError, RefreshTokenExpired
 from analytix.groups import GroupItemList, GroupList
 from analytix.reports import AnalyticsReport
 from analytix.shard import Shard
+from analytix.warnings import NotUpdatedWarning
 
 if t.TYPE_CHECKING:
     from analytix.types import OptionalPathLikeT, PathLikeT
@@ -192,8 +194,9 @@ class AsyncBaseClient:
             latest = (await resp.json())["info"]["version"]
 
         if analytix.__version__ != latest:
-            _log.warning(
-                f"You do not have the latest stable version of analytix (v{latest})"
+            warnings.warn(
+                f"You do not have the latest stable version of analytix (v{latest})",
+                NotUpdatedWarning,
             )
 
     async def teardown(self) -> None:

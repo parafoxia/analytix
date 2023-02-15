@@ -28,11 +28,10 @@
 
 from __future__ import annotations
 
-__all__ = ("can_use", "requires", "warn", "warn_on_call", "process_path")
+__all__ = ("can_use", "requires", "process_path")
 
 import logging
 import typing as t
-import warnings
 from functools import wraps
 from pathlib import Path
 
@@ -63,25 +62,6 @@ def requires(*packages: str) -> t.Callable[[_FuncT], _FuncT]:
         @wraps(func)
         def wrapper(*args: t.Any, **kwargs: t.Any) -> t.Any:
             can_use(*packages, required=True)
-            return func(*args, **kwargs)
-
-        return wrapper
-
-    return decorator
-
-
-def warn(message: str) -> None:
-    if _log.hasHandlers() and _log.getEffectiveLevel() <= 30:
-        _log.warning(message)
-    else:
-        warnings.warn(message)
-
-
-def warn_on_call(message: str) -> t.Callable[[_FuncT], _FuncT]:
-    def decorator(func: _FuncT) -> _FuncT:
-        @wraps(func)
-        def wrapper(*args: t.Any, **kwargs: t.Any) -> t.Any:
-            warn(message)
             return func(*args, **kwargs)
 
         return wrapper
