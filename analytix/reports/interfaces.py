@@ -643,14 +643,14 @@ class AnalyticsReport:
 
         import polars as pl
 
-        df = pl.DataFrame(self.resource.rows, columns=self.columns)
+        df = pl.DataFrame(self.resource.rows, schema=self.columns)
 
         if not skip_date_conversion:
             s = {"day", "month"} & set(df.columns)
             if len(s):
                 col = next(iter(s))
                 fmt = {"day": "%Y-%m-%d", "month": "%Y-%m"}[col]
-                df = df.with_column(pl.col(col).str.strptime(pl.Date, fmt=fmt))
+                df = df.with_columns(pl.col(col).str.strptime(pl.Date, fmt=fmt))
                 _log.info(f"Converted {col!r} column to date format")
 
         return df
