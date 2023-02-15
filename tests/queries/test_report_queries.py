@@ -171,6 +171,18 @@ def test_validate_months_are_corrected():
     assert query._end_date == dt.date(2022, 3, 1)
 
 
+def test_validate_all_sort_options_are_metrics():
+    query = ReportQuery(
+        metrics=("likes",),
+        sort_options=("-views", "comments"),
+    )
+    with pytest.raises(
+        InvalidRequest,
+        match="some sort options do not match metrics: views, comments|some sort options do not match metrics: comments, views",
+    ):
+        query.validate()
+
+
 def test_determine_ad_performance():
     query = ReportQuery(dimensions=["adType"])
     assert isinstance(query.determine_report_type(), rt.AdPerformance)

@@ -159,6 +159,12 @@ class ReportQuery:
             ]
             _log.debug("Metrics set to: " + ", ".join(self.metrics))
 
+        diff = set(o.strip("-") for o in self.sort_options) - set(self.metrics)
+        if diff:
+            raise InvalidRequest(
+                "some sort options do not match metrics: " + ", ".join(diff)
+            )
+
         self.rtype.validate(
             self.dimensions,
             self.filters,
