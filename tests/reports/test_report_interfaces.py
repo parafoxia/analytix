@@ -179,43 +179,6 @@ def test_report_non_numeric_property(report):
     assert report.non_numeric == ["day"]
 
 
-def test_report_set_and_validate_path_string_no_extension(report: AnalyticsReport):
-    assert report._set_and_validate_path("report", ".json", False) == Path(
-        "report.json"
-    )
-
-
-@pytest.mark.dependency()
-def test_report_set_and_validate_path_string_with_extension(report: AnalyticsReport):
-    assert report._set_and_validate_path("report.json", ".json", False) == Path(
-        "report.json"
-    )
-
-
-def test_report_set_and_validate_path_pathlib(report: AnalyticsReport):
-    assert report._set_and_validate_path(Path("report"), ".json", False) == Path(
-        "report.json"
-    )
-
-
-@mock.patch.object(Path, "is_file", return_value=True)
-def test_report_set_and_validate_path_file_exists_overwrite(_, report: AnalyticsReport):
-    assert report._set_and_validate_path("report", ".json", True) == Path("report.json")
-
-
-@mock.patch.object(Path, "is_file", return_value=True)
-def test_report_set_and_validate_path_file_exists_dont_overwrite(
-    _, report: AnalyticsReport
-):
-    with pytest.raises(
-        FileExistsError, match="file already exists and `overwrite` is set to False"
-    ):
-        assert report._set_and_validate_path("report", ".json", False)
-
-
-@pytest.mark.dependency(
-    depends=["test_report_set_and_validate_path_string_with_extension"]
-)
 @mock.patch("builtins.open")
 def test_report_to_json_indent_4(mock_open, request_data, report: AnalyticsReport):
     f = MockFile(json.dumps(request_data))
@@ -225,9 +188,6 @@ def test_report_to_json_indent_4(mock_open, request_data, report: AnalyticsRepor
     assert f.write_data == json.dumps(request_data, indent=4)
 
 
-@pytest.mark.dependency(
-    depends=["test_report_set_and_validate_path_string_with_extension"]
-)
 @mock.patch("builtins.open")
 def test_report_to_json_indent_0(mock_open, request_data, report: AnalyticsReport):
     f = MockFile(json.dumps(request_data))
@@ -263,9 +223,7 @@ def report_tsv():
 """
 
 
-@pytest.mark.dependency(
-    depends=["test_report_set_and_validate_path_string_with_extension"]
-)
+@pytest.mark.dependency()
 @mock.patch("builtins.open")
 def test_report_to_csv(mock_open, report_csv, report: AnalyticsReport, caplog):
     f = MockFile(report_csv)
@@ -276,12 +234,7 @@ def test_report_to_csv(mock_open, report_csv, report: AnalyticsReport, caplog):
     assert "Saved report as CSV" in caplog.text
 
 
-@pytest.mark.dependency(
-    depends=[
-        "test_report_set_and_validate_path_string_with_extension",
-        "test_report_to_csv",
-    ]
-)
+@pytest.mark.dependency(depends=["test_report_to_csv"])
 @mock.patch("builtins.open")
 def test_report_to_tsv(mock_open, report_tsv, report: AnalyticsReport, caplog):
     f = MockFile(report_tsv)
@@ -292,9 +245,6 @@ def test_report_to_tsv(mock_open, report_tsv, report: AnalyticsReport, caplog):
     assert "Saved report as TSV" in caplog.text
 
 
-@pytest.mark.dependency(
-    depends=["test_report_set_and_validate_path_string_with_extension"]
-)
 @mock.patch.object(Workbook, "save", return_value=None)
 @mock.patch.object(Workbook, "active", new_callable=mock.PropertyMock)
 def test_report_to_excel(mock_active, mock_save, report: AnalyticsReport, caplog):
