@@ -68,8 +68,14 @@ To install multiple at once, use commas:
 pip install "analytix[excel,types]"
 ```
 
-Note that while analytix includes native support for DataFrame and Arrow table conversions, these libraries are not installed automatically.
-You will need to install these libraries yourself to use these features.
+Support for DataFrame and Arrow table conversions is also present.
+analytix supports these libraries natively:
+
+* `pandas` — 0.23.2 or greater
+* `pyarrow` — 2.0.0 or greater
+* `polars` — 0.15.17 or greater
+
+Note: You will need to install your library of choice manually to be able to use it.
 
 ## OAuth authentication
 
@@ -117,13 +123,12 @@ report.to_csv("./analytics.csv")
 ```
 
 If you want to analyse this data using additional tools such as *pandas*, you can directly export the report as a DataFrame or table.
-analytix supports these libraries natively:
 
-* pandas (≥0.23.2)
-* PyArrow (≥2.0.0)
-* Polars (≥0.15.17)
-
-Note that it doesn't install any -- you're free to choose whichever you like!
+```py
+df = report.to_pandas()
+table = report.to_arrow()
+df = report.to_polars()
+```
 
 ### Fetching group information
 
