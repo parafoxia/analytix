@@ -5,9 +5,9 @@
 -r ./types.txt
 
 # Data libraries
-pandas; platform_python_implementation=="CPython"
-pyarrow; platform_python_implementation=="CPython"
-polars; platform_python_implementation=="CPython"
+pandas>=0.23.2,<2.0; platform_python_implementation=="CPython"
+pyarrow>=2.0.0,<12.0; platform_python_implementation=="CPython"
+polars>=0.16,<1.0; platform_python_implementation=="CPython"
 
 # Sessions
 nox==2022.11.21

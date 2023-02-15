@@ -99,6 +99,8 @@ If anything is going wrong, or analytix appears to be taking a long time to fetc
 
 ## Usage
 
+### Retrieving reports
+
 Retrieving reports from the YouTube Analytics API is easy.
 The below example loads credentials from a secrets file, and gets day-by-day data on views, likes, and comments from the US over the last 28 days:
 
@@ -114,18 +116,16 @@ report = client.retrieve_report(
 report.to_csv("./analytics.csv")
 ```
 
-If you want to analyse this data using additional tools such as *pandas*, you can directly export the report as a DataFrame:
+If you want to analyse this data using additional tools such as *pandas*, you can directly export the report as a DataFrame or table.
+analytix supports these libraries natively:
 
-```py
-# Return as a pandas DataFrame:
-df = report.to_pandas()
+* pandas (≥0.23.2)
+* PyArrow (≥2.0.0)
+* Polars (≥0.15.17)
 
-# Return as an Apache Arrow table:
-table = report.to_arrow()
+Note that it doesn't install any -- you're free to choose whichever you like!
 
-# Return as a Polars DataFrame:
-df = report.to_polars()
-```
+### Fetching group information
 
 You can also fetch groups and group items:
 
