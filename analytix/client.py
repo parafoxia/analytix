@@ -378,7 +378,7 @@ class AsyncClient(AsyncBaseClient):
         _log.debug(f"Auth parameters: {params}")
 
         if self._auto_open_browser:
-            _log.info(f"Opening browser at {self._secrets.auth_uri}?...")
+            _log.info(f"Opening browser at {self._secrets.auth_uri}")
             if not webbrowser.open(auth_uri, 0, True):
                 raise RuntimeError(
                     "web browser failed to open — if you use WSL, refer to the docs"
