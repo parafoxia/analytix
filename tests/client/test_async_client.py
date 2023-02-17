@@ -108,6 +108,15 @@ async def test_client_repr(client: AsyncClient):
     assert f"{client!r}" == "AsyncClient(project_id='rickroll')"
 
 
+@mock.patch("builtins.open", mock.mock_open(read_data=create_secrets_file()))
+async def test_client_context_manager(client: AsyncClient):
+    async with AsyncClient("secrets.json") as other:
+        assert client == other
+        assert not other._session.closed
+
+    assert other._session.closed
+
+
 def test_client_active_tokens_property(client: AsyncClient):
     assert client.active_tokens == client._active_tokens
     assert not client.active_tokens

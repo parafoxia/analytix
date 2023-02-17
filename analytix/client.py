@@ -62,7 +62,6 @@ import asyncio
 import datetime
 import logging
 import os
-import signal
 import sys
 import typing as t
 import warnings
