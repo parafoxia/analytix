@@ -27,6 +27,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import datetime as dt
+import warnings
 
 import pytest
 
@@ -34,6 +35,7 @@ import analytix
 from analytix.errors import InvalidRequest
 from analytix.queries import ReportQuery
 from analytix.reports import types as rt
+from analytix.warnings import InvalidMonthFormatWarning
 
 
 def test_create_defaults():
@@ -166,7 +168,16 @@ def test_validate_months_are_corrected():
         start_date=dt.date(2021, 4, 2),
         end_date=dt.date(2022, 3, 31),
     )
-    query.validate()
+
+    with warnings.catch_warnings(record=True) as warns:
+        query.validate()
+        assert len(warns) == 1
+        assert issubclass(warns[-1].category, InvalidMonthFormatWarning)
+        assert (
+            "Correcting start and end dates -- if 'month' is passed as a dimension, these should always be the first day of the month"
+            in str(warns[-1].message)
+        )
+
     assert query._start_date == dt.date(2021, 4, 1)
     assert query._end_date == dt.date(2022, 3, 1)
 
