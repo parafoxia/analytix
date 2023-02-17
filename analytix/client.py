@@ -121,7 +121,7 @@ class AsyncBaseClient:
 
     ??? example "Context manager example"
         ```py
-        with AsyncBaseClient("secrets.json") as client:
+        async with AsyncBaseClient("secrets.json") as client:
             await client.teardown()
         ```
     """
@@ -278,9 +278,9 @@ class AsyncClient(AsyncBaseClient):
 
     ??? example "Context manager example"
         ```py
-        with AsyncClient("secrets.json") as client:
+        async with AsyncClient("secrets.json") as client:
             # Perform operations here.
-            await client.teardown()
+            print(client)
         ```
 
     ??? example "Advanced example"
@@ -520,7 +520,7 @@ class Client:
         ```py
         with Client("secrets.json") as client:
             # Perform operations here.
-            client.teardown()
+            print(client)
         ```
 
     ??? example "Advanced example"
