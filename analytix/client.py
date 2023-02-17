@@ -146,7 +146,13 @@ class AsyncBaseClient:
             )
 
         self._secrets = oidc.Secrets.from_file(secrets_file)
-        self._session = session or ClientSession(loop=self._loop, **kwargs)
+
+        with warnings.catch_warnings():
+            # Suppress that annoying warning about ClientSession only
+            # being creatable in an async function, while allowing other
+            # deprecation warnings to be logged.
+            warnings.simplefilter("ignore", DeprecationWarning)
+            self._session = session or ClientSession(loop=self._loop, **kwargs)
 
         if not os.environ.get("PYTEST_CURRENT_TEST"):
             # This causes issues when run in testing, so we'll just make

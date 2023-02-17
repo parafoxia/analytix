@@ -152,6 +152,7 @@ def enable_logging(level: int = logging.INFO) -> logging.StreamHandler[t.TextIO]
         log = logging.getLogger(module_name)
         log.warning(message)
 
+    warnings.simplefilter("always", DeprecationWarning)
     warnings.showwarning = showwarning
 
     return handler
