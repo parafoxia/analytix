@@ -62,6 +62,7 @@ import asyncio
 import datetime
 import logging
 import os
+import signal
 import sys
 import typing as t
 import warnings
@@ -339,6 +340,17 @@ class AsyncClient(AsyncBaseClient):
 
         self._active_tokens: str | None = None
         self._shard: Shard | None = None
+
+    async def __aenter__(self) -> AsyncClient:
+        return self
+
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> None:
+        await self.teardown()
 
     @property
     def active_tokens(self) -> str | None:
