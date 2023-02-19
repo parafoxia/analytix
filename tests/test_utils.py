@@ -32,7 +32,6 @@ from pathlib import Path
 import pytest
 
 from analytix import utils
-from analytix.errors import MissingOptionalComponents
 
 if sys.version_info >= (3, 8):
     from unittest import mock
