@@ -530,12 +530,12 @@ class AnalyticsReport:
         if not analytix.can_use("pandas"):
             raise MissingOptionalComponents("pandas")
 
-        import pandas as pd
-
         if not self._shape[0]:
             raise DataFrameConversionError(
                 "cannot convert to DataFrame as the returned data has no rows"
             )
+
+        import pandas as pd
 
         df = pd.DataFrame(self.resource.rows, columns=self.columns)
 
@@ -588,6 +588,11 @@ class AnalyticsReport:
 
         if not analytix.can_use("pyarrow"):
             raise MissingOptionalComponents("pyarrow")
+
+        if not self._shape[0]:
+            raise DataFrameConversionError(
+                "cannot convert to Arrow table as the returned data has no rows"
+            )
 
         import pyarrow as pa
         import pyarrow.compute as pc
@@ -649,6 +654,11 @@ class AnalyticsReport:
 
         if not analytix.can_use("polars"):
             raise MissingOptionalComponents("polars")
+
+        if not self._shape[0]:
+            raise DataFrameConversionError(
+                "cannot convert to DataFrame as the returned data has no rows"
+            )
 
         import polars as pl
 

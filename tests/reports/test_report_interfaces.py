@@ -386,6 +386,18 @@ def test_report_to_arrow_skip_conversions(report: AnalyticsReport):
         assert col.to_pylist() == list(columns[i])
 
 
+@pytest.mark.dependency(depends=["test_report_columns_property"])
+@pytest.mark.skipif(not analytix.can_use("pyarrow"), reason="PyArrow is not available")
+def test_report_to_arrow_empty_df(empty_report: AnalyticsReport):
+    assert empty_report.shape == (0, 5)
+
+    with pytest.raises(
+        DataFrameConversionError,
+        match="cannot convert to Arrow table as the returned data has no rows",
+    ):
+        empty_report.to_arrow()
+
+
 @mock.patch("analytix.can_use", return_value=False)
 def test_report_to_arrow_without_pyarrow(_, report: AnalyticsReport):
     with pytest.raises(
@@ -419,6 +431,18 @@ def test_report_to_polars_skip_conversions(request_data, report: AnalyticsReport
     assert df["day"][0] == "2022-06-20"
     for i, row in enumerate(df.rows()):
         assert list(row)[1:] == request_data["rows"][i][1:]
+
+
+@pytest.mark.dependency(depends=["test_report_columns_property"])
+@pytest.mark.skipif(not analytix.can_use("polars"), reason="polars is not available")
+def test_report_to_polars_empty_df(empty_report: AnalyticsReport):
+    assert empty_report.shape == (0, 5)
+
+    with pytest.raises(
+        DataFrameConversionError,
+        match="cannot convert to DataFrame as the returned data has no rows",
+    ):
+        empty_report.to_polars()
 
 
 @mock.patch("analytix.can_use", return_value=False)
