@@ -26,6 +26,8 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import re
+
 import pytest
 
 from analytix.errors import InvalidRequest
@@ -71,22 +73,39 @@ def test_sort_options_valid(sort_options):
     sort_options.validate(["-views", "-likes", "-comments"])
 
 
-def test_sort_options_invalid(sort_options):
-    with pytest.raises(InvalidRequest) as exc:
+def test_sort_options_invalid_singular(sort_options):
+    with pytest.raises(
+        InvalidRequest, match=re.escape("invalid sort option provided: 'henlo'")
+    ):
+        sort_options.validate(["views", "likes", "henlo"])
+
+
+def test_sort_options_invalid_plural(sort_options):
+    with pytest.raises(
+        InvalidRequest,
+        match=re.escape("invalid sort options provided: 'henlo' and 'testing'"),
+    ):
         sort_options.validate(["views", "likes", "henlo", "testing"])
-    assert str(exc.value) in (
-        "invalid sort option(s) provided: henlo, testing",
-        "invalid sort option(s) provided: testing, henlo",
-    )
 
 
-def test_sort_options_unsupported(sort_options):
-    with pytest.raises(InvalidRequest) as exc:
+def test_sort_options_unsupported_singular(sort_options):
+    with pytest.raises(
+        InvalidRequest,
+        match=re.escape(
+            "sort option 'dislikes' cannot be used with the given dimensions and filters"
+        ),
+    ):
+        sort_options.validate(["views", "likes", "dislikes"])
+
+
+def test_sort_options_unsupported_plural(sort_options):
+    with pytest.raises(
+        InvalidRequest,
+        match=re.escape(
+            "sort options 'dislikes' and 'shares' cannot be used with the given dimensions and filters"
+        ),
+    ):
         sort_options.validate(["views", "likes", "dislikes", "shares"])
-    assert str(exc.value) in (
-        "dimensions and filters are incompatible with sort option(s): dislikes, shares",
-        "dimensions and filters are incompatible with sort option(s): shares, dislikes",
-    )
 
 
 @pytest.fixture()
@@ -99,9 +118,10 @@ def test_sort_options_descending_valid(sort_options_descending):
 
 
 def test_sort_options_descending_invalid(sort_options_descending):
-    with pytest.raises(InvalidRequest) as exc:
+    with pytest.raises(
+        InvalidRequest,
+        match=re.escape(
+            "dimensions and filters are incompatible with ascending sort options (hint: prefix with '-')"
+        ),
+    ):
         sort_options_descending.validate(["views", "-likes", "-comments"])
-    assert (
-        str(exc.value)
-        in "dimensions and filters are incompatible with ascending sort options (hint: prefix with '-')"
-    )

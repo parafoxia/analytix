@@ -26,6 +26,8 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import re
+
 import pytest
 
 from analytix.errors import InvalidRequest
@@ -49,26 +51,30 @@ def test_dimensions_every(dimensions_required):
     assert dimensions_required.every in ({"day", "month"}, {"month", "day"})
 
 
-async def test_dimensions_invalid(dimensions_required):
-    with pytest.raises(InvalidRequest) as exc:
+async def test_dimensions_invalid_singular(dimensions_required):
+    with pytest.raises(
+        InvalidRequest,
+        match=re.escape("invalid dimension provided: 'henlo'"),
+    ):
+        dimensions_required.validate(["day", "month", "henlo"])
+
+
+async def test_dimensions_invalid_plural(dimensions_required):
+    with pytest.raises(
+        InvalidRequest,
+        match=re.escape("invalid dimensions provided: 'henlo' and 'testing'"),
+    ):
         dimensions_required.validate(["day", "month", "henlo", "testing"])
-    assert str(exc.value) in (
-        "invalid dimension(s) provided: henlo, testing",
-        "invalid dimension(s) provided: testing, henlo",
-    )
 
 
 def test_dimensions_unsupported(dimensions_required):
-    with pytest.raises(InvalidRequest) as exc:
+    with pytest.raises(
+        InvalidRequest,
+        match=re.escape(
+            "dimensions 'country', 'day', and 'month' cannot be used together"
+        ),
+    ):
         dimensions_required.validate(["day", "month", "country"])
-    assert str(exc.value) in (
-        "incompatible combination of dimensions: day, month, country",
-        "incompatible combination of dimensions: day, country, month",
-        "incompatible combination of dimensions: month, day, country",
-        "incompatible combination of dimensions: month, country, day",
-        "incompatible combination of dimensions: country, day, month",
-        "incompatible combination of dimensions: country, month, day",
-    )
 
 
 def test_dimensions_hash(dimensions_required):
@@ -101,12 +107,11 @@ def test_dimensions_required_valid(dimensions_required):
 
 
 def test_dimensions_required_invalid_set(dimensions_required):
-    with pytest.raises(InvalidRequest) as exc:
+    with pytest.raises(
+        InvalidRequest,
+        match=re.escape("expected all dimensions from 'day' and 'month', got 1"),
+    ):
         dimensions_required.validate(["day"])
-    assert str(exc.value) in (
-        "expected all dimension(s) from [ day, month ], got 1",
-        "expected all dimension(s) from [ month, day ], got 1",
-    )
 
 
 @pytest.fixture()
@@ -138,21 +143,21 @@ def test_dimensions_exactly_one_valid(dimensions_exactly_one):
 
 
 def test_dimensions_exactly_one_invalid_set_zero(dimensions_exactly_one):
-    with pytest.raises(InvalidRequest) as exc:
+    with pytest.raises(
+        InvalidRequest,
+        match=re.escape("expected 1 dimension from 'day' and 'month', got 0"),
+    ):
         dimensions_exactly_one.validate([])
-    assert str(exc.value) in (
-        "expected 1 dimension(s) from [ day, month ], got 0",
-        "expected 1 dimension(s) from [ month, day ], got 0",
-    )
 
 
 def test_dimensions_exactly_one_invalid_set_two(dimensions_exactly_one):
-    with pytest.raises(InvalidRequest) as exc:
+    with pytest.raises(
+        InvalidRequest,
+        match=re.escape(
+            "expected 1 dimension from 'day' and 'month', got 2",
+        ),
+    ):
         dimensions_exactly_one.validate(["day", "month"])
-    assert str(exc.value) in (
-        "expected 1 dimension(s) from [ day, month ], got 2",
-        "expected 1 dimension(s) from [ month, day ], got 2",
-    )
 
 
 @pytest.fixture()
@@ -185,12 +190,13 @@ def test_dimensions_one_or_more_valid(dimensions_one_or_more):
 
 
 def test_dimensions_one_or_more_invalid_set_zero(dimensions_one_or_more):
-    with pytest.raises(InvalidRequest) as exc:
+    with pytest.raises(
+        InvalidRequest,
+        match=re.escape(
+            "expected at least 1 dimension from 'day' and 'month', got 0",
+        ),
+    ):
         dimensions_one_or_more.validate([])
-    assert str(exc.value) in (
-        "expected at least 1 dimension(s) from [ day, month ], got 0",
-        "expected at least 1 dimension(s) from [ month, day ], got 0",
-    )
 
 
 @pytest.fixture()
@@ -253,12 +259,13 @@ def test_dimensions_zero_or_one_valid(dimensions_zero_or_one):
 
 
 def test_dimensions_zero_or_one_invalid_set_two(dimensions_zero_or_one):
-    with pytest.raises(InvalidRequest) as exc:
+    with pytest.raises(
+        InvalidRequest,
+        match=re.escape(
+            "expected 0 or 1 dimensions from 'day' and 'month', got 2",
+        ),
+    ):
         dimensions_zero_or_one.validate(["day", "month"])
-    assert str(exc.value) in (
-        "expected 0 or 1 dimension(s) from [ day, month ], got 2",
-        "expected 0 or 1 dimension(s) from [ month, day ], got 2",
-    )
 
 
 @pytest.fixture()

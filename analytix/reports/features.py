@@ -44,7 +44,7 @@ __all__ = (
 import typing as t
 
 from analytix import abc
-from analytix.errors import InvalidFeatures, InvalidFeatureSet, InvalidRequest
+from analytix.errors import InvalidRequest
 from analytix.reports import data
 
 
@@ -96,13 +96,11 @@ class Metrics(abc.FeatureType, _CompareMixin):
 
         diff = inputs - data.ALL_METRICS
         if diff:
-            raise InvalidFeatures("invalid metric(s) provided", diff)
+            raise InvalidRequest.invalid("metric", diff)
 
         diff = inputs - self.values
         if diff:
-            raise InvalidFeatures(
-                "dimensions and filters are incompatible with metric(s)", diff
-            )
+            raise InvalidRequest.incompatible_metrics(diff)
 
 
 class SortOptions(abc.FeatureType, _CompareMixin):
@@ -117,13 +115,11 @@ class SortOptions(abc.FeatureType, _CompareMixin):
 
         diff = raw_inputs - data.ALL_METRICS
         if diff:
-            raise InvalidFeatures("invalid sort option(s) provided", diff)
+            raise InvalidRequest.invalid("sort option", diff)
 
         diff = raw_inputs - self.values
         if diff:
-            raise InvalidFeatures(
-                "dimensions and filters are incompatible with sort option(s)", diff
-            )
+            raise InvalidRequest.incompatible_sort_options(diff)
 
         if self.descending_only:
             diff = {i for i in inputs if not i.startswith("-")}
@@ -141,11 +137,10 @@ class Dimensions(abc.SegmentedFeatureType, _NestedCompareMixin):
 
         diff = inputs - data.ALL_DIMENSIONS
         if diff:
-            raise InvalidFeatures("invalid dimension(s) provided", diff)
+            raise InvalidRequest.invalid("dimension", diff)
 
-        diff = inputs - self.every
-        if diff:
-            raise InvalidFeatures("incompatible combination of dimensions", inputs)
+        if inputs - self.every:
+            raise InvalidRequest.incompatible_dimensions(inputs)
 
         for set_type in self.values:
             set_type.validate_dimensions(inputs)
@@ -173,24 +168,20 @@ class Filters(abc.MappingFeatureType, _NestedCompareMixin):
 
         diff = keys - data.ALL_FILTERS
         if diff:
-            raise InvalidFeatures("invalid filter(s) provided", diff)
+            raise InvalidRequest.invalid("filter", diff)
 
         for k, v in inputs.items():
             valid = data.VALID_FILTER_OPTIONS[k]
 
             if valid and (v not in valid):
-                raise InvalidRequest(f"invalid value for filter {k!r}: {v!r}")
+                raise InvalidRequest.invalid_filter_value(k, v)
 
             if k in locked.keys():
                 if v != locked[k]:
-                    raise InvalidRequest(
-                        "dimensions and filters are incompatible with value "
-                        f"{v!r} for filter {k!r}"
-                    )
+                    raise InvalidRequest.incompatible_filter_value(k, v)
 
-        diff = keys - self.every_key
-        if diff:
-            raise InvalidFeatures("incompatible combination of filters", keys)
+        if keys - self.every_key:
+            raise InvalidRequest.incompatible_filters(keys)
 
         for set_type in self.values:
             set_type.validate_filters(keys)
@@ -201,15 +192,17 @@ class Required(abc.SetType, _CompareMixin):
         if self.values & inputs == self.values:
             return
 
-        common = len(inputs & self.values)
-        raise InvalidFeatureSet("dimension", "all", common, self.values)
+        raise InvalidRequest.invalid_set(
+            "dimension", self.values, "all", len(inputs & self.values)
+        )
 
     def validate_filters(self, keys: set[str]) -> None:
         if self.expd_keys & keys == self.expd_keys:
             return
 
-        common = len(keys & self.expd_keys)
-        raise InvalidFeatureSet("filter", "all", common, self.values)
+        raise InvalidRequest.invalid_set(
+            "filter", self.values, "all", len(keys & self.values)
+        )
 
 
 class ExactlyOne(abc.SetType, _CompareMixin):
@@ -217,15 +210,17 @@ class ExactlyOne(abc.SetType, _CompareMixin):
         if len(self.values & inputs) == 1:
             return
 
-        common = len(inputs & self.values)
-        raise InvalidFeatureSet("dimension", "1", common, self.values)
+        raise InvalidRequest.invalid_set(
+            "dimension", self.values, "1", len(inputs & self.values)
+        )
 
     def validate_filters(self, keys: set[str]) -> None:
         if len(self.expd_keys & keys) == 1:
             return
 
-        common = len(keys & self.expd_keys)
-        raise InvalidFeatureSet("filter", "1", common, self.values)
+        raise InvalidRequest.invalid_set(
+            "filter", self.values, "1", len(keys & self.values)
+        )
 
 
 class OneOrMore(abc.SetType, _CompareMixin):
@@ -233,23 +228,25 @@ class OneOrMore(abc.SetType, _CompareMixin):
         if len(self.values & inputs) > 0:
             return
 
-        common = len(inputs & self.values)
-        raise InvalidFeatureSet("dimension", "at least 1", common, self.values)
+        raise InvalidRequest.invalid_set(
+            "dimension", self.values, "at least 1", len(inputs & self.values)
+        )
 
     def validate_filters(self, keys: set[str]) -> None:
         if len(self.expd_keys & keys) > 0:
             return
 
-        common = len(keys & self.expd_keys)
-        raise InvalidFeatureSet("filter", "at least 1", common, self.values)
+        raise InvalidRequest.invalid_set(
+            "filter", self.values, "at least 1", len(keys & self.values)
+        )
 
 
 class Optional(abc.SetType, _CompareMixin):
-    def validate_dimensions(self, inputs: set[str]) -> None:
+    def validate_dimensions(self, _: set[str]) -> None:
         # No verifiction required.
         ...
 
-    def validate_filters(self, keys: set[str]) -> None:
+    def validate_filters(self, _: set[str]) -> None:
         # No verifiction required.
         ...
 
@@ -259,22 +256,24 @@ class ZeroOrOne(abc.SetType, _CompareMixin):
         if len(self.values & inputs) < 2:
             return
 
-        common = len(inputs & self.values)
-        raise InvalidFeatureSet("dimension", "0 or 1", common, self.values)
+        raise InvalidRequest.invalid_set(
+            "dimension", self.values, "0 or 1", len(inputs & self.values)
+        )
 
     def validate_filters(self, keys: set[str]) -> None:
         if len(self.expd_keys & keys) < 2:
             return
 
-        common = len(keys & self.expd_keys)
-        raise InvalidFeatureSet("filter", "0 or 1", common, self.values)
+        raise InvalidRequest.invalid_set(
+            "filter", self.values, "0 or 1", len(keys & self.values)
+        )
 
 
 class ZeroOrMore(abc.SetType, _CompareMixin):
-    def validate_dimensions(self, inputs: set[str]) -> None:
+    def validate_dimensions(self, _: set[str]) -> None:
         # No verifiction required.
         ...
 
-    def validate_filters(self, keys: set[str]) -> None:
+    def validate_filters(self, _: set[str]) -> None:
         # No verifiction required.
         ...

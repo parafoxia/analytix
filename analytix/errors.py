@@ -106,20 +106,77 @@ class InvalidRequest(AnalytixError):
     """Exception thrown when a request to be made to the YouTube
     Analytics API is not valid."""
 
+    @staticmethod
+    def list_of(values: set[str]) -> str:
+        items = tuple(f"{v!r}" for v in sorted(values))
+
+        if len(items) > 2:
+            return f"{', '.join(items[:-1])}, and {items[-1]}"
+
+        return f" and ".join(items)
+
+    @classmethod
+    def invalid(cls, key: str, values: set[str]) -> InvalidRequest:
+        plural = "s" if len(values) > 1 else ""
+        return cls(f"invalid {key}{plural} provided: " + cls.list_of(values))
+
+    @classmethod
+    def incompatible_dimensions(cls, values: set[str]) -> InvalidRequest:
+        return cls(f"dimensions {cls.list_of(values)} cannot be used together")
+
+    @classmethod
+    def incompatible_filters(cls, values: set[str]) -> InvalidRequest:
+        return cls(f"filters {cls.list_of(values)} cannot be used together")
+
+    @classmethod
+    def invalid_filter_value(cls, key: str, value: str) -> InvalidRequest:
+        return cls(f"invalid value {value!r} for filter {key!r}")
+
+    @classmethod
+    def incompatible_filter_value(cls, key: str, value: str) -> InvalidRequest:
+        return cls(
+            f"value {value!r} for filter {key!r} cannot be used with the given "
+            "dimensions"
+        )
+
+    @classmethod
+    def incompatible_metrics(cls, values: set[str]) -> InvalidRequest:
+        plural = "s" if len(values) > 1 else ""
+        return cls(
+            f"metric{plural} {cls.list_of(values)} cannot be used with the given "
+            "dimensions and filters"
+        )
+
+    @classmethod
+    def incompatible_sort_options(cls, values: set[str]) -> InvalidRequest:
+        plural = "s" if len(values) > 1 else ""
+        return cls(
+            f"sort option{plural} {cls.list_of(values)} cannot be used with the given "
+            "dimensions and filters"
+        )
+
+    @classmethod
+    def non_matching_sort_options(cls, values: set[str]) -> InvalidRequest:
+        plural = "s" if len(values) > 1 else ""
+        isare = "are" if plural else "is"
+        return cls(
+            f"sort option{plural} {cls.list_of(values)} {isare} not part of the given "
+            "metrics"
+        )
+
+    @classmethod
+    def invalid_set(
+        cls, key: str, values: set[str], expd: str, recv: int
+    ) -> InvalidRequest:
+        plural = "" if expd in ("1", "at least 1") else "s"
+        return cls(
+            f"expected {expd} {key}{plural} from {cls.list_of(values)}, got {recv}"
+        )
+
 
 class InvalidFeatures(InvalidRequest):
-    """A helper exception class for `InvalidRequest`. When catching
-    exceptions, use `InvalidRequest` instead."""
-
-    def __init__(self, ctx: str, errors: set[str]) -> None:
-        err_list = ", ".join(errors)
-        super().__init__(f"{ctx}: {err_list}")
+    ...
 
 
 class InvalidFeatureSet(InvalidRequest):
-    """A helper exception class for `InvalidRequest`. When catching
-    exceptions, use `InvalidRequest` instead."""
-
-    def __init__(self, type: str, expd: str, recv: int, values: set[str]) -> None:
-        val_list = ", ".join(values)
-        super().__init__(f"expected {expd} {type}(s) from [ {val_list} ], got {recv}")
+    ...

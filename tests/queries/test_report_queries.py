@@ -27,6 +27,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import datetime as dt
+import re
 import warnings
 
 import pytest
@@ -152,7 +153,9 @@ def test_validate_end_date_gt_start_date():
 
 def test_validate_currency():
     query = ReportQuery(currency="LOL")
-    with pytest.raises(InvalidRequest, match="expected a valid ISO 4217 currency code"):
+    with pytest.raises(
+        InvalidRequest, match="expected a valid ISO 4217 currency code, got 'LOL'"
+    ):
         query.validate()
 
 
@@ -182,14 +185,28 @@ def test_validate_months_are_corrected():
     assert query._end_date == dt.date(2022, 3, 1)
 
 
-def test_validate_all_sort_options_are_metrics():
+def test_validate_all_sort_options_are_metrics_singular():
+    query = ReportQuery(
+        metrics=("likes",),
+        sort_options=("-views",),
+    )
+    with pytest.raises(
+        InvalidRequest,
+        match=re.escape("sort option 'views' is not part of the given metrics"),
+    ):
+        query.validate()
+
+
+def test_validate_all_sort_options_are_metrics_plural():
     query = ReportQuery(
         metrics=("likes",),
         sort_options=("-views", "comments"),
     )
     with pytest.raises(
         InvalidRequest,
-        match="some sort options do not match metrics: views, comments|some sort options do not match metrics: comments, views",
+        match=re.escape(
+            "sort options 'comments' and 'views' are not part of the given metrics"
+        ),
     ):
         query.validate()
 

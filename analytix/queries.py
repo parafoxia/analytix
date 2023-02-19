@@ -148,7 +148,9 @@ class ReportQuery:
         _log.info(f"Getting data between {self.start_date} and {self.end_date}")
 
         if self.currency not in data.CURRENCIES:
-            raise InvalidRequest("expected a valid ISO 4217 currency code")
+            raise InvalidRequest(
+                f"expected a valid ISO 4217 currency code, got {self.currency!r}"
+            )
 
         if self.start_index < 1:
             raise InvalidRequest("the start index should be positive")
@@ -164,9 +166,7 @@ class ReportQuery:
 
         diff = set(o.strip("-") for o in self.sort_options) - set(self.metrics)
         if diff:
-            raise InvalidRequest(
-                "some sort options do not match metrics: " + ", ".join(diff)
-            )
+            raise InvalidRequest.non_matching_sort_options(diff)
 
         self.rtype.validate(
             self.dimensions,

@@ -994,7 +994,7 @@ def test_traffic_source_detail_invalid_source():
 
     with pytest.raises(
         InvalidRequest,
-        match="dimensions and filters are incompatible with value 'ANNOTATION' for filter 'insightTrafficSourceType'",
+        match="value 'ANNOTATION' for filter 'insightTrafficSourceType' cannot be used with the given dimensions",
     ):
         report.validate(d, f, m, s, 25)
 

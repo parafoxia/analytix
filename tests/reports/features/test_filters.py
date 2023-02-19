@@ -26,6 +26,8 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import re
+
 import pytest
 
 from analytix.errors import InvalidRequest
@@ -57,8 +59,25 @@ def test_filters_locked(filters_required):
     assert filters_required.locked == {}
 
 
-def test_filters_invalid(filters_required):
-    with pytest.raises(InvalidRequest) as exc:
+def test_filters_invalid_singular(filters_required):
+    with pytest.raises(
+        InvalidRequest,
+        match=re.escape("invalid filter provided: 'henlo'"),
+    ):
+        filters_required.validate(
+            {
+                "country": "US",
+                "video": "nf94bg4b397gb",
+                "henlo": "yolo",
+            }
+        )
+
+
+def test_filters_invalid_plural(filters_required):
+    with pytest.raises(
+        InvalidRequest,
+        match=re.escape("invalid filters provided: 'henlo' and 'testing'"),
+    ):
         filters_required.validate(
             {
                 "country": "US",
@@ -67,31 +86,25 @@ def test_filters_invalid(filters_required):
                 "testing": "123",
             }
         )
-    assert str(exc.value) in (
-        "invalid filter(s) provided: henlo, testing",
-        "invalid filter(s) provided: testing, henlo",
-    )
 
 
 def test_filters_unsupported(filters_required):
-    with pytest.raises(InvalidRequest) as exc:
+    with pytest.raises(
+        InvalidRequest,
+        match=re.escape(
+            "filters 'country', 'group', and 'video' cannot be used together"
+        ),
+    ):
         filters_required.validate(
             {"country": "US", "video": "nf94bg4b397gb", "group": "nf74ng984b98g"}
         )
-    assert str(exc.value) in (
-        "incompatible combination of filters: country, video, group",
-        "incompatible combination of filters: country, group, video",
-        "incompatible combination of filters: video, country, group",
-        "incompatible combination of filters: video, group, country",
-        "incompatible combination of filters: group, country, video",
-        "incompatible combination of filters: group, video, country",
-    )
 
 
 def test_filters_invalid_value(filters_required):
-    with pytest.raises(InvalidRequest) as exc:
+    with pytest.raises(
+        InvalidRequest, match=re.escape("invalid value 'UK' for filter 'country'")
+    ):
         filters_required.validate({"country": "UK", "video": "nf94bg4b397gb"})
-    assert str(exc.value) == "invalid value for filter 'country': 'UK'"
 
 
 @pytest.fixture()
@@ -118,12 +131,13 @@ def test_filters_locked_locked(filters_required_locked):
 
 
 def test_filters_unsupported_value(filters_required_locked):
-    with pytest.raises(InvalidRequest) as exc:
+    with pytest.raises(
+        InvalidRequest,
+        match=re.escape(
+            "value 'GB' for filter 'country' cannot be used with the given dimensions"
+        ),
+    ):
         filters_required_locked.validate({"country": "GB", "video": "nf94bg4b397gb"})
-    assert (
-        str(exc.value)
-        == "dimensions and filters are incompatible with value 'GB' for filter 'country'"
-    )
 
 
 def test_filters_hash(filters_required):
@@ -156,12 +170,13 @@ def test_filters_required_valid(filters_required):
 
 
 def test_filters_required_invalid_set(filters_required):
-    with pytest.raises(InvalidRequest) as exc:
+    with pytest.raises(
+        InvalidRequest,
+        match=re.escape(
+            "expected all filters from 'country' and 'video', got 1",
+        ),
+    ):
         filters_required.validate({"country": "US"})
-    assert str(exc.value) in (
-        "expected all filter(s) from [ country, video ], got 1",
-        "expected all filter(s) from [ video, country ], got 1",
-    )
 
 
 @pytest.fixture()
@@ -193,21 +208,23 @@ def test_filters_exactly_one_valid(filters_exactly_one):
 
 
 def test_filters_exactly_one_invalid_set_zero(filters_exactly_one):
-    with pytest.raises(InvalidRequest) as exc:
+    with pytest.raises(
+        InvalidRequest,
+        match=re.escape(
+            "expected 1 filter from 'country' and 'video', got 0",
+        ),
+    ):
         filters_exactly_one.validate({})
-    assert str(exc.value) in (
-        "expected 1 filter(s) from [ country, video ], got 0",
-        "expected 1 filter(s) from [ video, country ], got 0",
-    )
 
 
 def test_filters_exactly_one_invalid_set_two(filters_exactly_one):
-    with pytest.raises(InvalidRequest) as exc:
+    with pytest.raises(
+        InvalidRequest,
+        match=re.escape(
+            "expected 1 filter from 'country' and 'video', got 2",
+        ),
+    ):
         filters_exactly_one.validate({"country": "US", "video": "nf94bg4b397gb"})
-    assert str(exc.value) in (
-        "expected 1 filter(s) from [ country, video ], got 2",
-        "expected 1 filter(s) from [ video, country ], got 2",
-    )
 
 
 @pytest.fixture()
@@ -240,12 +257,13 @@ def test_filters_one_or_more_valid(filters_one_or_more):
 
 
 def test_filters_one_or_more_invalid_set_zero(filters_one_or_more):
-    with pytest.raises(InvalidRequest) as exc:
+    with pytest.raises(
+        InvalidRequest,
+        match=re.escape(
+            "expected at least 1 filter from 'country' and 'video', got 0",
+        ),
+    ):
         filters_one_or_more.validate({})
-    assert str(exc.value) in (
-        "expected at least 1 filter(s) from [ country, video ], got 0",
-        "expected at least 1 filter(s) from [ video, country ], got 0",
-    )
 
 
 @pytest.fixture()
@@ -311,8 +329,7 @@ def test_filters_zero_or_one_invalid_set_two(filters_zero_or_one):
     with pytest.raises(InvalidRequest) as exc:
         filters_zero_or_one.validate({"country": "US", "video": "nf94bg4b397gb"})
     assert str(exc.value) in (
-        "expected 0 or 1 filter(s) from [ country, video ], got 2",
-        "expected 0 or 1 filter(s) from [ video, country ], got 2",
+        "expected 0 or 1 filters from 'country' and 'video', got 2",
     )
 
 

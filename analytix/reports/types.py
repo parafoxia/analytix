@@ -455,9 +455,8 @@ class TrafficSourceDetail(DetailedReportType):
 
         itst = filters["insightTrafficSourceType"]
         if itst not in data.VALID_FILTER_OPTIONS["insightTrafficSourceDetail"]:
-            raise InvalidRequest(
-                "dimensions and filters are incompatible with value "
-                f"{itst!r} for filter 'insightTrafficSourceType'"
+            raise InvalidRequest.incompatible_filter_value(
+                "insightTrafficSourceType", itst
             )
 
 
@@ -820,9 +819,8 @@ class TrafficSourceDetailPlaylist(DetailedReportType):
 
         itst = filters["insightTrafficSourceType"]
         if itst not in data.VALID_FILTER_OPTIONS["insightTrafficSourceDetail"]:
-            raise InvalidRequest(
-                "dimensions and filters are incompatible with value "
-                f"{itst!r} for filter 'insightTrafficSourceType'"
+            raise InvalidRequest.incompatible_filter_value(
+                "insightTrafficSourceType", itst
             )
 
 
