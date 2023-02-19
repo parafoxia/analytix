@@ -36,8 +36,9 @@ import typing as t
 from dataclasses import dataclass
 from enum import Enum
 
-from analytix import errors
-from analytix.utils import process_path, requires
+import analytix
+from analytix.errors import DataFrameConversionError, MissingOptionalComponents
+from analytix.utils import process_path
 
 if t.TYPE_CHECKING:
     import pandas as pd
@@ -435,7 +436,6 @@ class AnalyticsReport:
 
         _log.info(f"Saved report as {extension[1:].upper()} to {path.resolve()}")
 
-    @requires("openpyxl")
     def to_excel(
         self, path: PathLikeT, *, sheet_name: str = "Analytics", overwrite: bool = True
     ) -> None:
@@ -474,6 +474,9 @@ class AnalyticsReport:
             ```
         """
 
+        if not analytix.can_use("openpyxl"):
+            raise MissingOptionalComponents("openpyxl")
+
         from openpyxl import Workbook
 
         path = process_path(path, ".xlsx", overwrite)
@@ -488,7 +491,6 @@ class AnalyticsReport:
         wb.save(str(path))
         _log.info(f"Saved report as spreadsheet to {path.resolve()}")
 
-    @requires("pandas")
     def to_pandas(self, *, skip_date_conversion: bool = False) -> pd.DataFrame:
         """Return this report as a pandas DataFrame.
 
@@ -525,10 +527,13 @@ class AnalyticsReport:
             ```
         """
 
+        if not analytix.can_use("pandas"):
+            raise MissingOptionalComponents("pandas")
+
         import pandas as pd
 
         if not self._shape[0]:
-            raise errors.DataFrameConversionError(
+            raise DataFrameConversionError(
                 "cannot convert to DataFrame as the returned data has no rows"
             )
 
@@ -543,7 +548,6 @@ class AnalyticsReport:
 
         return df
 
-    @requires("pyarrow")
     def to_arrow(self, *, skip_date_conversion: bool = False) -> pa.Table:
         """Return this report as a Apache Arrow table.
 
@@ -582,6 +586,9 @@ class AnalyticsReport:
             ```
         """
 
+        if not analytix.can_use("pyarrow"):
+            raise MissingOptionalComponents("pyarrow")
+
         import pyarrow as pa
         import pyarrow.compute as pc
 
@@ -598,7 +605,6 @@ class AnalyticsReport:
 
         return table
 
-    @requires("polars")
     def to_polars(self, *, skip_date_conversion: bool = False) -> pl.DataFrame:
         """Return the data as a Polars DataFrame.
 
@@ -641,6 +647,9 @@ class AnalyticsReport:
             ```
         """
 
+        if not analytix.can_use("polars"):
+            raise MissingOptionalComponents("polars")
+
         import polars as pl
 
         df = pl.DataFrame(self.resource.rows, schema=self.columns)
@@ -655,7 +664,6 @@ class AnalyticsReport:
 
         return df
 
-    @requires("pyarrow")
     def to_feather(
         self,
         path: PathLikeT,
@@ -696,6 +704,9 @@ class AnalyticsReport:
             ```
         """
 
+        if not analytix.can_use("pyarrow"):
+            raise MissingOptionalComponents("pyarrow")
+
         import pyarrow.feather as pf
 
         path = process_path(path, ".feather", overwrite)
@@ -704,7 +715,6 @@ class AnalyticsReport:
         _log.info(f"Saved report as Apache Feather file to {path.resolve()}")
         return table
 
-    @requires("pyarrow")
     def to_parquet(
         self,
         path: PathLikeT,
@@ -744,6 +754,9 @@ class AnalyticsReport:
             (7, 5)
             ```
         """
+
+        if not analytix.can_use("pyarrow"):
+            raise MissingOptionalComponents("pyarrow")
 
         import pyarrow.parquet as pq
 

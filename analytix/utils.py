@@ -28,45 +28,20 @@
 
 from __future__ import annotations
 
-__all__ = ("can_use", "requires", "process_path")
+__all__ = ("can_use", "process_path")
 
-import logging
 import typing as t
-from functools import wraps
 from pathlib import Path
 
 from pkg_resources import working_set
 
-from analytix.errors import MissingOptionalComponents
-
 if t.TYPE_CHECKING:
     from analytix.types import PathLikeT
 
-    _FuncT = t.Callable[..., t.Any]
 
-_log = logging.getLogger(__name__)
-
-
-def can_use(*packages: str, required: bool = False) -> bool:
+def can_use(*packages: str) -> bool:
     ws = [p.key for p in working_set]
-    can_use = all(p in ws for p in packages)
-
-    if required and not can_use:
-        raise MissingOptionalComponents(*packages)
-
-    return can_use
-
-
-def requires(*packages: str) -> t.Callable[[_FuncT], _FuncT]:
-    def decorator(func: _FuncT) -> _FuncT:
-        @wraps(func)
-        def wrapper(*args: t.Any, **kwargs: t.Any) -> t.Any:
-            can_use(*packages, required=True)
-            return func(*args, **kwargs)
-
-        return wrapper
-
-    return decorator
+    return all(p in ws for p in packages)
 
 
 def process_path(path: PathLikeT, extension: str, overwrite: bool) -> Path:

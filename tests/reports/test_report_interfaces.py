@@ -28,6 +28,7 @@
 
 import datetime as dt
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -35,7 +36,7 @@ import pytest
 from openpyxl import Workbook
 
 import analytix
-from analytix.errors import DataFrameConversionError
+from analytix.errors import DataFrameConversionError, MissingOptionalComponents
 from analytix.reports.interfaces import (
     AnalyticsReport,
     ColumnHeader,
@@ -267,6 +268,17 @@ def test_report_to_excel(mock_active, mock_save, report: AnalyticsReport, caplog
                 assert cell.value == report.resource.rows[i][j]
 
 
+@mock.patch("analytix.can_use", return_value=False)
+def test_report_to_excel_without_openpyxl(_, report: AnalyticsReport):
+    with pytest.raises(
+        MissingOptionalComponents,
+        match=re.escape(
+            "some necessary libraries are not installed (hint: pip install openpyxl)"
+        ),
+    ):
+        report.to_excel("report.xlsx")
+
+
 @pytest.mark.dependency(depends=["test_report_columns_property"])
 @pytest.mark.skipif(not analytix.can_use("pandas"), reason="pandas is not available")
 def test_report_to_pandas(request_data, report: AnalyticsReport):
@@ -323,6 +335,17 @@ def test_report_to_pandas_empty_df(empty_report: AnalyticsReport):
         empty_report.to_pandas()
 
 
+@mock.patch("analytix.can_use", return_value=False)
+def test_report_to_pandas_without_pandas(_, report: AnalyticsReport):
+    with pytest.raises(
+        MissingOptionalComponents,
+        match=re.escape(
+            "some necessary libraries are not installed (hint: pip install pandas)"
+        ),
+    ):
+        report.to_pandas()
+
+
 @pytest.mark.dependency(
     depends=["test_report_columns_property", "test_report_to_pandas"]
 )
@@ -363,6 +386,17 @@ def test_report_to_arrow_skip_conversions(report: AnalyticsReport):
         assert col.to_pylist() == list(columns[i])
 
 
+@mock.patch("analytix.can_use", return_value=False)
+def test_report_to_arrow_without_pyarrow(_, report: AnalyticsReport):
+    with pytest.raises(
+        MissingOptionalComponents,
+        match=re.escape(
+            "some necessary libraries are not installed (hint: pip install pyarrow)"
+        ),
+    ):
+        report.to_arrow()
+
+
 @pytest.mark.dependency(depends=["test_report_columns_property"])
 @pytest.mark.skipif(not analytix.can_use("polars"), reason="Polars is not available")
 def test_report_to_polars(request_data, report: AnalyticsReport):
@@ -387,6 +421,17 @@ def test_report_to_polars_skip_conversions(request_data, report: AnalyticsReport
         assert list(row)[1:] == request_data["rows"][i][1:]
 
 
+@mock.patch("analytix.can_use", return_value=False)
+def test_report_to_polars_without_polars(_, report: AnalyticsReport):
+    with pytest.raises(
+        MissingOptionalComponents,
+        match=re.escape(
+            "some necessary libraries are not installed (hint: pip install polars)"
+        ),
+    ):
+        report.to_polars()
+
+
 @pytest.mark.dependency(
     depends=["test_report_columns_property", "test_report_to_arrow"]
 )
@@ -404,6 +449,17 @@ def test_report_to_feather(report: AnalyticsReport):
         mock_write.assert_called_with(report.to_arrow(), Path("report.feather"))
 
 
+@mock.patch("analytix.can_use", return_value=False)
+def test_report_to_feather_without_pyarrow(_, report: AnalyticsReport):
+    with pytest.raises(
+        MissingOptionalComponents,
+        match=re.escape(
+            "some necessary libraries are not installed (hint: pip install pyarrow)"
+        ),
+    ):
+        report.to_feather("report.feather")
+
+
 @pytest.mark.dependency(
     depends=["test_report_columns_property", "test_report_to_arrow"]
 )
@@ -419,3 +475,14 @@ def test_report_to_parquet(report: AnalyticsReport):
     with mock.patch.object(pq, "write_table") as mock_write:
         report.to_parquet("report.parquet")
         mock_write.assert_called_with(report.to_arrow(), Path("report.parquet"))
+
+
+@mock.patch("analytix.can_use", return_value=False)
+def test_report_to_parquet_without_pyarrow(_, report: AnalyticsReport):
+    with pytest.raises(
+        MissingOptionalComponents,
+        match=re.escape(
+            "some necessary libraries are not installed (hint: pip install pyarrow)"
+        ),
+    ):
+        report.to_parquet("report.parquet")

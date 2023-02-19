@@ -48,44 +48,6 @@ def test_can_use_not_installed():
     assert not utils.can_use("rickroll")
 
 
-def test_can_use_required_installed():
-    assert utils.can_use("analytix", required=True)
-
-
-def test_can_use_required_not_installed():
-    with pytest.raises(
-        MissingOptionalComponents,
-        match=r"some necessary libraries are not installed \(hint: pip install rickroll\)",
-    ):
-        utils.can_use("rickroll", required=True)
-
-    with pytest.raises(
-        MissingOptionalComponents,
-        match=r"some necessary libraries are not installed \(hint: pip install rickroll barney\)",
-    ):
-        utils.can_use("rickroll", "barney", required=True)
-
-
-def test_requires_installed():
-    @utils.requires("analytix")
-    def test():
-        return True
-
-    assert test()
-
-
-def test_requires_not_installed():
-    @utils.requires("rickroll")
-    def test():
-        return True
-
-    with pytest.raises(
-        MissingOptionalComponents,
-        match=r"some necessary libraries are not installed \(hint: pip install rickroll\)",
-    ):
-        test()
-
-
 def test_process_path_string_no_extension():
     assert utils.process_path("report", ".json", False) == Path("report.json")
 
