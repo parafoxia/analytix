@@ -10,13 +10,12 @@ jobs:
       fail-fast: false
       matrix:
         session:
-          - linting
-          - formatting
-          - typing
-          - licensing
-          - spelling
-          - safety
           - dependencies
+          - formatting
+          - licensing
+          - linting
+          - safety
+          - typing
 
     name: Check
     runs-on: ubuntu-latest

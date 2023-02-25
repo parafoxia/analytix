@@ -28,52 +28,67 @@
 
 from __future__ import annotations
 
-import re
+import typing as t
+from functools import wraps
 from pathlib import Path
 
 import nox
 
-PROJECT_DIR = Path(__file__).parent
-TEST_DIR = PROJECT_DIR / "tests"
+REPO_DIR = Path(__file__).parent
+PROJECT_NAME = REPO_DIR.stem
+PROJECT_DIR = REPO_DIR / PROJECT_NAME
+TEST_DIR = REPO_DIR / "tests"
+EXAMPLES_DIR = REPO_DIR / "examples"
+NOX_FILE = REPO_DIR / "noxfile.py"
+SETUP_FILE = REPO_DIR / "setup.py"
+REQUIREMENTS_FILE = REPO_DIR / "requirements/nox.txt"
 
-PROJECT_NAME = Path(__file__).parent.stem
-
-CHECK_PATHS = (
-    str(PROJECT_DIR / PROJECT_NAME),
-    str(TEST_DIR),
-    str(PROJECT_DIR / "noxfile.py"),
-    str(PROJECT_DIR / "setup.py"),
-)
-
-DEP_PATTERN = re.compile("([a-zA-Z0-9-_]*)[=~<>,.0-9ab]*")
+SessFT = t.Callable[[nox.Session], None]
 
 
-def fetch_installs(*categories: str) -> list[str]:
-    installs = []
+def install(
+    *, meta: bool = False, rfiles: list[str] | None = None
+) -> t.Callable[[SessFT], SessFT]:
+    def decorator(func: SessFT) -> SessFT:
+        @wraps(func)
+        def wrapper(session: nox.Session) -> None:
+            deps: list[str] = []
+            processing = False
 
-    with open(PROJECT_DIR / "requirements/dev.txt") as f:
-        in_cat = None
+            with open(REQUIREMENTS_FILE) as f:
+                for line in f:
+                    if line.startswith("#") and line[2:].strip() == func.__name__:
+                        processing = True
+                        continue
 
-        for line in f:
-            if line.startswith("#") and line[2:].strip() in categories:
-                in_cat = True
-                continue
+                    if processing:
+                        if line == "\n":
+                            processing = False
+                            break
 
-            if in_cat:
-                if line == "\n":
-                    in_cat = False
-                    continue
+                        deps.append(line.strip())
 
-                installs.append(line.strip())
+            args = ["-U", *deps]
+            if meta:
+                args.append(".")
+            for x in rfiles or []:
+                args.extend(["-r", f"requirements/{x}.txt"])
 
-    return installs
+            session.install(*args)
+            func(session)
+
+        return wrapper
+
+    return decorator
+
+
+def sp(*paths: Path) -> list[str]:
+    return [str(p) for p in paths]
 
 
 @nox.session(reuse_venv=True)
+@install(meta=True, rfiles=["excel"])
 def tests(session: nox.Session) -> None:
-    session.install(
-        "-U", *fetch_installs("Tests"), *fetch_installs("Data libraries"), ".[excel]"
-    )
     session.run(
         "coverage",
         "run",
@@ -89,68 +104,58 @@ def tests(session: nox.Session) -> None:
 
 
 @nox.session(reuse_venv=True)
-def linting(session: nox.Session) -> None:
-    session.install("-U", *fetch_installs("Linting"))
-    session.run("ruff", "check", CHECK_PATHS[0], CHECK_PATHS[2])
+@install()
+def dependencies(session: nox.Session) -> None:
+    session.run("deputil", "update", "requirements")
 
 
 @nox.session(reuse_venv=True)
+@install()
 def formatting(session: nox.Session) -> None:
-    session.install(*fetch_installs("Formatting"))
-    session.run("black", ".", "--check")
-
-
-@nox.session(reuse_venv=True)
-def typing(session: nox.Session) -> None:
-    session.install(
-        *fetch_installs("Typing"),
-        "-r",
-        "requirements/types.txt",
+    session.run(
+        "black",
+        "--check",
+        *sp(PROJECT_DIR, TEST_DIR, EXAMPLES_DIR, NOX_FILE, SETUP_FILE),
     )
-    session.run("mypy", CHECK_PATHS[0], CHECK_PATHS[3])
 
 
 @nox.session(reuse_venv=True)
 def licensing(session: nox.Session) -> None:
-    missing = []
+    expd = "# Copyright (c) 2021-present, Ethan Henderson"
+    errors = []
 
-    for p in [
-        *(PROJECT_DIR / PROJECT_NAME).rglob("*.py"),
-        *TEST_DIR.glob("*.py"),
-        *PROJECT_DIR.glob("*.py"),
-    ]:
-        with open(p) as f:
-            if not f.read().startswith("# Copyright (c) 2021-present, Ethan Henderson"):
-                missing.append(p)
+    for path in (
+        *PROJECT_DIR.rglob("*.py"),
+        *TEST_DIR.rglob("*.py"),
+        NOX_FILE,
+        SETUP_FILE,
+    ):
+        with open(path) as f:
+            if not f.read().startswith(expd):
+                errors.append(path)
 
-    if missing:
+    if errors:
         session.error(
-            f"\n{len(missing):,} file(s) are missing their licenses:\n"
-            + "\n".join(f" - {file}" for file in missing)
+            f"\n{len(errors):,} file(s) are missing their licenses:\n"
+            + "\n".join(f" - {file}" for file in errors)
         )
 
 
 @nox.session(reuse_venv=True)
-def spelling(session: nox.Session) -> None:
-    session.install(*fetch_installs("Spelling"))
-    session.run("codespell", *CHECK_PATHS, "-S", "**/analytix/reports/data*")
+@install()
+def linting(session: nox.Session) -> None:
+    # TODO: Add examples directory once errors are fixed and add linter-
+    # specific error code excludes.
+    session.run("ruff", "check", *sp(PROJECT_DIR, NOX_FILE))
 
 
 @nox.session(reuse_venv=True)
+@install(rfiles=["dev"])
 def safety(session: nox.Session) -> None:
-    installs = []
-
-    for p in list(PROJECT_DIR.glob("requirements/*.txt")):
-        installs.extend(["-r", f"{p}"])
-
-    # Needed due to https://github.com/pypa/pip/pull/9827.
-    session.install("-U", "pip")
-    session.install(*installs)
-    # Issue 44715 has been fixed, so can ignore.
-    session.run("safety", "check", "--full-report", "-i", "44715")
+    session.run("safety", "check", "--full-report")
 
 
 @nox.session(reuse_venv=True)
-def dependencies(session: nox.Session) -> None:
-    session.install(*fetch_installs("Dependencies"))
-    session.run("deputil", "update", "requirements")
+@install(rfiles=["types"])
+def typing(session: nox.Session) -> None:
+    session.run("mypy", *sp(PROJECT_DIR, EXAMPLES_DIR, SETUP_FILE))
