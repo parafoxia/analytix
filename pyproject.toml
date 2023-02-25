@@ -59,3 +59,5 @@ extend-select = [
     "YTT",
 ]
 ignore = ["E402", "B905", "N818", "S101"]
+show-fixes = true
+target-version = "py37"
