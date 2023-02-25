@@ -36,11 +36,13 @@ import typing as t
 import warnings
 
 import analytix
-from analytix.abc import ReportType
 from analytix.errors import InvalidRequest
 from analytix.reports import data
 from analytix.reports import types as rt
 from analytix.warnings import InvalidMonthFormatWarning
+
+if t.TYPE_CHECKING:
+    from analytix.abc import ReportType
 
 _log = logging.getLogger(__name__)
 
@@ -133,17 +135,16 @@ class ReportQuery:
         if self._end_date < self._start_date:
             raise InvalidRequest("the start date should be earlier than the end date")
 
-        if "month" in self.dimensions:
-            if self._start_date.day != 1 or self._end_date.day != 1:
-                warnings.warn(
-                    "Correcting start and end dates -- if 'month' is passed as a "
-                    "dimension, these should always be the first day of the month",
-                    InvalidMonthFormatWarning,
-                )
-                self._start_date = dt.date(
-                    self._start_date.year, self._start_date.month, 1
-                )
-                self._end_date = dt.date(self._end_date.year, self._end_date.month, 1)
+        if "month" in self.dimensions and (
+            self._start_date.day != 1 or self._end_date.day != 1
+        ):
+            warnings.warn(
+                "Correcting start and end dates -- if 'month' is passed as a "
+                "dimension, these should always be the first day of the month",
+                InvalidMonthFormatWarning,
+            )
+            self._start_date = dt.date(self._start_date.year, self._start_date.month, 1)
+            self._end_date = dt.date(self._end_date.year, self._end_date.month, 1)
 
         _log.info(f"Getting data between {self.start_date} and {self.end_date}")
 
@@ -164,7 +165,7 @@ class ReportQuery:
             ]
             _log.debug("Metrics set to: " + ", ".join(self.metrics))
 
-        diff = set(o.strip("-") for o in self.sort_options) - set(self.metrics)
+        diff = {o.strip("-") for o in self.sort_options} - set(self.metrics)
         if diff:
             raise InvalidRequest.non_matching_sort_options(diff)
 

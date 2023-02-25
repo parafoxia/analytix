@@ -109,7 +109,7 @@ class SortOptions(abc.FeatureType, _CompareMixin):
         self.descending_only = descending_only
 
     def validate(self, inputs: t.Collection[str]) -> None:
-        raw_inputs = set(i.strip("-") for i in inputs)
+        raw_inputs = {i.strip("-") for i in inputs}
         if not isinstance(inputs, set):
             inputs = set(inputs)
 
@@ -176,9 +176,8 @@ class Filters(abc.MappingFeatureType, _NestedCompareMixin):
             if valid and (v not in valid):
                 raise InvalidRequest.invalid_filter_value(k, v)
 
-            if k in locked.keys():
-                if v != locked[k]:
-                    raise InvalidRequest.incompatible_filter_value(k, v)
+            if k in locked and v != locked[k]:
+                raise InvalidRequest.incompatible_filter_value(k, v)
 
         if keys - self.every_key:
             raise InvalidRequest.incompatible_filters(keys)

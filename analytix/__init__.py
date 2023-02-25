@@ -39,6 +39,7 @@ __all__ = (
     "enable_logging",
     "groups",
     "OAUTH_CHECK_URL",
+    "process_path",
     "reports",
     "UPDATE_CHECK_URL",
 )
@@ -68,5 +69,5 @@ UPDATE_CHECK_URL = "https://pypi.org/pypi/analytix/json"
 
 from . import groups, reports
 from .client import AsyncBaseClient, AsyncClient, Client
-from .utils import *
+from .utils import can_use, process_path
 from .ux import enable_logging

@@ -113,7 +113,7 @@ class InvalidRequest(AnalytixError):
         if len(items) > 2:
             return f"{', '.join(items[:-1])}, and {items[-1]}"
 
-        return f" and ".join(items)
+        return " and ".join(items)
 
     @classmethod
     def invalid(cls, key: str, values: set[str]) -> InvalidRequest:

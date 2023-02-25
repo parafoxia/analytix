@@ -31,3 +31,31 @@ exclude_lines = [
     "return NotImplemented",
     "except KeyboardInterrupt as exc",
 ]
+
+[tool.ruff]
+extend-select = [
+    "B",
+    "BLE",
+    "C4",
+    "ERA",
+    "I",
+    "ICN",
+    "INP",
+    "ISC",
+    "N",
+    "NPY",
+    "PGH",
+    "PIE",
+    # "PTH",
+    "Q",
+    "RET",
+    "RSE",
+    "RUF",
+    "S",
+    "SIM",
+    "T20",
+    "TCH",
+    "TID",
+    "YTT",
+]
+ignore = ["E402", "B905", "N818", "S101"]

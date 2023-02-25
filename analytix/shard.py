@@ -41,18 +41,20 @@ from __future__ import annotations
 
 __all__ = ("Shard",)
 
-import datetime
 import logging
 import typing as t
 from dataclasses import dataclass
-
-from aiohttp import ClientSession
 
 from analytix import OAUTH_CHECK_URL, oidc
 from analytix.errors import APIError, RefreshTokenExpired
 from analytix.groups import GroupItemList, GroupList
 from analytix.queries import GroupItemQuery, GroupQuery, ReportQuery
 from analytix.reports import AnalyticsReport
+
+if t.TYPE_CHECKING:
+    import datetime
+
+    from aiohttp import ClientSession
 
 _log = logging.getLogger(__name__)
 

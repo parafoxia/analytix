@@ -59,7 +59,6 @@ from __future__ import annotations
 __all__ = ("AsyncBaseClient", "AsyncClient", "Client")
 
 import asyncio
-import datetime
 import logging
 import os
 import sys
@@ -69,19 +68,21 @@ import webbrowser
 from contextlib import contextmanager
 from functools import partial
 from pathlib import Path
-from types import TracebackType
 
 from aiohttp import ClientSession
 
 import analytix
 from analytix import oidc
 from analytix.errors import AuthorisationError, RefreshTokenExpired
-from analytix.groups import GroupItemList, GroupList
-from analytix.reports import AnalyticsReport
 from analytix.shard import Shard
 from analytix.warnings import NotUpdatedWarning
 
 if t.TYPE_CHECKING:
+    import datetime
+    from types import TracebackType
+
+    from analytix.groups import GroupItemList, GroupList
+    from analytix.reports import AnalyticsReport
     from analytix.types import OptionalPathLikeT, PathLikeT
 
 _log = logging.getLogger(__name__)
@@ -312,7 +313,7 @@ class AsyncClient(AsyncBaseClient):
         self,
         secrets_file: PathLikeT,
         *,
-        tokens_dir: OptionalPathLikeT = ".",
+        tokens_dir: OptionalPathLikeT = ".",  # noqa: S107
         ws_port: int = 8080,
         auto_open_browser: bool = False,
         loop: asyncio.AbstractEventLoop | None = None,
@@ -401,7 +402,7 @@ class AsyncClient(AsyncBaseClient):
                     "web browser failed to open — if you use WSL, refer to the docs"
                 )
         else:
-            print(
+            print(  # noqa: T201
                 "\33[38;5;45mYou need to authorise analytix.\33[0m "
                 f"\33[4m{auth_uri}\33[0m"
             )
@@ -566,7 +567,7 @@ class Client:
         self,
         secrets_file: PathLikeT,
         *,
-        tokens_dir: OptionalPathLikeT = ".",
+        tokens_dir: OptionalPathLikeT = ".",  # noqa: S107
         ws_port: int = 8080,
         auto_open_browser: bool = False,
         loop: asyncio.AbstractEventLoop | None = None,
@@ -583,8 +584,12 @@ class Client:
             **kwargs,
         )
 
-        getter = lambda attr, self: getattr(self._client, attr)
-        setter = lambda attr, self, value: setattr(self._client, attr, value)
+        def getter(attr: str, self: Client) -> t.Any:
+            return getattr(self._client, attr)
+
+        def setter(attr: str, self: Client, value: t.Any) -> t.Any:
+            return setattr(self._client, attr, value)
+
         for attr in AsyncBaseClient.__slots__ + AsyncClient.__slots__:
             setattr(
                 self.__class__,

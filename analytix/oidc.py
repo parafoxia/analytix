@@ -255,7 +255,7 @@ class Tokens:
             The newly created instance.
         """
 
-        return cls(**data)  # type: ignore
+        return cls(**data)  # type: ignore[arg-type]
 
     @classmethod
     async def from_file(cls, path: Path | str) -> Tokens:
@@ -460,7 +460,7 @@ class _RequestHandler(server.BaseHTTPRequestHandler):
     def log_request(self, code: int | str = "-", _: int | str = "-") -> None:
         _log.debug(f"Received request ({code})")
 
-    def do_GET(self) -> None:
+    def do_GET(self) -> None:  # noqa: N802
         self.send_response(200)
         self.send_header("Content-type", "text/html")
         self.end_headers()

@@ -30,13 +30,14 @@ from __future__ import annotations
 
 __all__ = ("Group", "GroupList", "GroupItem", "GroupItemList")
 
-import datetime as dt
 import typing as t
 from dataclasses import dataclass
 
 from dateutil.parser import parse as du_parse
 
 if t.TYPE_CHECKING:
+    import datetime as dt
+
     from analytix.types import ResponseT
 
 
