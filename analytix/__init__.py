@@ -45,10 +45,10 @@ __all__ = (
 )
 
 __productname__ = "analytix"
-__version__ = "4.1.4"
+__version__ = "4.1.5"
 __description__ = "A simple yet powerful wrapper for the YouTube Analytics API."
 __url__ = "https://github.com/parafoxia/analytix"
-__docs__ = "https://parafoxia.github.io/analytix/"
+__docs__ = "https://parafoxia.github.io/analytix"
 __author__ = "Ethan Henderson"
 __author_email__ = "ethan.henderson.1998@gmail.com"
 __license__ = "BSD 3-Clause 'New' or 'Revised' License"
