@@ -32,6 +32,7 @@ from __future__ import annotations
 
 __all__ = ("display_splash", "enable_logging")
 
+import json
 import logging
 import os
 import platform
@@ -39,6 +40,7 @@ import sys
 import typing as t
 import warnings
 from importlib.util import find_spec
+from urllib import request
 
 import analytix
 
@@ -76,20 +78,39 @@ def _install_location() -> str:
 
 
 def display_splash() -> None:
+    r = "\33[38;5;1m"
+    o = "\33[38;5;208m"
+    y = "\33[38;5;3m"
+    g = "\33[38;5;2m"
+    b = "\33[38;5;4m"
+    l = "\33[38;5;219m"  # noqa: E741
+
+    resp = request.urlopen(analytix.UPDATE_CHECK_URL)
+    if resp.status == 200:
+        data = json.loads(resp.read().decode("utf-8"))
+        latest = data["info"]["version"]
+        linfo = (
+            f"{g}latest\33[0m"
+            if latest == analytix.__version__
+            else f"{y}latest is {latest}\33[0m"
+        )
+    else:
+        linfo = f"{o}latest N/A\33[0m"
+
     print(  # noqa: T201
         BANNER + "\n"
         "\33[3mA simple yet powerful wrapper for the YouTube Analytics API.\33[0m\n\n"
-        f"You're using version \33[1m\33[38;5;1m{analytix.__version__}\33[0m.\n\n"
-        f"\33[1m\33[38;5;4mInformation:\33[0m\n"
+        f"You're using version \33[1m{r}{analytix.__version__}\33[0m ({linfo}).\n\n"
+        f"\33[1m{b}Information:\33[0m\n"
         f" • Python version: {platform.python_version()} "
         f"({platform.python_implementation()})\n"
         f" • Operating system: {platform.system()} ({platform.release()})\n"
         f" • Installed in: {_install_location()}\n\n"
-        f"\33[1m\33[38;5;2mUseful links:\33[0m\n"
+        f"\33[1m{g}Useful links:\33[0m\n"
         f" • Documentation: \33[4m{analytix.__docs__}\33[0m\n"
         f" • Source: \33[4m{analytix.__url__}\33[0m\n"
         f" • Changelog: \33[4m{analytix.__changelog__}\33[0m\n\n"
-        f"\33[1m\33[38;5;219mThanks for using analytix!\33[0m"
+        f"\33[1m{l}Thanks for using analytix!\33[0m"
     )
 
 
@@ -155,4 +176,5 @@ def enable_logging(level: int = logging.INFO) -> logging.StreamHandler[t.TextIO]
     warnings.simplefilter("always", DeprecationWarning)
     warnings.showwarning = showwarning
 
+    return handler
     return handler
