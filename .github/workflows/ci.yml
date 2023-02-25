@@ -10,14 +10,12 @@ jobs:
       fail-fast: false
       matrix:
         session:
+          - linting
           - formatting
-          - imports
           - typing
-          - line_lengths
           - licensing
           - spelling
           - safety
-          - security
           - dependencies
 
     name: Check

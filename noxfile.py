@@ -89,26 +89,15 @@ def tests(session: nox.Session) -> None:
 
 
 @nox.session(reuse_venv=True)
-def formatting(session: nox.Session) -> None:
-    session.install(*fetch_installs("Formatting"))
-    session.run("black", ".", "--check")
+def linting(session: nox.Session) -> None:
+    session.install("-U", *fetch_installs("Linting"))
+    session.run("ruff", "check", CHECK_PATHS[0], CHECK_PATHS[2])
 
 
 @nox.session(reuse_venv=True)
-def imports(session: nox.Session) -> None:
-    session.install(*fetch_installs("Imports"))
-    # flake8 doesn't use the gitignore so we have to be explicit.
-    session.run(
-        "flake8",
-        *CHECK_PATHS,
-        "--select",
-        "F4",
-        "--extend-ignore",
-        "E,F,W",
-        "--extend-exclude",
-        "__init__.py",
-    )
-    session.run("isort", *CHECK_PATHS, "-cq")
+def formatting(session: nox.Session) -> None:
+    session.install(*fetch_installs("Formatting"))
+    session.run("black", ".", "--check")
 
 
 @nox.session(reuse_venv=True)
@@ -119,14 +108,6 @@ def typing(session: nox.Session) -> None:
         "requirements/types.txt",
     )
     session.run("mypy", CHECK_PATHS[0], CHECK_PATHS[3])
-
-
-@nox.session(reuse_venv=True)
-def line_lengths(session: nox.Session) -> None:
-    check = [p for p in CHECK_PATHS if p != str(TEST_DIR)]
-
-    session.install(*fetch_installs("Line lengths"))
-    session.run("len8", *check)
 
 
 @nox.session(reuse_venv=True)
@@ -167,14 +148,6 @@ def safety(session: nox.Session) -> None:
     session.install(*installs)
     # Issue 44715 has been fixed, so can ignore.
     session.run("safety", "check", "--full-report", "-i", "44715")
-
-
-@nox.session(reuse_venv=True)
-def security(session: nox.Session) -> None:
-    check = [p for p in CHECK_PATHS if p != str(TEST_DIR)]
-
-    session.install(*fetch_installs("Security"))
-    session.run("bandit", "-qr", *check, "-s", "B101")
 
 
 @nox.session(reuse_venv=True)
