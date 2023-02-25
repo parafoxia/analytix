@@ -130,6 +130,7 @@ def enable_logging(level: int = logging.INFO) -> logging.StreamHandler[t.TextIO]
     handler = logging.StreamHandler()
     handler.setFormatter(CustomFormatter())
     logging.basicConfig(level=level, handlers=[handler])
+    logging._srcfile = None
     logging.logThreads = False
     logging.logProcesses = False
     logging.logMultiprocessing = False
