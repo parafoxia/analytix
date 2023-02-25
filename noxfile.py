@@ -156,6 +156,23 @@ def safety(session: nox.Session) -> None:
 
 
 @nox.session(reuse_venv=True)
+@install(meta=True)
+def slots(session: nox.Session) -> None:
+    session.run("slotscheck", "-m", "analytix")
+
+
+@nox.session(reuse_venv=True)
+@install()
+def spelling(session: nox.Session) -> None:
+    session.run(
+        "codespell",
+        *sp(PROJECT_DIR, TEST_DIR, EXAMPLES_DIR, NOX_FILE, SETUP_FILE),
+        "-S",
+        "**/analytix/reports/data*",
+    )
+
+
+@nox.session(reuse_venv=True)
 @install(rfiles=["types"])
 def typing(session: nox.Session) -> None:
     session.run("mypy", *sp(PROJECT_DIR, EXAMPLES_DIR, SETUP_FILE))
