@@ -26,18 +26,26 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""Exception classes for analytix."""
+"""Warning classes for analytix."""
 
 from __future__ import annotations
 
 
 class AnalytixWarning(Warning):
-    """THe base warning class for analytix."""
+    """The base warning class for analytix."""
 
 
 class NotUpdatedWarning(AnalytixWarning):
-    ...
+    """Your client is not updated."""
 
 
 class InvalidMonthFormatWarning(AnalytixWarning):
-    ...
+    """The months in your request had to be fixed."""
+
+
+class ForbiddenWarning(AnalytixWarning):
+    """Extra info on 403 errors."""
+
+
+class CityReportWarning(AnalytixWarning):
+    """The YouTube API docs are wrong (genuinely)."""

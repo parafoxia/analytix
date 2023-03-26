@@ -77,6 +77,7 @@ __all__ = (
 
 import logging
 import typing as t
+import warnings
 
 from analytix.abc import DetailedReportType, ReportType
 from analytix.errors import InvalidRequest
@@ -93,6 +94,7 @@ from analytix.reports.features import (
     ZeroOrMore,
     ZeroOrOne,
 )
+from analytix.warnings import CityReportWarning
 
 _log = logging.getLogger(__name__)
 
@@ -210,9 +212,10 @@ class GeographyBasedActivityByCity(DetailedReportType):
         start_index: int = 1,
     ) -> None:
         if 25 < max_results <= 250:
-            _log.warning(
+            warnings.warn(
                 "While the documentation says city reports can have a maximum of 250 "
-                "results, the actual maximum the API accepts (currently) is 25"
+                "results, the actual maximum the API accepts (currently) is 25",
+                CityReportWarning,
             )
 
         if "province" in dimensions:

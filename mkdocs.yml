@@ -96,6 +96,7 @@ nav:
     - "reference/client.md"
     - "reference/shard.md"
     - "reference/errors.md"
+    - "reference/warnings.md"
     - "reference/oidc.md"
     - "reference/reports.md"
     - "reference/ux.md"

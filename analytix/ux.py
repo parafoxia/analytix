@@ -177,4 +177,3 @@ def enable_logging(level: int = logging.INFO) -> logging.StreamHandler[t.TextIO]
     warnings.showwarning = showwarning
 
     return handler
-    return handler
