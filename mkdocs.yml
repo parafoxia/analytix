@@ -78,6 +78,9 @@ copyright: Copyright &copy; 2021-present Ethan Henderson
 repo_name: parafoxia/analytix
 repo_url: https://github.com/parafoxia/analytix
 
+watch:
+  - "analytix"
+
 nav:
   - "index.md"
   - "Getting started":

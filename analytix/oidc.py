@@ -78,18 +78,22 @@ _log = logging.getLogger(__name__)
 
 
 class Scopes(Enum):
-    """An enum for API scopes.
-
-    The possible values are:
-
-    * `READONLY`: All data except revenue data
-    * `MONETARY_READONLY`: Only revenue data
-    * `ALL`: All data, including revenue data
-    """
+    """An enum for API scopes."""
 
     READONLY = "https://www.googleapis.com/auth/yt-analytics.readonly"
+    """Omit revenue data from reports."""
+
     MONETARY_READONLY = "https://www.googleapis.com/auth/yt-analytics-monetary.readonly"
+    """Only include revenue data in reports."""
+
     ALL = f"{READONLY} {MONETARY_READONLY}"
+    """Include all data in reports.
+
+    !!! warning
+        This is the default, though your channel needs to be partnered
+        to use it. If your channel is not partnered, configure your
+        client to use the `READONLY` scope.
+    """
 
 
 @dataclass(frozen=True)
