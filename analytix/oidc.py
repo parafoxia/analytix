@@ -59,7 +59,7 @@ import os
 import re
 import typing as t
 from dataclasses import dataclass
-from enum import StrEnum
+from enum import Enum
 from http import server
 from pathlib import Path
 from urllib.parse import parse_qsl, urlencode
@@ -77,7 +77,7 @@ REDIRECT_URI_PATTERN = re.compile("[^//]*//([^:]*):?([0-9]*)")
 _log = logging.getLogger(__name__)
 
 
-class Scopes(StrEnum):
+class Scopes(Enum):
     """An enum for API scopes.
 
     The possible values are:
@@ -402,7 +402,7 @@ def auth_uri(secrets: Secrets, port: int, scopes: Scopes) -> AuthUriT:
         "nonce": state_token(),
         "response_type": "code",
         "redirect_uri": secrets.redirect_uris[-1] + (f":{port}" if port != 80 else ""),
-        "scope": scopes,
+        "scope": scopes.value,
         "state": state_token(),
         "access_type": "offline",
     }

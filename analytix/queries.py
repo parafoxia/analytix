@@ -165,12 +165,13 @@ class ReportQuery:
             self.metrics = [
                 m for m in data.ALL_METRICS_ORDERED if m in self.rtype.metrics.values
             ]
-            _log.debug("Metrics set to: " + ", ".join(self.metrics))
 
-        if Scopes.MONETARY_READONLY not in scopes:
+        if Scopes.MONETARY_READONLY.value not in scopes.value:
             self.metrics = [m for m in self.metrics if m not in data.REVENUE_METRICS]
-        elif Scopes.READONLY not in scopes:
+        elif Scopes.READONLY.value not in scopes.value:
             self.metrics = [m for m in self.metrics if m in data.REVENUE_METRICS]
+
+        _log.debug("Metrics set to: " + ", ".join(self.metrics))
 
         diff = {o.strip("-") for o in self.sort_options} - set(self.metrics)
         if diff:
