@@ -1077,3 +1077,14 @@ LOCATION_AND_TRAFFIC_PLAYLIST_SORT_OPTIONS = {
     "estimatedMinutesWatched",
     "playlistStarts",
 }
+
+REVENUE_METRICS = {
+    "estimatedAdRevenue",
+    "estimatedRedPartnerRevenue",
+    "adImpressions",
+    "grossRevenue",
+    "estimatedRevenue",
+    "monetizedPlaybacks",
+    "cpm",
+    "playbackBasedCpm",
+}

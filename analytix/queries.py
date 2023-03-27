@@ -37,6 +37,7 @@ import warnings
 
 import analytix
 from analytix.errors import InvalidRequest
+from analytix.oidc import Scopes
 from analytix.reports import data
 from analytix.reports import types as rt
 from analytix.warnings import InvalidMonthFormatWarning
@@ -118,7 +119,7 @@ class ReportQuery:
             f"&includeHistoricalData={self.include_historical_data}"
         )
 
-    def validate(self) -> None:
+    def validate(self, scopes: Scopes) -> None:
         _log.info("Validating request")
 
         if self.max_results < 0:
@@ -164,6 +165,11 @@ class ReportQuery:
                 m for m in data.ALL_METRICS_ORDERED if m in self.rtype.metrics.values
             ]
             _log.debug("Metrics set to: " + ", ".join(self.metrics))
+
+        if Scopes.MONETARY_READONLY not in scopes:
+            self.metrics = [m for m in self.metrics if m not in data.REVENUE_METRICS]
+        elif Scopes.READONLY not in scopes:
+            self.metrics = [m for m in self.metrics if m in data.REVENUE_METRICS]
 
         diff = {o.strip("-") for o in self.sort_options} - set(self.metrics)
         if diff:

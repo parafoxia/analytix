@@ -42,6 +42,7 @@ application.
 from __future__ import annotations
 
 __all__ = (
+    "Scopes",
     "Secrets",
     "Tokens",
     "state_token",
@@ -58,13 +59,13 @@ import os
 import re
 import typing as t
 from dataclasses import dataclass
+from enum import StrEnum
 from http import server
 from pathlib import Path
 from urllib.parse import parse_qsl, urlencode
 
 import aiofiles
 
-import analytix
 from analytix.errors import AuthorisationError
 from analytix.types import SecretT, TokenT
 
@@ -74,6 +75,21 @@ if t.TYPE_CHECKING:
 REDIRECT_URI_PATTERN = re.compile("[^//]*//([^:]*):?([0-9]*)")
 
 _log = logging.getLogger(__name__)
+
+
+class Scopes(StrEnum):
+    """An enum for API scopes.
+
+    The possible values are:
+
+    * `READONLY`: All data except revenue data
+    * `MONETARY_READONLY`: Only revenue data
+    * `ALL`: All data, including revenue data
+    """
+
+    READONLY = "https://www.googleapis.com/auth/yt-analytics.readonly"
+    MONETARY_READONLY = "https://www.googleapis.com/auth/yt-analytics-monetary.readonly"
+    ALL = f"{READONLY} {MONETARY_READONLY}"
 
 
 @dataclass(frozen=True)
@@ -363,7 +379,7 @@ def state_token() -> str:
     return hashlib.sha256(os.urandom(1024)).hexdigest()
 
 
-def auth_uri(secrets: Secrets, port: int) -> AuthUriT:
+def auth_uri(secrets: Secrets, port: int, scopes: Scopes) -> AuthUriT:
     """Returns the authentication URI and parameters.
 
     Parameters
@@ -386,7 +402,7 @@ def auth_uri(secrets: Secrets, port: int) -> AuthUriT:
         "nonce": state_token(),
         "response_type": "code",
         "redirect_uri": secrets.redirect_uris[-1] + (f":{port}" if port != 80 else ""),
-        "scope": " ".join(analytix.API_SCOPES),
+        "scope": scopes,
         "state": state_token(),
         "access_type": "offline",
     }

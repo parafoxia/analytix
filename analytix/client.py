@@ -127,12 +127,13 @@ class AsyncBaseClient:
         ```
     """
 
-    __slots__ = ("_loop", "_secrets", "_session")
+    __slots__ = ("_loop", "_scopes", "_secrets", "_session")
 
     def __init__(
         self,
         secrets_file: PathLikeT,
         *,
+        scopes: oidc.Scopes = oidc.Scopes.ALL,
         loop: asyncio.AbstractEventLoop | None = None,
         session: ClientSession | None = None,
         **kwargs: t.Any,
@@ -147,6 +148,7 @@ class AsyncBaseClient:
             )
 
         self._secrets = oidc.Secrets.from_file(secrets_file)
+        self._scopes = scopes
 
         with warnings.catch_warnings():
             # Suppress that annoying warning about ClientSession only
@@ -262,7 +264,7 @@ class AsyncBaseClient:
         if not isinstance(tokens, oidc.Tokens):
             tokens = oidc.Tokens.from_dict(tokens)
 
-        shard = Shard(self._session, self._secrets, tokens)
+        shard = Shard(self._session, self._secrets, tokens, self._scopes)
         yield shard
         del shard
 
@@ -316,12 +318,14 @@ class AsyncClient(AsyncBaseClient):
         tokens_dir: OptionalPathLikeT = ".",  # noqa: S107
         ws_port: int = 8080,
         auto_open_browser: bool = False,
+        scopes: oidc.Scopes = oidc.Scopes.ALL,
         loop: asyncio.AbstractEventLoop | None = None,
         session: ClientSession | None = None,
         **kwargs: t.Any,
     ) -> None:
         super().__init__(
             secrets_file,
+            scopes=scopes,
             loop=loop,
             session=session,
             **kwargs,
@@ -376,7 +380,7 @@ class AsyncClient(AsyncBaseClient):
 
         # Handle existing tokens.
         if tokens:
-            self._shard = Shard(self._session, self._secrets, tokens)
+            self._shard = Shard(self._session, self._secrets, tokens, self._scopes)
 
             try:
                 refreshed = bool(await self._shard.refresh_access_token(check=True))
@@ -392,8 +396,9 @@ class AsyncClient(AsyncBaseClient):
                 _log.info("Refresh token expired, starting auth flow")
 
         # If no valid tokens by this point, start auth flow.
-        auth_uri, params = oidc.auth_uri(self._secrets, self._ws_port)
+        auth_uri, params = oidc.auth_uri(self._secrets, self._ws_port, self._scopes)
         _log.debug(f"Auth parameters: {params}")
+        _log.debug(f"Scopes: {self._scopes}")
 
         if self._auto_open_browser:
             _log.info(f"Opening browser at {self._secrets.auth_uri}")
@@ -426,7 +431,7 @@ class AsyncClient(AsyncBaseClient):
 
         # Configure tokens using response data.
         tokens = oidc.Tokens.from_dict(resp_data)
-        self._shard = Shard(self._session, self._secrets, tokens)
+        self._shard = Shard(self._session, self._secrets, tokens, self._scopes)
         if self._tokens_dir:
             await tokens.write(self._tokens_dir / f"{token_id}.json")
         self._active_tokens = token_id
@@ -497,6 +502,12 @@ class Client:
         Whether to automatically open the browser for authentication
         when necessary. If this is `False`, the auth URI is printed to
         the console.
+    scopes : Scopes, optional
+        The scopes to allow when authorising. This defines what data
+        the client can pull. This is especially useful for non-partnered
+        channels for which revenue data cannot be ascertained. If this
+        is not provided, all scopes are used, though non-partnered
+        channels should only use the READONLY scope.
 
     Other Parameters
     ----------------
@@ -515,6 +526,10 @@ class Client:
     !!! warning
         This client is a sync wrapper of the `AsyncClient`, so is still
         async under the hood. As such, it is not threadsafe.
+
+    !!! warning
+        If your channel is not partnered, you may need to configure your
+        client to only use the READONLY scope. See the example below.
 
     !!! warning
         If you use WSL, the browser may not open even if
@@ -550,6 +565,13 @@ class Client:
             auto_open_browser=True,
         )
         ```
+
+    ??? example "Using custom scopes"
+        ```py
+        from analytix import Scopes
+
+        client = Client(scopes=Scopes.READONLY)
+        ```
     """
 
     __slots__ = ("_client",)
@@ -560,6 +582,7 @@ class Client:
     _tokens_dir: Path | None
     _ws_port: int
     _auto_open_browser: bool
+    _scopes: oidc.Scopes
     _active_tokens: str
     _shard: Shard
 
@@ -570,6 +593,7 @@ class Client:
         tokens_dir: OptionalPathLikeT = ".",  # noqa: S107
         ws_port: int = 8080,
         auto_open_browser: bool = False,
+        scopes: oidc.Scopes = oidc.Scopes.ALL,
         loop: asyncio.AbstractEventLoop | None = None,
         session: ClientSession | None = None,
         **kwargs: t.Any,
@@ -579,6 +603,7 @@ class Client:
             tokens_dir=tokens_dir,
             ws_port=ws_port,
             auto_open_browser=auto_open_browser,
+            scopes=scopes,
             loop=loop,
             session=session,
             **kwargs,

@@ -141,7 +141,7 @@ def create_auth_params():
         "nonce": "34c5f166f6abb229ee092be1e7e92ca71434bcb1a27ba0664cd2fea834d85927",
         "response_type": "code",
         "redirect_uri": "http://localhost:8080",
-        "scope": "https://www.googleapis.com/auth/yt-analytics.readonly https://www.googleapis.com/auth/yt-analytics-monetary.readonly",
+        "scope": oidc.Scopes.ALL,
         "state": "34c5f166f6abb229ee092be1e7e92ca71434bcb1a27ba0664cd2fea834d85927",
         "access_type": "offline",
     }

@@ -162,8 +162,8 @@ def test_state_token(mock_urand):
 
 @pytest.mark.dependency(depends=["test_state_token"])
 @mock.patch("os.urandom", return_value=b"rickroll")
-def test_auth_uri(mock_urand, secrets, auth_params):
-    uri, params = oidc.auth_uri(secrets, 8080)
+def test_auth_uri_all_scopes(mock_urand, secrets, auth_params):
+    uri, params = oidc.auth_uri(secrets, 8080, oidc.Scopes.ALL)
     # We don't need to test Python's URL encoder.
     assert uri == (
         "https://accounts.google.com/o/oauth2/auth"
@@ -175,6 +175,48 @@ def test_auth_uri(mock_urand, secrets, auth_params):
         "&state=34c5f166f6abb229ee092be1e7e92ca71434bcb1a27ba0664cd2fea834d85927"
         "&access_type=offline"
     )
+    assert params == auth_params
+
+
+@pytest.mark.dependency(depends=["test_state_token"])
+@mock.patch("os.urandom", return_value=b"rickroll")
+def test_auth_uri_readonly_scope(mock_urand, secrets, auth_params):
+    uri, params = oidc.auth_uri(secrets, 8080, oidc.Scopes.READONLY)
+    # We don't need to test Python's URL encoder.
+    assert uri == (
+        "https://accounts.google.com/o/oauth2/auth"
+        "?client_id=a1b2c3d4e5"
+        "&nonce=34c5f166f6abb229ee092be1e7e92ca71434bcb1a27ba0664cd2fea834d85927"
+        "&response_type=code"
+        "&redirect_uri=http%3A%2F%2Flocalhost%3A8080"
+        "&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fyt-analytics.readonly"
+        "&state=34c5f166f6abb229ee092be1e7e92ca71434bcb1a27ba0664cd2fea834d85927"
+        "&access_type=offline"
+    )
+    # Kind of a hack here, need to sort out the fixtures.
+    auth_params["scope"] = "https://www.googleapis.com/auth/yt-analytics.readonly"
+    assert params == auth_params
+
+
+@pytest.mark.dependency(depends=["test_state_token"])
+@mock.patch("os.urandom", return_value=b"rickroll")
+def test_auth_uri_monetary_readonly_scope(mock_urand, secrets, auth_params):
+    uri, params = oidc.auth_uri(secrets, 8080, oidc.Scopes.MONETARY_READONLY)
+    # We don't need to test Python's URL encoder.
+    assert uri == (
+        "https://accounts.google.com/o/oauth2/auth"
+        "?client_id=a1b2c3d4e5"
+        "&nonce=34c5f166f6abb229ee092be1e7e92ca71434bcb1a27ba0664cd2fea834d85927"
+        "&response_type=code"
+        "&redirect_uri=http%3A%2F%2Flocalhost%3A8080"
+        "&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fyt-analytics-monetary.readonly"
+        "&state=34c5f166f6abb229ee092be1e7e92ca71434bcb1a27ba0664cd2fea834d85927"
+        "&access_type=offline"
+    )
+    # Kind of a hack here, need to sort out the fixtures.
+    auth_params[
+        "scope"
+    ] = "https://www.googleapis.com/auth/yt-analytics-monetary.readonly"
     assert params == auth_params
 
 

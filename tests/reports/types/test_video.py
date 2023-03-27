@@ -26,6 +26,8 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import warnings
+
 import pytest
 
 from analytix.errors import InvalidRequest
@@ -348,7 +350,7 @@ def test_geography_based_activity_by_city_6():
     report.validate(d, f, m, s, 25)
 
 
-def test_geography_based_activity_by_city_7(caplog):
+def test_geography_based_activity_by_city_7():
     report = rt.GeographyBasedActivityByCity()
     assert report.name == "Geography-based activity (by city)"
     d = ["city"]
@@ -361,15 +363,16 @@ def test_geography_based_activity_by_city_7(caplog):
     )
     s = [f"-{o}" for o in data.LOCATION_AND_TRAFFIC_SORT_OPTIONS]
 
-    with pytest.raises(
-        InvalidRequest, match="expected no more than 25 results, got 26"
-    ):
-        report.validate(d, f, m, s, 26)
+    with warnings.catch_warnings(record=True) as warns:
+        with pytest.raises(
+            InvalidRequest, match="expected no more than 25 results, got 26"
+        ):
+            report.validate(d, f, m, s, 26)
 
-    assert (
-        "While the documentation says city reports can have a maximum of 250 results, the actual maximum the API accepts (currently) is 25"
-        in caplog.text
-    )
+        assert (
+            "While the documentation says city reports can have a maximum of 250 results, the actual maximum the API accepts (currently) is 25"
+            in str(warns[0].message)
+        )
 
 
 # PLAYBACK DETAILS: SUBSCRIBED STATUS

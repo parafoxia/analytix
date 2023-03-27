@@ -34,6 +34,7 @@ import pytest
 
 import analytix
 from analytix.errors import InvalidRequest
+from analytix.oidc import Scopes
 from analytix.queries import ReportQuery
 from analytix.reports import types as rt
 from analytix.warnings import InvalidMonthFormatWarning
@@ -126,13 +127,13 @@ def test_validate_max_results():
         InvalidRequest,
         match=r"the max results should be non-negative \(0 for unlimited results\)",
     ):
-        query.validate()
+        query.validate(Scopes.ALL)
 
 
 def test_validate_start_date_is_date():
     query = ReportQuery(start_date="2021-01-01")  # type: ignore
     with pytest.raises(InvalidRequest, match="expected start date as date object"):
-        query.validate()
+        query.validate(Scopes.ALL)
 
 
 def test_validate_end_date_is_date():
@@ -140,7 +141,7 @@ def test_validate_end_date_is_date():
         end_date="2021-01-01", start_date=dt.date(2021, 1, 1)  # type: ignore
     )
     with pytest.raises(InvalidRequest, match="expected end date as date object"):
-        query.validate()
+        query.validate(Scopes.ALL)
 
 
 def test_validate_end_date_gt_start_date():
@@ -148,7 +149,7 @@ def test_validate_end_date_gt_start_date():
     with pytest.raises(
         InvalidRequest, match="the start date should be earlier than the end date"
     ):
-        query.validate()
+        query.validate(Scopes.ALL)
 
 
 def test_validate_currency():
@@ -156,13 +157,13 @@ def test_validate_currency():
     with pytest.raises(
         InvalidRequest, match="expected a valid ISO 4217 currency code, got 'LOL'"
     ):
-        query.validate()
+        query.validate(Scopes.ALL)
 
 
 def test_validate_start_index():
     query = ReportQuery(start_index=0)
     with pytest.raises(InvalidRequest, match="the start index should be positive"):
-        query.validate()
+        query.validate(Scopes.ALL)
 
 
 def test_validate_months_are_corrected():
@@ -173,7 +174,7 @@ def test_validate_months_are_corrected():
     )
 
     with warnings.catch_warnings(record=True) as warns:
-        query.validate()
+        query.validate(Scopes.ALL)
         assert len(warns) == 1
         assert issubclass(warns[-1].category, InvalidMonthFormatWarning)
         assert (
@@ -194,7 +195,7 @@ def test_validate_all_sort_options_are_metrics_singular():
         InvalidRequest,
         match=re.escape("sort option 'views' is not part of the given metrics"),
     ):
-        query.validate()
+        query.validate(Scopes.ALL)
 
 
 def test_validate_all_sort_options_are_metrics_plural():
@@ -208,7 +209,19 @@ def test_validate_all_sort_options_are_metrics_plural():
             "sort options 'comments' and 'views' are not part of the given metrics"
         ),
     ):
-        query.validate()
+        query.validate(Scopes.ALL)
+
+
+def test_validate_respects_readonly_scope():
+    query = ReportQuery(metrics=("views", "likes", "cpm", "grossRevenue"))
+    query.validate(Scopes.READONLY)
+    assert query.metrics == ["views", "likes"]
+
+
+def test_validate_respects_monetary_readonly_scope():
+    query = ReportQuery(metrics=("views", "likes", "cpm", "grossRevenue"))
+    query.validate(Scopes.MONETARY_READONLY)
+    assert query.metrics == ["cpm", "grossRevenue"]
 
 
 def test_determine_ad_performance():

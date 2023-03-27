@@ -43,6 +43,7 @@ __all__ = ("Shard",)
 
 import logging
 import typing as t
+import warnings
 from dataclasses import dataclass
 
 from analytix import OAUTH_CHECK_URL, oidc
@@ -50,6 +51,7 @@ from analytix.errors import APIError, RefreshTokenExpired
 from analytix.groups import GroupItemList, GroupList
 from analytix.queries import GroupItemQuery, GroupQuery, ReportQuery
 from analytix.reports import AnalyticsReport
+from analytix.warnings import ForbiddenWarning
 
 if t.TYPE_CHECKING:
     import datetime
@@ -74,11 +76,12 @@ class Shard:
         you.
     """
 
-    __slots__ = ("_session", "_secrets", "_tokens")
+    __slots__ = ("_session", "_secrets", "_tokens", "_scopes")
 
     _session: ClientSession
     _secrets: oidc.Secrets
     _tokens: oidc.Tokens
+    _scopes: oidc.Scopes
 
     def __str__(self) -> str:
         return self._secrets.project_id
@@ -97,6 +100,13 @@ class Shard:
 
         if next(iter(data)) == "error":
             error = data["error"]
+            if error["code"] == 403:
+                warnings.warn(
+                    "A 403 error may indicate a problem getting revenue data; if your "
+                    "channel is not partnered, configure your client to only use the "
+                    "Scopes.READONLY scope",
+                    ForbiddenWarning,
+                )
             raise APIError(error["code"], error["message"])
 
         return data
@@ -167,7 +177,7 @@ class Shard:
             include_historical_data,
         )
 
-        query.validate()
+        query.validate(self._scopes)
         assert query.rtype is not None
         data = await self._request(query.url)
         report = AnalyticsReport(data, query.rtype)

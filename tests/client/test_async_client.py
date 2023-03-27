@@ -73,7 +73,9 @@ async def client():
 @pytest.fixture()
 @mock.patch("builtins.open", mock.mock_open(read_data=create_secrets_file()))
 async def shard_client(client: AsyncClient):
-    client._shard = Shard(client._session, client._secrets, create_tokens())
+    client._shard = Shard(
+        client._session, client._secrets, create_tokens(), client._scopes
+    )
     client._active_tokens = "sandstorm"
     return client
 
@@ -151,7 +153,9 @@ async def test_client_authenticate_existing_tokens_no_refresh(
     _, __, client: AsyncClient, caplog
 ):
     await client.authorise("sandstorm")
-    assert client._shard == Shard(client._session, client._secrets, create_tokens())
+    assert client._shard == Shard(
+        client._session, client._secrets, create_tokens(), client._scopes
+    )
     assert client.active_tokens == "sandstorm"
     assert "Authorisation complete!" in caplog.text
 
@@ -167,7 +171,9 @@ async def test_client_authenticate_existing_tokens_with_refresh(
 
     await client.authorise("sandstorm")
 
-    assert client._shard == Shard(client._session, client._secrets, create_tokens())
+    assert client._shard == Shard(
+        client._session, client._secrets, create_tokens(), client._scopes
+    )
     assert client.active_tokens == "sandstorm"
     assert "Authorisation complete!" in caplog.text
     assert f.write_data == create_tokens_file()
@@ -203,7 +209,9 @@ async def test_client_authenticate_auth_flow(
     assert f"Token data: {data} / Token headers: {headers}" in caplog.text
     assert f"Tokens: {create_tokens_file()}"
 
-    assert client._shard == Shard(client._session, client._secrets, create_tokens())
+    assert client._shard == Shard(
+        client._session, client._secrets, create_tokens(), client._scopes
+    )
     assert f.write_data == create_tokens_file()
     assert client.active_tokens == "sandstorm"
     assert "Authorisation complete!" in caplog.text
