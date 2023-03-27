@@ -106,6 +106,7 @@ class Shard:
                     "channel is not partnered, configure your client to only use the "
                     "Scopes.READONLY scope",
                     ForbiddenWarning,
+                    stacklevel=4,
                 )
             raise APIError(error["code"], error["message"])
 

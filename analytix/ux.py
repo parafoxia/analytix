@@ -85,7 +85,7 @@ def display_splash() -> None:
     b = "\33[38;5;4m"
     l = "\33[38;5;219m"  # noqa: E741
 
-    resp = request.urlopen(analytix.UPDATE_CHECK_URL)
+    resp = request.urlopen(analytix.UPDATE_CHECK_URL)  # noqa: S310
     if resp.status == 200:
         data = json.loads(resp.read().decode("utf-8"))
         latest = data["info"]["version"]

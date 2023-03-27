@@ -143,6 +143,7 @@ class ReportQuery:
                 "Correcting start and end dates -- if 'month' is passed as a "
                 "dimension, these should always be the first day of the month",
                 InvalidMonthFormatWarning,
+                stacklevel=4,
             )
             self._start_date = dt.date(self._start_date.year, self._start_date.month, 1)
             self._end_date = dt.date(self._end_date.year, self._end_date.month, 1)

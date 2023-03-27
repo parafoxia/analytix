@@ -206,6 +206,7 @@ class AsyncBaseClient:
             warnings.warn(
                 f"You do not have the latest stable version of analytix (v{latest})",
                 NotUpdatedWarning,
+                stacklevel=6,
             )
 
     async def teardown(self) -> None:
@@ -315,7 +316,7 @@ class AsyncClient(AsyncBaseClient):
         self,
         secrets_file: PathLikeT,
         *,
-        tokens_dir: OptionalPathLikeT = ".",  # noqa: S107
+        tokens_dir: OptionalPathLikeT = ".",
         ws_port: int = 8080,
         auto_open_browser: bool = False,
         scopes: oidc.Scopes = oidc.Scopes.ALL,
@@ -590,7 +591,7 @@ class Client:
         self,
         secrets_file: PathLikeT,
         *,
-        tokens_dir: OptionalPathLikeT = ".",  # noqa: S107
+        tokens_dir: OptionalPathLikeT = ".",
         ws_port: int = 8080,
         auto_open_browser: bool = False,
         scopes: oidc.Scopes = oidc.Scopes.ALL,

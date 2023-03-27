@@ -216,6 +216,7 @@ class GeographyBasedActivityByCity(DetailedReportType):
                 "While the documentation says city reports can have a maximum of 250 "
                 "results, the actual maximum the API accepts (currently) is 25",
                 CityReportWarning,
+                stacklevel=5,
             )
 
         if "province" in dimensions:
