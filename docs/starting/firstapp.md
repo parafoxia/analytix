@@ -126,6 +126,16 @@ If you want to save your reports to disk, you can do so in a few ways:
     report.to_excel("output.xlsx")
     ```
 
+=== "Apache Feather"
+    ```py
+    report.to_feather("output.feather")
+    ```
+
+=== "Apache Parquet"
+    ```py
+    report.to_parquet("output.parquet")
+    ```
+
 ## What next?
 
 Now you've got some analytix experience under your belt, you can move onto bigger and better things.
