@@ -71,9 +71,9 @@ pip install "analytix[excel,types]"
 Support for DataFrame and Arrow table conversions is also present.
 analytix supports these libraries natively:
 
-* `pandas` — 0.23.2 or greater
-* `pyarrow` — 2.0.0 or greater
-* `polars` — 0.15.17 or greater
+* `pandas` >= 0.23.2
+* `pyarrow` >= 2.0.0
+* `polars` >= 0.15.17
 
 Note: You will need to install your library of choice manually to be able to use it.
 
