@@ -348,7 +348,12 @@ class AnalyticsReport:
         ]
 
     def to_json(
-        self, path: PathLikeT, *, indent: int | None = 4, overwrite: bool = True
+        self,
+        path: PathLikeT,
+        *,
+        indent: int | None = 4,
+        overwrite: bool = True,
+        **kwargs: t.Any,
     ) -> ResponseT:
         """Save this report in JSON format.
 
@@ -370,6 +375,11 @@ class AnalyticsReport:
         dict of str-Any
             The raw JSON data.
 
+        Other Parameters
+        ----------------
+        **kwargs : mapping of Any
+            Additional arguments to pass to `json.dump()`.
+
         ??? example "Basic example"
             ```py
             >>> report.to_json("output.json")
@@ -387,7 +397,7 @@ class AnalyticsReport:
         data = self.resource.data
 
         with open(path, "w") as f:
-            json.dump(data, f, indent=indent)
+            json.dump(data, f, indent=indent, **kwargs)
 
         _log.info(f"Saved report as JSON to {path.resolve()}")
         return data
