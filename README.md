@@ -73,7 +73,7 @@ analytix supports these libraries natively:
 
 * `pandas` >= 0.23.2
 * `pyarrow` >= 2.0.0
-* `polars` >= 0.15.17
+* `polars` >= 0.17.3
 
 Note: You will need to install your library of choice manually to be able to use it.
 

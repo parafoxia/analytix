@@ -679,7 +679,7 @@ class AnalyticsReport:
             if len(s):
                 col = next(iter(s))
                 fmt = {"day": "%Y-%m-%d", "month": "%Y-%m"}[col]
-                df = df.with_columns(pl.col(col).str.strptime(pl.Date, fmt=fmt))
+                df = df.with_columns(pl.col(col).str.strptime(pl.Date, format=fmt))
                 _log.info(f"Converted {col!r} column to date format")
 
         return df

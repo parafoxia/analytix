@@ -2,8 +2,8 @@
 coverage>=7.0,<8.0
 mock>=5.0,<6.0; python_version<"3.8"
 pandas>=0.23.2,<3.0; platform_python_implementation=="CPython"
-polars>=0.16,<1.0; platform_python_implementation=="CPython"
-pyarrow>=2.0.0,<12.0; platform_python_implementation=="CPython"
+polars>=0.17.3,<1.0; platform_python_implementation=="CPython"
+pyarrow>=2.0.0,<13.0; platform_python_implementation=="CPython"
 pytest>=7.2,<8.0
 pytest-asyncio~=0.21.0
 pytest-dependency~=0.5.1
@@ -16,7 +16,7 @@ deputil~=0.2.0
 black[jupyter]~=23.3.0
 
 # linting
-ruff==0.0.263
+ruff==0.0.270
 
 # safety
 safety>=2.3.1,<3.0
