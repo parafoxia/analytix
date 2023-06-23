@@ -13,7 +13,7 @@
 
 A simple yet powerful wrapper for the YouTube Analytics API.
 
-CPython versions 3.7 through 3.11 and PyPy versions 3.7 through 3.9 are officially supported.
+CPython versions 3.7 through 3.11 and PyPy versions 3.7 through 3.10 are officially supported.
 Python 3.12 will be supported once AIOHTTP supports it.
 
 Windows, MacOS, and Linux are all supported.
