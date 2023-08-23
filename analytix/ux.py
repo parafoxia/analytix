@@ -133,7 +133,7 @@ def enable_logging(level: int = logging.INFO) -> logging.StreamHandler[t.TextIO]
         ```
     """
 
-    fmt = "{relativeCreated:>7,.0f}ms [ {levelname:<7} ] {name}: {message}"
+    fmt = "{asctime}.{msecs:03.0f} [ {levelname:<7} ] {name}: {message}"
     formats = {
         logging.DEBUG: f"\33[38;5;244m{fmt}\33[0m",
         logging.INFO: f"\33[38;5;248m{fmt}\33[0m",
@@ -145,7 +145,7 @@ def enable_logging(level: int = logging.INFO) -> logging.StreamHandler[t.TextIO]
     class CustomFormatter(logging.Formatter):
         def format(self, record: logging.LogRecord) -> str:
             log_fmt = formats[record.levelno]
-            formatter = logging.Formatter(log_fmt, style="{")
+            formatter = logging.Formatter(log_fmt, "%F %X", style="{")
             return formatter.format(record)
 
     handler = logging.StreamHandler()
