@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      @font-face {
+        font-family: "Hind";
+        font-style: normal;
+        font-weight: 400;
+        font-display: swap;
+        src: url(https://fonts.gstatic.com/s/hind/v16/5aU69_a8oxmIRG4.ttf)
+          format("truetype");
+      }
+      @font-face {
+        font-family: "Michroma";
+        font-style: normal;
+        font-weight: 400;
+        font-display: swap;
+        src: url(https://fonts.gstatic.com/s/michroma/v16/PN_zRfy9qWD8fEagAMg6.ttf)
+          format("truetype");
+      }
+      body,
+      html {
+        background-color: #0f0f0f;
+        color: #dddddd;
+        font-family: "Hind", sans-serif;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0;
+        padding: 0;
+      }
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        font-family: "Michroma", sans-serif;
+      }
+      h1 {
+        font-size: 1.7em;
+      }
+      h2 {
+        font-size: 1.2em;
+      }
+      main {
+        max-width: 30em;
+        background-color: #1c1c1c;
+        border-radius: 1em;
+        text-align: center;
+        padding: 2em;
+        box-shadow: 0px 12px 24px -4px rgba(0, 0, 0, 0.5);
+        -webkit-box-shadow: 0px 12px 24px -4px rgba(0, 0, 0, 0.5);
+      }
+      a {
+        color: inherit;
+      }
+      .icon {
+        height: 2em;
+        filter: invert(75%);
+        margin: 0.8em 0.8em 0.8em 0;
+      }
+      footer {
+        position: absolute;
+        bottom: 0;
+        margin: 2.5em;
+      }
+      footer > div {
+        display: flex;
+        align-items: center;
+      }
+      .footer-item {
+        filter: invert(50%);
+        margin: 0.8em;
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+        font-family: "Michroma", sans-serif;
+        font-size: smaller;
+        transition: 0.1s ease-in-out filter;
+      }
+      .footer-item:hover {
+        filter: invert(0%);
+      }
+      .footer-item ~ .footer-item > .icon {
+        margin: 0.8em;
+      }
+    </style>
+    <title>Authorisation complete!</title>
+  </head>
+  <body>
+    <main>
+      <img
+        src="https://raw.githubusercontent.com/parafoxia/analytix/main/assets/logo.png"
+        alt="Analytix Logo"
+        width="80%"
+        style="padding-top: 1em"
+      />
+      <h1>Authorisation complete!</h1>
+      <p>
+        Awesome &#8212; analytix is now authorised! You may now close this
+        window.
+      </p>
+      <h2>What happens now?</h2>
+      <p>
+        Your tokens will be saved to the file path you specified. If you did not
+        specify a file path, you will find them in a file called "tokens.json"
+        in your current working directory. <br /><br />
+        Your new tokens will serve you well for the next 7 days, unless your
+        application status is anything other than "Testing". If you do not know
+        whether your application's status is "Testing", it more than likely is.
+        You can find more information regarding the lifetime of tokens on the
+        <a
+          href="https://developers.google.com/identity/protocols/oauth2#expiration"
+          >Google Identity documentation</a
+        >.
+      </p>
+    </main>
+    <footer>
+      <div>
+        <a class="footer-item" href="https://parafoxia.github.io/analytix/">
+          <img
+            src="https://raw.githubusercontent.com/parafoxia/analytix/main/assets/icons/docs.svg"
+            alt="Docs"
+            class="icon"
+            style
+          />
+          <span>DOCS</span>
+        </a>
+        <a class="footer-item" href="https://pypi.org/project/analytix/">
+          <img
+            src="https://raw.githubusercontent.com/parafoxia/analytix/main/assets/icons/pypi.svg"
+            alt="PyPI"
+            class="icon"
+          />
+          <span>PYPI</span>
+        </a>
+        <a class="footer-item" href="https://github.com/parafoxia/analytix">
+          <img
+            src="https://raw.githubusercontent.com/parafoxia/analytix/main/assets/icons/github.svg"
+            alt="GitHub"
+            class="icon"
+          />
+          <span>GITHUB</span>
+        </a>
+        <a
+          class="footer-item"
+          href="https://github.com/parafoxia/analytix/releases"
+        >
+          <img
+            src="https://raw.githubusercontent.com/parafoxia/analytix/main/assets/icons/changelog.svg"
+            alt="Changelog"
+            class="icon"
+          />
+          <span>CHANGELOG</span>
+        </a>
+      </div>
+    </footer>
+  </body>
+</html>

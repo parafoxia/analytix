@@ -26,46 +26,59 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__all__ = (
-    "API_BASE_URL",
-    "API_GROUPS_URL",
-    "API_GROUP_ITEMS_URL",
-    "API_REPORTS_URL",
-    "AsyncBaseClient",
-    "AsyncClient",
-    "can_use",
-    "Client",
-    "enable_logging",
-    "experimental",
-    "groups",
-    "OAUTH_CHECK_URL",
-    "process_path",
-    "reports",
-    "Scopes",
-    "UPDATE_CHECK_URL",
-)
+__all__ = ("RequestMixin",)
 
-__productname__ = "analytix"
-__version__ = "4.2.3"
-__description__ = "A simple yet powerful wrapper for the YouTube Analytics API."
-__url__ = "https://github.com/parafoxia/analytix"
-__docs__ = "https://parafoxia.github.io/analytix"
-__author__ = "Ethan Henderson"
-__author_email__ = "ethan.henderson.1998@gmail.com"
-__license__ = "BSD 3-Clause 'New' or 'Revised' License"
-__bugtracker__ = "https://github.com/parafoxia/analytix/issues"
-__ci__ = "https://github.com/parafoxia/analytix/actions"
-__changelog__ = "https://github.com/parafoxia/analytix/releases"
+from contextlib import contextmanager
+from typing import TYPE_CHECKING, Any, Dict, Generator, Optional
+from urllib.parse import urlencode
 
-API_BASE_URL = "https://youtubeanalytics.googleapis.com/v2"
-API_REPORTS_URL = f"{API_BASE_URL}/reports?"
-API_GROUPS_URL = f"{API_BASE_URL}/groups?"
-API_GROUP_ITEMS_URL = f"{API_BASE_URL}/groupItems?"
-OAUTH_CHECK_URL = "https://www.googleapis.com/oauth2/v3/tokeninfo?access_token="
-UPDATE_CHECK_URL = "https://pypi.org/pypi/analytix/json"
+import urllib3
 
-from . import experimental, groups, reports
-from .client import AsyncBaseClient, AsyncClient, Client
-from .oidc import Scopes
-from .utils import can_use, process_path
-from .ux import enable_logging
+from analytix.errors import APIError
+from analytix.experimental.errors import BadRequest, Forbidden, NotFound, Unauthorised
+
+if TYPE_CHECKING:
+    try:
+        from urllib3 import BaseHTTPResponse as HTTPResponse
+    except ImportError:
+        # urllib3 < 2.0 doesn't have the BaseHTTPResponse, so this is done
+        # for compatibilty with older versions.
+        from urllib3 import HTTPResponse
+
+ERROR_MAPPING = {
+    400: BadRequest,
+    401: Unauthorised,
+    403: Forbidden,
+    404: NotFound,
+}
+
+http = urllib3.PoolManager()
+
+
+class RequestMixin:
+    __slots__ = ()
+
+    @contextmanager
+    def _request(
+        self,
+        url: str,
+        *,
+        data: Optional[Dict[str, Any]] = None,
+        headers: Optional[Dict[str, str]] = None,
+        post: bool = False,
+        ignore_errors: bool = False,
+        token: Optional[str] = None,
+    ) -> Generator["HTTPResponse", None, None]:
+        method = "POST" if post or data else "GET"
+        headers = headers or {}
+
+        if token:
+            headers["Authorization"] = f"Bearer {token}"
+
+        resp = http.request(method, url, body=urlencode(data or {}), headers=headers)
+        if resp.status > 399 and not ignore_errors:
+            raise ERROR_MAPPING.get(resp.status, APIError)(
+                resp.status, resp.reason or "N/A"
+            )
+
+        yield resp
