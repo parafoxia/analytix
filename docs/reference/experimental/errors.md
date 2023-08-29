@@ -1,0 +1,3 @@
+# errors
+
+::: analytix.experimental.errors

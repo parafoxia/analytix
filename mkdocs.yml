@@ -103,3 +103,8 @@ nav:
     - "reference/oidc.md"
     - "reference/reports.md"
     - "reference/ux.md"
+    - "Experimental":
+      - "reference/experimental/client.md"
+      - "reference/experimental/shard.md"
+      - "reference/experimental/errors.md"
+      - "reference/experimental/auth.md"

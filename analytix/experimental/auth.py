@@ -44,7 +44,7 @@ import re
 from dataclasses import dataclass
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
-from typing import Dict, List, Mapping, Union
+from typing import Dict, List, Literal, Mapping, Union
 from urllib.parse import parse_qsl, urlencode
 
 from analytix.errors import AuthorisationError
@@ -59,6 +59,46 @@ _log = logging.getLogger(__name__)
 
 @dataclass(frozen=True)
 class Secrets:
+    """A dataclass representation of a secrets file.
+
+    This should always be created using the `load_from` classmethod.
+
+    Parameters
+    ----------
+    type : "installed" or "web"
+        The application type. This will always be either "installed" or
+        "web".
+    client_id : str
+        The client ID.
+    project_id : str
+        The name of the project.
+    auth_uri : str
+        The authorisation server endpoint URI.
+    token_uri : str
+        The token server endpoint URI.
+    auth_provider_x509_cert_url : str
+        The URL of the public x509 certificate, used to verify the
+        signature on JWTs, such as ID tokens, signed by the
+        authentication provider.
+    client_secret : str
+        The client secret.
+    redirect_uris : list of str
+        A list of valid redirection endpoint URIs. This list should
+        match the list entered for the client ID on the API Access pane
+        of the Google APIs Console.
+
+    !!! warning
+        If you're using an "installed" secrets file generated before 28
+        Feb 2022, you will have an additional redirect URI for OOB
+        authorisation. analytix no longer supports this authorisation
+        method, but is backwards compatible with these older files.
+
+        As a consequence of this, analytix will always use the **last**
+        redirect URI in the list. If your secrets file contains multiple
+        URIs, make sure the one you want to use is the last item in the
+        list.
+    """
+
     __slots__ = (
         "type",
         "client_id",
@@ -70,7 +110,7 @@ class Secrets:
         "redirect_uris",
     )
 
-    type: str
+    type: Literal["installed", "web"]
     client_id: str
     project_id: str
     auth_uri: str
@@ -81,6 +121,31 @@ class Secrets:
 
     @classmethod
     def load_from(cls, path: PathLike) -> "Secrets":
+        """Load secrets from a JSON file.
+
+        Parameters
+        ----------
+        path : PathLike
+            The path to your secrets file.
+
+        Returns
+        -------
+        Secrets
+            Your secrets.
+
+        Raises
+        ------
+        FileNotFoundError
+            No secrets file exists at the given path.
+        JSONDecodeError
+            The given file is not a valid JSON file.
+
+        !!! example "Typical usage"
+            ```py
+            >>> Secrets.load_from("secrets.json")
+            Secrets(type="installed", ...)
+            ```
+        """
         secrets_file = Path(path)
 
         if _log.isEnabledFor(logging.DEBUG):
@@ -102,20 +167,66 @@ class Secrets:
 
 @dataclass()
 class Tokens:
+    """A dataclass representation of OAuth tokens.
+
+    This should always be created using one of the available
+    classmethods.
+
+    Parameters
+    ----------
+    access_token : str
+        A token that can be sent to a Google API.
+    expires_in : int
+        The remaining lifetime of the access token in seconds.
+    scope : str
+        The scopes of access granted by the access_token expressed as a
+        list of space-delimited, case-sensitive strings.
+    token_type : Bearer
+        Identifies the type of token returned. This will always be
+        "Bearer".
+    refresh_token : str
+        A token that can be used to refresh your access token.
+
+    !!! warning
+        The `expires_in` field is never updated by analytix, and as such
+        will always be `3599` unless you update it yourself.
+    """
+
     __slots__ = ("access_token", "expires_in", "scope", "token_type", "refresh_token")
 
     access_token: str
     expires_in: int
     scope: str
-    token_type: str
+    token_type: Literal["Bearer"]
     refresh_token: str
 
     @classmethod
-    def from_json(cls, data: Union[str, bytes]) -> "Tokens":
-        return cls(**json.loads(data))
-
-    @classmethod
     def load_from(cls, path: PathLike) -> "Tokens":
+        """Load tokens from a JSON file.
+
+        Parameters
+        ----------
+        path : PathLike
+            The path to your tokens file.
+
+        Returns
+        -------
+        Tokens
+            Your tokens.
+
+        Raises
+        ------
+        FileNotFoundError
+            No tokens file exists at the given path.
+        JSONDecodeError
+            The given file is not a valid JSON file.
+
+        !!! example "Typical usage"
+            ```py
+            >>> Tokens.load_from("tokens.json")
+            Tokens(access_token="1234567890", ...)
+            ```
+        """
         tokens_file = Path(path)
 
         if _log.isEnabledFor(logging.DEBUG):
@@ -123,7 +234,51 @@ class Tokens:
 
         return cls.from_json(tokens_file.read_text())
 
+    @classmethod
+    def from_json(cls, data: Union[str, bytes]) -> "Tokens":
+        """Load tokens from raw JSON data.
+
+        Parameters
+        ----------
+        data : str or bytes
+            Your tokens in JSON form.
+
+        Returns
+        -------
+        Tokens
+            Your tokens.
+
+        Raises
+        ------
+        JSONDecodeError
+            The given file is not a valid JSON file.
+
+        !!! example "Typical usage"
+            ```py
+            >>> Tokens.from_json('{"access_token": "1234567890", ...}')
+            Tokens(access_token="1234567890", ...)
+            ```
+        """
+        return cls(**json.loads(data))
+
     def save_to(self, path: PathLike) -> None:
+        """Save your tokens to disk.
+
+        Parameters
+        ----------
+        path : PathLike
+            The path to save your tokens to.
+
+        Returns
+        -------
+        None
+            This method doesn't return anything.
+
+        !!! example "Typical usage"
+            ```py
+            Tokens.save_to("tokens.json")
+            ```
+        """
         tokens_file = Path(path)
 
         if _log.isEnabledFor(logging.DEBUG):
@@ -139,6 +294,33 @@ class Tokens:
         tokens_file.write_text(json.dumps(attrs))
 
     def refresh(self, data: Union[str, bytes]) -> "Tokens":
+        """Updates your tokens to match those you refreshed.
+
+        Parameters
+        ----------
+        data : str or bytes
+            Your refreshed tokens in JSON form. These will not entirely
+            replace your previous tokens, but instead update any
+            out-of-date keys.
+
+        Returns
+        -------
+        Tokens
+            Your refreshed tokens.
+
+        !!! info "See also"
+            This method does not actually refresh your access token;
+            for that, you'll need to use `Client.refresh_access_token`.
+
+        !!! info "See also"
+            To save tokens, you'll need the `save_to` method.
+
+        !!! example "Typical usage"
+            ```py
+            >>> Tokens.refresh('{"access_token": "abcdefghij", ...}')
+            Tokens(access_token="abcdefghij", ...)
+            ```
+        """
         attrs = json.loads(data)
         for key, value in attrs.items():
             setattr(self, key, value)
@@ -146,10 +328,37 @@ class Tokens:
 
 
 def state_token() -> str:
+    """Generates a state token.
+
+    Returns
+    -------
+    str
+        A new state token.
+    """
     return hashlib.sha256(os.urandom(1024)).hexdigest()
 
 
 def auth_uri(secrets: Secrets, scopes: Scopes, port: int) -> UriParams:
+    """Returns the authentication URI and parameters.
+
+    Parameters
+    ----------
+    secrets : Secrets
+        Your secrets.
+    scopes : Scopes
+        The scopes to allow in requests.
+    port : int
+        The websocket port you wish to use.
+
+    Returns
+    -------
+    auth_uri : str
+        The computed authentication URI.
+    params : Dict[str, str]
+        The query parameters as a dictionary.
+    headers : Dict[str, str]
+        Necessary request headers. This is always empty.
+    """
     params = {
         "client_id": secrets.client_id,
         "nonce": state_token(),
@@ -163,6 +372,30 @@ def auth_uri(secrets: Secrets, scopes: Scopes, port: int) -> UriParams:
 
 
 def token_uri(secrets: Secrets, code: str, redirect_uri: str) -> UriParams:
+    """Returns the authentication URI and parameters.
+
+    This returns the URI, data, and headers required to obtain your
+    tokens.
+
+    Parameters
+    ----------
+    secrets : Secrets
+        Your secrets.
+    code : str
+        Your authentication code.
+    redirect_uri : str
+        Your redirect URI. This should be identical to the one you
+        generated in `auth_uri`.
+
+    Returns
+    -------
+    token_uri : str
+        Your token URI.
+    data : Dict[str, str]
+        Necessary request data.
+    headers : Dict[str, str]
+        Necessary request headers.
+    """
     data = {
         "code": code,
         "client_id": secrets.client_id,
@@ -175,6 +408,27 @@ def token_uri(secrets: Secrets, code: str, redirect_uri: str) -> UriParams:
 
 
 def refresh_uri(secrets: Secrets, token: str) -> UriParams:
+    """Returns the authentication URI and parameters.
+
+    This returns the URI, data, and headers required to refresh your
+    tokens.
+
+    Parameters
+    ----------
+    secrets : Secrets
+        Your secrets.
+    token : str
+        Your refresh token.
+
+    Returns
+    -------
+    token_uri : str
+        Your token URI.
+    data : Dict[str, str]
+        Necessary request data.
+    headers : Dict[str, str]
+        Necessary request headers.
+    """
     data = {
         "client_id": secrets.client_id,
         "client_secret": secrets.client_secret,
@@ -185,7 +439,27 @@ def refresh_uri(secrets: Secrets, token: str) -> UriParams:
     return secrets.token_uri, data, headers
 
 
-def run_flow(auth_params: Mapping[str, str]) -> str:
+def run_flow(auth_params: Dict[str, str]) -> str:
+    """Start a webserver and listen for an authentication code.
+
+    You should not use this if you are building a web application.
+
+    Parameters
+    ----------
+    auth_params : Dict[str, str]
+        The parameters generated from the `auth_uri` method.
+
+    Returns
+    -------
+    str
+        Your authentication code.
+
+    Raises
+    ------
+    AuthorisationError
+        * You provided an invalid redirect URI
+        * The received state does not match the generated one
+    """
     if not (match := REDIRECT_URI_PATTERN.match(auth_params["redirect_uri"])):
         raise AuthorisationError("invalid redirect URI")
 

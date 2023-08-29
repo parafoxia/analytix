@@ -26,20 +26,63 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+__all__ = (
+    "BadRequest",
+    "Unauthorised",
+    "Forbidden",
+    "NotFound",
+)
+
 from analytix.errors import APIError
 
 
 class BadRequest(APIError):
-    ...
+    """Exception thrown when the YouTube Analytics API returns a 400.
+
+    Parameters
+    ----------
+    code : str or int
+        The error code.
+    message : str
+        The error message.
+
+    !!! important
+        This only happens when analytix has failed to catch an invalid
+        request. If you see an error like this, report it!
+    """
 
 
 class Unauthorised(APIError):
-    ...
+    """Exception thrown when the YouTube Analytics API returns a 401.
+
+    Parameters
+    ----------
+    code : str or int
+        The error code.
+    message : str
+        The error message.
+    """
 
 
 class Forbidden(APIError):
-    ...
+    """Exception thrown when the YouTube Analytics API returns a 403.
+
+    Parameters
+    ----------
+    code : str or int
+        The error code.
+    message : str
+        The error message.
+    """
 
 
 class NotFound(APIError):
-    ...
+    """Exception thrown when the YouTube Analytics API returns a 404.
+
+    Parameters
+    ----------
+    code : str or int
+        The error code.
+    message : str
+        The error message.
+    """
