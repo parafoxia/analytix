@@ -2,7 +2,7 @@
 
 [![PyPi version](https://img.shields.io/pypi/v/analytix.svg)](https://pypi.python.org/pypi/analytix/)
 [![PyPI - Status](https://img.shields.io/pypi/status/analytix)](https://pypi.python.org/pypi/analytix/)
-[![Downloads](https://pepy.tech/badge/analytix)](https://pepy.tech/project/analytix)
+[![Downloads](https://static.pepy.tech/badge/analytix)](https://pepy.tech/project/analytix)
 [![GitHub last commit](https://img.shields.io/github/last-commit/parafoxia/analytix)](https://github.com/parafoxia/analytix)
 [![License](https://img.shields.io/github/license/parafoxia/analytix.svg)](https://github.com/parafoxia/analytix/blob/main/LICENSE)
 
