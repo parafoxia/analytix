@@ -33,8 +33,8 @@ import warnings
 import pytest
 
 import analytix
+from analytix.auth import Scopes
 from analytix.errors import InvalidRequest
-from analytix.oidc import Scopes
 from analytix.queries import ReportQuery
 from analytix.reports import types as rt
 from analytix.warnings import InvalidMonthFormatWarning

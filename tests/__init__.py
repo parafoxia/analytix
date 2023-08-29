@@ -28,7 +28,7 @@
 
 import json
 
-from analytix import oidc
+from analytix import auth
 
 
 class MockFile:
@@ -101,7 +101,7 @@ def create_secrets_file(other=False):
 
 
 def create_secrets():
-    return oidc.Secrets(
+    return auth.Secrets(
         type="installed",
         client_id="a1b2c3d4e5",
         project_id="rickroll",
@@ -126,7 +126,7 @@ def create_tokens_file():
 
 
 def create_tokens():
-    return oidc.Tokens(
+    return auth.Tokens(
         access_token="a1b2c3d4e5",
         expires_in=3599,
         scope="https://www.googleapis.com/auth/yt-analytics.readonly https://www.googleapis.com/auth/yt-analytics-monetary.readonly",

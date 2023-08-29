@@ -36,9 +36,9 @@ import pytest
 import pytz
 from aiohttp import ClientSession
 
+from analytix.auth import Scopes
 from analytix.errors import APIError, RefreshTokenExpired
 from analytix.groups import Group, GroupItem, GroupItemList, GroupList
-from analytix.oidc import Scopes
 from analytix.reports import AnalyticsReport
 from analytix.reports.types import TimeBasedActivity
 from analytix.shard import Shard
