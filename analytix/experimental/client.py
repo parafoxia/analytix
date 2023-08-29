@@ -178,7 +178,7 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
         While this method should always be sufficient to refresh your
         access token, the default implementation does not save new
         tokens anywhere. If this is something you need, you will need
-        to extend this method to accomodate that.
+        to extend this method to accommodate that.
 
         Parameters
         ----------
@@ -219,7 +219,7 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
         """A context manager for creating shards.
 
         You can think of shards as mini-clients, each able to make
-        requests using their own tokens. This allows you to accomodate
+        requests using their own tokens. This allows you to accommodate
         the needs of multiple users, or even allow a single user to make
         multiple requests, without having to call your authorisation
         routine.

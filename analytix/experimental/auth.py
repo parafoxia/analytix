@@ -44,7 +44,7 @@ import re
 from dataclasses import dataclass
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
-from typing import Dict, List, Literal, Mapping, Union
+from typing import Dict, List, Literal, Union
 from urllib.parse import parse_qsl, urlencode
 
 from analytix.errors import AuthorisationError
