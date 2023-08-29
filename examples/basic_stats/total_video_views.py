@@ -20,7 +20,7 @@ METRICS = (
 
 if __name__ == "__main__":
     with Client("secrets.json") as client:
-        report = client.retrieve_report(metrics=METRICS)
+        report = client.fetch_report(metrics=METRICS)
 
         for i, metric in enumerate(METRICS):
             print(f"{metric:>23}: {report.resource.rows[0][i]}")

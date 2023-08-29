@@ -17,7 +17,7 @@ PLAYLIST_ID = "PLYeOw6sTSy6aJ8ZlA4vGvgGVo42IhF-Pc"
 
 if __name__ == "__main__":
     with Client("secrets.json") as client:
-        report = client.retrieve_report(
+        report = client.fetch_report(
             metrics=METRICS, filters={"isCurated": "1", "playlist": PLAYLIST_ID}
         )
 

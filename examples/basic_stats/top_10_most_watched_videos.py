@@ -12,7 +12,7 @@ analytix.enable_logging()
 
 if __name__ == "__main__":
     with Client("secrets.json") as client:
-        report = client.retrieve_report(
+        report = client.fetch_report(
             dimensions=("video",),
             metrics=("estimatedMinutesWatched", "views", "likes", "subscribersGained"),
             max_results=10,

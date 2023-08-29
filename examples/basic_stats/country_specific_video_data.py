@@ -9,7 +9,7 @@ from analytix import Client
 
 if __name__ == "__main__":
     with Client("secrets.json") as client:
-        report = client.retrieve_report(
+        report = client.fetch_report(
             metrics=(
                 "views",
                 "comments",
