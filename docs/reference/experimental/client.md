@@ -1,3 +1,0 @@
-# client
-
-::: analytix.experimental.client

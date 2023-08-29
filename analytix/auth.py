@@ -27,6 +27,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 __all__ = (
+    "Scopes",
     "Secrets",
     "Tokens",
     "state_token",
@@ -42,19 +43,38 @@ import logging
 import os
 import re
 from dataclasses import dataclass
+from enum import Enum
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 from typing import Dict, List, Literal, Union
 from urllib.parse import parse_qsl, urlencode
 
 from analytix.errors import AuthorisationError
-from analytix.experimental.types import PathLike, UriParams
-from analytix.oidc import Scopes
+from analytix.types import PathLike, UriParams
 
 OAUTH_CHECK_URL = "https://www.googleapis.com/oauth2/v3/tokeninfo?access_token="
 REDIRECT_URI_PATTERN = re.compile("[^//]*//([^:]*):?([0-9]*)")
 
 _log = logging.getLogger(__name__)
+
+
+class Scopes(Enum):
+    """An enum for API scopes."""
+
+    READONLY = "https://www.googleapis.com/auth/yt-analytics.readonly"
+    """Omit revenue data from reports."""
+
+    MONETARY_READONLY = "https://www.googleapis.com/auth/yt-analytics-monetary.readonly"
+    """Only include revenue data in reports."""
+
+    ALL = f"{READONLY} {MONETARY_READONLY}"
+    """Include all data in reports.
+
+    !!! warning
+        This is the default, though your channel needs to be partnered
+        to use it. If your channel is not partnered, configure your
+        client to use the `READONLY` scope.
+    """
 
 
 @dataclass(frozen=True)

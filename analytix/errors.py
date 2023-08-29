@@ -34,6 +34,10 @@ __all__ = (
     "AnalytixError",
     "MissingOptionalComponents",
     "APIError",
+    "BadRequest",
+    "Unauthorised",
+    "Forbidden",
+    "NotFound",
     "AuthorisationError",
     "NotAuthorised",
     "RefreshTokenExpired",
@@ -80,6 +84,58 @@ class APIError(AnalytixError):
 
     def __init__(self, code: str | int, message: str) -> None:
         super().__init__(f"API returned {code}: {message}")
+
+
+class BadRequest(APIError):
+    """Exception thrown when the YouTube Analytics API returns a 400.
+
+    Parameters
+    ----------
+    code : str or int
+        The error code.
+    message : str
+        The error message.
+
+    !!! important
+        This only happens when analytix has failed to catch an invalid
+        request. If you see an error like this, report it!
+    """
+
+
+class Unauthorised(APIError):
+    """Exception thrown when the YouTube Analytics API returns a 401.
+
+    Parameters
+    ----------
+    code : str or int
+        The error code.
+    message : str
+        The error message.
+    """
+
+
+class Forbidden(APIError):
+    """Exception thrown when the YouTube Analytics API returns a 403.
+
+    Parameters
+    ----------
+    code : str or int
+        The error code.
+    message : str
+        The error message.
+    """
+
+
+class NotFound(APIError):
+    """Exception thrown when the YouTube Analytics API returns a 404.
+
+    Parameters
+    ----------
+    code : str or int
+        The error code.
+    message : str
+        The error message.
+    """
 
 
 class AuthorisationError(AnalytixError):

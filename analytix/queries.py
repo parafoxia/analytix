@@ -36,8 +36,8 @@ import typing as t
 import warnings
 
 import analytix
+from analytix.auth import Scopes
 from analytix.errors import InvalidRequest
-from analytix.oidc import Scopes
 from analytix.reports import data
 from analytix.reports import types as rt
 from analytix.warnings import InvalidMonthFormatWarning

@@ -13,8 +13,7 @@
 
 A simple yet powerful wrapper for the YouTube Analytics API.
 
-CPython versions 3.7 through 3.11 and PyPy versions 3.7 through 3.10 are officially supported.
-Python 3.12 will be supported once AIOHTTP supports it.
+CPython versions 3.8 through 3.12 and PyPy versions 3.8 through 3.10 are officially supported.
 
 Windows, MacOS, and Linux are all supported.
 
@@ -111,10 +110,10 @@ Retrieving reports from the YouTube Analytics API is easy.
 The below example loads credentials from a secrets file, and gets day-by-day data on views, likes, and comments from the US over the last 28 days:
 
 ```py
-from analytix import Client  # or AsyncClient
+from analytix import Client
 
 client = Client("./secrets.json")
-report = client.retrieve_report(
+report = client.fetch_report(
     dimensions=("day",),
     filters={"country": "US"},
     metrics=("views", "likes", "comments"),

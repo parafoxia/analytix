@@ -26,63 +26,58 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__all__ = (
-    "BadRequest",
-    "Unauthorised",
-    "Forbidden",
-    "NotFound",
-)
+__all__ = ("RequestMixin",)
 
-from analytix.errors import APIError
+from contextlib import contextmanager
+from typing import TYPE_CHECKING, Any, Dict, Generator, Optional
+from urllib.parse import urlencode
 
+import urllib3
 
-class BadRequest(APIError):
-    """Exception thrown when the YouTube Analytics API returns a 400.
+from analytix.errors import APIError, BadRequest, Forbidden, NotFound, Unauthorised
 
-    Parameters
-    ----------
-    code : str or int
-        The error code.
-    message : str
-        The error message.
+if TYPE_CHECKING:
+    try:
+        from urllib3 import BaseHTTPResponse as HTTPResponse
+    except ImportError:
+        # urllib3 < 2.0 doesn't have the BaseHTTPResponse, so this is done
+        # for compatibility with older versions.
+        from urllib3 import HTTPResponse
 
-    !!! important
-        This only happens when analytix has failed to catch an invalid
-        request. If you see an error like this, report it!
-    """
+ERROR_MAPPING = {
+    400: BadRequest,
+    401: Unauthorised,
+    403: Forbidden,
+    404: NotFound,
+}
 
-
-class Unauthorised(APIError):
-    """Exception thrown when the YouTube Analytics API returns a 401.
-
-    Parameters
-    ----------
-    code : str or int
-        The error code.
-    message : str
-        The error message.
-    """
+http = urllib3.PoolManager()
 
 
-class Forbidden(APIError):
-    """Exception thrown when the YouTube Analytics API returns a 403.
+class RequestMixin:
+    __slots__ = ()
 
-    Parameters
-    ----------
-    code : str or int
-        The error code.
-    message : str
-        The error message.
-    """
+    @contextmanager
+    def _request(
+        self,
+        url: str,
+        *,
+        data: Optional[Dict[str, Any]] = None,
+        headers: Optional[Dict[str, str]] = None,
+        post: bool = False,
+        ignore_errors: bool = False,
+        token: Optional[str] = None,
+    ) -> Generator["HTTPResponse", None, None]:
+        method = "POST" if post or data else "GET"
+        headers = headers or {}
 
+        if token:
+            headers["Authorization"] = f"Bearer {token}"
 
-class NotFound(APIError):
-    """Exception thrown when the YouTube Analytics API returns a 404.
+        resp = http.request(method, url, body=urlencode(data or {}), headers=headers)
+        if resp.status > 399 and not ignore_errors:
+            raise ERROR_MAPPING.get(resp.status, APIError)(
+                resp.status, resp.reason or "N/A"
+            )
 
-    Parameters
-    ----------
-    code : str or int
-        The error code.
-    message : str
-        The error message.
-    """
+        yield resp

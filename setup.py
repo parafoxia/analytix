@@ -31,9 +31,9 @@ from __future__ import annotations
 import sys
 from collections import defaultdict
 
-if sys.version_info < (3, 7, 0):
+if sys.version_info < (3, 8, 0):
     print(
-        "analytix only supports Python versions 3.7.0 or greater.",
+        "analytix only supports Python versions 3.8.0 or greater.",
         file=sys.stderr,
     )
     sys.exit(1)
@@ -93,11 +93,11 @@ setuptools.setup(
         "Operating System :: Unix",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3 :: Only",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
+        # "Programming Language :: Python :: 3.12",
         "Programming Language :: Python :: Implementation :: CPython",
         "Programming Language :: Python :: Implementation :: PyPy",
         "Topic :: Internet",
@@ -117,7 +117,7 @@ setuptools.setup(
         "excel": parse_requirements("./requirements/excel.txt"),
         "types": parse_requirements("./requirements/types.txt"),
     },
-    python_requires=">=3.7.0,<3.13",
+    python_requires=">=3.8.0,<3.13",
     packages=setuptools.find_packages(),
     include_package_data=True,
 )

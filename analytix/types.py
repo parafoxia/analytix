@@ -42,7 +42,9 @@ __all__ = (
 
 import typing as t
 from pathlib import Path
+from typing import Dict, Tuple, Union
 
+# Old
 ResponseT = t.Dict[str, t.Any]
 PathLikeT = t.Union[str, Path]
 OptionalPathLikeT = t.Union[str, Path, None]
@@ -54,3 +56,7 @@ ReportRowT = t.List[t.List[t.Union[str, int, float]]]
 
 AuthUriT = t.Tuple[str, t.Dict[str, str]]
 TokenUriT = t.Tuple[str, t.Dict[str, str], t.Dict[str, str]]
+
+# New
+PathLike = Union[str, Path]
+UriParams = Tuple[str, Dict[str, str], Dict[str, str]]

@@ -1,3 +1,0 @@
-# oidc
-
-::: analytix.oidc
