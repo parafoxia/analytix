@@ -1,20 +1,25 @@
-# analytix
+#
 
-[![PyPi version](https://img.shields.io/pypi/v/analytix.svg)](https://pypi.python.org/pypi/analytix/)
-[![PyPI - Status](https://img.shields.io/pypi/status/analytix)](https://pypi.python.org/pypi/analytix/)
-[![Downloads](https://static.pepy.tech/badge/analytix)](https://pepy.tech/project/analytix)
-[![GitHub last commit](https://img.shields.io/github/last-commit/parafoxia/analytix)](https://github.com/parafoxia/analytix)
-[![License](https://img.shields.io/github/license/parafoxia/analytix.svg)](https://github.com/parafoxia/analytix/blob/main/LICENSE)
+<div align="center">
+<img alt="analytix logo" src="https://raw.githubusercontent.com/parafoxia/analytix/main/assets/logo.png" width="400px">
+<br /><br />
+A simple yet powerful SDK for the YouTube Analytics API.
+<br /><br />
+<a href="https://pypi.python.org/pypi/analytix"><img alt="PyPI - Version" src="https://img.shields.io/pypi/v/analytix"></a>
+<a href="https://pypi.python.org/pypi/analytix"><img alt="PyPI - Python Version" src="https://img.shields.io/pypi/pyversions/analytix"></a>
+<a href="https://pypi.python.org/pypi/analytix"><img alt="PyPI - Implementation" src="https://img.shields.io/pypi/implementation/analytix"></a>
+<a href="https://pepy.tech/project/analytix"><img alt="Downloads" src="https://static.pepy.tech/badge/analytix"></a>
+<br />
+<a href="https://github.com/parafoxia/analytix"><img alt="GitHub Workflow Status (CI)" src="https://img.shields.io/github/actions/workflow/status/parafoxia/analytix/ci.yml"></a>
+<a href="https://parafoxia.github.io/analytix"><img alt="GitHub Workflow Status (Publish Docs)" src="https://img.shields.io/github/actions/workflow/status/parafoxia/analytix/publish-docs.yml?label=docs"></a>
+<a href="https://github.com/parafoxia/analytix"><img alt="Code Climate coverage" src="https://img.shields.io/codeclimate/coverage/parafoxia/analytix"></a>
+<a href="https://github.com/parafoxia/analytix"><img alt="Code Climate maintainability" src="https://img.shields.io/codeclimate/maintainability/parafoxia/analytix"></a>
+<hr />
+</div>
 
-[![CI](https://github.com/parafoxia/analytix/actions/workflows/ci.yml/badge.svg)](https://github.com/parafoxia/analytix/actions/workflows/ci.yml)
-[![Docs](https://github.com/parafoxia/analytix/actions/workflows/pages/pages-build-deployment/badge.svg)](https://parafoxia.github.io/analytix)
-[![Maintainability](https://api.codeclimate.com/v1/badges/8819bdebb2d4aa8dfcb7/maintainability)](https://codeclimate.com/github/parafoxia/analytix/maintainability)
-[![Test Coverage](https://api.codeclimate.com/v1/badges/8819bdebb2d4aa8dfcb7/test_coverage)](https://codeclimate.com/github/parafoxia/analytix/test_coverage)
-
-A simple yet powerful wrapper for the YouTube Analytics API.
+## Compatibility
 
 CPython versions 3.8 through 3.12 and PyPy versions 3.8 through 3.10 are officially supported.
-
 Windows, MacOS, and Linux are all supported.
 
 ## Features
@@ -24,19 +29,6 @@ Windows, MacOS, and Linux are all supported.
 - A clever interface allows you to make multiple requests across multiple sessions without reauthorising
 - Extra support allows the native saving of CSV files and conversion to DataFrame objects
 - Easy enough for beginners, but powerful enough for advanced users
-
-## What does *analytix* do?
-
-The YouTube Studio provides a fantastic interface where creators can view some incredibly detailed analytics for their channel.
-However, there's no way to perform programmatical operations on the data to do some proper analysis on it.
-This is where analytix comes in.
-
-The process of analysing data on the YouTube Studio is comprised of two steps:
-
-1. Retrieving the data to be analysed and visualised
-2. Presenting that data to the user
-
-analytix aims to handle step one as comprehensively as possible, allowing analysts to use tools such as *pandas* and *Matplotlib* to work on the data without having to faff around with Google's offerings.
 
 ## Installation
 
@@ -58,39 +50,69 @@ You may need to prefix these commands with a call to the Python interpreter depe
 
 You can also install analytix with additional libraries to provide extra functionality:
 
-* `analytix[excel]` — support for exporting reports to Excel spreadsheets
-* `analytix[types]` — type stubs for type-hinted projects
+* `analytix[arrow]` — support for Apache Arrow (incl. tables, Parquet files, and Feather files)
+* `analytix[excel]` — support for Excel spreadsheets
+* `analytix[pandas]` — support for pandas DataFrames
+* `analytix[polars]` — support for Polars DataFrames
 
 To install multiple at once, use commas:
 
 ```sh
-pip install "analytix[excel,types]"
+pip install "analytix[excel,pandas]"
 ```
-
-Support for DataFrame and Arrow table conversions is also present.
-analytix supports these libraries natively:
-
-* `pandas` >= 0.23.2
-* `pyarrow` >= 2.0.0
-* `polars` >= 0.17.3
-
-Note: You will need to install your library of choice manually to be able to use it.
 
 ## OAuth authentication
 
 All requests to the YouTube Analytics API need to be authorised through OAuth 2.
 In order to do this, you will need a Google Developers project with the YouTube Analytics API enabled.
-You can find instructions on how to do that in the [API setup guide](https://parafoxia.github.io/analytix/starting/googleapp/), or on [this video](https://www.youtube.com/watch?v=1Xday10ZWeg).
+You can find instructions on how to do that in the [API setup guide](https://parafoxia.github.io/analytix/starting/googleapp/).
 
-When analytix boots up for the first time, it will display a link.
-You'll need to follow that link and run through the OAuth workflow.
-Once that's done, analytix saves the tokens to the disk (if you plan to run analytix on a server, make sure these are in a safe place).
-This includes your refresh token, which analytix will automatically use to refresh your access token when needed.
+Once a project is set up, analytix handles authorisation — including token refreshing — for you.
 
-This means you should only have to authorise analytix, at most, every week.
 More details regarding how and when refresh tokens expire can be found on the [Google Identity documentation](https://developers.google.com/identity/protocols/oauth2#expiration).
 
-## Logging
+## Usage
+
+### Retrieving reports
+
+The following example creates a CSV file containing basic info for the 10 most viewed videos, from most to least viewed, in the US in 2022:
+
+```py
+from datetime import date
+
+from analytix import Client
+
+with Client("secrets.json") as client:
+    report = client.fetch_report(
+        dimensions=("video",),
+        filters={"country": "US"},
+        metrics=("estimatedMinutesWatched", "views", "likes", "comments"),
+        sort_options=("-estimatedMinutesWatched",),
+        start_date=date(2022, 1, 1),
+        end_date=date(2022, 12, 31),
+        max_results=10,
+    )
+    report.to_csv("analytics.csv")
+```
+
+If you want to analyse this data using additional tools such as *pandas*, you can directly export the report as a DataFrame or table using the `to_pandas()`, `to_arrow()`, and `to_polars()` methods of the report instance.
+You can also save the report as a `.tsv`, `.json`, `.xlsx`, `.parquet`, or `.feather` file.
+
+There are more examples in the [GitHub repository](https://github.com/parafoxia/analytix/tree/main/examples).
+
+### Fetching group information
+
+You can also fetch groups and group items:
+
+```py
+from analytix import Client
+
+with Client("secrets.json") as client:
+    groups = client.fetch_groups()
+    group_items = client.fetch_group_items(groups[0].id)
+```
+
+### Logging
 
 If you want to see what analytix is doing, you can enable the packaged logger:
 
@@ -100,50 +122,8 @@ import analytix
 analytix.enable_logging()
 ```
 
-If anything is going wrong, or analytix appears to be taking a long time to fetch data, try enabling the logger in DEBUG mode.
-
-## Usage
-
-### Retrieving reports
-
-Retrieving reports from the YouTube Analytics API is easy.
-The below example loads credentials from a secrets file, and gets day-by-day data on views, likes, and comments from the US over the last 28 days:
-
-```py
-from analytix import Client
-
-client = Client("./secrets.json")
-report = client.fetch_report(
-    dimensions=("day",),
-    filters={"country": "US"},
-    metrics=("views", "likes", "comments"),
-)
-report.to_csv("./analytics.csv")
-```
-
-If you want to analyse this data using additional tools such as *pandas*, you can directly export the report as a DataFrame or table.
-
-```py
-df = report.to_pandas()
-table = report.to_arrow()
-df = report.to_polars()
-```
-
-### Fetching group information
-
-You can also fetch groups and group items:
-
-```py
-from analytix import Client
-
-client = Client("./secrets.json")
-groups = client.fetch_groups()
-
-# If you want to get the items within a group:
-items = client.fetch_group_items(groups[0].id)
-```
-
-To read up further, [have a look at the documentation](https://parafoxia.github.io/analytix), or [have a look at some examples](https://github.com/parafoxia/analytix/tree/main/examples).
+This defaults to showing all log messages of level INFO and above.
+To show more (or less) messages, pass a logging level as an argument.
 
 ## Contributing
 
