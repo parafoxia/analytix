@@ -115,7 +115,9 @@ setuptools.setup(
     install_requires=parse_requirements("./requirements/base.txt"),
     extras_require={
         "excel": parse_requirements("./requirements/excel.txt"),
-        "types": parse_requirements("./requirements/types.txt"),
+        "pandas": parse_requirements("./requirements/pandas.txt"),
+        "polars": parse_requirements("./requirements/polars.txt"),
+        "pyarrow": parse_requirements("./requirements/pyarrow.txt"),
     },
     python_requires=">=3.8.0,<3.13",
     packages=setuptools.find_packages(),

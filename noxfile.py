@@ -87,7 +87,7 @@ def sp(*paths: Path) -> list[str]:
 
 
 @nox.session(reuse_venv=True)
-@install(meta=True, rfiles=["excel"])
+@install(meta=True, rfiles=["excel", "pandas", "polars", "pyarrow"])
 def tests(session: nox.Session) -> None:
     session.run(
         "coverage",
@@ -152,6 +152,7 @@ def linting(session: nox.Session) -> None:
 @nox.session(reuse_venv=True)
 @install(rfiles=["dev"])
 def safety(session: nox.Session) -> None:
+    session.run("mypy", "--install-types", "--non-interactive")
     session.run("safety", "check", "--full-report")
 
 
@@ -173,6 +174,11 @@ def spelling(session: nox.Session) -> None:
 
 
 @nox.session(reuse_venv=True)
-@install(rfiles=["types"])
+@install(rfiles=["base"])
 def typing(session: nox.Session) -> None:
-    session.run("mypy", *sp(PROJECT_DIR, EXAMPLES_DIR, SETUP_FILE))
+    session.run(
+        "mypy",
+        "--install-types",
+        "--non-interactive",
+        *sp(PROJECT_DIR, EXAMPLES_DIR, SETUP_FILE),
+    )

@@ -1,4 +1,0 @@
--r ./base.txt
-types-aiofiles
-types-python-dateutil
-types-setuptools

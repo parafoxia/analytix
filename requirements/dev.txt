@@ -4,7 +4,9 @@
 -r ./docs.txt
 -r ./excel.txt
 -r ./nox.txt
--r ./types.txt
+-r ./pandas.txt
+-r ./polars.txt
+-r ./pyarrow.txt
 
 # Extras
 isort>=5.12,<6.0

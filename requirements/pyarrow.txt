@@ -1,0 +1,1 @@
+pyarrow>=2.0,<14.0; platform_python_implementation=="CPython" and python_version < "3.12"
