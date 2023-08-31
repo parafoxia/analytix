@@ -228,3 +228,38 @@ def group_item_data():
             "id": "j0i9h8g7f6",
         },
     }
+
+
+# MIXINS
+
+
+@pytest.fixture()
+def request_data():
+    return json.dumps(
+        {
+            "kind": "youtubeAnalytics#resultTable",
+            "columnHeaders": [
+                {"name": "day", "dataType": "STRING", "columnType": "DIMENSION"},
+                {"name": "views", "dataType": "INTEGER", "columnType": "METRIC"},
+                {"name": "likes", "dataType": "INTEGER", "columnType": "METRIC"},
+                {"name": "comments", "dataType": "INTEGER", "columnType": "METRIC"},
+                {"name": "grossRevenue", "dataType": "FLOAT", "columnType": "METRIC"},
+            ],
+            "rows": [
+                ["2022-06-20", 778, 8, 0, 2.249],
+                ["2022-06-21", 1062, 32, 8, 3.558],
+                ["2022-06-22", 946, 38, 6, 2.91],
+                ["2022-06-23", 5107, 199, 15, 24.428],
+                ["2022-06-24", 2137, 61, 2, 6.691],
+                ["2022-06-25", 1005, 31, 6, 4.316],
+                ["2022-06-26", 888, 12, 1, 4.206],
+            ],
+        }
+    ).encode("utf-8")
+
+
+@pytest.fixture()
+def error_request_data():
+    return json.dumps(
+        {"error": {"code": 403, "message": "You ain't allowed, son."}}
+    ).encode("utf-8")

@@ -68,20 +68,20 @@ class MockAsyncFile:
 
 
 class MockResponse:
-    def __init__(self, data, ok=True):
-        self.data = data
-        self.ok = ok
-        self.status = 200 if ok else 400
-        self.reason = "" if ok else "Too bad sucker!"
+    def __init__(self, body, /, status, reason=None):
+        self._body = body
+        self.status = status
+        self.reason = reason
 
-    async def __aenter__(self):
+    def __enter__(self):
         return self
 
-    async def __aexit__(self, *args):
+    def __exit__(self, *args):
         ...
 
-    async def json(self):
-        return json.loads(self.data)
+    @property
+    def data(self):
+        return self._body
 
 
 def create_secrets_file(other=False):
