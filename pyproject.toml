@@ -26,6 +26,7 @@ asyncio_mode = "auto"
 [tool.coverage.report]
 omit = ["analytix/__init__.py", "analytix/__main__.py", "analytix/types.py", "analytix/ux.py"]
 exclude_lines = [
+    "if TYPE_CHECKING:",
     "if t.TYPE_CHECKING:",
     "raise NotImplementedError",
     "return NotImplemented",

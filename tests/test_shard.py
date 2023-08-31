@@ -26,37 +26,39 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import datetime as dt
+import logging
 from unittest import mock
 
 import pytest
-from urllib3 import PoolManager
 
-from analytix.errors import APIError, BadRequest
 from analytix.mixins import RequestMixin
+from analytix.reports import AnalyticsReport
+from analytix.shard import Shard
 from tests import MockResponse
 
 
-def test_request(response, response_data):
-    with mock.patch.object(PoolManager, "request", return_value=response):
-        with RequestMixin()._request("https://rickroll.com") as resp:
-            assert resp.status == 200
-            assert resp.data == response_data
+def test_shard_fetch_report(shard: Shard, report: AnalyticsReport, response, caplog):
+    with caplog.at_level(logging.INFO):
+        with mock.patch.object(RequestMixin, "_request", return_value=response):
+            assert report == shard.fetch_report(
+                dimensions=("day",),
+                metrics=("views", "likes", "comments", "grossRevenue"),
+                start_date=dt.date(2022, 6, 20),
+                end_date=dt.date(2022, 6, 26),
+            )
+        assert "Created 'Time-based activity' report of shape (7, 5)" in caplog.text
 
 
-def test_request_api_error(error_response):
-    with mock.patch.object(PoolManager, "request", return_value=error_response):
-        with pytest.raises(
-            APIError, match="API returned 403: You ain't allowed in son."
-        ):
-            with RequestMixin()._request("https://rickroll.com"):
-                ...
+def test_shard_fetch_groups(shard: Shard, group_list, group_list_response):
+    with mock.patch.object(RequestMixin, "_request", return_value=group_list_response):
+        assert group_list == shard.fetch_groups()
 
 
-def test_request_api_error_ignore_errors(error_response, error_response_data):
-    with mock.patch.object(PoolManager, "request", return_value=error_response):
-        with RequestMixin()._request(
-            "https://rickroll.com", ignore_errors=True
-        ) as resp:
-            assert resp.status == 403
-            assert resp.reason == "You ain't allowed in son."
-            assert resp.data == error_response_data
+def test_shard_fetch_group_items(
+    shard: Shard, group_item_list, group_item_list_response
+):
+    with mock.patch.object(
+        RequestMixin, "_request", return_value=group_item_list_response
+    ):
+        assert group_item_list == shard.fetch_group_items("a1b2c3d4e5")

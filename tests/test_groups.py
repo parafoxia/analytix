@@ -63,12 +63,6 @@ def test_create_group_item_from_json(group_item_data):
 
 
 @pytest.mark.dependency(depends=["test_create_group_item_from_json"])
-@pytest.fixture()
-def group_item(group_item_data):
-    return GroupItem.from_json(group_item_data)
-
-
-@pytest.mark.dependency(depends=["test_create_group_item_from_json"])
 def test_group_item_data_property(group_item_data, group_item):
     assert group_item.data == group_item_data
 

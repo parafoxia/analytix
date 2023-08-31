@@ -32,8 +32,12 @@ import json
 import pytest
 import pytz
 
-from analytix.auth import Secrets, Tokens
-from analytix.groups import Group, GroupItemList, GroupList
+from analytix.auth import Scopes, Secrets, Tokens
+from analytix.groups import Group, GroupItem, GroupItemList, GroupList
+from analytix.reports import AnalyticsReport
+from analytix.reports.types import TimeBasedActivity
+from analytix.shard import Shard
+from tests import MockResponse
 
 # AUTH
 
@@ -172,6 +176,11 @@ def group_list(group):
 
 
 @pytest.fixture()
+def group_item(group_item_data):
+    return GroupItem.from_json(group_item_data)
+
+
+@pytest.fixture()
 def group_item_list(group_item):
     return GroupItemList(
         kind="youtube#groupItemListResponse",
@@ -234,7 +243,7 @@ def group_item_data():
 
 
 @pytest.fixture()
-def request_data():
+def response_data():
     return json.dumps(
         {
             "kind": "youtubeAnalytics#resultTable",
@@ -259,7 +268,40 @@ def request_data():
 
 
 @pytest.fixture()
-def error_request_data():
+def error_response_data():
     return json.dumps(
         {"error": {"code": 403, "message": "You ain't allowed, son."}}
     ).encode("utf-8")
+
+
+@pytest.fixture()
+def response(response_data):
+    return MockResponse(response_data, 200)
+
+
+@pytest.fixture()
+def error_response(error_response_data):
+    return MockResponse(error_response_data, 403, "You ain't allowed in son.")
+
+
+# SHARD
+
+
+@pytest.fixture()
+def shard(tokens: Tokens):
+    return Shard(Scopes.ALL, tokens)
+
+
+@pytest.fixture()
+def report(response_data):
+    return AnalyticsReport(json.loads(response_data), TimeBasedActivity())
+
+
+@pytest.fixture()
+def group_list_response(group_list_data):
+    return MockResponse(json.dumps(group_list_data).encode("utf-8"), 200)
+
+
+@pytest.fixture()
+def group_item_list_response(group_item_list_data):
+    return MockResponse(json.dumps(group_item_list_data).encode("utf-8"), 200)
