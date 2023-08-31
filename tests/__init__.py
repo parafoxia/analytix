@@ -29,6 +29,7 @@
 import json
 
 from analytix import auth
+from analytix.client import BaseClient
 
 
 class MockFile:
@@ -82,6 +83,11 @@ class MockResponse:
     @property
     def data(self):
         return self._body
+
+
+class CustomBaseClient(BaseClient):
+    def authorise(self):
+        return super().authorise()
 
 
 def create_secrets_file(other=False):

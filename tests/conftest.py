@@ -28,16 +28,19 @@
 
 import datetime as dt
 import json
+from pathlib import Path
+from unittest import mock
 
 import pytest
 import pytz
 
 from analytix.auth import Scopes, Secrets, Tokens
+from analytix.client import Client
 from analytix.groups import Group, GroupItem, GroupItemList, GroupList
 from analytix.reports import AnalyticsReport
 from analytix.reports.types import TimeBasedActivity
 from analytix.shard import Shard
-from tests import MockResponse
+from tests import CustomBaseClient, MockResponse
 
 # AUTH
 
@@ -93,6 +96,18 @@ def tokens_data():
             "scope": "https://www.googleapis.com/auth/yt-analytics.readonly https://www.googleapis.com/auth/yt-analytics-monetary.readonly",
             "token_type": "Bearer",
             "refresh_token": "f6g7h8i9j0",
+        }
+    )
+
+
+@pytest.fixture()
+def refreshed_tokens_data():
+    return json.dumps(
+        {
+            "access_token": "5e4d3c2b1a",
+            "expires_in": 3599,
+            "scope": "https://www.googleapis.com/auth/yt-analytics.readonly https://www.googleapis.com/auth/yt-analytics-monetary.readonly",
+            "token_type": "Bearer",
         }
     )
 
@@ -305,3 +320,22 @@ def group_list_response(group_list_data):
 @pytest.fixture()
 def group_item_list_response(group_item_list_data):
     return MockResponse(json.dumps(group_item_list_data).encode("utf-8"), 200)
+
+
+# CLIENT
+
+
+@pytest.fixture()
+def base_client(secrets_data):
+    with mock.patch.object(Path, "read_text", return_value=secrets_data):
+        # We use a subclass of BaseClient as the original has an
+        # abstract method. This custom one doesn't actually implement
+        # anything, but it does allow us to split client tests into two
+        # separate files.
+        return CustomBaseClient("secrets.json")
+
+
+@pytest.fixture()
+def client(secrets_data):
+    with mock.patch.object(Path, "read_text", return_value=secrets_data):
+        return Client("secrets.json")
