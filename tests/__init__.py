@@ -32,7 +32,7 @@ from analytix import auth
 
 
 class MockFile:
-    def __init__(self, data):
+    def __init__(self, data=""):
         self.read_data = data
         self.write_data = ""
 
@@ -50,7 +50,7 @@ class MockFile:
 
 
 class MockAsyncFile:
-    def __init__(self, data):
+    def __init__(self, data=""):
         self.read_data = data
         self.write_data = ""
 
