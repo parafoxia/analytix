@@ -224,9 +224,7 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
         routine.
 
         Generally, shards should only live for a single request or
-        a batch of related requests. Shards can be revived by the client
-        if their tokens expire, but it is recommended you destroy shards
-        when you are finished with them.
+        a batch of related requests.
 
         Parameters
         ----------

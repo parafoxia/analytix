@@ -71,10 +71,6 @@ class Shard(RequestMixin):
         self._scopes = scopes
         self._tokens = tokens
 
-    def revive(self, tokens: "Tokens") -> "Shard":
-        self._tokens = tokens
-        return self
-
     def fetch_report(
         self,
         *,
