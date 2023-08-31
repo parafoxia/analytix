@@ -17,18 +17,13 @@ A simple yet powerful SDK for the YouTube Analytics API.
 <hr />
 </div>
 
-## Compatibility
-
-CPython versions 3.8 through 3.12 and PyPy versions 3.8 through 3.10 are officially supported.
-Windows, MacOS, and Linux are all supported.
-
 ## Features
 
-- Pythonic syntax lets you feel right at home
-- Dynamic error handling saves hours of troubleshooting and makes sure only valid requests count toward your API quota
-- A clever interface allows you to make multiple requests across multiple sessions without reauthorising
-- Extra support allows the native saving of CSV files and conversion to DataFrame objects
-- Easy enough for beginners, but powerful enough for advanced users
+* Pythonic syntax lets you feel right at home
+* Dynamic error handling saves hours of troubleshooting and makes sure only valid requests count toward your API quota
+* A clever interface allows you to make multiple requests across multiple sessions without reauthorising
+* Extra support enables you to export reports in a variety of filetypes and to a number of DataFrame formats
+* Easy enough for beginners, but powerful enough for advanced users
 
 ## Installation
 
@@ -82,17 +77,17 @@ from datetime import date
 
 from analytix import Client
 
-with Client("secrets.json") as client:
-    report = client.fetch_report(
-        dimensions=("video",),
-        filters={"country": "US"},
-        metrics=("estimatedMinutesWatched", "views", "likes", "comments"),
-        sort_options=("-estimatedMinutesWatched",),
-        start_date=date(2022, 1, 1),
-        end_date=date(2022, 12, 31),
-        max_results=10,
-    )
-    report.to_csv("analytics.csv")
+client = Client("secrets.json")
+report = client.fetch_report(
+    dimensions=("video",),
+    filters={"country": "US"},
+    metrics=("estimatedMinutesWatched", "views", "likes", "comments"),
+    sort_options=("-estimatedMinutesWatched",),
+    start_date=date(2022, 1, 1),
+    end_date=date(2022, 12, 31),
+    max_results=10,
+)
+report.to_csv("analytics.csv")
 ```
 
 If you want to analyse this data using additional tools such as *pandas*, you can directly export the report as a DataFrame or table using the `to_pandas()`, `to_arrow()`, and `to_polars()` methods of the report instance.
@@ -107,6 +102,7 @@ You can also fetch groups and group items:
 ```py
 from analytix import Client
 
+# You can also use the client as context manager!
 with Client("secrets.json") as client:
     groups = client.fetch_groups()
     group_items = client.fetch_group_items(groups[0].id)
@@ -124,6 +120,11 @@ analytix.enable_logging()
 
 This defaults to showing all log messages of level INFO and above.
 To show more (or less) messages, pass a logging level as an argument.
+
+## Compatibility
+
+CPython versions 3.8 through 3.12 and PyPy versions 3.8 through 3.10 are officially supported.
+Windows, MacOS, and Linux are all supported.
 
 ## Contributing
 
