@@ -26,11 +26,14 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import datetime as dt
 import json
 
 import pytest
+import pytz
 
 from analytix.auth import Secrets, Tokens
+from analytix.groups import Group, GroupItemList, GroupList
 
 # AUTH
 
@@ -139,4 +142,89 @@ def auth_params_port_80():
         "scope": "https://www.googleapis.com/auth/yt-analytics.readonly https://www.googleapis.com/auth/yt-analytics-monetary.readonly",
         "state": "34c5f166f6abb229ee092be1e7e92ca71434bcb1a27ba0664cd2fea834d85927",
         "access_type": "offline",
+    }
+
+
+# GROUPS
+
+
+@pytest.fixture()
+def group():
+    return Group(
+        kind="youtube#group",
+        etag="f6g7h8i9j0",
+        id="a1b2c3d4e5",
+        published_at=dt.datetime(2022, 11, 30, 12, 34, 56, 789000, tzinfo=pytz.utc),
+        title="Barney the Dinosaur",
+        item_count=69,
+        item_type="youtube#video",
+    )
+
+
+@pytest.fixture()
+def group_list(group):
+    return GroupList(
+        kind="youtube#groupListResponse",
+        etag="f6g7h8i9j0",
+        items=[group],
+        next_page_token="a1b2c3d4e5",
+    )
+
+
+@pytest.fixture()
+def group_item_list(group_item):
+    return GroupItemList(
+        kind="youtube#groupItemListResponse",
+        etag="a1b2c3d4e5",
+        items=[group_item],
+    )
+
+
+@pytest.fixture()
+def group_data():
+    return {
+        "kind": "youtube#group",
+        "etag": "f6g7h8i9j0",
+        "id": "a1b2c3d4e5",
+        "snippet": {
+            "publishedAt": "2022-11-30T12:34:56.789Z",
+            "title": "Barney the Dinosaur",
+        },
+        "contentDetails": {
+            "itemCount": "69",
+            "itemType": "youtube#video",
+        },
+    }
+
+
+@pytest.fixture()
+def group_list_data(group_data):
+    return {
+        "kind": "youtube#groupListResponse",
+        "etag": "f6g7h8i9j0",
+        "items": [group_data],
+        "nextPageToken": "a1b2c3d4e5",
+    }
+
+
+@pytest.fixture()
+def group_item_list_data(group_item_data):
+    return {
+        "kind": "youtube#groupItemListResponse",
+        "etag": "a1b2c3d4e5",
+        "items": [group_item_data],
+    }
+
+
+@pytest.fixture()
+def group_item_data():
+    return {
+        "kind": "youtube#groupItem",
+        "etag": "f6g7h8i9j0",
+        "id": "e5d4c3b2a1",
+        "groupId": "a1b2c3d4e5",
+        "resource": {
+            "kind": "youtube#video",
+            "id": "j0i9h8g7f6",
+        },
     }
