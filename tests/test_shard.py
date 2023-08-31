@@ -30,12 +30,15 @@ import datetime as dt
 import logging
 from unittest import mock
 
-import pytest
-
+from analytix.auth import Scopes
 from analytix.mixins import RequestMixin
 from analytix.reports import AnalyticsReport
 from analytix.shard import Shard
-from tests import MockResponse
+
+
+def test_shard_init(shard: Shard, tokens):
+    assert shard._scopes == Scopes.ALL
+    assert shard._tokens == tokens
 
 
 def test_shard_fetch_report(shard: Shard, report: AnalyticsReport, response, caplog):
