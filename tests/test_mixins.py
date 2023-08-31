@@ -60,3 +60,12 @@ def test_request_api_error_ignore_errors(error_response, error_response_data):
             assert resp.status == 403
             assert resp.reason == "You ain't allowed in son."
             assert resp.data == error_response_data
+
+
+def test_request_with_access_token(response, tokens):
+    with mock.patch.object(PoolManager, "request", return_value=response):
+        with RequestMixin()._request("https://rickroll.com", token=tokens.access_token):
+            # There's not really any way to test if the headers were
+            # passed, though we can double-check against the coverage
+            # to ensure the operation was at least attempted.
+            ...
