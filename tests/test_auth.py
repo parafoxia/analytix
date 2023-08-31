@@ -64,7 +64,8 @@ def test_secrets_repr(secrets: Secrets):
 
 def test_secrets_load_from(secrets: Secrets, secrets_data: str, caplog):
     with caplog.at_level(logging.DEBUG):
-        with mock.patch.object(Path, "read_text", return_value=secrets_data):
+        f = MockFile(secrets_data)
+        with mock.patch.object(Path, "open", return_value=f):
             assert secrets == Secrets.load_from("secrets.json")
 
         assert "Loading secrets from" in caplog.text
@@ -88,7 +89,7 @@ def test_tokens_from_json(tokens: Tokens, tokens_data: str):
 def test_tokens_load_from(tokens: Tokens, tokens_data: str, caplog):
     with caplog.at_level(logging.DEBUG):
         f = MockFile(tokens_data)
-        with mock.patch("io.open", return_value=f):
+        with mock.patch.object(Path, "open", return_value=f):
             assert tokens == Tokens.load_from("tokens.json")
 
         assert "Loading tokens from" in caplog.text
@@ -97,7 +98,7 @@ def test_tokens_load_from(tokens: Tokens, tokens_data: str, caplog):
 def test_tokens_save_to(tokens: Tokens, tokens_data: str, caplog):
     with caplog.at_level(logging.DEBUG):
         f = MockFile()
-        with mock.patch("io.open", return_value=f):
+        with mock.patch.object(Path, "open", return_value=f):
             tokens.save_to("tokens.json")
             assert f.write_data == tokens_data
 
