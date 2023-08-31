@@ -49,6 +49,9 @@ class MockFile:
     def write(self, data):
         self.write_data += data
 
+    def is_file(self):
+        return True
+
 
 class MockAsyncFile:
     def __init__(self, data=""):

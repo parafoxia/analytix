@@ -71,6 +71,17 @@ def tokens():
 
 
 @pytest.fixture()
+def refreshed_tokens():
+    return Tokens(
+        access_token="5e4d3c2b1a",
+        expires_in=3599,
+        scope="https://www.googleapis.com/auth/yt-analytics.readonly https://www.googleapis.com/auth/yt-analytics-monetary.readonly",
+        token_type="Bearer",
+        refresh_token="f6g7h8i9j0",
+    )
+
+
+@pytest.fixture()
 def secrets_data():
     return json.dumps(
         {
@@ -290,6 +301,13 @@ def error_response_data():
 
 
 @pytest.fixture()
+def auth_error_response_data():
+    return json.dumps(
+        {"error": "403", "error_description": "You ain't allowed, son."}
+    ).encode("utf-8")
+
+
+@pytest.fixture()
 def response(response_data):
     return MockResponse(response_data, 200)
 
@@ -297,6 +315,11 @@ def response(response_data):
 @pytest.fixture()
 def error_response(error_response_data):
     return MockResponse(error_response_data, 403, "You ain't allowed in son.")
+
+
+@pytest.fixture()
+def auth_error_response(auth_error_response_data):
+    return MockResponse(auth_error_response_data, 403, "You ain't allowed in son.")
 
 
 # SHARD
