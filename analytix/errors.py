@@ -28,8 +28,6 @@
 
 """Exception classes for analytix."""
 
-from __future__ import annotations
-
 __all__ = (
     "AnalytixError",
     "MissingOptionalComponents",
@@ -43,8 +41,6 @@ __all__ = (
     "RefreshTokenExpired",
     "DataFrameConversionError",
     "InvalidRequest",
-    "InvalidFeatures",
-    "InvalidFeatureSet",
 )
 
 
@@ -172,31 +168,31 @@ class InvalidRequest(AnalytixError):
         return " and ".join(items)
 
     @classmethod
-    def invalid(cls, key: str, values: set[str]) -> InvalidRequest:
+    def invalid(cls, key: str, values: set[str]) -> "InvalidRequest":
         plural = "s" if len(values) > 1 else ""
-        return cls(f"invalid {key}{plural} provided: " + cls.list_of(values))
+        return cls(f"invalid {key}{plural} provided: {cls.list_of(values)}")
 
     @classmethod
-    def incompatible_dimensions(cls, values: set[str]) -> InvalidRequest:
+    def incompatible_dimensions(cls, values: set[str]) -> "InvalidRequest":
         return cls(f"dimensions {cls.list_of(values)} cannot be used together")
 
     @classmethod
-    def incompatible_filters(cls, values: set[str]) -> InvalidRequest:
+    def incompatible_filters(cls, values: set[str]) -> "InvalidRequest":
         return cls(f"filters {cls.list_of(values)} cannot be used together")
 
     @classmethod
-    def invalid_filter_value(cls, key: str, value: str) -> InvalidRequest:
+    def invalid_filter_value(cls, key: str, value: str) -> "InvalidRequest":
         return cls(f"invalid value {value!r} for filter {key!r}")
 
     @classmethod
-    def incompatible_filter_value(cls, key: str, value: str) -> InvalidRequest:
+    def incompatible_filter_value(cls, key: str, value: str) -> "InvalidRequest":
         return cls(
             f"value {value!r} for filter {key!r} cannot be used with the given "
             "dimensions"
         )
 
     @classmethod
-    def incompatible_metrics(cls, values: set[str]) -> InvalidRequest:
+    def incompatible_metrics(cls, values: set[str]) -> "InvalidRequest":
         plural = "s" if len(values) > 1 else ""
         return cls(
             f"metric{plural} {cls.list_of(values)} cannot be used with the given "
@@ -204,7 +200,7 @@ class InvalidRequest(AnalytixError):
         )
 
     @classmethod
-    def incompatible_sort_options(cls, values: set[str]) -> InvalidRequest:
+    def incompatible_sort_options(cls, values: set[str]) -> "InvalidRequest":
         plural = "s" if len(values) > 1 else ""
         return cls(
             f"sort option{plural} {cls.list_of(values)} cannot be used with the given "
@@ -212,7 +208,7 @@ class InvalidRequest(AnalytixError):
         )
 
     @classmethod
-    def non_matching_sort_options(cls, values: set[str]) -> InvalidRequest:
+    def non_matching_sort_options(cls, values: set[str]) -> "InvalidRequest":
         plural = "s" if len(values) > 1 else ""
         isare = "are" if plural else "is"
         return cls(
@@ -223,16 +219,8 @@ class InvalidRequest(AnalytixError):
     @classmethod
     def invalid_set(
         cls, key: str, values: set[str], expd: str, recv: int
-    ) -> InvalidRequest:
-        plural = "" if expd in ("1", "at least 1") else "s"
+    ) -> "InvalidRequest":
+        plural = "" if expd in {"1", "at least 1"} else "s"
         return cls(
             f"expected {expd} {key}{plural} from {cls.list_of(values)}, got {recv}"
         )
-
-
-class InvalidFeatures(InvalidRequest):
-    ...
-
-
-class InvalidFeatureSet(InvalidRequest):
-    ...
