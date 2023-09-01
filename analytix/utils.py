@@ -26,25 +26,26 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from __future__ import annotations
-
 __all__ = ("can_use", "process_path")
 
-import typing as t
+from importlib import metadata
 from pathlib import Path
+from typing import TYPE_CHECKING
 
-from pkg_resources import working_set
-
-if t.TYPE_CHECKING:
-    from analytix.types import PathLikeT
+if TYPE_CHECKING:
+    from analytix.types import PathLike
 
 
 def can_use(*packages: str) -> bool:
-    ws = [p.key for p in working_set]
-    return all(p in ws for p in packages)
+    for package in packages:
+        try:
+            metadata.distribution(package)
+        except metadata.PackageNotFoundError:
+            return False
+    return True
 
 
-def process_path(path: PathLikeT, extension: str, overwrite: bool) -> Path:
+def process_path(path: "PathLike", extension: str, overwrite: bool) -> Path:
     if not isinstance(path, Path):
         path = Path(path)
 
