@@ -36,7 +36,7 @@ import platform
 import sys
 import warnings
 from importlib.util import find_spec
-from typing import TextIO, Type
+from typing import Optional, TextIO, Type, Union
 
 import analytix
 
@@ -97,7 +97,7 @@ def display_splash() -> None:
     )
 
 
-def enable_logging(level: int = logging.INFO) -> logging.StreamHandler["TextIO"]:
+def enable_logging(level: int = logging.INFO) -> "logging.StreamHandler[TextIO]":
     """Enable analytix's preconfigured logger.
 
     Parameters
@@ -140,12 +140,12 @@ def enable_logging(level: int = logging.INFO) -> logging.StreamHandler["TextIO"]
     logging.logMultiprocessing = False
 
     def showwarning(
-        message: Warning | str,
+        message: Union[Warning, str],
         category: Type[Warning],
         filename: str,
         lineno: int,
-        file: "TextIO" | None = None,
-        line: str | None = None,
+        file: Optional["TextIO"] = None,
+        line: Optional[str] = None,
     ) -> None:
         for _module_name, module in sys.modules.items():
             module_path = getattr(module, "__file__", None)

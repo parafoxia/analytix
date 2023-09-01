@@ -32,7 +32,7 @@ import json
 import logging
 from dataclasses import dataclass
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Dict, List, Tuple
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 
 import analytix
 from analytix.errors import DataFrameConversionError, MissingOptionalComponents
@@ -152,7 +152,7 @@ class ResultTable:
 
     kind: str
     column_headers: List[ColumnHeader]
-    rows: List[List[str | int | float]]
+    rows: List[List[Union[str, int, float]]]
 
     @classmethod
     def from_json(cls, data: Dict[str, Any]) -> "ResultTable":
@@ -342,7 +342,7 @@ class AnalyticsReport:
         self,
         path: "PathLike",
         *,
-        indent: int | None = 4,
+        indent: Optional[int] = 4,
         overwrite: bool = True,
         **kwargs: Any,
     ) -> Dict[str, Any]:

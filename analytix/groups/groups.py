@@ -29,7 +29,7 @@
 __all__ = ("Group", "GroupList", "GroupItem", "GroupItemList")
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Dict, List
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from dateutil.parser import parse as du_parse
 
@@ -42,7 +42,7 @@ class _Resource:
     __slots__ = ("kind", "etag")
 
     kind: str
-    etag: str | None
+    etag: Optional[str]
 
 
 @dataclass(frozen=True)

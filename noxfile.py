@@ -28,7 +28,7 @@
 
 from functools import wraps
 from pathlib import Path
-from typing import Callable, List
+from typing import Callable, List, Optional
 
 import nox
 
@@ -45,7 +45,7 @@ SessFT = Callable[[nox.Session], None]
 
 
 def install(
-    *, meta: bool = False, rfiles: List[str] | None = None
+    *, meta: bool = False, rfiles: Optional[List[str]] = None
 ) -> Callable[[SessFT], SessFT]:
     def decorator(func: SessFT) -> SessFT:
         @wraps(func)
