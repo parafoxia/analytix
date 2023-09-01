@@ -192,7 +192,7 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
             you'll need to reauthorise.
 
         !!! important
-            This is not an equity check; if your tokens are authorised
+            This is not an equality check; if your tokens are authorised
             with all scopes, but you only passed the READONLY scope to
             the client, this will return `True`.
 
@@ -203,9 +203,8 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
             True
             ```
         """
-        stored = set(scopes.split(" "))
-        live = set(self._scopes.value.split(" "))
-        sufficient = stored & live == live
+        # The <= here means "is LHS a subset of RHS?".
+        sufficient = set(self._scopes.value.split(" ")) <= set(scopes.split(" "))
         _log.debug(f"Stored scopes are {'' if sufficient else 'in'}sufficient")
         return sufficient
 
