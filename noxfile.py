@@ -26,11 +26,9 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from __future__ import annotations
-
-import typing as t
 from functools import wraps
 from pathlib import Path
+from typing import Callable, List
 
 import nox
 
@@ -43,12 +41,12 @@ NOX_FILE = REPO_DIR / "noxfile.py"
 SETUP_FILE = REPO_DIR / "setup.py"
 REQUIREMENTS_FILE = REPO_DIR / "requirements/nox.txt"
 
-SessFT = t.Callable[[nox.Session], None]
+SessFT = Callable[[nox.Session], None]
 
 
 def install(
-    *, meta: bool = False, rfiles: list[str] | None = None
-) -> t.Callable[[SessFT], SessFT]:
+    *, meta: bool = False, rfiles: List[str] | None = None
+) -> Callable[[SessFT], SessFT]:
     def decorator(func: SessFT) -> SessFT:
         @wraps(func)
         def wrapper(session: nox.Session) -> None:
@@ -82,7 +80,7 @@ def install(
     return decorator
 
 
-def sp(*paths: Path) -> list[str]:
+def sp(*paths: Path) -> List[str]:
     return [str(p) for p in paths]
 
 

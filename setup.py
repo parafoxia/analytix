@@ -26,10 +26,10 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from __future__ import annotations
-
 import sys
 from collections import defaultdict
+from pathlib import Path
+from typing import List
 
 if sys.version_info < (3, 8, 0):
     print(
@@ -41,13 +41,13 @@ if sys.version_info < (3, 8, 0):
 import setuptools
 
 
-def parse_requirements(path: str) -> list[str]:
+def parse_requirements(path: str) -> List[str]:
     with open(path) as f:
         deps = (d.strip() for d in f.readlines())
         return [d for d in deps if not d.startswith(("#", "-e", "-r"))]
 
 
-with open("./analytix/__init__.py") as f:
+with open("analytix/__init__.py") as f:
     attrs = defaultdict(str)
 
     for line in f:
@@ -61,14 +61,11 @@ with open("./analytix/__init__.py") as f:
         attrs[k[2:-2]] = v.strip().replace('"', "")
 
 
-with open("./README.md") as f:
-    long_description = f.read()
-
 setuptools.setup(
     name=attrs["productname"],
     version=attrs["version"],
     description=attrs["description"],
-    long_description=long_description,
+    long_description=Path("README.md").read_text(),
     long_description_content_type="text/markdown",
     url=attrs["url"],
     author=attrs["author"],
@@ -97,7 +94,7 @@ setuptools.setup(
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
-        # "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.12",
         "Programming Language :: Python :: Implementation :: CPython",
         "Programming Language :: Python :: Implementation :: PyPy",
         "Topic :: Internet",
@@ -112,12 +109,12 @@ setuptools.setup(
         "CI": attrs["ci"],
         "Changelog": attrs["changelog"],
     },
-    install_requires=parse_requirements("./requirements/base.txt"),
+    install_requires=parse_requirements("requirements/base.txt"),
     extras_require={
-        "excel": parse_requirements("./requirements/excel.txt"),
-        "pandas": parse_requirements("./requirements/pandas.txt"),
-        "polars": parse_requirements("./requirements/polars.txt"),
-        "pyarrow": parse_requirements("./requirements/pyarrow.txt"),
+        "excel": parse_requirements("requirements/excel.txt"),
+        "pandas": parse_requirements("requirements/pandas.txt"),
+        "polars": parse_requirements("requirements/polars.txt"),
+        "pyarrow": parse_requirements("requirements/pyarrow.txt"),
     },
     python_requires=">=3.8.0,<3.13",
     packages=setuptools.find_packages(),

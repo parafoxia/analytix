@@ -28,19 +28,15 @@
 
 """User experience utilities for analytix."""
 
-from __future__ import annotations
-
 __all__ = ("display_splash", "enable_logging")
 
-import json
 import logging
 import os
 import platform
 import sys
-import typing as t
 import warnings
 from importlib.util import find_spec
-from urllib import request
+from typing import TextIO, Type
 
 import analytix
 
@@ -79,28 +75,15 @@ def _install_location() -> str:
 
 def display_splash() -> None:
     r = "\33[38;5;1m"
-    o = "\33[38;5;208m"
-    y = "\33[38;5;3m"
     g = "\33[38;5;2m"
     b = "\33[38;5;4m"
     l = "\33[38;5;219m"  # noqa: E741
 
-    resp = request.urlopen(analytix.UPDATE_CHECK_URL)  # noqa: S310
-    if resp.status == 200:
-        data = json.loads(resp.read().decode("utf-8"))
-        latest = data["info"]["version"]
-        linfo = (
-            f"{g}latest\33[0m"
-            if latest == analytix.__version__
-            else f"{y}latest is {latest}\33[0m"
-        )
-    else:
-        linfo = f"{o}latest N/A\33[0m"
-
+    # sourcery skip: use-fstring-for-concatenation
     print(  # noqa: T201
         BANNER + "\n"
-        "\33[3mA simple yet powerful wrapper for the YouTube Analytics API.\33[0m\n\n"
-        f"You're using version \33[1m{r}{analytix.__version__}\33[0m ({linfo}).\n\n"
+        f"\33[3m{analytix.__description__}\33[0m\n\n"
+        f"You're using version \33[1m{r}{analytix.__version__}\33[0m.\n\n"
         f"\33[1m{b}Information:\33[0m\n"
         f" • Python version: {platform.python_version()} "
         f"({platform.python_implementation()})\n"
@@ -114,7 +97,7 @@ def display_splash() -> None:
     )
 
 
-def enable_logging(level: int = logging.INFO) -> logging.StreamHandler[t.TextIO]:
+def enable_logging(level: int = logging.INFO) -> logging.StreamHandler["TextIO"]:
     """Enable analytix's preconfigured logger.
 
     Parameters
@@ -158,10 +141,10 @@ def enable_logging(level: int = logging.INFO) -> logging.StreamHandler[t.TextIO]
 
     def showwarning(
         message: Warning | str,
-        category: type[Warning],
+        category: Type[Warning],
         filename: str,
         lineno: int,
-        file: t.TextIO | None = None,
+        file: "TextIO" | None = None,
         line: str | None = None,
     ) -> None:
         for _module_name, module in sys.modules.items():

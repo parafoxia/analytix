@@ -26,8 +26,6 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from __future__ import annotations
-
 __all__ = (
     "ReportType",
     "DetailedReportType",
@@ -38,12 +36,12 @@ __all__ = (
 )
 
 import abc
-import typing as t
 from dataclasses import dataclass
+from typing import TYPE_CHECKING, Collection, Dict, Set
 
 from analytix.errors import InvalidRequest
 
-if t.TYPE_CHECKING:
+if TYPE_CHECKING:
     from analytix.reports.features import Dimensions, Filters, Metrics, SortOptions
 
 
@@ -52,20 +50,20 @@ class ReportType(metaclass=abc.ABCMeta):
     __slots__ = ("name", "dimensions", "filters", "metrics", "sort_options")
 
     name: str
-    dimensions: Dimensions
-    filters: Filters
-    metrics: Metrics
-    sort_options: SortOptions
+    dimensions: "Dimensions"
+    filters: "Filters"
+    metrics: "Metrics"
+    sort_options: "SortOptions"
 
     def __str__(self) -> str:
         return self.name
 
     def validate(
         self,
-        dimensions: t.Collection[str],
-        filters: dict[str, str],
-        metrics: t.Collection[str],
-        sort_options: t.Collection[str],
+        dimensions: Collection[str],
+        filters: Dict[str, str],
+        metrics: Collection[str],
+        sort_options: Collection[str],
         max_results: int = 0,
         start_index: int = 1,
     ) -> None:
@@ -83,10 +81,10 @@ class DetailedReportType(ReportType, metaclass=abc.ABCMeta):
 
     def validate(
         self,
-        dimensions: t.Collection[str],
-        filters: dict[str, str],
-        metrics: t.Collection[str],
-        sort_options: t.Collection[str],
+        dimensions: Collection[str],
+        filters: Dict[str, str],
+        metrics: Collection[str],
+        sort_options: Collection[str],
         max_results: int = 0,
         start_index: int = 1,
     ) -> None:
@@ -116,21 +114,21 @@ class FeatureType(metaclass=abc.ABCMeta):
         return f"{self.__class__.__name__}(values={self.values})"
 
     @abc.abstractmethod
-    def validate(self, inputs: t.Collection[str]) -> None:
+    def validate(self, inputs: Collection[str]) -> None:
         raise NotImplementedError
 
 
 class SegmentedFeatureType(metaclass=abc.ABCMeta):
     __slots__ = ("values",)
 
-    def __init__(self, *args: SetType) -> None:
+    def __init__(self, *args: "SetType") -> None:
         self.values = set(args)
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(values={self.values})"
 
     @property
-    def every(self) -> set[str]:
+    def every(self) -> Set[str]:
         every = set()
 
         for set_type in self.values:
@@ -139,21 +137,21 @@ class SegmentedFeatureType(metaclass=abc.ABCMeta):
         return every
 
     @abc.abstractmethod
-    def validate(self, inputs: t.Collection[str]) -> None:
+    def validate(self, inputs: Collection[str]) -> None:
         raise NotImplementedError
 
 
 class MappingFeatureType(metaclass=abc.ABCMeta):
     __slots__ = ("values",)
 
-    def __init__(self, *args: SetType) -> None:
+    def __init__(self, *args: "SetType") -> None:
         self.values = set(args)
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(values={self.values})"
 
     @property
-    def every(self) -> set[str]:
+    def every(self) -> Set[str]:
         every = set()
 
         for set_type in self.values:
@@ -162,7 +160,7 @@ class MappingFeatureType(metaclass=abc.ABCMeta):
         return every
 
     @abc.abstractmethod
-    def validate(self, inputs: dict[str, str]) -> None:
+    def validate(self, inputs: Dict[str, str]) -> None:
         raise NotImplementedError
 
 
@@ -177,9 +175,9 @@ class SetType(metaclass=abc.ABCMeta):
         return f"{self.__class__.__name__}(values={self.values})"
 
     @abc.abstractmethod
-    def validate_dimensions(self, inputs: set[str]) -> None:
+    def validate_dimensions(self, inputs: Set[str]) -> None:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def validate_filters(self, keys: set[str]) -> None:
+    def validate_filters(self, keys: Set[str]) -> None:
         raise NotImplementedError

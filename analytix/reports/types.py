@@ -26,8 +26,6 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from __future__ import annotations
-
 __all__ = (
     "BasicUserActivity",
     "BasicUserActivityUS",
@@ -76,8 +74,8 @@ __all__ = (
 )
 
 import logging
-import typing as t
 import warnings
+from typing import Collection, Dict
 
 from analytix.abc import DetailedReportType, ReportType
 from analytix.errors import InvalidRequest
@@ -204,10 +202,10 @@ class GeographyBasedActivityByCity(DetailedReportType):
 
     def validate(
         self,
-        dimensions: t.Collection[str],
-        filters: dict[str, str],
-        metrics: t.Collection[str],
-        sort_options: t.Collection[str],
+        dimensions: Collection[str],
+        filters: Dict[str, str],
+        metrics: Collection[str],
+        sort_options: Collection[str],
         max_results: int = 0,
         start_index: int = 1,
     ) -> None:
@@ -446,10 +444,10 @@ class TrafficSourceDetail(DetailedReportType):
 
     def validate(
         self,
-        dimensions: t.Collection[str],
-        filters: dict[str, str],
-        metrics: t.Collection[str],
-        sort_options: t.Collection[str],
+        dimensions: Collection[str],
+        filters: Dict[str, str],
+        metrics: Collection[str],
+        sort_options: Collection[str],
         max_results: int = 0,
         start_index: int = 1,
     ) -> None:
@@ -587,10 +585,10 @@ class AudienceRetention(ReportType):
 
     def validate(
         self,
-        dimensions: t.Collection[str],
-        filters: dict[str, str],
-        metrics: t.Collection[str],
-        sort_options: t.Collection[str],
+        dimensions: Collection[str],
+        filters: Dict[str, str],
+        metrics: Collection[str],
+        sort_options: Collection[str],
         max_results: int = 0,
         start_index: int = 1,
     ) -> None:
@@ -810,10 +808,10 @@ class TrafficSourceDetailPlaylist(DetailedReportType):
 
     def validate(
         self,
-        dimensions: t.Collection[str],
-        filters: dict[str, str],
-        metrics: t.Collection[str],
-        sort_options: t.Collection[str],
+        dimensions: Collection[str],
+        filters: Dict[str, str],
+        metrics: Collection[str],
+        sort_options: Collection[str],
         max_results: int = 0,
         start_index: int = 1,
     ) -> None:

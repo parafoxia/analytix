@@ -26,27 +26,25 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from __future__ import annotations
-
 __all__ = ("ResultTable", "AnalyticsReport")
 
 import json
 import logging
-import typing as t
 from dataclasses import dataclass
 from enum import Enum
+from typing import TYPE_CHECKING, Any, Dict, List, Tuple
 
 import analytix
 from analytix.errors import DataFrameConversionError, MissingOptionalComponents
 from analytix.utils import process_path
 
-if t.TYPE_CHECKING:
+if TYPE_CHECKING:
     import pandas as pd
     import polars as pl
     import pyarrow as pa
 
     from analytix.abc import ReportType
-    from analytix.types import PathLikeT, ResponseT
+    from analytix.types import PathLike
 
 _log = logging.getLogger(__name__)
 
@@ -103,7 +101,7 @@ class ColumnHeader:
     column_type: ColumnType
 
     @property
-    def data(self) -> ResponseT:
+    def data(self) -> Dict[str, Any]:
         """The raw data for this column header in JSON format.
 
         Returns
@@ -111,7 +109,6 @@ class ColumnHeader:
         dict of str-Any
             The response data.
         """
-
         return {
             "name": self.name,
             "dataType": self.data_type.value,
@@ -154,11 +151,11 @@ class ResultTable:
     """
 
     kind: str
-    column_headers: list[ColumnHeader]
-    rows: list[list[str | int | float]]
+    column_headers: List[ColumnHeader]
+    rows: List[List[str | int | float]]
 
     @classmethod
-    def from_json(cls, data: ResponseT) -> ResultTable:
+    def from_json(cls, data: Dict[str, Any]) -> "ResultTable":
         """Create a new `ResultTable` instance from JSON data.
 
         Parameters
@@ -171,7 +168,6 @@ class ResultTable:
         ResultTable
             The newly created instance.
         """
-
         return cls(
             data["kind"],
             [
@@ -186,7 +182,7 @@ class ResultTable:
         )
 
     @property
-    def data(self) -> ResponseT:
+    def data(self) -> Dict[str, Any]:
         """The raw data for this result table in JSON format.
 
         Returns
@@ -194,7 +190,6 @@ class ResultTable:
         dict of str-Any
             The response data.
         """
-
         return {
             "kind": self.kind,
             "columnHeaders": [header.data for header in self.column_headers],
@@ -224,25 +219,27 @@ class AnalyticsReport:
         The report type.
     """
 
-    def __init__(self, data: ResponseT, type: ReportType) -> None:
+    def __init__(self, data: Dict[str, Any], type: "ReportType") -> None:
         self.resource = ResultTable.from_json(data)
         self.type = type
         self._shape = (len(data["rows"]), len(self.resource.column_headers))
 
     def __eq__(self, other: object) -> bool:
+        # sourcery skip: assign-if-exp, reintroduce-else, swap-if-expression
         if not isinstance(other, self.__class__):
             return NotImplemented
 
         return self.resource == other.resource and self.type == other.type
 
     def __ne__(self, other: object) -> bool:
+        # sourcery skip: assign-if-exp, reintroduce-else, swap-if-expression
         if not isinstance(other, self.__class__):
             return NotImplemented
 
         return self.resource != other.resource or self.type != other.type
 
     @property
-    def shape(self) -> tuple[int, int]:
+    def shape(self) -> Tuple[int, int]:
         """The shape of the report.
 
         This is presented in (rows, columns) format.
@@ -264,11 +261,10 @@ class AnalyticsReport:
             120
             ```
         """
-
         return self._shape
 
     @property
-    def columns(self) -> list[str]:
+    def columns(self) -> List[str]:
         """A list of all columns names in the report.
 
         Returns
@@ -280,11 +276,10 @@ class AnalyticsReport:
             This does not return a list of column headers. If you want
             that, use `report.resource.column_headers` instead.
         """
-
         return [c.name for c in self.resource.column_headers]
 
     @property
-    def dimensions(self) -> list[str]:
+    def dimensions(self) -> List[str]:
         """A list of all dimensions in the report.
 
         Returns
@@ -292,7 +287,6 @@ class AnalyticsReport:
         list of str
             The dimension list.
         """
-
         return [
             c.name
             for c in self.resource.column_headers
@@ -300,7 +294,7 @@ class AnalyticsReport:
         ]
 
     @property
-    def metrics(self) -> list[str]:
+    def metrics(self) -> List[str]:
         """A list of all metrics in the report.
 
         Returns
@@ -308,7 +302,6 @@ class AnalyticsReport:
         list of str
             The metric list.
         """
-
         return [
             c.name
             for c in self.resource.column_headers
@@ -316,7 +309,7 @@ class AnalyticsReport:
         ]
 
     @property
-    def numeric(self) -> list[str]:
+    def numeric(self) -> List[str]:
         """A list of all numerical columns in the report.
 
         Returns
@@ -324,7 +317,6 @@ class AnalyticsReport:
         list of str
             The list of numerical columns.
         """
-
         return [
             c.name
             for c in self.resource.column_headers
@@ -332,7 +324,7 @@ class AnalyticsReport:
         ]
 
     @property
-    def non_numeric(self) -> list[str]:
+    def non_numeric(self) -> List[str]:
         """A list of all non-numerical columns in the report.
 
         Returns
@@ -340,7 +332,6 @@ class AnalyticsReport:
         list of str
             The list of non-numerical columns.
         """
-
         return [
             c.name
             for c in self.resource.column_headers
@@ -349,12 +340,12 @@ class AnalyticsReport:
 
     def to_json(
         self,
-        path: PathLikeT,
+        path: "PathLike",
         *,
         indent: int | None = 4,
         overwrite: bool = True,
-        **kwargs: t.Any,
-    ) -> ResponseT:
+        **kwargs: Any,
+    ) -> Dict[str, Any]:
         """Save this report in JSON format.
 
         This saves the data as it arrived from the YouTube Analytics
@@ -392,7 +383,6 @@ class AnalyticsReport:
             >>> report.to_json("output.json", indent=None)
             ```
         """
-
         path = process_path(path, ".json", overwrite)
         data = self.resource.data
 
@@ -403,7 +393,7 @@ class AnalyticsReport:
         return data
 
     def to_csv(
-        self, path: PathLikeT, *, delimiter: str = ",", overwrite: bool = True
+        self, path: "PathLike", *, delimiter: str = ",", overwrite: bool = True
     ) -> None:
         """Save this report as a CSV or TSV file.
 
@@ -434,7 +424,6 @@ class AnalyticsReport:
             >>> report.to_csv("output.tsv", delimiter="\\t")
             ```
         """
-
         extension = ".tsv" if delimiter == "\t" else ".csv"
         path = process_path(path, extension, overwrite)
 
@@ -447,7 +436,7 @@ class AnalyticsReport:
         _log.info(f"Saved report as {extension[1:].upper()} to {path.resolve()}")
 
     def to_excel(
-        self, path: PathLikeT, *, sheet_name: str = "Analytics", overwrite: bool = True
+        self, path: "PathLike", *, sheet_name: str = "Analytics", overwrite: bool = True
     ) -> None:
         """Save this report as an Excel spreadsheet.
 
@@ -483,7 +472,6 @@ class AnalyticsReport:
             >>> report.to_excel("output.xlsx", sheet_name="My Sheet")
             ```
         """
-
         if not analytix.can_use("openpyxl"):
             raise MissingOptionalComponents("openpyxl")
 
@@ -501,12 +489,8 @@ class AnalyticsReport:
         wb.save(str(path))
         _log.info(f"Saved report as spreadsheet to {path.resolve()}")
 
-    def to_pandas(self, *, skip_date_conversion: bool = False) -> pd.DataFrame:
+    def to_pandas(self, *, skip_date_conversion: bool = False) -> "pd.DataFrame":
         """Return this report as a pandas DataFrame.
-
-        If Modin is installed, it will automatically be used instead of
-        pandas. However, you will need to select and initialise your
-        preferred engine before calling this method.
 
         Parameters
         ----------
@@ -536,7 +520,7 @@ class AnalyticsReport:
             4 2022-06-24   2137     61         2         6.691
             ```
         """
-
+        # sourcery skip: class-extract-method
         if not analytix.can_use("pandas"):
             raise MissingOptionalComponents("pandas")
 
@@ -558,8 +542,8 @@ class AnalyticsReport:
 
         return df
 
-    def to_arrow(self, *, skip_date_conversion: bool = False) -> pa.Table:
-        """Return this report as a Apache Arrow table.
+    def to_arrow(self, *, skip_date_conversion: bool = False) -> "pa.Table":
+        """Return this report as an Apache Arrow table.
 
         Parameters
         ----------
@@ -595,7 +579,6 @@ class AnalyticsReport:
             grossRevenue: [[2.249,3.558,2.91,24.428,6.691]]
             ```
         """
-
         if not analytix.can_use("pyarrow"):
             raise MissingOptionalComponents("pyarrow")
 
@@ -620,7 +603,7 @@ class AnalyticsReport:
 
         return table
 
-    def to_polars(self, *, skip_date_conversion: bool = False) -> pl.DataFrame:
+    def to_polars(self, *, skip_date_conversion: bool = False) -> "pl.DataFrame":
         """Return the data as a Polars DataFrame.
 
         Parameters
@@ -661,7 +644,6 @@ class AnalyticsReport:
             └────────────┴───────┴───────┴──────────┴──────────────┘
             ```
         """
-
         if not analytix.can_use("polars"):
             raise MissingOptionalComponents("polars")
 
@@ -686,11 +668,11 @@ class AnalyticsReport:
 
     def to_feather(
         self,
-        path: PathLikeT,
+        path: "PathLike",
         *,
         skip_date_conversion: bool = False,
         overwrite: bool = True,
-    ) -> pa.Table:
+    ) -> None:
         """Save this report as an Apache Feather file.
 
         To do this, the data is first converted to an Apache Arrow
@@ -709,8 +691,8 @@ class AnalyticsReport:
 
         Returns
         -------
-        PyArrow Table
-            The Apache Arrow table that was saved.
+        None
+            This method doesn't return anything.
 
         !!! note
             This requires `pyarrow` to be installed to use, which is an
@@ -723,25 +705,23 @@ class AnalyticsReport:
             (7, 5)
             ```
         """
-
         if not analytix.can_use("pyarrow"):
             raise MissingOptionalComponents("pyarrow")
 
         import pyarrow.feather as pf
 
         path = process_path(path, ".feather", overwrite)
-        table = self.to_arrow(skip_date_conversion=skip_date_conversion)
-        pf.write_feather(table, path)
+        pf.write_feather(self.to_arrow(skip_date_conversion=skip_date_conversion), path)
+
         _log.info(f"Saved report as Apache Feather file to {path.resolve()}")
-        return table
 
     def to_parquet(
         self,
-        path: PathLikeT,
+        path: "PathLike",
         *,
         skip_date_conversion: bool = False,
         overwrite: bool = True,
-    ) -> pa.Table:
+    ) -> None:
         """Save this report as an Apache Parquet file.
 
         To do this, the data is first converted to an Apache Arrow
@@ -760,8 +740,8 @@ class AnalyticsReport:
 
         Returns
         -------
-        PyArrow Table
-            The Apache Arrow table that was saved.
+        None
+            This method doesn't return anything.
 
         !!! note
             This requires `pyarrow` to be installed to use, which is an
@@ -781,7 +761,6 @@ class AnalyticsReport:
         import pyarrow.parquet as pq
 
         path = process_path(path, ".parquet", overwrite)
-        table = self.to_arrow(skip_date_conversion=skip_date_conversion)
-        pq.write_table(table, path)
+        pq.write_table(self.to_arrow(skip_date_conversion=skip_date_conversion), path)
+
         _log.info(f"Saved report as Apache Parquet file to {path.resolve()}")
-        return table

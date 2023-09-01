@@ -26,19 +26,15 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from __future__ import annotations
-
 __all__ = ("Group", "GroupList", "GroupItem", "GroupItemList")
 
-import typing as t
 from dataclasses import dataclass
+from typing import TYPE_CHECKING, Any, Dict, List
 
 from dateutil.parser import parse as du_parse
 
-if t.TYPE_CHECKING:
+if TYPE_CHECKING:
     import datetime as dt
-
-    from analytix.types import ResponseT
 
 
 @dataclass(frozen=True)
@@ -54,13 +50,13 @@ class Group(_Resource):
     __slots__ = ("id", "published_at", "title", "item_count", "item_type")
 
     id: str
-    published_at: dt.datetime
+    published_at: "dt.datetime"
     title: str
     item_count: int
     item_type: str
 
     @classmethod
-    def from_json(cls, data: ResponseT) -> Group:
+    def from_json(cls, data: Dict[str, Any]) -> "Group":
         return cls(
             data["kind"],
             data["etag"],
@@ -72,7 +68,7 @@ class Group(_Resource):
         )
 
     @property
-    def data(self) -> ResponseT:
+    def data(self) -> Dict[str, Any]:
         return {
             "kind": self.kind,
             "etag": self.etag,
@@ -94,14 +90,14 @@ class Group(_Resource):
 class GroupList(_Resource):
     __slots__ = ("items", "next_page_token")
 
-    items: list[Group]
+    items: List["Group"]
     next_page_token: str
 
-    def __getitem__(self, key: int) -> Group:
+    def __getitem__(self, key: int) -> "Group":
         return self.items[key]
 
     @classmethod
-    def from_json(cls, data: ResponseT) -> GroupList:
+    def from_json(cls, data: Dict[str, Any]) -> "GroupList":
         return cls(
             data["kind"],
             data.get("etag") or None,
@@ -110,7 +106,7 @@ class GroupList(_Resource):
         )
 
     @property
-    def data(self) -> ResponseT:
+    def data(self) -> Dict[str, Any]:
         return {
             "kind": self.kind,
             "etag": self.etag,
@@ -133,10 +129,10 @@ class GroupItem(_Resource):
 
     id: str
     group_id: str
-    resource: _GroupItemResource
+    resource: "_GroupItemResource"
 
     @classmethod
-    def from_json(cls, data: ResponseT) -> GroupItem:
+    def from_json(cls, data: Dict[str, Any]) -> "GroupItem":
         return cls(
             data["kind"],
             data["etag"],
@@ -149,7 +145,7 @@ class GroupItem(_Resource):
         )
 
     @property
-    def data(self) -> ResponseT:
+    def data(self) -> Dict[str, Any]:
         return {
             "kind": self.kind,
             "etag": self.etag,
@@ -166,13 +162,13 @@ class GroupItem(_Resource):
 class GroupItemList(_Resource):
     __slots__ = "items"
 
-    items: list[GroupItem]
+    items: List["GroupItem"]
 
-    def __getitem__(self, key: int) -> GroupItem:
+    def __getitem__(self, key: int) -> "GroupItem":
         return self.items[key]
 
     @classmethod
-    def from_json(cls, data: ResponseT) -> GroupItemList:
+    def from_json(cls, data: Dict[str, Any]) -> "GroupItemList":
         return cls(
             data["kind"],
             data["etag"],
@@ -180,7 +176,7 @@ class GroupItemList(_Resource):
         )
 
     @property
-    def data(self) -> ResponseT:
+    def data(self) -> Dict[str, Any]:
         return {
             "kind": self.kind,
             "etag": self.etag,

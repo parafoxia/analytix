@@ -26,37 +26,10 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from __future__ import annotations
+__all__ = ("PathLike", "UriParams")
 
-__all__ = (
-    "ResponseT",
-    "PathLikeT",
-    "OptionalPathLikeT",
-    "RequestParamsT",
-    "SecretT",
-    "TokenT",
-    "ReportRowT",
-    "AuthUriT",
-    "TokenUriT",
-)
-
-import typing as t
 from pathlib import Path
 from typing import Dict, Tuple, Union
 
-# Old
-ResponseT = t.Dict[str, t.Any]
-PathLikeT = t.Union[str, Path]
-OptionalPathLikeT = t.Union[str, Path, None]
-
-RequestParamsT = t.Tuple[str, t.Dict[str, str], t.Dict[str, str]]
-SecretT = t.Union[str, t.List[str]]
-TokenT = t.Union[str, int]
-ReportRowT = t.List[t.List[t.Union[str, int, float]]]
-
-AuthUriT = t.Tuple[str, t.Dict[str, str]]
-TokenUriT = t.Tuple[str, t.Dict[str, str], t.Dict[str, str]]
-
-# New
 PathLike = Union[str, Path]
 UriParams = Tuple[str, Dict[str, str], Dict[str, str]]

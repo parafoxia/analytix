@@ -28,8 +28,6 @@
 
 """Warning classes for analytix."""
 
-from __future__ import annotations
-
 
 class AnalytixWarning(Warning):
     """The base warning class for analytix."""
