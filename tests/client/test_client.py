@@ -37,7 +37,7 @@ import pytest
 from analytix import auth
 from analytix.auth import Scopes, Tokens
 from analytix.client import BaseClient, Client
-from analytix.errors import APIError, AuthorisationError
+from analytix.errors import AuthorisationError
 from analytix.reports import AnalyticsReport
 from analytix.shard import Shard
 from tests import MockFile, MockResponse
@@ -88,6 +88,41 @@ def test_client_authorise_with_existing(
                 assert auth_tokens.access_token == tokens.access_token
 
         assert "Existing tokens are valid -- no authorisation necessary" in caplog.text
+
+
+@mock.patch.object(Tokens, "save_to", return_value=None)
+@mock.patch.object(auth, "run_flow", return_value="rickroll")
+@mock.patch("webbrowser.open", return_value=True)
+@mock.patch.object(Client, "scopes_are_sufficient", return_value=False)
+@mock.patch("os.fspath", return_value="tokens.json")
+def test_client_authorise_with_existing_scopes_insufficient(
+    mock_fspath,
+    mock_scopes_are_sufficient,
+    mock_open,
+    mock_run_flow,
+    mock_save_to,
+    client: Client,
+    tokens,
+    tokens_data,
+    caplog,
+):
+    with caplog.at_level(logging.DEBUG):
+        f = MockFile(tokens_data)
+        client._tokens_file = f
+
+        with mock.patch.object(Path, "open", return_value=f):
+            with mock.patch.object(
+                Client, "_request", return_value=MockResponse(tokens_data, 200)
+            ):
+                client._auto_open_browser = True
+                tokens = client.authorise()
+                assert tokens.access_token == "a1b2c3d4e5"
+
+            assert (
+                "Authorisation necessary -- starting authorisation flow" in caplog.text
+            )
+            assert "Authorisation code: rickroll" in caplog.text
+            assert "Authorisation complete!" in caplog.text
 
 
 @mock.patch.object(Tokens, "save_to", return_value=None)

@@ -68,13 +68,7 @@ class Scopes(Enum):
     """Only include revenue data in reports."""
 
     ALL = f"{READONLY} {MONETARY_READONLY}"
-    """Include all data in reports.
-
-    !!! warning
-        This is the default, though your channel needs to be partnered
-        to use it. If your channel is not partnered, configure your
-        client to use the `READONLY` scope.
-    """
+    """Include all data in reports."""
 
 
 @dataclass(frozen=True)

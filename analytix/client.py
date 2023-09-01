@@ -171,8 +171,46 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
             _log.debug("Access token needs refreshing")
             return False
 
+    def scopes_are_sufficient(self, scopes: str) -> bool:
+        """A helper method to check whether your stored scopes are
+        sufficient.
+
+        This cross-checks the scopes you provided the client with the
+        scopes your tokens are authorised with and determines whether
+        your tokens provide enough access.
+
+        Parameters
+        ----------
+        scopes : str
+            Your stored scopes. These are the scopes in your tokens, not
+            the ones you passed to the client.
+
+        Returns
+        -------
+        bool
+            Whether the scopes are sufficient or not. If they're not,
+            you'll need to reauthorise.
+
+        !!! important
+            This is not an equity check; if your tokens are authorised
+            with all scopes, but you only passed the READONLY scope to
+            the client, this will return `True`.
+
+        !!! example "Typical usage"
+            ```py
+            # Yes, it's `.scope`, not `.scopes`.
+            >>> client.scopes_are_sufficient(tokens.scope)
+            True
+            ```
+        """
+        stored = set(scopes.split(" "))
+        live = set(self._scopes.value.split(" "))
+        sufficient = stored & live == live
+        _log.debug(f"Stored scopes are {'' if sufficient else 'in'}sufficient")
+        return sufficient
+
     def refresh_access_token(self, tokens: Tokens) -> Optional[Tokens]:
-        """A helper method to refresh your access token.
+        """Refresh your access token.
 
         While this method should always be sufficient to refresh your
         access token, the default implementation does not save new
@@ -371,7 +409,9 @@ class Client(BaseClient):
         """
         if self._tokens_file.is_file():
             tokens = Tokens.load_from(self._tokens_file)
-            if refreshed := self.refresh_access_token(tokens, force=force_refresh):
+            if self.scopes_are_sufficient(tokens.scope) and (
+                refreshed := self.refresh_access_token(tokens, force=force_refresh)
+            ):
                 _log.info("Existing tokens are valid -- no authorisation necessary")
                 return refreshed
 

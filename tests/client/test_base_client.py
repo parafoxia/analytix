@@ -66,6 +66,44 @@ def test_base_client_token_is_valid_false(base_client: CustomBaseClient, caplog)
         assert "Access token needs refreshing" in caplog.text
 
 
+def test_base_client_scopes_are_sufficient_readonly(
+    base_client: CustomBaseClient, caplog
+):
+    with caplog.at_level(logging.DEBUG):
+        assert base_client.scopes_are_sufficient(Scopes.READONLY.value)
+        assert base_client.scopes_are_sufficient(Scopes.ALL.value)
+        assert "Stored scopes are sufficient" in caplog.text
+
+        assert not base_client.scopes_are_sufficient(Scopes.MONETARY_READONLY.value)
+        assert "Stored scopes are insufficient" in caplog.text
+
+
+def test_base_client_scopes_are_sufficient_monetary_readonly(
+    base_client: CustomBaseClient, caplog
+):
+    with caplog.at_level(logging.DEBUG):
+        base_client._scopes = Scopes.MONETARY_READONLY
+
+        assert base_client.scopes_are_sufficient(Scopes.MONETARY_READONLY.value)
+        assert base_client.scopes_are_sufficient(Scopes.ALL.value)
+        assert "Stored scopes are sufficient" in caplog.text
+
+        assert not base_client.scopes_are_sufficient(Scopes.READONLY.value)
+        assert "Stored scopes are insufficient" in caplog.text
+
+
+def test_base_client_scopes_are_sufficient_all(base_client: CustomBaseClient, caplog):
+    with caplog.at_level(logging.DEBUG):
+        base_client._scopes = Scopes.ALL
+
+        assert base_client.scopes_are_sufficient(Scopes.ALL.value)
+        assert "Stored scopes are sufficient" in caplog.text
+
+        assert not base_client.scopes_are_sufficient(Scopes.READONLY.value)
+        assert not base_client.scopes_are_sufficient(Scopes.MONETARY_READONLY.value)
+        assert "Stored scopes are insufficient" in caplog.text
+
+
 def test_base_client_refresh_access_token_success(
     base_client: CustomBaseClient, tokens, refreshed_tokens_data, caplog
 ):
