@@ -27,10 +27,6 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 __all__ = (
-    "API_BASE_URL",
-    "API_GROUPS_URL",
-    "API_GROUP_ITEMS_URL",
-    "API_REPORTS_URL",
     "BaseClient",
     "can_use",
     "Client",
@@ -54,10 +50,6 @@ __bugtracker__ = "https://github.com/parafoxia/analytix/issues"
 __ci__ = "https://github.com/parafoxia/analytix/actions"
 __changelog__ = "https://github.com/parafoxia/analytix/releases"
 
-API_BASE_URL = "https://youtubeanalytics.googleapis.com/v2"
-API_REPORTS_URL = f"{API_BASE_URL}/reports?"
-API_GROUPS_URL = f"{API_BASE_URL}/groups?"
-API_GROUP_ITEMS_URL = f"{API_BASE_URL}/groupItems?"
 UPDATE_CHECK_URL = "https://pypi.org/pypi/analytix/json"
 
 from . import groups, reports

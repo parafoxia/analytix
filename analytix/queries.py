@@ -26,24 +26,26 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from __future__ import annotations
-
 __all__ = ("ReportQuery", "GroupQuery", "GroupItemQuery")
 
 import datetime as dt
 import logging
-import typing as t
 import warnings
+from typing import TYPE_CHECKING, Collection, Dict
 
-import analytix
 from analytix.auth import Scopes
 from analytix.errors import InvalidRequest
 from analytix.reports import data
 from analytix.reports import types as rt
 from analytix.warnings import InvalidMonthFormatWarning
 
-if t.TYPE_CHECKING:
+if TYPE_CHECKING:
     from analytix.abc import ReportType
+
+API_BASE_URL = "https://youtubeanalytics.googleapis.com/v2"
+API_REPORTS_URL = f"{API_BASE_URL}/reports"
+API_GROUPS_URL = f"{API_BASE_URL}/groups"
+API_GROUP_ITEMS_URL = f"{API_BASE_URL}/groupItems"
 
 _log = logging.getLogger(__name__)
 
@@ -65,10 +67,10 @@ class ReportQuery:
 
     def __init__(
         self,
-        dimensions: t.Collection[str] | None = None,
-        filters: dict[str, str] | None = None,
-        metrics: t.Collection[str] | None = None,
-        sort_options: t.Collection[str] | None = None,
+        dimensions: Collection[str] | None = None,
+        filters: Dict[str, str] | None = None,
+        metrics: Collection[str] | None = None,
+        sort_options: Collection[str] | None = None,
         max_results: int = 0,
         start_date: dt.date | None = None,
         end_date: dt.date | None = None,
@@ -88,7 +90,7 @@ class ReportQuery:
         self.start_index = start_index
         self._include_historical_data = include_historical_data
 
-        self.rtype: ReportType | None = None
+        self.rtype: "ReportType" | None = None
 
     @property
     def start_date(self) -> str:
@@ -105,8 +107,8 @@ class ReportQuery:
     @property
     def url(self) -> str:
         filters = ";".join(f"{k}=={v}" for k, v in self.filters.items())
-        return analytix.API_REPORTS_URL + (
-            "ids=channel==MINE"
+        return API_REPORTS_URL + (
+            "?ids=channel==MINE"
             f"&dimensions={','.join(self.dimensions)}"
             f"&filters={filters}"
             f"&metrics={','.join(self.metrics)}"
@@ -120,7 +122,7 @@ class ReportQuery:
         )
 
     def validate(self, scopes: Scopes) -> None:
-        _log.info("Validating request")
+        _log.debug("Validating request")
 
         if self.max_results < 0:
             raise InvalidRequest(
@@ -148,7 +150,7 @@ class ReportQuery:
             self._start_date = dt.date(self._start_date.year, self._start_date.month, 1)
             self._end_date = dt.date(self._end_date.year, self._end_date.month, 1)
 
-        _log.info(f"Getting data between {self.start_date} and {self.end_date}")
+        _log.debug(f"Getting data between {self.start_date} and {self.end_date}")
 
         if self.currency not in data.CURRENCIES:
             raise InvalidRequest(
@@ -173,8 +175,7 @@ class ReportQuery:
 
         _log.debug("Metrics set to: " + ", ".join(self.metrics))
 
-        diff = {o.strip("-") for o in self.sort_options} - set(self.metrics)
-        if diff:
+        if diff := {o.strip("-") for o in self.sort_options} - set(self.metrics):
             raise InvalidRequest.non_matching_sort_options(diff)
 
         self.rtype.validate(
@@ -187,9 +188,9 @@ class ReportQuery:
         )
 
         # If it gets to this point, it's fine.
-        _log.info("Request OK!")
+        _log.debug("Request OK!")
 
-    def determine_report_type(self) -> ReportType:
+    def determine_report_type(self) -> "ReportType":
         curated = self.filters.get("isCurated", "0") == "1"
 
         if "adType" in self.dimensions:
@@ -208,43 +209,41 @@ class ReportQuery:
             return rt.GeographyBasedActivityByCity()
 
         if "insightPlaybackLocationType" in self.dimensions:
-            if curated:
-                return rt.PlaybackLocationPlaylist()
-            return rt.PlaybackLocation()
+            return rt.PlaybackLocationPlaylist() if curated else rt.PlaybackLocation()
 
         if "insightPlaybackLocationDetail" in self.dimensions:
-            if curated:
-                return rt.PlaybackLocationDetailPlaylist()
-            return rt.PlaybackLocationDetail()
+            return (
+                rt.PlaybackLocationDetailPlaylist()
+                if curated
+                else rt.PlaybackLocationDetail()
+            )
 
         if "insightTrafficSourceType" in self.dimensions:
-            if curated:
-                return rt.TrafficSourcePlaylist()
-            return rt.TrafficSource()
+            return rt.TrafficSourcePlaylist() if curated else rt.TrafficSource()
 
         if "insightTrafficSourceDetail" in self.dimensions:
-            if curated:
-                return rt.TrafficSourceDetailPlaylist()
-            return rt.TrafficSourceDetail()
+            return (
+                rt.TrafficSourceDetailPlaylist()
+                if curated
+                else rt.TrafficSourceDetail()
+            )
 
         if "ageGroup" in self.dimensions or "gender" in self.dimensions:
-            if curated:
-                return rt.ViewerDemographicsPlaylist()
-            return rt.ViewerDemographics()
+            return (
+                rt.ViewerDemographicsPlaylist() if curated else rt.ViewerDemographics()
+            )
 
         if "deviceType" in self.dimensions:
             if "operatingSystem" in self.dimensions:
-                if curated:
-                    return rt.DeviceTypeAndOperatingSystemPlaylist()
-                return rt.DeviceTypeAndOperatingSystem()
-            if curated:
-                return rt.DeviceTypePlaylist()
-            return rt.DeviceType()
+                return (
+                    rt.DeviceTypeAndOperatingSystemPlaylist()
+                    if curated
+                    else rt.DeviceTypeAndOperatingSystem()
+                )
+            return rt.DeviceTypePlaylist() if curated else rt.DeviceType()
 
         if "operatingSystem" in self.dimensions:
-            if curated:
-                return rt.OperatingSystemPlaylist()
-            return rt.OperatingSystem()
+            return rt.OperatingSystemPlaylist() if curated else rt.OperatingSystem()
 
         if "video" in self.dimensions:
             if "province" in self.filters:
@@ -313,14 +312,14 @@ class ReportQuery:
 
     def set_report_type(self) -> None:
         self.rtype = self.determine_report_type()
-        _log.info(f"Report type determined as {self.rtype.name!r}")
+        _log.debug(f"Report type determined as {self.rtype.name!r}")
 
 
 class GroupQuery:
     __slots__ = ("ids", "next_page_token")
 
     def __init__(
-        self, ids: t.Collection[str] | None = None, next_page_token: str | None = None
+        self, ids: Collection[str] | None = None, next_page_token: str | None = None
     ) -> None:
         self.ids = ids or ()
         self.next_page_token = next_page_token
@@ -329,7 +328,7 @@ class GroupQuery:
     def url(self) -> str:
         ids = ("id=" + ",".join(self.ids)) if self.ids else "mine=true"
         npt = f"&next_page_token={self.next_page_token}" if self.next_page_token else ""
-        return analytix.API_GROUPS_URL + ids + npt
+        return f"{API_GROUPS_URL}?{ids}{npt}"
 
 
 class GroupItemQuery:
@@ -340,4 +339,4 @@ class GroupItemQuery:
 
     @property
     def url(self) -> str:
-        return analytix.API_GROUP_ITEMS_URL + f"groupId={self.group_id}"
+        return f"{API_GROUP_ITEMS_URL}?groupId={self.group_id}"

@@ -32,10 +32,9 @@ import warnings
 
 import pytest
 
-import analytix
 from analytix.auth import Scopes
 from analytix.errors import InvalidRequest
-from analytix.queries import ReportQuery
+from analytix.queries import API_REPORTS_URL, ReportQuery
 from analytix.reports import types as rt
 from analytix.warnings import InvalidMonthFormatWarning
 
@@ -106,8 +105,8 @@ def test_include_historical_data_property(query):
 
 
 def test_url_property(query):
-    assert query.url == analytix.API_REPORTS_URL + (
-        "ids=channel==MINE"
+    assert query.url == API_REPORTS_URL + (
+        "?ids=channel==MINE"
         "&dimensions=day,country"
         "&filters=continent==002;deviceType==MOBILE"
         "&metrics=views,likes,comments"

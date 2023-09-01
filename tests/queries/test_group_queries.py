@@ -26,14 +26,18 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import analytix
-from analytix.queries import GroupItemQuery, GroupQuery
+from analytix.queries import (
+    API_GROUP_ITEMS_URL,
+    API_GROUPS_URL,
+    GroupItemQuery,
+    GroupQuery,
+)
 
 
 def test_group_create_defaults():
     query = GroupQuery()
     assert query.ids == ()
-    assert query.next_page_token == None
+    assert query.next_page_token is None
 
 
 def test_group_create_custom():
@@ -44,14 +48,15 @@ def test_group_create_custom():
 
 def test_group_url_property():
     query = GroupQuery(ids=("a1b2c3d4e5", "f6g7h8i9j0"), next_page_token="rickroll")
-    assert query.url == analytix.API_GROUPS_URL + (
-        "id=a1b2c3d4e5,f6g7h8i9j0&next_page_token=rickroll"
+    assert (
+        query.url
+        == f"{API_GROUPS_URL}?id=a1b2c3d4e5,f6g7h8i9j0&next_page_token=rickroll"
     )
 
 
 def test_group_url_property_no_next_page_token():
     query = GroupQuery(ids=("a1b2c3d4e5", "f6g7h8i9j0"))
-    assert query.url == analytix.API_GROUPS_URL + "id=a1b2c3d4e5,f6g7h8i9j0"
+    assert query.url == f"{API_GROUPS_URL}?id=a1b2c3d4e5,f6g7h8i9j0"
 
 
 def test_group_item_create_custom():
@@ -61,4 +66,4 @@ def test_group_item_create_custom():
 
 def test_group_item_url_property():
     query = GroupItemQuery("a1b2c3d4e5")
-    assert query.url == analytix.API_GROUP_ITEMS_URL + "groupId=a1b2c3d4e5"
+    assert query.url == f"{API_GROUP_ITEMS_URL}?groupId=a1b2c3d4e5"
