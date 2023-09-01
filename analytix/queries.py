@@ -191,6 +191,7 @@ class ReportQuery:
         _log.debug("Request OK!")
 
     def determine_report_type(self) -> "ReportType":
+        # sourcery skip: low-code-quality
         curated = self.filters.get("isCurated", "0") == "1"
 
         if "adType" in self.dimensions:
