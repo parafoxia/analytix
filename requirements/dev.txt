@@ -9,5 +9,4 @@
 -r ./pyarrow.txt
 
 # Extras
-isort>=5.12,<6.0
 nox==2023.4.22

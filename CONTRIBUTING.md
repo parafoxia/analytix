@@ -24,8 +24,7 @@ If you are making a very small change (one or two lines), it would be better to 
 2. Clone your fork
 3. Run `pip install -r requirements/dev.txt` to install the cloned library and all development dependencies
 4. Make your changes/additions
-5. Run `isort . && black .` in the project root to format the code properly
-6. Run `nox` to run the tests. If they all pass, advance to step 7, otherwise, go back to step 4
-7. Create a PR with your changes, making sure to provide the issue number(s) it relates to
+5. Run `nox` to run the checks and tests. If they all pass, advance to step 6, otherwise, go back to step 4
+6. Create a PR with your changes, making sure to provide the issue number(s) it relates to
 
 After you've submitted your PR, feedback will be given on it. It may be approved straight away, or changes may be requested. Your PR may not be immediately merged when it's ready, but so long as it's marked as approved, you don't need to do anything.
