@@ -35,6 +35,7 @@ extend-select = [
     "B",
     "BLE",
     "C4",
+    "E",
     "ERA",
     "I",
     "ICN",
@@ -58,4 +59,4 @@ extend-select = [
 ]
 ignore = ["E402", "B905", "N818", "S101"]
 show-fixes = true
-target-version = "py37"
+target-version = "py38"
