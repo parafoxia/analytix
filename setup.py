@@ -94,6 +94,7 @@ setuptools.setup(
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
         "Programming Language :: Python :: Implementation :: CPython",
         "Programming Language :: Python :: Implementation :: PyPy",
         "Topic :: Internet",
@@ -115,7 +116,7 @@ setuptools.setup(
         "polars": parse_requirements("requirements/polars.txt"),
         "pyarrow": parse_requirements("requirements/pyarrow.txt"),
     },
-    python_requires=">=3.8.0,<3.13",
+    python_requires=">=3.8.0,<3.14",
     packages=setuptools.find_packages(),
     include_package_data=True,
 )
