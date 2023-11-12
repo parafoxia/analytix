@@ -32,7 +32,7 @@ from unittest import mock
 
 from analytix.auth import Scopes
 from analytix.mixins import RequestMixin
-from analytix.reports import AnalyticsReport
+from analytix.reports import Report
 from analytix.shard import Shard
 
 
@@ -41,16 +41,18 @@ def test_shard_init(shard: Shard, tokens):
     assert shard._tokens == tokens
 
 
-def test_shard_fetch_report(shard: Shard, report: AnalyticsReport, response, caplog):
+def test_shard_fetch_report(shard: Shard, report: Report, response, caplog):
     with caplog.at_level(logging.INFO):
         with mock.patch.object(RequestMixin, "_request", return_value=response):
-            assert report == shard.fetch_report(
+            new_report = shard.fetch_report(
                 dimensions=("day",),
                 metrics=("views", "likes", "comments", "grossRevenue"),
                 start_date=dt.date(2022, 6, 20),
                 end_date=dt.date(2022, 6, 26),
             )
-        assert "Created 'Time-based activity' report of shape (7, 5)" in caplog.text
+            assert isinstance(new_report, Report)
+            assert new_report.columns == report.columns
+        assert "Created 'Time-based activity' report of shape (7, 2)" in caplog.text
 
 
 def test_shard_fetch_groups(shard: Shard, group_list, group_list_response):

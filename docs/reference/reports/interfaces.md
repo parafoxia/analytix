@@ -1,0 +1,3 @@
+# interfaces
+
+::: analytix.reports.interfaces

@@ -26,9 +26,10 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""Report inferfaces for analytix."""
+"""Report interfaces for analytix."""
 
-__all__ = ("data", "features", "interfaces", "types", "AnalyticsReport", "ResultTable")
+__all__ = ("data", "features", "interfaces", "types", "Report", "ResultTable")
 
 from . import data, features, interfaces, types
-from .interfaces import AnalyticsReport, ResultTable
+from .interfaces import Report
+from .resources import ResultTable

@@ -37,7 +37,8 @@ import pytz
 from analytix.auth import Scopes, Secrets, Tokens
 from analytix.client import Client
 from analytix.groups import Group, GroupItem, GroupItemList, GroupList
-from analytix.reports import AnalyticsReport
+from analytix.reports.interfaces import Report
+from analytix.reports.resources import ColumnHeader, ColumnType, DataType, ResultTable
 from analytix.reports.types import TimeBasedActivity
 from analytix.shard import Shard
 from tests import CustomBaseClient, MockResponse
@@ -276,18 +277,15 @@ def response_data():
             "columnHeaders": [
                 {"name": "day", "dataType": "STRING", "columnType": "DIMENSION"},
                 {"name": "views", "dataType": "INTEGER", "columnType": "METRIC"},
-                {"name": "likes", "dataType": "INTEGER", "columnType": "METRIC"},
-                {"name": "comments", "dataType": "INTEGER", "columnType": "METRIC"},
-                {"name": "grossRevenue", "dataType": "FLOAT", "columnType": "METRIC"},
             ],
             "rows": [
-                ["2022-06-20", 778, 8, 0, 2.249],
-                ["2022-06-21", 1062, 32, 8, 3.558],
-                ["2022-06-22", 946, 38, 6, 2.91],
-                ["2022-06-23", 5107, 199, 15, 24.428],
-                ["2022-06-24", 2137, 61, 2, 6.691],
-                ["2022-06-25", 1005, 31, 6, 4.316],
-                ["2022-06-26", 888, 12, 1, 4.206],
+                ["2022-06-20", 778],
+                ["2022-06-21", 1062],
+                ["2022-06-22", 946],
+                ["2022-06-23", 5107],
+                ["2022-06-24", 2137],
+                ["2022-06-25", 1005],
+                ["2022-06-26", 888],
             ],
         }
     ).encode("utf-8")
@@ -330,9 +328,9 @@ def shard(tokens: Tokens):
     return Shard(Scopes.ALL, tokens)
 
 
-@pytest.fixture()
-def report(response_data):
-    return AnalyticsReport(json.loads(response_data), TimeBasedActivity())
+# @pytest.fixture()
+# def report(response_data):
+#     return Report(json.loads(response_data), TimeBasedActivity())
 
 
 @pytest.fixture()
@@ -362,3 +360,109 @@ def base_client(secrets_data):
 def client(secrets_data):
     with mock.patch.object(Path, "read_text", return_value=secrets_data):
         return Client("secrets.json")
+
+
+# REPORTS
+
+
+@pytest.fixture()
+def column_header_dimension():
+    return ColumnHeader("day", DataType.STRING, ColumnType.DIMENSION)
+
+
+@pytest.fixture()
+def column_header_dimension_data():
+    return {
+        "name": "day",
+        "dataType": "STRING",
+        "columnType": "DIMENSION",
+    }
+
+
+@pytest.fixture()
+def column_header_metric():
+    return ColumnHeader("views", DataType.INTEGER, ColumnType.METRIC)
+
+
+@pytest.fixture()
+def column_header_metric_data():
+    return {
+        "name": "views",
+        "dataType": "INTEGER",
+        "columnType": "METRIC",
+    }
+
+
+@pytest.fixture()
+def column_headers(column_header_dimension, column_header_metric):
+    return [column_header_dimension, column_header_metric]
+
+
+@pytest.fixture()
+def column_headers_data(column_header_dimension_data, column_header_metric_data):
+    return [column_header_dimension_data, column_header_metric_data]
+
+
+@pytest.fixture()
+def row_data():
+    return [
+        ["2022-06-20", 778],
+        ["2022-06-21", 1062],
+        ["2022-06-22", 946],
+        ["2022-06-23", 5107],
+        ["2022-06-24", 2137],
+        ["2022-06-25", 1005],
+        ["2022-06-26", 888],
+    ]
+
+
+@pytest.fixture()
+def result_table(column_headers, row_data):
+    return ResultTable(
+        "youtubeAnalytics#resultTable",
+        column_headers,
+        row_data,
+    )
+
+
+@pytest.fixture()
+def result_table_data(column_headers_data, row_data):
+    return {
+        "kind": "youtubeAnalytics#resultTable",
+        "columnHeaders": column_headers_data,
+        "rows": row_data,
+    }
+
+
+@pytest.fixture()
+def report_type():
+    return TimeBasedActivity()
+
+
+@pytest.fixture()
+def report(result_table_data, report_type):
+    return Report(result_table_data, report_type)
+
+
+@pytest.fixture()
+def empty_report(result_table_data, report_type):
+    result_table_data["rows"] = []
+    return Report(result_table_data, report_type)
+
+
+@pytest.fixture()
+def report_csv():
+    return """day,views
+2022-06-20,778
+2022-06-21,1062
+2022-06-22,946
+2022-06-23,5107
+2022-06-24,2137
+2022-06-25,1005
+2022-06-26,888
+"""
+
+
+@pytest.fixture()
+def report_tsv(report_csv):
+    return report_csv.replace(",", "\t")

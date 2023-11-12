@@ -38,7 +38,7 @@ from analytix import auth
 from analytix.auth import Scopes, Tokens
 from analytix.client import BaseClient, Client
 from analytix.errors import AuthorisationError
-from analytix.reports import AnalyticsReport
+from analytix.reports import Report
 from analytix.shard import Shard
 from tests import MockFile, MockResponse
 
@@ -257,7 +257,7 @@ def test_client_refresh_access_token_force_valid_tokens(
         assert refreshed.access_token == refreshed_tokens.access_token
 
 
-def test_client_fetch_report(client: Client, tokens, report: AnalyticsReport):
+def test_client_fetch_report(client: Client, tokens, report: Report):
     with mock.patch.object(Client, "authorise", return_value=tokens):
         with mock.patch.object(Shard, "fetch_report", return_value=report):
             report = client.fetch_report(
@@ -267,7 +267,7 @@ def test_client_fetch_report(client: Client, tokens, report: AnalyticsReport):
                 end_date=dt.date(2022, 6, 26),
             )
 
-            assert report.shape == (7, 5)
+            assert report.shape == (7, 2)
 
 
 def test_client_fetch_groups(client: Client, tokens, group_list):

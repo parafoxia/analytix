@@ -96,10 +96,13 @@ nav:
     - "guides/webapps.md"
     - "guides/migrating.md"
   - "Reference":
-    - "reference/client.md"
-    - "reference/shard.md"
-    - "reference/errors.md"
-    - "reference/warnings.md"
     - "reference/auth.md"
-    - "reference/reports.md"
+    - "reference/client.md"
+    - "reference/errors.md"
+    # - groups:
+    - "reports":
+      - "reference/reports/interfaces.md"
+      - "reference/reports/resources.md"
+    - "reference/shard.md"
     - "reference/ux.md"
+    - "reference/warnings.md"

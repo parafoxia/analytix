@@ -1,0 +1,3 @@
+# resources
+
+::: analytix.reports.resources

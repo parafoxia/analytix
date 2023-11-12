@@ -36,7 +36,7 @@ from typing import TYPE_CHECKING, Collection, Dict, Optional
 from analytix.groups import GroupItemList, GroupList
 from analytix.mixins import RequestMixin
 from analytix.queries import GroupItemQuery, GroupQuery, ReportQuery
-from analytix.reports import AnalyticsReport
+from analytix.reports import Report
 
 if TYPE_CHECKING:
     from analytix.auth import Scopes, Tokens
@@ -84,7 +84,7 @@ class Shard(RequestMixin):
         currency: str = "USD",
         start_index: int = 1,
         include_historical_data: bool = False,
-    ) -> AnalyticsReport:
+    ) -> Report:
         """Fetch an analytics report.
 
         Parameters
@@ -101,7 +101,7 @@ class Shard(RequestMixin):
 
         Returns
         -------
-        AnalyticsReport
+        Report
             The generated report.
 
         Other Parameters
@@ -195,7 +195,7 @@ class Shard(RequestMixin):
             data = json.loads(resp.data)
 
         assert query.rtype
-        report = AnalyticsReport(data, query.rtype)
+        report = Report(data, query.rtype)
         _log.info("Created '%s' report of shape %s", query.rtype, report.shape)
         return report
 

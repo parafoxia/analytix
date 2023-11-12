@@ -47,7 +47,7 @@ from analytix.types import PathLike
 
 if TYPE_CHECKING:
     from analytix.groups import GroupItemList, GroupList
-    from analytix.reports import AnalyticsReport
+    from analytix.reports import Report
 
 _log = logging.getLogger(__name__)
 
@@ -492,7 +492,7 @@ class Client(BaseClient):
         start_index: int = 1,
         include_historical_data: bool = False,
         **kwargs: Any,
-    ) -> "AnalyticsReport":
+    ) -> "Report":
         """Fetch an analytics report.
 
         This method authorises the client for you. If you want more
@@ -512,7 +512,7 @@ class Client(BaseClient):
 
         Returns
         -------
-        AnalyticsReport
+        Report
             The generated report.
 
         Other Parameters

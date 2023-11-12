@@ -26,16 +26,15 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__all__ = ("ResultTable", "AnalyticsReport")
+__all__ = ("Report",)
 
 import json
 import logging
-from dataclasses import dataclass
-from enum import Enum
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
 
-import analytix
+from analytix import utils
 from analytix.errors import DataFrameConversionError, MissingOptionalComponents
+from analytix.reports.resources import ColumnType, ResultTable
 from analytix.utils import process_path
 
 if TYPE_CHECKING:
@@ -49,194 +48,35 @@ if TYPE_CHECKING:
 _log = logging.getLogger(__name__)
 
 
-class DataType(Enum):
-    """An enum representing data types. Can be `STRING`, `INTEGER`,
-    or `FLOAT`.
-    """
+class Report:
+    """An analytics report.
 
-    STRING = "STRING"
-    INTEGER = "INTEGER"
-    FLOAT = "FLOAT"
-
-
-class ColumnType(Enum):
-    """An enum representing column types. Can be `DIMENSION` or
-    `METRIC`.
-    """
-
-    DIMENSION = "DIMENSION"
-    METRIC = "METRIC"
-
-
-@dataclass(frozen=True)
-class ColumnHeader:
-    """A representation of a column header.
-
-    Column headers contain various information about the columns in the
-    report. You will never need to create one of these yourself.
+    This is abstraction of the `resultTable` resource rather than a
+    direct mapping. This class provides additional properties and
+    methods designed to make it easier to perform certain operations.
 
     Parameters
     ----------
-    name : str
-        The column name.
-    data_type : DataType
-        The data type of the column.
-    column_type : ColumnType
-        The column type.
-
-    Attributes
-    ----------
-    name : str
-        The column name.
-    data_type : DataType
-        The data type of the column.
-    column_type : ColumnType
-        The column type.
-    """
-
-    __slots__ = ("name", "data_type", "column_type")
-
-    name: str
-    data_type: DataType
-    column_type: ColumnType
-
-    @property
-    def data(self) -> Dict[str, Any]:
-        """The raw data for this column header in JSON format.
-
-        Returns
-        -------
-        dict of str-Any
-            The response data.
-        """
-        return {
-            "name": self.name,
-            "dataType": self.data_type.value,
-            "columnType": self.column_type.value,
-        }
-
-
-@dataclass(frozen=True)
-class ResultTable:
-    """A representation of a resultTable resource.
-
-    This is the resource type that gets sent from the YouTube Analytics
-    API.
-
-    Parameters
-    ----------
-    kind : str
-        The kind of resource this is. This will always be
-        "youtubeAnalytics#resultTable".
-    column_headers : list of ColumnHeader
-        Information about the columns in the report, such as the name
-        and the column type.
-    rows : list of list of str int and float
-        The rows in the report. This will be a list of lists.
-
-    Attributes
-    ----------
-    kind : str
-        The kind of resource this is. This will always be
-        "youtubeAnalytics#resultTable".
-    column_headers : list of ColumnHeader
-        Information about the columns in the report, such as the name
-        and the column type.
-    rows : list of list of str int and float
-        The rows in the report. This will be a list of lists.
-
-    !!! info "See also"
-        Instances of this class are presented as part of
-        `AnalyticsReport` instances.
-    """
-
-    kind: str
-    column_headers: List[ColumnHeader]
-    rows: List[List[Union[str, int, float]]]
-
-    @classmethod
-    def from_json(cls, data: Dict[str, Any]) -> "ResultTable":
-        """Create a new `ResultTable` instance from JSON data.
-
-        Parameters
-        ----------
-        data : JSON object
-            The raw JSON data from the API.
-
-        Returns
-        -------
-        ResultTable
-            The newly created instance.
-        """
-        return cls(
-            data["kind"],
-            [
-                ColumnHeader(
-                    header["name"],
-                    DataType(header["dataType"]),
-                    ColumnType(header["columnType"]),
-                )
-                for header in data["columnHeaders"]
-            ],
-            data["rows"],
-        )
-
-    @property
-    def data(self) -> Dict[str, Any]:
-        """The raw data for this result table in JSON format.
-
-        Returns
-        -------
-        dict of str-Any
-            The response data.
-        """
-        return {
-            "kind": self.kind,
-            "columnHeaders": [header.data for header in self.column_headers],
-            "rows": self.rows,
-        }
-
-
-class AnalyticsReport:
-    """A representation of an analytics report.
-
-    This does not represent a direct resultTable resource, but instead
-    provides additional methods on top of one, largely designed to save
-    the report data into different formats.
-
-    Parameters
-    ----------
-    data : JSON object
+    data
         The raw JSON data from the API.
-    type : ReportType
+    type
         The report type.
 
     Attributes
     ----------
     resource : ResultTable
-        An instance representing a resultTable resource.
+        An instance representing a `resultTable` resource.
     type : ReportType
         The report type.
+
+    !!! info "See also"
+        A `ResultTable` resource wrapper does exist.
     """
 
     def __init__(self, data: Dict[str, Any], type: "ReportType") -> None:
         self.resource = ResultTable.from_json(data)
         self.type = type
         self._shape = (len(data["rows"]), len(self.resource.column_headers))
-
-    def __eq__(self, other: object) -> bool:
-        # sourcery skip: assign-if-exp, reintroduce-else, swap-if-expression
-        if not isinstance(other, self.__class__):
-            return NotImplemented
-
-        return self.resource == other.resource and self.type == other.type
-
-    def __ne__(self, other: object) -> bool:
-        # sourcery skip: assign-if-exp, reintroduce-else, swap-if-expression
-        if not isinstance(other, self.__class__):
-            return NotImplemented
-
-        return self.resource != other.resource or self.type != other.type
 
     @property
     def shape(self) -> Tuple[int, int]:
@@ -246,19 +86,13 @@ class AnalyticsReport:
 
         Returns
         -------
-        tuple of two ints
+        Tuple[int, int]
             The shape of the report.
 
-        ??? example "Basic example"
+        !!! example
             ```py
             >>> report.shape
             (120, 42)
-            ```
-
-        ??? example "Getting the number of rows only"
-            ```py
-            >>> report.shape[0]
-            120
             ```
         """
         return self._shape
@@ -269,12 +103,18 @@ class AnalyticsReport:
 
         Returns
         -------
-        list of str
+        List[str]
             The column list.
 
         !!! info "See also"
             This does not return a list of column headers. If you want
             that, use `report.resource.column_headers` instead.
+
+        !!! example
+            ```py
+            >>> report.columns
+            ["day", "subscribedStatus", "views", "likes", "comments"]
+            ```
         """
         return [c.name for c in self.resource.column_headers]
 
@@ -284,8 +124,14 @@ class AnalyticsReport:
 
         Returns
         -------
-        list of str
+        List[str]
             The dimension list.
+
+        !!! example
+            ```py
+            >>> report.dimensions
+            ["day", "subscribedStatus"]
+            ```
         """
         return [
             c.name
@@ -299,8 +145,14 @@ class AnalyticsReport:
 
         Returns
         -------
-        list of str
+        List[str]
             The metric list.
+
+        !!! example
+            ```py
+            >>> report.metrics
+            ["views", "likes", "comments"]
+            ```
         """
         return [
             c.name
@@ -308,44 +160,14 @@ class AnalyticsReport:
             if c.column_type == ColumnType.METRIC
         ]
 
-    @property
-    def numeric(self) -> List[str]:
-        """A list of all numerical columns in the report.
-
-        Returns
-        -------
-        list of str
-            The list of numerical columns.
-        """
-        return [
-            c.name
-            for c in self.resource.column_headers
-            if c.data_type != DataType.STRING
-        ]
-
-    @property
-    def non_numeric(self) -> List[str]:
-        """A list of all non-numerical columns in the report.
-
-        Returns
-        -------
-        list of str
-            The list of non-numerical columns.
-        """
-        return [
-            c.name
-            for c in self.resource.column_headers
-            if c.data_type == DataType.STRING
-        ]
-
     def to_json(
         self,
         path: "PathLike",
         *,
-        indent: Optional[int] = 4,
-        overwrite: bool = True,
+        indent: Optional[int] = None,
+        overwrite: bool = False,
         **kwargs: Any,
-    ) -> Dict[str, Any]:
+    ) -> None:
         """Save this report in JSON format.
 
         This saves the data as it arrived from the YouTube Analytics
@@ -353,34 +175,33 @@ class AnalyticsReport:
 
         Parameters
         ----------
-        path : Path object or str
+        path
             The path to save the file to.
-        indent : int, optional
-            The number of spaces to indent each line of the data. To
-            create a one-line file, pass `None`.
-        overwrite : bool, optional
+        indent
+            The number of spaces to indent each line of the data. If
+            this is `None`, the data will be written on one line. Note
+            that this does not happen if this is `0`.
+        overwrite
             Whether to overwrite an existing file.
 
         Returns
         -------
-        dict of str-Any
-            The raw JSON data.
+        None
+            This method doesn't return anything.
 
         Other Parameters
         ----------------
-        **kwargs : mapping of Any
-            Additional arguments to pass to `json.dump()`.
+        **kwargs
+            Additional arguments to pass to `json.dump`.
 
-        ??? example "Basic example"
+        !!! example
             ```py
             >>> report.to_json("output.json")
             ```
 
-        ??? example "Saving in a minimal format"
+        !!! example "Saving in a pretty format"
             ```py
-            # Note that passing `indent=0` will not have the same
-            # effect.
-            >>> report.to_json("output.json", indent=None)
+            >>> report.to_json("output.json", indent=4)
             ```
         """
         path = process_path(path, ".json", overwrite)
@@ -390,36 +211,37 @@ class AnalyticsReport:
             json.dump(data, f, indent=indent, **kwargs)
 
         _log.info(f"Saved report as JSON to {path.resolve()}")
-        return data
 
     def to_csv(
-        self, path: "PathLike", *, delimiter: str = ",", overwrite: bool = True
+        self, path: "PathLike", *, delimiter: str = ",", overwrite: bool = False
     ) -> None:
         """Save this report as a CSV or TSV file.
 
         The filetype is dependent on the delimiter you provide — if you
         pass a tab character as a delimiter, the file will be saved as
-        a TSV. It will be saved as a CSV in all other cases.
+        a TSV. It will be saved as a CSV in all other instances.
 
         Parameters
         ----------
-        path : Path object or str
+        path
             The path to save the file to.
-        delimiter : int, optional
-            The character to use as a delimiter.
-        overwrite : bool, optional
+        delimiter
+            The character to use as a delimiter. If this is `\\t`, the
+            report will be saved as a TSV.
+        overwrite
             Whether to overwrite an existing file.
 
         Returns
         -------
         None
+            This method doesn't return anything.
 
-        ??? example "Basic example"
+        !!! example
             ```py
             >>> report.to_csv("output.csv")
             ```
 
-        ??? example "Saving as a TSV"
+        !!! example "Saving as a TSV"
             ```py
             >>> report.to_csv("output.tsv", delimiter="\\t")
             ```
@@ -436,43 +258,42 @@ class AnalyticsReport:
         _log.info(f"Saved report as {extension[1:].upper()} to {path.resolve()}")
 
     def to_excel(
-        self, path: "PathLike", *, sheet_name: str = "Analytics", overwrite: bool = True
+        self,
+        path: "PathLike",
+        *,
+        sheet_name: str = "Analytics",
+        overwrite: bool = False,
     ) -> None:
         """Save this report as an Excel spreadsheet.
 
+        The data cannot be saved to a new sheet in an existing workbook.
+        If you wish to do this, you will need to save the data to a new
+        spreadsheet file, then copy the data over.
+
         Parameters
         ----------
-        path : Path object or str
+        path
             The path to save the spreadsheet to.
-        sheet_name : str, optional
+        sheet_name
             The name to give the sheet the data will be inserted into.
-        overwrite : bool, optional
+        overwrite
             Whether to overwrite an existing file.
 
         Returns
         -------
         None
-
-        !!! warning
-            The data cannot be saved to a sheet in an existing workbook.
-            If you wish to do this, you will need to save the data to
-            a new spreadsheet file, then copy the data over.
+            This method doesn't return anything.
 
         !!! note
             This requires `openpyxl` to be installed to use, which is an
             optional dependency.
 
-        ??? example "Basic example"
+        !!! example
             ```py
             >>> report.to_excel("output.xlsx")
             ```
-
-        ??? example "Saving with a custom sheet name"
-            ```py
-            >>> report.to_excel("output.xlsx", sheet_name="My Sheet")
-            ```
         """
-        if not analytix.can_use("openpyxl"):
+        if not utils.can_use("openpyxl"):
             raise MissingOptionalComponents("openpyxl")
 
         from openpyxl import Workbook
@@ -494,10 +315,10 @@ class AnalyticsReport:
 
         Parameters
         ----------
-        skip_date_conversion : bool, optional
+        skip_date_conversion
             Whether or not to skip the conversion of "day" and "month"
-            columns into the `datetime64[ns]` format. If you choose to
-            skip this, these columns will be left as strings.
+            columns into a datetime format. If you choose to skip this,
+            these columns will be left as strings.
 
         Returns
         -------
@@ -508,7 +329,7 @@ class AnalyticsReport:
             This requires `pandas` to be installed to use, which is an
             optional dependency.
 
-        ??? example "Basic example"
+        !!! example
             ```py
             >>> df = report.to_pandas()
             >>> df.head(5)
@@ -521,7 +342,7 @@ class AnalyticsReport:
             ```
         """
         # sourcery skip: class-extract-method
-        if not analytix.can_use("pandas"):
+        if not utils.can_use("pandas"):
             raise MissingOptionalComponents("pandas")
 
         if not self._shape[0]:
@@ -533,24 +354,22 @@ class AnalyticsReport:
 
         df = pd.DataFrame(self.resource.rows, columns=self.columns)
 
-        if not skip_date_conversion:
-            s = {"day", "month"} & set(df.columns)
-            if len(s):
-                col = next(iter(s))
-                df[col] = pd.to_datetime(df[col], format="%Y-%m-%d")
-                _log.info(f"Converted {col!r} column to datetime64[ns] format")
+        if not skip_date_conversion and len(s := {"day", "month"} & set(df.columns)):
+            col = next(iter(s))
+            df[col] = pd.to_datetime(df[col], format="%Y-%m-%d")
+            _log.debug(f"Converted {col!r} column to datetime format")
 
         return df
 
     def to_arrow(self, *, skip_date_conversion: bool = False) -> "pa.Table":
-        """Return this report as an Apache Arrow table.
+        """Export this report as an Apache Arrow table.
 
         Parameters
         ----------
-        skip_date_conversion : bool, optional
+        skip_date_conversion
             Whether or not to skip the conversion of "day" and "month"
-            columns into the `timestamp[ns]` format. If you choose to
-            skip this, these columns will be left as strings.
+            columns into a datetime format. If you choose to skip this,
+            these columns will be left as strings.
 
         Returns
         -------
@@ -561,7 +380,7 @@ class AnalyticsReport:
             This requires `pyarrow` to be installed to use, which is an
             optional dependency.
 
-        ??? example "Basic example"
+        !!! example
             ```py
             >>> table = report.to_arrow()
             >>> table.slice(length=3)
@@ -579,7 +398,7 @@ class AnalyticsReport:
             grossRevenue: [[2.249,3.558,2.91,24.428,6.691]]
             ```
         """
-        if not analytix.can_use("pyarrow"):
+        if not utils.can_use("pyarrow"):
             raise MissingOptionalComponents("pyarrow")
 
         if not self._shape[0]:
@@ -592,14 +411,14 @@ class AnalyticsReport:
 
         table = pa.table(list(zip(*self.resource.rows)), names=self.columns)
 
-        if not skip_date_conversion:
-            s = {"day", "month"} & set(table.column_names)
-            if len(s):
-                col = next(iter(s))
-                fmt = {"day": "%Y-%m-%d", "month": "%Y-%m"}[col]
-                dt_series = pc.strptime(table.column(col), format=fmt, unit="ns")
-                table = table.set_column(0, "day", dt_series)
-                _log.info(f"Converted {col!r} column to timestamp[ns] format")
+        if not skip_date_conversion and len(
+            s := {"day", "month"} & set(table.column_names)
+        ):
+            col = next(iter(s))
+            fmt = {"day": "%Y-%m-%d", "month": "%Y-%m"}[col]
+            dt_series = pc.strptime(table.column(col), format=fmt, unit="ns")
+            table = table.set_column(0, "day", dt_series)
+            _log.debug(f"Converted {col!r} column to datetime format")
 
         return table
 
@@ -608,9 +427,9 @@ class AnalyticsReport:
 
         Parameters
         ----------
-        skip_date_conversion : bool, optional
+        skip_date_conversion
             Whether or not to skip the conversion of "day" and "month"
-            columns into the `date` format. If you choose to skip this,
+            columns into a date format. If you choose to skip this,
             these columns will be left as strings.
 
         Returns
@@ -622,7 +441,7 @@ class AnalyticsReport:
             This requires `polars` to be installed to use, which is an
             optional dependency.
 
-        ??? example "Basic example"
+        !!! example
             ```py
             >>> df = report.to_polars()
             >>> df.head(5)
@@ -644,7 +463,7 @@ class AnalyticsReport:
             └────────────┴───────┴───────┴──────────┴──────────────┘
             ```
         """
-        if not analytix.can_use("polars"):
+        if not utils.can_use("polars"):
             raise MissingOptionalComponents("polars")
 
         if not self._shape[0]:
@@ -656,13 +475,11 @@ class AnalyticsReport:
 
         df = pl.DataFrame(self.resource.rows, schema=self.columns)
 
-        if not skip_date_conversion:
-            s = {"day", "month"} & set(df.columns)
-            if len(s):
-                col = next(iter(s))
-                fmt = {"day": "%Y-%m-%d", "month": "%Y-%m"}[col]
-                df = df.with_columns(pl.col(col).str.strptime(pl.Date, format=fmt))
-                _log.info(f"Converted {col!r} column to date format")
+        if not skip_date_conversion and len(s := {"day", "month"} & set(df.columns)):
+            col = next(iter(s))
+            fmt = {"day": "%Y-%m-%d", "month": "%Y-%m"}[col]
+            df = df.with_columns(pl.col(col).str.strptime(pl.Date, format=fmt))
+            _log.debug(f"Converted {col!r} column to date format")
 
         return df
 
@@ -672,21 +489,19 @@ class AnalyticsReport:
         *,
         skip_date_conversion: bool = False,
         overwrite: bool = True,
+        **kwargs: Any,
     ) -> None:
         """Save this report as an Apache Feather file.
 
-        To do this, the data is first converted to an Apache Arrow
-        table, which is returned from the method.
-
         Parameters
         ----------
-        path : Path object or str
+        path
             The path to save the file to.
-        skip_date_conversion : bool, optional
+        skip_date_conversion
             Whether or not to skip the conversion of "day" and "month"
-            columns into the `timestamp[ns]` format. If you choose to
-            skip this, these columns will be left as strings.
-        overwrite : bool, optional
+            columns into a datetime format. If you choose to skip this,
+            these columns will be left as strings.
+        overwrite
             Whether to overwrite an existing file.
 
         Returns
@@ -694,24 +509,29 @@ class AnalyticsReport:
         None
             This method doesn't return anything.
 
+        Other Parameters
+        ----------------
+        **kwargs
+            Additional arguments to pass to `pf.write_feather`.
+
         !!! note
             This requires `pyarrow` to be installed to use, which is an
             optional dependency.
 
-        ??? example "Basic example"
+        !!! example
             ```py
-            >>> table = report.to_feather("output.feather")
-            >>> table.shape
-            (7, 5)
+            >>> report.to_feather("output.feather")
             ```
         """
-        if not analytix.can_use("pyarrow"):
+        if not utils.can_use("pyarrow"):
             raise MissingOptionalComponents("pyarrow")
 
         import pyarrow.feather as pf
 
         path = process_path(path, ".feather", overwrite)
-        pf.write_feather(self.to_arrow(skip_date_conversion=skip_date_conversion), path)
+        pf.write_feather(
+            self.to_arrow(skip_date_conversion=skip_date_conversion), path, **kwargs
+        )
 
         _log.info(f"Saved report as Apache Feather file to {path.resolve()}")
 
@@ -721,21 +541,19 @@ class AnalyticsReport:
         *,
         skip_date_conversion: bool = False,
         overwrite: bool = True,
+        **kwargs: Any,
     ) -> None:
         """Save this report as an Apache Parquet file.
 
-        To do this, the data is first converted to an Apache Arrow
-        table, which is returned from the method.
-
         Parameters
         ----------
-        path : Path object or str
+        path
             The path to save the file to.
-        skip_date_conversion : bool, optional
+        skip_date_conversion
             Whether or not to skip the conversion of "day" and "month"
-            columns into the `timestamp[ns]` format. If you choose to
-            skip this, these columns will be left as strings.
-        overwrite : bool, optional
+            columns into a datetime format. If you choose to skip this,
+            these columns will be left as strings.
+        overwrite
             Whether to overwrite an existing file.
 
         Returns
@@ -743,24 +561,29 @@ class AnalyticsReport:
         None
             This method doesn't return anything.
 
+        Other Parameters
+        ----------------
+        **kwargs
+            Additional arguments to pass to `pq.write_table`.
+
         !!! note
             This requires `pyarrow` to be installed to use, which is an
             optional dependency.
 
-        ??? example "Basic example"
+        !!! example
             ```py
-            >>> table = report.to_parquet("output.parquet")
-            >>> table.shape
-            (7, 5)
+            >>> report.to_parquet("output.parquet")
             ```
         """
 
-        if not analytix.can_use("pyarrow"):
+        if not utils.can_use("pyarrow"):
             raise MissingOptionalComponents("pyarrow")
 
         import pyarrow.parquet as pq
 
         path = process_path(path, ".parquet", overwrite)
-        pq.write_table(self.to_arrow(skip_date_conversion=skip_date_conversion), path)
+        pq.write_table(
+            self.to_arrow(skip_date_conversion=skip_date_conversion), path, **kwargs
+        )
 
         _log.info(f"Saved report as Apache Parquet file to {path.resolve()}")
