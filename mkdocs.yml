@@ -49,7 +49,7 @@ theme:
         name: Switch to light mode
 
   font:
-    text: Hind
+    text: Nanum Gothic
     code: Chivo Mono
 
   logo: logo_white.png
