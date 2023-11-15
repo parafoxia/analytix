@@ -26,6 +26,29 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+"""Client interfaces for analytix.
+
+There are two clients to choose from:
+
+* The base client (`BaseClient`)
+* The scripting client (`Client`)
+
+The scripting client is the simpler of the two to use and is designed
+for use in scripts. Client authorisation and shard management is handled
+for you, allowing you to focus on the data you wish to fetch.
+
+The base client needs to be subclassed, and is designed for use in web
+applications. It needs to be told how to authorise itself to best suit
+your workflow, and requires you to create and destroy shards yourself.
+
+You may wish to use the base client if:
+
+* you're running your application on a server
+* you want control over how your applications is authorised
+* you want to store tokens in a database
+* you need access to JWT ID tokens
+"""
+
 __all__ = ("BaseClient", "Client")
 
 import datetime as dt
@@ -66,22 +89,16 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
 
     Parameters
     ----------
-    secrets_file : PathLike
+    secrets_file
         The path to your secrets file.
-    scopes : Scopes, optional
+    scopes
         The scopes to allow in requests. This is used to control whether
         or not to allow access to monetary data. If this is not
         provided, monetary data will not be accessible.
 
-    !!! warning
-        If your channel is not partnered, attempting to access monetary
-        data will result in a `Forbidden` error.
+    !!! note "New in version 5.0"
 
-    !!! info "See also"
-        If you're planning to use analytix in scripts, the `Client` may
-        prove more useful to you.
-
-    !!! example "Typical usage"
+    ??? example
         ```py
         from analytix import BaseClient
 
@@ -91,7 +108,7 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
         client = CustomClient("secrets.json")
         ```
 
-    !!! example "Providing custom scopes"
+    ??? example "Providing custom scopes"
         ```py
         from analytix import BaseClient, Scopes
 
@@ -148,7 +165,7 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
 
         Parameters
         ----------
-        access_token : str
+        access_token
             Your access token.
 
         Returns
@@ -157,7 +174,9 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
             Whether the token is valid or not. If it isn't, it needs
             refreshing.
 
-        !!! example "Typical usage"
+        !!! note "New in version 5.0"
+
+        ??? example
             ```py
             >>> client.token_is_valid("1234567890")
             True
@@ -179,9 +198,13 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
         scopes your tokens are authorised with and determines whether
         your tokens provide enough access.
 
+        This is not an equality check; if your tokens are authorised
+        with all scopes, but you only passed the READONLY scope to the
+        client, this will return `True`.
+
         Parameters
         ----------
-        scopes : str
+        scopes
             Your stored scopes. These are the scopes in your tokens, not
             the ones you passed to the client.
 
@@ -191,12 +214,9 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
             Whether the scopes are sufficient or not. If they're not,
             you'll need to reauthorise.
 
-        !!! important
-            This is not an equality check; if your tokens are authorised
-            with all scopes, but you only passed the READONLY scope to
-            the client, this will return `True`.
+        !!! note "New in version 5.0"
 
-        !!! example "Typical usage"
+        ??? example
             ```py
             # Yes, it's `.scope`, not `.scopes`.
             >>> client.scopes_are_sufficient(tokens.scope)
@@ -218,7 +238,7 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
 
         Parameters
         ----------
-        tokens : Tokens
+        tokens
             Your tokens.
 
         Returns
@@ -228,7 +248,11 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
             refreshed. In the latter instance, your client will need to
             be reauthorised from scratch.
 
-        !!! example "Typical usage"
+        !!! note "Changed in version 5.0"
+            This is now handled by the client rather than by individual
+            shards.
+
+        ??? example
             ```py
             >>> client.refresh_access_token(tokens)
             Tokens(access_token="1234567890", ...)
@@ -258,16 +282,16 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
         requests using their own tokens. This allows you to accommodate
         the needs of multiple users, or even allow a single user to make
         multiple requests, without having to call your authorisation
-        routine.
+        routine multiple times.
 
         Generally, shards should only live for a single request or
         a batch of related requests.
 
         Parameters
         ----------
-        tokens : Tokens
+        tokens
             Your tokens.
-        scopes : Scopes, optional
+        scopes
             The scopes to allow in requests. If this is not provided,
             the shard will inherit the client's scopes.
 
@@ -277,21 +301,21 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
             A new shard. It will be destroyed upon exiting the context
             manager.
 
-        !!! warning
-            Shards cannot refresh their own tokens. You may want to take
-            extra precautions to ensure a shard's token doesn't expire
-            during its lifetime.
+        !!! note "Changed in version 5.0"
+            You can now provide custom scopes for shards.
 
-        !!! example "Typical usage"
+        ??? example
             ```py
+            tokens = client.authorise()
             with client.shard(tokens) as shard:
                 shard.fetch_report()
             ```
 
-        !!! example "Providing custom scopes"
+        ??? example "Providing custom scopes"
             ```py
             from analytix import Scopes
 
+            tokens = client.authorise()
             with client.shard(tokens, scopes=Scopes.ALL) as shard:
                 shard.fetch_groups()
             ```
@@ -312,20 +336,20 @@ class Client(BaseClient):
 
     Parameters
     ----------
-    secrets_file : PathLike
+    secrets_file
         The path to your secrets file.
-    scopes : Scopes, optional
+    scopes
         The scopes to allow in requests. This is used to control whether
         or not to allow access to monetary data. If this is not
         provided, monetary data will not be accessible.
-    tokens_file : PathLike, optional
+    tokens_file
         The path to save your tokens to. This must be a JSON file, but
         does not need to exist. If this is not provided, your tokens
         will be saved to a file called "tokens.json" in your current
         working directory.
-    ws_port : int, optional
+    ws_port
         The port the client's webserver will use during authorisation.
-    auto_open_browser : bool or None, optional
+    auto_open_browser
         Whether to automatically open a new browser tab when
         authorising. If this is `False`, a link will be output to the
         console instead. If this is not provided, its value will be set
@@ -337,14 +361,11 @@ class Client(BaseClient):
     ValueError
         `tokens_file` is not a JSON file.
 
-    !!! warning
-        If your channel is not partnered, attempting to access monetary
-        data will result in a `Forbidden` error.
-
-    !!! info "See also"
-        This client is not suitable for use in web applications. If
-        you're planning to create one that uses analytix, use the
-        `BaseClient` instead.
+    !!! note "Changed in version 5.0"
+        * You should now provide a tokens file rather than a tokens
+          directory
+        * `auto_open_browser` is now set based on your OS by default
+        * Monetary data is now no longer accessible by default
     """
 
     def __init__(
@@ -378,9 +399,15 @@ class Client(BaseClient):
         prioritised, and the full auth flow will only trigger when
         necessary. Token refreshing is handled automatically.
 
+        Client methods authorise the client for you, so you don't need
+        to call this manually when using those. If you plan to make
+        multiple requests in a row using the same client, it's better to
+        call this manually and create a shard with the generated tokens
+        to avoid authorising the client multiple times.
+
         Parameters
         ----------
-        force_refresh : bool, optional
+        force_refresh
             Whether to forcibly refresh your access token, even if the
             token is still valid.
 
@@ -400,7 +427,14 @@ class Client(BaseClient):
             You will only need to call this method directly if you plan
             to create shards yourself.
 
-        !!! example "Typical usage"
+        !!! note "Changed in version 5.0"
+            * You can no longer pass a filename to load a specific set
+              of tokens — you must create a new client for each channel
+              you wish to fetch data for
+            * You can now forcibly refresh access tokens using the
+              provided keyword argument
+
+        ??? example
             ```py
             >>> client.authorise()
             Tokens(access_token="1234567890", ...)
@@ -453,9 +487,9 @@ class Client(BaseClient):
 
         Parameters
         ----------
-        tokens : Tokens
+        tokens
             Your tokens.
-        force : bool, optional
+        force
             Whether to forcibly refresh your access token, even if the
             token is still valid.
 
@@ -469,6 +503,8 @@ class Client(BaseClient):
             This method should never need to be called, as the
             `authorise` method will call it automatically when
             necessary.
+
+        !!! note "New in version 5.0"
         """
         if not force and self.token_is_valid(tokens.access_token):
             return tokens
@@ -493,21 +529,21 @@ class Client(BaseClient):
         include_historical_data: bool = False,
         **kwargs: Any,
     ) -> "Report":
-        """Fetch an analytics report.
+        """Authorise the client and fetch an analytics report.
 
-        This method authorises the client for you. If you want more
-        control over authorisation, create a shard and use that instead.
+        This gets video reports by default. To get playlist reports, you
+        must set the `"isCurated"` filter to `"1"`.
 
         Parameters
         ----------
-        dimensions : Collection[str] or None, optional
+        dimensions
             The dimensions to use within the request.
-        filters : Dict[str, str] or None, optional
+        filters
             The filters to use within the request.
-        metrics : Collection[str] or None, optional
+        metrics
             The metrics to use within the request. If none are provided,
             all supported metrics are used.
-        sort_options : Collection[str] or None, optional
+        sort_options
             The sort options to use within the request.
 
         Returns
@@ -517,27 +553,27 @@ class Client(BaseClient):
 
         Other Parameters
         ----------------
-        start_date : datetime.date or None, optional
+        start_date
             The date in which data should be pulled from. If this is
             not provided, this is set to 28 days before `end_date`.
-        end_date : datetime.date or None, optional
+        end_date
             The date in which data should be pulled to. If this is not
             provided, this is set to the current date.
-        max_results : int, optional
+        max_results
             The maximum number of results the report should include. If
             this is `0`, no upper limit is applied.
-        currency : str, optional
+        currency
             The currency revenue data should be represented using. This
             should be an ISO 4217 currency code.
-        start_index : int, optional
+        start_index
             The first row in the report to include. This is one-indexed.
-            If this is 1, all rows are included.
-        include_historical_data : bool, optional
+            If this is `1`, all rows are included.
+        include_historical_data
             Whether to include data from before the current channel
             owner assumed control of the channel. You only need to worry
             about this is the current channel owner did not create the
             channel.
-        **kwargs : Any
+        **kwargs
             Additional keyword arguments to be passed to the `authorise`
             method.
 
@@ -559,17 +595,20 @@ class Client(BaseClient):
         AuthorisationError
             Something went wrong during authorisation.
 
+        !!! warning
+            If your channel is not partnered, attempting to access
+            monetary data will result in a `Forbidden` error. Ensure
+            your scopes are set up correctly before calling this method.
+
         !!! info "See also"
             You can learn more about dimensions, filters, metrics, and
             sort options by reading the [detailed guides](../../guides/
             dimensions).
 
-        !!! important
-            To get playlist reports, you must set the `"isCurated"`
-            filter to `"1"`. View the playlist example to see how this
-            is done.
+        !!! note "Changed in version 5.0"
+            This used to be `retrieve_report`.
 
-        !!! example "Fetching daily analytics data for 2022"
+        ??? example "Fetching daily analytics data for 2022"
             ```py
             from datetime import datetime
 
@@ -580,7 +619,7 @@ class Client(BaseClient):
             )
             ```
 
-        !!! example "Fetching 10 most watched videos over last 28 days"
+        ??? example "Fetching 10 most watched videos over last 28 days"
             ```py
             shard.fetch_report(
                 dimensions=("video",),
@@ -590,7 +629,7 @@ class Client(BaseClient):
             )
             ```
 
-        !!! example "Fetching playlist analytics"
+        ??? example "Fetching playlist analytics"
             ```py
             shard.fetch_report(filters={"isCurated": "1"})
             ```
@@ -617,21 +656,21 @@ class Client(BaseClient):
         next_page_token: Optional[str] = None,
         **kwargs: Any,
     ) -> "GroupList":
-        """Fetch a list of analytics groups.
-
-        This method authorises the client for you. If you want more
-        control over authorisation, create a shard and use that instead.
+        """Authorise the client and fetch a list of analytics groups.
 
         Parameters
         ----------
-        ids : Collection[str] or None, optional
+        ids
             The IDs of groups you want to fetch. If none are provided,
             all your groups will be fetched.
-        next_page_token : str or None, optional
+        next_page_token
             If you need to make multiple requests, you can pass this to
             load a specific page. To check if you've arrived back at the
             first page, check the next page token from the request and
             compare it to the next page token from the first page.
+        **kwargs
+            Additional keyword arguments to be passed to the `authorise`
+            method.
 
         Returns
         -------
@@ -639,12 +678,6 @@ class Client(BaseClient):
             An object containing the list of your groups and the next
             page token.
 
-        Other Parameters
-        ----------------
-        **kwargs : Any
-            Additional keyword arguments to be passed to the `authorise`
-            method.
-
         Raises
         ------
         BadRequest
@@ -659,21 +692,26 @@ class Client(BaseClient):
             The client attempted to open a new browser tab, but failed.
         AuthorisationError
             Something went wrong during authorisation.
+
+        !!! note "Changed in version 5.0"
+            You can now pass a series of keyword arguments to be passed
+            on to the `authorise` method.
         """
         tokens = self.authorise(**kwargs)
         with self.shard(tokens) as shard:
             return shard.fetch_groups(ids=ids, next_page_token=next_page_token)
 
     def fetch_group_items(self, group_id: str, **kwargs: Any) -> "GroupItemList":
-        """Fetch a list of all items within a group.
-
-        This method authorises the client for you. If you want more
-        control over authorisation, create a shard and use that instead.
+        """Authorise the client and fetch a list of all items within a
+        group.
 
         Parameters
         ----------
-        group_id : str
+        group_id
             The ID of the group to fetch items for.
+        **kwargs
+            Additional keyword arguments to be passed to the `authorise`
+            method.
 
         Returns
         -------
@@ -681,12 +719,6 @@ class Client(BaseClient):
             An object containing the list of group items and the next
             page token.
 
-        Other Parameters
-        ----------------
-        **kwargs : Any
-            Additional keyword arguments to be passed to the `authorise`
-            method.
-
         Raises
         ------
         BadRequest
@@ -701,6 +733,10 @@ class Client(BaseClient):
             The client attempted to open a new browser tab, but failed.
         AuthorisationError
             Something went wrong during authorisation.
+
+        !!! note "Changed in version 5.0"
+            You can now pass a series of keyword arguments to be passed
+            on to the `authorise` method.
         """
         tokens = self.authorise(**kwargs)
         with self.shard(tokens) as shard:

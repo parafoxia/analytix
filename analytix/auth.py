@@ -26,6 +26,18 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+
+"""Helper methods for client authorisation.
+
+You will only need to use these if you're planning to subclass the base
+client.
+
+!!! info "See also"
+    This follows the OpenID Connect specification as described in the
+    [Google Identity documentation](https://developers.google.com/
+    identity/openid-connect/openid-connect).
+"""
+
 __all__ = (
     "Scopes",
     "Secrets",
@@ -73,30 +85,30 @@ class Scopes(Enum):
 
 @dataclass(frozen=True)
 class Secrets:
-    """A dataclass representation of a secrets file.
+    """A set of API secrets.
 
     This should always be created using the `load_from` classmethod.
 
     Parameters
     ----------
-    type : "installed" or "web"
+    type
         The application type. This will always be either "installed" or
         "web".
-    client_id : str
+    client_id
         The client ID.
-    project_id : str
+    project_id
         The name of the project.
-    auth_uri : str
+    auth_uri
         The authorisation server endpoint URI.
-    token_uri : str
+    token_uri
         The token server endpoint URI.
-    auth_provider_x509_cert_url : str
+    auth_provider_x509_cert_url
         The URL of the public x509 certificate, used to verify the
         signature on JWTs, such as ID tokens, signed by the
         authentication provider.
-    client_secret : str
+    client_secret
         The client secret.
-    redirect_uris : list of str
+    redirect_uris
         A list of valid redirection endpoint URIs. This list should
         match the list entered for the client ID on the API Access pane
         of the Google APIs Console.
@@ -139,7 +151,7 @@ class Secrets:
 
         Parameters
         ----------
-        path : PathLike
+        path
             The path to your secrets file.
 
         Returns
@@ -154,7 +166,10 @@ class Secrets:
         JSONDecodeError
             The given file is not a valid JSON file.
 
-        !!! example "Typical usage"
+        !!! note "Changed in version 5.0"
+            This used to be `from_file`.
+
+        ??? example
             ```py
             >>> Secrets.load_from("secrets.json")
             Secrets(type="installed", ...)
@@ -188,17 +203,17 @@ class Tokens:
 
     Parameters
     ----------
-    access_token : str
+    access_token
         A token that can be sent to a Google API.
-    expires_in : int
+    expires_in
         The remaining lifetime of the access token in seconds.
-    scope : str
+    scope
         The scopes of access granted by the access_token expressed as a
         list of space-delimited, case-sensitive strings.
-    token_type : Bearer
+    token_type
         Identifies the type of token returned. This will always be
         "Bearer".
-    refresh_token : str
+    refresh_token
         A token that can be used to refresh your access token.
 
     !!! warning
@@ -220,7 +235,7 @@ class Tokens:
 
         Parameters
         ----------
-        path : PathLike
+        path
             The path to your tokens file.
 
         Returns
@@ -235,7 +250,10 @@ class Tokens:
         JSONDecodeError
             The given file is not a valid JSON file.
 
-        !!! example "Typical usage"
+        !!! note "Changed in version 5.0"
+            This used to be `from_file`.
+
+        ??? example
             ```py
             >>> Tokens.load_from("tokens.json")
             Tokens(access_token="1234567890", ...)
@@ -254,7 +272,7 @@ class Tokens:
 
         Parameters
         ----------
-        data : str or bytes
+        data
             Your tokens in JSON form.
 
         Returns
@@ -267,7 +285,7 @@ class Tokens:
         JSONDecodeError
             The given file is not a valid JSON file.
 
-        !!! example "Typical usage"
+        ??? example
             ```py
             >>> Tokens.from_json('{"access_token": "1234567890", ...}')
             Tokens(access_token="1234567890", ...)
@@ -280,7 +298,7 @@ class Tokens:
 
         Parameters
         ----------
-        path : PathLike
+        path
             The path to save your tokens to.
 
         Returns
@@ -288,7 +306,10 @@ class Tokens:
         None
             This method doesn't return anything.
 
-        !!! example "Typical usage"
+        !!! note "Changed in version 5.0"
+            This used to be `write`.
+
+        ??? example
             ```py
             Tokens.save_to("tokens.json")
             ```
@@ -312,7 +333,7 @@ class Tokens:
 
         Parameters
         ----------
-        data : str or bytes
+        data
             Your refreshed tokens in JSON form. These will not entirely
             replace your previous tokens, but instead update any
             out-of-date keys.
@@ -329,7 +350,10 @@ class Tokens:
         !!! info "See also"
             To save tokens, you'll need the `save_to` method.
 
-        !!! example "Typical usage"
+        !!! note "Changed in version 5.0"
+            This used to be `update`.
+
+        ??? example
             ```py
             >>> Tokens.refresh('{"access_token": "abcdefghij", ...}')
             Tokens(access_token="abcdefghij", ...)
@@ -357,11 +381,11 @@ def auth_uri(secrets: Secrets, scopes: Scopes, port: int) -> UriParams:
 
     Parameters
     ----------
-    secrets : Secrets
+    secrets
         Your secrets.
-    scopes : Scopes
+    scopes
         The scopes to allow in requests.
-    port : int
+    port
         The websocket port you wish to use.
 
     Returns
@@ -372,6 +396,11 @@ def auth_uri(secrets: Secrets, scopes: Scopes, port: int) -> UriParams:
         The query parameters as a dictionary.
     headers : Dict[str, str]
         Necessary request headers. This is always empty.
+
+    !!! note "Changed in version 5.0"
+        * This now takes scopes as a parameter
+        * This now returns headers (albeit always empty) to be more
+          consistent with other functions
     """
     params = {
         "client_id": secrets.client_id,
@@ -393,11 +422,11 @@ def token_uri(secrets: Secrets, code: str, redirect_uri: str) -> UriParams:
 
     Parameters
     ----------
-    secrets : Secrets
+    secrets
         Your secrets.
-    code : str
+    code
         Your authentication code.
-    redirect_uri : str
+    redirect_uri
         Your redirect URI. This should be identical to the one you
         generated in `auth_uri`.
 
@@ -429,9 +458,9 @@ def refresh_uri(secrets: Secrets, token: str) -> UriParams:
 
     Parameters
     ----------
-    secrets : Secrets
+    secrets
         Your secrets.
-    token : str
+    token
         Your refresh token.
 
     Returns
@@ -460,7 +489,7 @@ def run_flow(auth_params: Dict[str, str]) -> str:
 
     Parameters
     ----------
-    auth_params : Dict[str, str]
+    auth_params
         The parameters generated from the `auth_uri` method.
 
     Returns
@@ -473,6 +502,9 @@ def run_flow(auth_params: Dict[str, str]) -> str:
     AuthorisationError
         * You provided an invalid redirect URI
         * The received state does not match the generated one
+
+    !!! note "Changed in version 5.0"
+        This used to be `authenticate`.
     """
     if not (match := REDIRECT_URI_PATTERN.match(auth_params["redirect_uri"])):
         raise AuthorisationError("invalid redirect URI")

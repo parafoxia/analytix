@@ -26,6 +26,13 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+"""A shard interface for analytix.
+
+Shards are used by clients as an interface through which to make
+requests, and are particularly useful when multiple users are likely to
+make requests at the same time.
+"""
+
 __all__ = ("Shard",)
 
 import datetime as dt
@@ -54,15 +61,20 @@ class Shard(RequestMixin):
 
     Parameters
     ----------
-    scopes : Scopes
+    scopes
         The scopes to allow in requests. This is used to control whether
         or not to allow access to monetary data.
-    tokens : Tokens
+    tokens
         Your tokens.
 
     !!! warning
-        If your channel is not partnered, attempting to access monetary
-        data will result in a `Forbidden` error.
+        Shards cannot refresh their own tokens. You may want to take
+        extra precautions to ensure a shard's token doesn't expire
+        during its lifetime.
+
+    !!! note "Changed in version 5.0"
+        * Shard-specific scopes can now be passed to the constructor
+        * Shards can no longer refresh their own tokens
     """
 
     __slots__ = ("_scopes", "_tokens")
@@ -87,16 +99,19 @@ class Shard(RequestMixin):
     ) -> Report:
         """Fetch an analytics report.
 
+        This gets video reports by default. To get playlist reports, you
+        must set the `"isCurated"` filter to `"1"`.
+
         Parameters
         ----------
-        dimensions : Collection[str] or None, optional
+        dimensions
             The dimensions to use within the request.
-        filters : Dict[str, str] or None, optional
+        filters
             The filters to use within the request.
-        metrics : Collection[str] or None, optional
+        metrics
             The metrics to use within the request. If none are provided,
             all supported metrics are used.
-        sort_options : Collection[str] or None, optional
+        sort_options
             The sort options to use within the request.
 
         Returns
@@ -106,22 +121,22 @@ class Shard(RequestMixin):
 
         Other Parameters
         ----------------
-        start_date : datetime.date or None, optional
+        start_date
             The date in which data should be pulled from. If this is
             not provided, this is set to 28 days before `end_date`.
-        end_date : datetime.date or None, optional
+        end_date
             The date in which data should be pulled to. If this is not
             provided, this is set to the current date.
-        max_results : int, optional
+        max_results
             The maximum number of results the report should include. If
             this is `0`, no upper limit is applied.
-        currency : str, optional
+        currency
             The currency revenue data should be represented using. This
             should be an ISO 4217 currency code.
-        start_index : int, optional
+        start_index
             The first row in the report to include. This is one-indexed.
             If this is 1, all rows are included.
-        include_historical_data : bool, optional
+        include_historical_data
             Whether to include data from before the current channel
             owner assumed control of the channel. You only need to worry
             about this is the current channel owner did not create the
@@ -141,6 +156,11 @@ class Shard(RequestMixin):
             your channel is not partnered, this is raised when you try
             to access monetary data.
 
+        !!! warning
+            If your channel is not partnered, attempting to access
+            monetary data will result in a `Forbidden` error. Ensure
+            your scopes are set up correctly before calling this method.
+
         !!! info "See also"
             You can learn more about dimensions, filters, metrics, and
             sort options by reading the [detailed guides](../../guides/
@@ -151,7 +171,10 @@ class Shard(RequestMixin):
             filter to `"1"`. View the playlist example to see how this
             is done.
 
-        !!! example "Fetching daily analytics data for 2022"
+        !!! note "Changed in version 5.0"
+            This used to be `retrieve_report`.
+
+        ??? example "Fetching daily analytics data for 2022"
             ```py
             from datetime import datetime
 
@@ -162,7 +185,7 @@ class Shard(RequestMixin):
             )
             ```
 
-        !!! example "Fetching 10 most watched videos over last 28 days"
+        ??? example "Fetching 10 most watched videos over last 28 days"
             ```py
             shard.fetch_report(
                 dimensions=("video",),
@@ -172,7 +195,7 @@ class Shard(RequestMixin):
             )
             ```
 
-        !!! example "Fetching playlist analytics"
+        ??? example "Fetching playlist analytics"
             ```py
             shard.fetch_report(filters={"isCurated": "1"})
             ```
@@ -209,10 +232,10 @@ class Shard(RequestMixin):
 
         Parameters
         ----------
-        ids : Collection[str] or None, optional
+        ids
             The IDs of groups you want to fetch. If none are provided,
             all your groups will be fetched.
-        next_page_token : str or None, optional
+        next_page_token
             If you need to make multiple requests, you can pass this to
             load a specific page. To check if you've arrived back at the
             first page, check the next page token from the request and
@@ -244,7 +267,7 @@ class Shard(RequestMixin):
 
         Parameters
         ----------
-        group_id : str
+        group_id
             The ID of the group to fetch items for.
 
         Returns

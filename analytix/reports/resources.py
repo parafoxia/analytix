@@ -26,6 +26,12 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+"""Report resources.
+
+These mirror YouTube Analytics API resources, but lack quality-of-life
+features that the analytix interfaces provide.
+"""
+
 __all__ = ("DataType", "ColumnType", "ColumnHeader", "ResultTable")
 
 from dataclasses import dataclass
@@ -37,20 +43,28 @@ class DataType(Enum):
     """An enum of data types. Can be `STRING`, `INTEGER`, or `FLOAT`."""
 
     STRING = "STRING"
+    """A string type."""
+
     INTEGER = "INTEGER"
+    """An integer type."""
+
     FLOAT = "FLOAT"
+    """A float type."""
 
 
 class ColumnType(Enum):
     """An enum of column types. Can be `DIMENSION` or `METRIC`."""
 
     DIMENSION = "DIMENSION"
+    """Of type dimension."""
+
     METRIC = "METRIC"
+    """Of type metric."""
 
 
 @dataclass(frozen=True)
 class ColumnHeader:
-    """A representation of a column header.
+    """A column header.
 
     Column headers contain various information about the columns in the
     report. You will never need to create one of these yourself.

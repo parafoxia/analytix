@@ -26,7 +26,7 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""User experience utilities for analytix."""
+"""User experience utilities."""
 
 __all__ = ("display_splash", "enable_logging")
 
@@ -102,7 +102,7 @@ def enable_logging(level: int = logging.INFO) -> "logging.StreamHandler[TextIO]"
 
     Parameters
     ----------
-    level : int
+    level
         The log level to use.
 
     Returns
