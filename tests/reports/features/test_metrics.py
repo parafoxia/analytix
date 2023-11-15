@@ -34,11 +34,6 @@ from analytix.errors import InvalidRequest
 from analytix.reports.features import Metrics
 
 
-@pytest.fixture()
-def metrics() -> Metrics:
-    return Metrics("views", "likes", "comments")
-
-
 def test_metrics_hash(metrics):
     assert isinstance(hash(metrics), int)
 

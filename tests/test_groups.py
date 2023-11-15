@@ -51,7 +51,6 @@ def test_group_list_get_item(group_list, group):
     assert group_list[0] == group_list.items[0] == group
 
 
-@pytest.mark.dependency()
 def test_create_group_item_from_json(group_item_data):
     group = GroupItem.from_json(group_item_data)
     assert group.kind == "youtube#groupItem"
@@ -62,21 +61,17 @@ def test_create_group_item_from_json(group_item_data):
     assert group.resource.id == "j0i9h8g7f6"
 
 
-@pytest.mark.dependency(depends=["test_create_group_item_from_json"])
 def test_group_item_data_property(group_item_data, group_item):
     assert group_item.data == group_item_data
 
 
-@pytest.mark.dependency(depends=["test_create_group_item_from_json"])
 def test_create_group_item_list_from_json(group_item_list_data, group_item_list):
     assert GroupItemList.from_json(group_item_list_data) == group_item_list
 
 
-@pytest.mark.dependency(depends=["test_create_group_item_from_json"])
 def test_group_item_list_data_property(group_item_list_data, group_item_list):
     assert group_item_list.data == group_item_list_data
 
 
-@pytest.mark.dependency(depends=["test_create_group_item_from_json"])
 def test_group_item_list_get_item(group_item_list, group_item):
     assert group_item_list[0] == group_item_list.items[0] == group_item

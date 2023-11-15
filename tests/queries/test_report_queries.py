@@ -80,18 +80,6 @@ def test_create_custom():
     assert query.rtype is None
 
 
-@pytest.fixture()
-async def query() -> ReportQuery:
-    return ReportQuery(
-        dimensions=["day", "country"],
-        filters={"continent": "002", "deviceType": "MOBILE"},
-        metrics=["views", "likes", "comments"],
-        sort_options=["shares", "dislikes"],
-        start_date=dt.date(2021, 1, 1),
-        end_date=dt.date(2021, 12, 31),
-    )
-
-
 def test_start_date_property(query):
     assert query.start_date == "2021-01-01"
 

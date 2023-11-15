@@ -52,7 +52,6 @@ def test_process_path_string_no_extension(_):
     assert utils.process_path("report", ".json", False) == Path("report.json")
 
 
-@pytest.mark.dependency()
 @mock.patch.object(Path, "is_file", return_value=False)
 def test_process_path_string_with_extension(_):
     assert utils.process_path("report.json", ".json", False) == Path("report.json")

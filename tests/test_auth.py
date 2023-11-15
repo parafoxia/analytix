@@ -110,7 +110,6 @@ def test_tokens_refresh(tokens: Tokens):
     assert tokens.access_token == "f6g7h8i9j0"
 
 
-@pytest.mark.dependency()
 def test_state_token():
     with mock.patch("os.urandom", return_value=b"rickroll"):
         assert (
@@ -119,7 +118,6 @@ def test_state_token():
         )
 
 
-@pytest.mark.dependency(depends=["test_state_token"])
 def test_auth_uri_all_scopes(secrets: Secrets, auth_params):
     with mock.patch("os.urandom", return_value=b"rickroll"):
         uri, params, headers = auth_uri(secrets, Scopes.ALL, 8080)
@@ -138,7 +136,6 @@ def test_auth_uri_all_scopes(secrets: Secrets, auth_params):
     assert headers == {}
 
 
-@pytest.mark.dependency(depends=["test_state_token"])
 def test_auth_uri_readonly_scope(secrets: Secrets, auth_params_readonly):
     with mock.patch("os.urandom", return_value=b"rickroll"):
         uri, params, headers = auth_uri(secrets, Scopes.READONLY, 8080)
@@ -157,7 +154,6 @@ def test_auth_uri_readonly_scope(secrets: Secrets, auth_params_readonly):
     assert headers == {}
 
 
-@pytest.mark.dependency(depends=["test_state_token"])
 def test_auth_uri_monetary_scopes(secrets: Secrets, auth_params_monetary_readonly):
     with mock.patch("os.urandom", return_value=b"rickroll"):
         uri, params, headers = auth_uri(secrets, Scopes.MONETARY_READONLY, 8080)
@@ -176,7 +172,6 @@ def test_auth_uri_monetary_scopes(secrets: Secrets, auth_params_monetary_readonl
     assert headers == {}
 
 
-@pytest.mark.dependency(depends=["test_state_token"])
 def test_auth_uri_port_80(secrets: Secrets, auth_params_port_80):
     with mock.patch("os.urandom", return_value=b"rickroll"):
         uri, params, headers = auth_uri(secrets, Scopes.ALL, 80)

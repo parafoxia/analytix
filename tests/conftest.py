@@ -37,6 +37,19 @@ import pytz
 from analytix.auth import Scopes, Secrets, Tokens
 from analytix.client import Client
 from analytix.groups import Group, GroupItem, GroupItemList, GroupList
+from analytix.queries import ReportQuery
+from analytix.reports.features import (
+    Dimensions,
+    ExactlyOne,
+    Filters,
+    Metrics,
+    OneOrMore,
+    Optional,
+    Required,
+    SortOptions,
+    ZeroOrMore,
+    ZeroOrOne,
+)
 from analytix.reports.interfaces import Report
 from analytix.reports.resources import ColumnHeader, ColumnType, DataType, ResultTable
 from analytix.reports.types import TimeBasedActivity
@@ -466,3 +479,98 @@ def report_csv():
 @pytest.fixture()
 def report_tsv(report_csv):
     return report_csv.replace(",", "\t")
+
+
+@pytest.fixture()
+def dimensions_required() -> Dimensions:
+    return Dimensions(Required("day", "month"))
+
+
+@pytest.fixture()
+def dimensions_exactly_one() -> Dimensions:
+    return Dimensions(ExactlyOne("day", "month"))
+
+
+@pytest.fixture()
+def dimensions_one_or_more() -> Dimensions:
+    return Dimensions(OneOrMore("day", "month"))
+
+
+@pytest.fixture()
+def dimensions_optional() -> Dimensions:
+    return Dimensions(Optional("day", "month"))
+
+
+@pytest.fixture()
+def dimensions_zero_or_one() -> Dimensions:
+    return Dimensions(ZeroOrOne("day", "month"))
+
+
+@pytest.fixture()
+def dimensions_zero_or_more() -> Dimensions:
+    return Dimensions(ZeroOrMore("day", "month"))
+
+
+@pytest.fixture()
+def filters_required() -> Filters:
+    return Filters(Required("country", "video"))
+
+
+@pytest.fixture()
+def filters_required_locked() -> Filters:
+    return Filters(Required("country==US", "video"))
+
+
+@pytest.fixture()
+def filters_exactly_one() -> Filters:
+    return Filters(ExactlyOne("country", "video"))
+
+
+@pytest.fixture()
+def filters_one_or_more() -> Filters:
+    return Filters(OneOrMore("country", "video"))
+
+
+@pytest.fixture()
+def filters_optional() -> Filters:
+    return Filters(Optional("country", "video"))
+
+
+@pytest.fixture()
+def filters_zero_or_one() -> Filters:
+    return Filters(ZeroOrOne("country", "video"))
+
+
+@pytest.fixture()
+def filters_zero_or_more() -> Filters:
+    return Filters(ZeroOrMore("country", "video"))
+
+
+@pytest.fixture()
+def metrics() -> Metrics:
+    return Metrics("views", "likes", "comments")
+
+
+@pytest.fixture()
+def sort_options() -> SortOptions:
+    return SortOptions("views", "likes", "comments")
+
+
+@pytest.fixture()
+def sort_options_descending() -> SortOptions:
+    return SortOptions("views", "likes", "comments", descending_only=True)
+
+
+# QUERIES
+
+
+@pytest.fixture()
+def query() -> ReportQuery:
+    return ReportQuery(
+        dimensions=["day", "country"],
+        filters={"continent": "002", "deviceType": "MOBILE"},
+        metrics=["views", "likes", "comments"],
+        sort_options=["shares", "dislikes"],
+        start_date=dt.date(2021, 1, 1),
+        end_date=dt.date(2021, 12, 31),
+    )

@@ -42,11 +42,6 @@ from analytix.reports.features import (
 )
 
 
-@pytest.fixture()
-def filters_required() -> Filters:
-    return Filters(Required("country", "video"))
-
-
 def test_filters_every(filters_required):
     assert filters_required.every in ({"country", "video"}, {"video", "country"})
 
@@ -105,11 +100,6 @@ def test_filters_invalid_value(filters_required):
         InvalidRequest, match=re.escape("invalid value 'UK' for filter 'country'")
     ):
         filters_required.validate({"country": "UK", "video": "nf94bg4b397gb"})
-
-
-@pytest.fixture()
-def filters_required_locked() -> Filters:
-    return Filters(Required("country==US", "video"))
 
 
 def test_filters_locked_every(filters_required_locked):
@@ -179,11 +169,6 @@ def test_filters_required_invalid_set(filters_required):
         filters_required.validate({"country": "US"})
 
 
-@pytest.fixture()
-def filters_exactly_one() -> Filters:
-    return Filters(ExactlyOne("country", "video"))
-
-
 def test_filters_exactly_one_repr_output(filters_exactly_one):
     outputs = (
         r"Filters(values={ExactlyOne(values={'country', 'video'})})",
@@ -227,11 +212,6 @@ def test_filters_exactly_one_invalid_set_two(filters_exactly_one):
         filters_exactly_one.validate({"country": "US", "video": "nf94bg4b397gb"})
 
 
-@pytest.fixture()
-def filters_one_or_more() -> Filters:
-    return Filters(OneOrMore("country", "video"))
-
-
 def test_filters_one_or_more_repr_output(filters_one_or_more):
     outputs = (
         r"Filters(values={OneOrMore(values={'country', 'video'})})",
@@ -266,11 +246,6 @@ def test_filters_one_or_more_invalid_set_zero(filters_one_or_more):
         filters_one_or_more.validate({})
 
 
-@pytest.fixture()
-def filters_optional() -> Filters:
-    return Filters(Optional("country", "video"))
-
-
 def test_filters_optional_repr_output(filters_optional):
     outputs = (
         r"Filters(values={Optional(values={'country', 'video'})})",
@@ -294,11 +269,6 @@ def test_filters_optional_valid(filters_optional):
     filters_optional.validate({"country": "US"})
     filters_optional.validate({"video": "nf94bg4b397gb"})
     filters_optional.validate({"country": "US", "video": "nf94bg4b397gb"})
-
-
-@pytest.fixture()
-def filters_zero_or_one() -> Filters:
-    return Filters(ZeroOrOne("country", "video"))
 
 
 def test_filters_zero_or_one_repr_output(filters_zero_or_one):
@@ -331,11 +301,6 @@ def test_filters_zero_or_one_invalid_set_two(filters_zero_or_one):
     assert str(exc.value) in (
         "expected 0 or 1 filters from 'country' and 'video', got 2",
     )
-
-
-@pytest.fixture()
-def filters_zero_or_more() -> Filters:
-    return Filters(ZeroOrMore("country", "video"))
 
 
 def test_filters_zero_or_more_repr_output(filters_zero_or_more):

@@ -53,24 +53,6 @@ class MockFile:
         return True
 
 
-class MockAsyncFile:
-    def __init__(self, data=""):
-        self.read_data = data
-        self.write_data = ""
-
-    async def __aenter__(self):
-        return self
-
-    async def __aexit__(self, *args):
-        ...
-
-    async def read(self):
-        return self.read_data
-
-    async def write(self, data):
-        self.write_data = data
-
-
 class MockResponse:
     def __init__(self, body, /, status, reason=None):
         self._body = body

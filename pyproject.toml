@@ -17,9 +17,6 @@ exclude = "tests"
 exclude = ["tests", "analytix/ux.py"]
 code-length = 88
 
-[tool.pytest.ini_options]
-asyncio_mode = "auto"
-
 [tool.coverage.report]
 omit = ["analytix/__init__.py", "analytix/__main__.py", "analytix/types.py", "analytix/ux.py"]
 exclude_lines = [

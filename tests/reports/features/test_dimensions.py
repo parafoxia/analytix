@@ -42,16 +42,11 @@ from analytix.reports.features import (
 )
 
 
-@pytest.fixture()
-def dimensions_required() -> Dimensions:
-    return Dimensions(Required("day", "month"))
-
-
 def test_dimensions_every(dimensions_required):
     assert dimensions_required.every in ({"day", "month"}, {"month", "day"})
 
 
-async def test_dimensions_invalid_singular(dimensions_required):
+def test_dimensions_invalid_singular(dimensions_required):
     with pytest.raises(
         InvalidRequest,
         match=re.escape("invalid dimension provided: 'henlo'"),
@@ -59,7 +54,7 @@ async def test_dimensions_invalid_singular(dimensions_required):
         dimensions_required.validate(["day", "month", "henlo"])
 
 
-async def test_dimensions_invalid_plural(dimensions_required):
+def test_dimensions_invalid_plural(dimensions_required):
     with pytest.raises(
         InvalidRequest,
         match=re.escape("invalid dimensions provided: 'henlo' and 'testing'"),
@@ -114,11 +109,6 @@ def test_dimensions_required_invalid_set(dimensions_required):
         dimensions_required.validate(["day"])
 
 
-@pytest.fixture()
-def dimensions_exactly_one() -> Dimensions:
-    return Dimensions(ExactlyOne("day", "month"))
-
-
 def test_dimensions_exactly_one_repr_output(dimensions_exactly_one):
     outputs = (
         r"Dimensions(values={ExactlyOne(values={'day', 'month'})})",
@@ -160,11 +150,6 @@ def test_dimensions_exactly_one_invalid_set_two(dimensions_exactly_one):
         dimensions_exactly_one.validate(["day", "month"])
 
 
-@pytest.fixture()
-def dimensions_one_or_more() -> Dimensions:
-    return Dimensions(OneOrMore("day", "month"))
-
-
 def test_dimensions_one_or_more_repr_output(dimensions_one_or_more):
     outputs = (
         r"Dimensions(values={OneOrMore(values={'day', 'month'})})",
@@ -199,11 +184,6 @@ def test_dimensions_one_or_more_invalid_set_zero(dimensions_one_or_more):
         dimensions_one_or_more.validate([])
 
 
-@pytest.fixture()
-def dimensions_optional() -> Dimensions:
-    return Dimensions(Optional("day", "month"))
-
-
 def test_dimensions_optional_repr_output(dimensions_optional):
     outputs = (
         r"Dimensions(values={Optional(values={'day', 'month'})})",
@@ -227,11 +207,6 @@ def test_dimensions_optional_valid(dimensions_optional):
     dimensions_optional.validate(["day"])
     dimensions_optional.validate(["month"])
     dimensions_optional.validate(["day", "month"])
-
-
-@pytest.fixture()
-def dimensions_zero_or_one() -> Dimensions:
-    return Dimensions(ZeroOrOne("day", "month"))
 
 
 def test_dimensions_zero_or_one_repr_output(dimensions_zero_or_one):
@@ -266,11 +241,6 @@ def test_dimensions_zero_or_one_invalid_set_two(dimensions_zero_or_one):
         ),
     ):
         dimensions_zero_or_one.validate(["day", "month"])
-
-
-@pytest.fixture()
-def dimensions_zero_or_more() -> Dimensions:
-    return Dimensions(ZeroOrMore("day", "month"))
 
 
 def test_dimensions_zero_or_more_repr_output(dimensions_zero_or_more):

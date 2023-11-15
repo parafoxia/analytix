@@ -34,11 +34,6 @@ from analytix.errors import InvalidRequest
 from analytix.reports.features import SortOptions
 
 
-@pytest.fixture()
-def sort_options() -> SortOptions:
-    return SortOptions("views", "likes", "comments")
-
-
 def test_sort_options_hash(sort_options):
     assert isinstance(hash(sort_options), int)
 
@@ -106,11 +101,6 @@ def test_sort_options_unsupported_plural(sort_options):
         ),
     ):
         sort_options.validate(["views", "likes", "dislikes", "shares"])
-
-
-@pytest.fixture()
-def sort_options_descending() -> SortOptions:
-    return SortOptions("views", "likes", "comments", descending_only=True)
 
 
 def test_sort_options_descending_valid(sort_options_descending):
