@@ -135,7 +135,7 @@ class Shard(RequestMixin):
             should be an ISO 4217 currency code.
         start_index
             The first row in the report to include. This is one-indexed.
-            If this is 1, all rows are included.
+            If this is `1`, all rows are included.
         include_historical_data
             Whether to include data from before the current channel
             owner assumed control of the channel. You only need to worry

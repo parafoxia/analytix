@@ -78,9 +78,6 @@ class Report:
     type : ReportType
         The report type.
 
-    !!! info "See also"
-        A `ResultTable` resource wrapper does exist.
-
     !!! note "Changed in version 5.0"
         This used to be `AnalyticsReport`.
     """

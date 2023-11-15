@@ -415,10 +415,7 @@ def auth_uri(secrets: Secrets, scopes: Scopes, port: int) -> UriParams:
 
 
 def token_uri(secrets: Secrets, code: str, redirect_uri: str) -> UriParams:
-    """Returns the authentication URI and parameters.
-
-    This returns the URI, data, and headers required to obtain your
-    tokens.
+    """Returns the token URI, data, and headers.
 
     Parameters
     ----------
@@ -451,10 +448,7 @@ def token_uri(secrets: Secrets, code: str, redirect_uri: str) -> UriParams:
 
 
 def refresh_uri(secrets: Secrets, token: str) -> UriParams:
-    """Returns the authentication URI and parameters.
-
-    This returns the URI, data, and headers required to refresh your
-    tokens.
+    """Returns the refresh URI, data, and headers.
 
     Parameters
     ----------
@@ -484,8 +478,6 @@ def refresh_uri(secrets: Secrets, token: str) -> UriParams:
 
 def run_flow(auth_params: Dict[str, str]) -> str:
     """Start a webserver and listen for an authentication code.
-
-    You should not use this if you are building a web application.
 
     Parameters
     ----------

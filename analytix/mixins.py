@@ -40,8 +40,8 @@ if TYPE_CHECKING:
     try:
         from urllib3 import BaseHTTPResponse as HTTPResponse
     except ImportError:
-        # urllib3 < 2.0 doesn't have the BaseHTTPResponse, so this is done
-        # for compatibility with older versions.
+        # urllib3 < 2.0 doesn't have the BaseHTTPResponse, so this is
+        # done for compatibility with older versions.
         from urllib3 import HTTPResponse
 
 ERROR_MAPPING = {
