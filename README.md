@@ -27,6 +27,8 @@ A simple yet powerful SDK for the YouTube Analytics API.
 
 ## Installation
 
+### Installing analytix
+
 To install the latest stable version of analytix, use the following command:
 
 ```sh
@@ -41,20 +43,20 @@ pip install git+https://github.com/parafoxia/analytix
 
 You may need to prefix these commands with a call to the Python interpreter depending on your OS and Python configuration.
 
-## Additional support
+### Dependencies
 
-You can also install analytix with additional libraries to provide extra functionality:
+Below is a list of analytix's dependencies.
+Note that the minimum version assumes you're using CPython 3.8.
+The latest versions of each library are always supported.
 
-* `analytix[arrow]` — support for Apache Arrow (incl. tables, Parquet files, and Feather files)
-* `analytix[excel]` — support for Excel spreadsheets
-* `analytix[pandas]` — support for pandas DataFrames
-* `analytix[polars]` — support for Polars DataFrames
-
-To install multiple at once, use commas:
-
-```sh
-pip install "analytix[excel,pandas]"
-```
+| Name              | Min. version | Required? | Description                                                   | 
+|-------------------|--------------|-----------|---------------------------------------------------------------|
+| `python-dateutil` | 2.1          | Yes       | Conversion of API timestamps to Python datetime objects       |
+| `urllib3`         | 1.10         | Yes       | Making HTTP requests                                          |
+| `openpyxl`        | 3.0          | No        | Exporting report data to Excel spreadsheets                   |
+| `pandas`          | 1.4          | No        | Exporting report data to pandas DataFrames                    |
+| `polars`          | 0.15.17      | No        | Exporting report data to Polars DataFrames                    |
+| `pyarrow`         | 5.0          | No        | Exporting report data to Apache Arrow tables and file formats |
 
 ## OAuth authentication
 
@@ -123,7 +125,8 @@ To show more (or less) messages, pass a logging level as an argument.
 
 ## Compatibility
 
-CPython versions 3.8 through 3.13-dev and PyPy versions 3.8 through 3.10 are officially supported.
+CPython versions 3.8 through 3.12 and PyPy versions 3.8 through 3.10 are officially supported.
+CPython 3.13-dev is provisionally supported.
 Windows, MacOS, and Linux are all supported.
 
 ## Contributing

@@ -20,7 +20,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python -m pip install mock openpyxl pandas==0.23.2 polars==0.17.3 pyarrow==2.0.0 pytest .
+          python -m pip install openpyxl pandas==1.4 polars==0.15.17 pyarrow==5.0.0 pytest .
 
       - name: Run tests (pandas)
         run: python -m pytest tests/reports/test_report_interfaces.py -k to_pandas

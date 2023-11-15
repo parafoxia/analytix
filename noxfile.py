@@ -45,7 +45,10 @@ SessFT = Callable[[nox.Session], None]
 
 
 def install(
-    *, meta: bool = False, rfiles: Optional[List[str]] = None
+    *,
+    meta: bool = False,
+    rfiles: Optional[List[str]] = None,
+    libs: Optional[List[str]] = None,
 ) -> Callable[[SessFT], SessFT]:
     def decorator(func: SessFT) -> SessFT:
         @wraps(func)
@@ -71,6 +74,8 @@ def install(
                 args.append(".")
             for x in rfiles or []:
                 args.extend(["-r", f"requirements/{x}.txt"])
+            if libs:
+                args.extend(libs)
 
             session.install(*args)
             func(session)
@@ -85,7 +90,15 @@ def sp(*paths: Path) -> List[str]:
 
 
 @nox.session(reuse_venv=True)
-@install(meta=True, rfiles=["excel", "pandas", "polars", "pyarrow"])
+@install(
+    meta=True,
+    libs=[
+        "openpyxl>=3.0,<4.0",
+        "pandas>=0.23.2,<3.0; platform_python_implementation=='CPython' and python_version<'3.13'",  # noqa: E501
+        "polars>=0.17.3,<0.20; platform_python_implementation=='CPython' and python_version<'3.13'",  # noqa: E501
+        "pyarrow>=2.0,<15.0; platform_python_implementation=='CPython' and python_version<'3.13'",  # noqa: E501
+    ],
+)
 def tests(session: nox.Session) -> None:
     session.run(
         "coverage",
