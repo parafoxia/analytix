@@ -568,6 +568,7 @@ class Report:
             * This will no longer overwrite existing files by default
             * You can now pass additional keyword arguments to be passed
               to the `pf.write_feather` function
+            * This no longer returns a PyArrow table
 
         ??? example
             ```py
@@ -625,6 +626,7 @@ class Report:
             * This will no longer overwrite existing files by default
             * You can now pass additional keyword arguments to be passed
               to the `pq.write_table` function
+            * This no longer returns a PyArrow table
 
         ??? example
             ```py
