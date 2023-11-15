@@ -243,7 +243,7 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
 
         Returns
         -------
-        Tokens or None
+        Optional[Tokens]
             Your refreshed tokens, or `None` if they could not be
             refreshed. In the latter instance, your client will need to
             be reauthorised from scratch.
@@ -328,7 +328,7 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
 class Client(BaseClient):
     """A fully-functional client designed for use in scripts.
 
-    Unlike the `BaseClient`, this client is capable of authorising
+    Unlike the base client, this client is capable of authorising
     itself and provides helper methods to abstract shard management away
     from you.
 
@@ -391,13 +391,14 @@ class Client(BaseClient):
     def __enter__(self) -> "Client":
         return self
 
-    def authorise(self, *, force_refresh: bool = False) -> Tokens:
+    def authorise(self, *, force: bool = False, force_refresh: bool = False) -> Tokens:
         """Authorise the client.
 
         This method always does the minimum possible work necessary to
-        authorise the client. This means that stored tokens will be
-        prioritised, and the full auth flow will only trigger when
-        necessary. Token refreshing is handled automatically.
+        authorise the client unless forced to do otherwise. This means
+        that stored tokens will be prioritised, and the full auth flow
+        will only trigger when necessary. Token refreshing is handled
+        automatically.
 
         Client methods authorise the client for you, so you don't need
         to call this manually when using those. If you plan to make
@@ -407,8 +408,11 @@ class Client(BaseClient):
 
         Parameters
         ----------
+        force
+            Whether to forcibly reauthorise the client even if your
+            tokens are still valid.
         force_refresh
-            Whether to forcibly refresh your access token, even if the
+            Whether to forcibly refresh your access token even if the
             token is still valid.
 
         Returns
@@ -423,16 +427,13 @@ class Client(BaseClient):
         AuthorisationError
             Something went wrong during authorisation.
 
-        !!! note
-            You will only need to call this method directly if you plan
-            to create shards yourself.
-
         !!! note "Changed in version 5.0"
             * You can no longer pass a filename to load a specific set
-              of tokens — you must create a new client for each channel
-              you wish to fetch data for
-            * You can now forcibly refresh access tokens using the
-              provided keyword argument
+              of tokens; if you wish to change which channel is
+              authorised, you should either utilise shards or forcibly
+              reauthorise the client
+            * You can now forcibly refresh access tokens using this
+              method
 
         ??? example
             ```py
@@ -440,7 +441,7 @@ class Client(BaseClient):
             Tokens(access_token="1234567890", ...)
             ```
         """
-        if self._tokens_file.is_file():
+        if not force and self._tokens_file.is_file():
             tokens = Tokens.load_from(self._tokens_file)
             if self.scopes_are_sufficient(tokens.scope) and (
                 refreshed := self.refresh_access_token(tokens, force=force_refresh)
@@ -495,7 +496,7 @@ class Client(BaseClient):
 
         Returns
         -------
-        Tokens or None
+        Optional[Tokens]
             Your refreshed tokens, or `None` if they could not be
             refreshed.
 

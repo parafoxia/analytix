@@ -93,6 +93,40 @@ def test_client_authorise_with_existing(
 @mock.patch.object(Tokens, "save_to", return_value=None)
 @mock.patch.object(auth, "run_flow", return_value="rickroll")
 @mock.patch("webbrowser.open", return_value=True)
+@mock.patch("os.fspath", return_value="tokens.json")
+def test_client_authorise_with_existing_forced(
+    mock_fspath,
+    mock_webbrowser_open,
+    mock_run_flow,
+    mock_save_to,
+    client: Client,
+    tokens,
+    tokens_data,
+    caplog,
+):
+    with caplog.at_level(logging.DEBUG):
+        f = MockFile(tokens_data)
+        client._tokens_file = f
+
+        with mock.patch.object(Path, "open", return_value=f) as mock_file_open:
+            with mock.patch.object(
+                Client, "_request", return_value=MockResponse(tokens_data, 200)
+            ):
+                client._auto_open_browser = True
+                tokens = client.authorise(force=True)
+                assert tokens.access_token == "a1b2c3d4e5"
+
+            assert (
+                "Authorisation necessary -- starting authorisation flow" in caplog.text
+            )
+            assert "Authorisation code: rickroll" in caplog.text
+            assert "Authorisation complete!" in caplog.text
+            mock_file_open.assert_not_called()
+
+
+@mock.patch.object(Tokens, "save_to", return_value=None)
+@mock.patch.object(auth, "run_flow", return_value="rickroll")
+@mock.patch("webbrowser.open", return_value=True)
 @mock.patch.object(Client, "scopes_are_sufficient", return_value=False)
 @mock.patch("os.fspath", return_value="tokens.json")
 def test_client_authorise_with_existing_scopes_insufficient(
