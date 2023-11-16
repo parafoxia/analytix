@@ -9,7 +9,7 @@ All metric data is numeric.
 
 ## Selecting metrics
 
-The YouTube Analytics API defines many report types (for which there is a [separate guide](../report-types)), and each defines a different set of valid metrics.
+The YouTube Analytics API defines many report types (for which there is a [separate guide](report-types.md)), and each defines a different set of valid metrics.
 It can be difficult to tell exactly which metrics are valid for each report, but if you're not sure, you may not have to worry.
 If you do not provide any metrics when retrieving reports, analytix will automatically include every metric the report type supports in the report.
 This means you only ever need to supply a series of metrics if you want your report to focus on very specific information.

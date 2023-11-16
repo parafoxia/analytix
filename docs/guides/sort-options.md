@@ -44,4 +44,4 @@ For example, putting "likes" first in the list would mean all rows are sorted by
 
 ## Valid sort options
 
-See the list of [valid metrics](../metrics).
+See the list of [valid metrics](metrics.md).

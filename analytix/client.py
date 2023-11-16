@@ -632,8 +632,8 @@ class Client(BaseClient):
 
         !!! info "See also"
             You can learn more about dimensions, filters, metrics, and
-            sort options by reading the [detailed guides](../../guides/
-            dimensions).
+            sort options by reading the [detailed guides](../guides/
+            dimensions.md).
 
         !!! note "Changed in version 5.0"
             This used to be `retrieve_report`.

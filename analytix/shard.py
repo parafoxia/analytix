@@ -163,8 +163,8 @@ class Shard(RequestMixin):
 
         !!! info "See also"
             You can learn more about dimensions, filters, metrics, and
-            sort options by reading the [detailed guides](../../guides/
-            dimensions).
+            sort options by reading the [detailed guides](../guides/
+            dimensions.md).
 
         !!! important
             To get playlist reports, you must set the `"isCurated"`
