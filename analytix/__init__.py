@@ -35,7 +35,6 @@ __all__ = (
     "process_path",
     "reports",
     "Scopes",
-    "UPDATE_CHECK_URL",
 )
 
 __productname__ = "analytix"
@@ -49,8 +48,6 @@ __license__ = "BSD 3-Clause 'New' or 'Revised' License"
 __bugtracker__ = "https://github.com/parafoxia/analytix/issues"
 __ci__ = "https://github.com/parafoxia/analytix/actions"
 __changelog__ = "https://github.com/parafoxia/analytix/releases"
-
-UPDATE_CHECK_URL = "https://pypi.org/pypi/analytix/json"
 
 from . import groups, reports
 from .auth import Scopes

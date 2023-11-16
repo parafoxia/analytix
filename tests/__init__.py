@@ -69,6 +69,9 @@ class MockResponse:
     def data(self):
         return self._body
 
+    def json(self):
+        return self._body
+
 
 class CustomBaseClient(BaseClient):
     def authorise(self):

@@ -28,18 +28,21 @@
 
 import datetime as dt
 import logging
+import os
 import re
+import warnings
 from pathlib import Path
 from unittest import mock
 
 import pytest
 
-from analytix import auth
+from analytix import __version__, auth
 from analytix.auth import Scopes, Tokens
 from analytix.client import BaseClient, Client
 from analytix.errors import AuthorisationError
 from analytix.reports import Report
 from analytix.shard import Shard
+from analytix.warnings import NotUpdatedWarning
 from tests import MockFile, MockResponse
 
 
@@ -72,6 +75,71 @@ def test_client_context_manager(client: Client, secrets_data):
     with mock.patch.object(Path, "read_text", return_value=secrets_data):
         with Client("secrets.json") as client:
             assert client._scopes == client._scopes
+
+
+def test_client_check_for_updates(caplog, secrets_data):
+    with mock.patch.object(Path, "read_text", return_value=secrets_data):
+        with caplog.at_level(logging.DEBUG):
+            with warnings.catch_warnings(record=True) as warns:
+                with mock.patch.object(
+                    Client,
+                    "_request",
+                    return_value=MockResponse({"info": {"version": __version__}}, 200),
+                ):
+                    Client("secrets.json")._check_for_updates()
+                    assert "Checking for updates" in caplog.text
+                    assert "Failed to get version information" not in caplog.text
+                    assert len(warns) == 0
+
+
+def test_client_check_for_updates_on_init(caplog, secrets_data):
+    with mock.patch.dict(os.environ, {"PYTEST_CURRENT_TEST": ""}):
+        with mock.patch.object(Path, "read_text", return_value=secrets_data):
+            with caplog.at_level(logging.DEBUG):
+                with warnings.catch_warnings(record=True) as warns:
+                    with mock.patch.object(
+                        Client,
+                        "_request",
+                        return_value=MockResponse(
+                            {"info": {"version": __version__}}, 200
+                        ),
+                    ):
+                        Client("secrets.json")
+                        assert "Checking for updates" in caplog.text
+                        assert "Failed to get version information" not in caplog.text
+                        assert len(warns) == 0
+
+
+def test_client_check_for_updates_failed(caplog, secrets_data):
+    with mock.patch.object(Path, "read_text", return_value=secrets_data):
+        with caplog.at_level(logging.DEBUG):
+            with warnings.catch_warnings(record=True) as warns:
+                with mock.patch.object(
+                    Client, "_request", return_value=MockResponse({}, 400)
+                ):
+                    Client("secrets.json")._check_for_updates()
+                    assert "Checking for updates" in caplog.text
+                    assert "Failed to get version information" in caplog.text
+                    assert len(warns) == 0
+
+
+def test_client_check_for_updates_not_latest_version(caplog, secrets_data):
+    with mock.patch.object(Path, "read_text", return_value=secrets_data):
+        with caplog.at_level(logging.DEBUG):
+            with warnings.catch_warnings(record=True) as warns:
+                with mock.patch.object(
+                    Client,
+                    "_request",
+                    return_value=MockResponse({"info": {"version": "4.2.0"}}, 200),
+                ):
+                    Client("secrets.json")._check_for_updates()
+                    assert "Checking for updates" in caplog.text
+                    assert "Failed to get version information" not in caplog.text
+                    assert issubclass(warns[-1].category, NotUpdatedWarning)
+                    assert (
+                        "You do not have the latest stable version of analytix"
+                        in str(warns[-1].message)
+                    )
 
 
 @mock.patch("os.fspath", return_value="tokens.json")

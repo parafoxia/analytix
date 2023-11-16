@@ -54,7 +54,9 @@ __all__ = ("BaseClient", "Client")
 import datetime as dt
 import json
 import logging
+import os
 import platform
+import warnings
 import webbrowser
 from abc import ABCMeta, abstractmethod
 from contextlib import contextmanager
@@ -67,10 +69,13 @@ from analytix.errors import APIError, AuthorisationError
 from analytix.mixins import RequestMixin
 from analytix.shard import Shard
 from analytix.types import PathLike
+from analytix.warnings import NotUpdatedWarning
 
 if TYPE_CHECKING:
     from analytix.groups import GroupItemList, GroupList
     from analytix.reports import Report
+
+UPDATE_CHECK_URL = "https://pypi.org/pypi/analytix/json"
 
 _log = logging.getLogger(__name__)
 
@@ -127,11 +132,35 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
         self._secrets = Secrets.load_from(Path(secrets_file))
         self._scopes = scopes
 
+        if not os.environ.get("PYTEST_CURRENT_TEST"):
+            # We don't want this to run during tests.
+            self._check_for_updates()
+
     def __enter__(self) -> "BaseClient":
         return self
 
     def __exit__(self, *_: Any) -> None:
         ...
+
+    def _check_for_updates(self) -> None:
+        _log.debug("Checking for updates")
+
+        with self._request(UPDATE_CHECK_URL) as resp:
+            if resp.status > 399:
+                # If we can't get the info, just ignore it.
+                _log.debug("Failed to get version information")
+                return
+
+            latest = resp.json()["info"]["version"]
+
+        from analytix import __version__
+
+        if __version__ != latest:
+            warnings.warn(
+                f"You do not have the latest stable version of analytix (v{latest})",
+                NotUpdatedWarning,
+                stacklevel=2,
+            )
 
     @abstractmethod
     def authorise(self) -> Tokens:
