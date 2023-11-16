@@ -112,17 +112,6 @@ class Secrets:
         A list of valid redirection endpoint URIs. This list should
         match the list entered for the client ID on the API Access pane
         of the Google APIs Console.
-
-    !!! warning
-        If you're using an "installed" secrets file generated before 28
-        Feb 2022, you will have an additional redirect URI for OOB
-        authorisation. analytix no longer supports this authorisation
-        method, but is backwards compatible with these older files.
-
-        As a consequence of this, analytix will always use the **last**
-        redirect URI in the list. If your secrets file contains multiple
-        URIs, make sure the one you want to use is the last item in the
-        list.
     """
 
     __slots__ = (
@@ -376,7 +365,9 @@ def state_token() -> str:
     return hashlib.sha256(os.urandom(1024)).hexdigest()
 
 
-def auth_uri(secrets: Secrets, scopes: Scopes, port: int) -> UriParams:
+def auth_uri(
+    secrets: Secrets, scopes: Scopes, port: int, redirect_uri_index: int = 0
+) -> UriParams:
     """Returns the authentication URI and parameters.
 
     Parameters
@@ -387,6 +378,11 @@ def auth_uri(secrets: Secrets, scopes: Scopes, port: int) -> UriParams:
         The scopes to allow in requests.
     port
         The websocket port you wish to use.
+    redirect_uri_index
+        The index of the redirect URI list you wish to use in your auth
+        URI. If this is not provided, the first in the list will be
+        used. Passing `-1` here will mimic the behaviour of analytix
+        versions prior to 5.0.
 
     Returns
     -------
@@ -401,12 +397,17 @@ def auth_uri(secrets: Secrets, scopes: Scopes, port: int) -> UriParams:
         * This now takes scopes as a parameter
         * This now returns headers (albeit always empty) to be more
           consistent with other functions
+        * Secrets files that support OOB authorisation are no longer
+          supported by default
     """
     params = {
         "client_id": secrets.client_id,
         "nonce": state_token(),
         "response_type": "code",
-        "redirect_uri": secrets.redirect_uris[-1] + (f":{port}" if port != 80 else ""),
+        "redirect_uri": (
+            secrets.redirect_uris[redirect_uri_index]
+            + (f":{port}" if port != 80 else "")
+        ),
         "scope": scopes.value,
         "state": state_token(),
         "access_type": "offline",
