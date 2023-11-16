@@ -26,14 +26,14 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import re
 from unittest import mock
 
 import pytest
 from urllib3 import PoolManager
 
-from analytix.errors import APIError, BadRequest
+from analytix.errors import APIError
 from analytix.mixins import RequestMixin
-from tests import MockResponse
 
 
 def test_request(response, response_data):
@@ -69,3 +69,15 @@ def test_request_with_access_token(response, tokens):
             # passed, though we can double-check against the coverage
             # to ensure the operation was at least attempted.
             ...
+
+
+def test_request_forbidden_error_additional_context(error_response):
+    with mock.patch.object(PoolManager, "request", return_value=error_response):
+        with pytest.raises(
+            APIError,
+            match=re.escape(
+                "API returned 403: You ain't allowed in son. (probably misconfigured scopes)"
+            ),
+        ):
+            with RequestMixin()._request("https://rickroll.com/v2/reports"):
+                ...

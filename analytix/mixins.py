@@ -76,8 +76,11 @@ class RequestMixin:
 
         resp = http.request(method, url, body=urlencode(data or {}), headers=headers)
         if resp.status > 399 and not ignore_errors:
+            if resp.status == 403 and "/v2/reports" in url and resp.reason:
+                resp.reason += " (probably misconfigured scopes)"
+
             raise ERROR_MAPPING.get(resp.status, APIError)(
-                resp.status, resp.reason or "N/A"
+                resp.status, resp.reason or "An error occurred"
             )
 
         yield resp
