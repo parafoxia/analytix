@@ -41,9 +41,5 @@ class InvalidMonthFormatWarning(AnalytixWarning):
     """The months in your request had to be fixed."""
 
 
-class ForbiddenWarning(AnalytixWarning):
-    """Extra info on 403 errors."""
-
-
 class CityReportWarning(AnalytixWarning):
     """The YouTube API docs are wrong (genuinely)."""

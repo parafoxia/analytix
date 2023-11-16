@@ -51,13 +51,12 @@ class AnalytixError(Exception):
 
 
 class MissingOptionalComponents(AnalytixError):
-    """Exception thrown when components not installed by analytix by
-    default are required for a specific operation, but are not
-    installed.
+    """Components not installed by analytix by default are required for
+    a specific operation, but are not installed.
 
     Parameters
     ----------
-    *args : str
+    *args
         The libraries that need to be installed.
     """
 
@@ -69,14 +68,13 @@ class MissingOptionalComponents(AnalytixError):
 
 
 class APIError(AnalytixError):
-    """Exception thrown when the YouTube Analytics API throws an
-    error.
+    """The YouTube Analytics API has returned an error.
 
     Parameters
     ----------
-    code : str or int
+    code
         The error code.
-    message : str
+    message
         The error message.
     """
 
@@ -85,13 +83,13 @@ class APIError(AnalytixError):
 
 
 class BadRequest(APIError):
-    """Exception thrown when the YouTube Analytics API returns a 400.
+    """The YouTube Analytics API has returned a 400 status.
 
     Parameters
     ----------
-    code : str or int
+    code
         The error code.
-    message : str
+    message
         The error message.
 
     !!! important
@@ -101,64 +99,65 @@ class BadRequest(APIError):
 
 
 class Unauthorised(APIError):
-    """Exception thrown when the YouTube Analytics API returns a 401.
+    """The YouTube Analytics API has returned a 401 status.
 
     Parameters
     ----------
-    code : str or int
+    code
         The error code.
-    message : str
+    message
         The error message.
     """
 
 
 class Forbidden(APIError):
-    """Exception thrown when the YouTube Analytics API returns a 403.
+    """The YouTube Analytics API has returned a 403 status.
 
     Parameters
     ----------
-    code : str or int
+    code
         The error code.
-    message : str
+    message
         The error message.
+
+    !!! important
+        This is raised when you attempt to access monetary data from a
+        non-partnered channel.
     """
 
 
 class NotFound(APIError):
-    """Exception thrown when the YouTube Analytics API returns a 404.
+    """The YouTube Analytics API has returned a 404 status.
 
     Parameters
     ----------
-    code : str or int
+    code
         The error code.
-    message : str
+    message
         The error message.
     """
 
 
 class AuthorisationError(AnalytixError):
-    """Exception thrown when something goes wrong during the
-    authorisation process."""
+    """Something's gone wrong during the authorisation process."""
 
 
 class NotAuthorised(AuthorisationError):
-    """Exception thrown when the client does not have sufficient
-    authorisation to complete the operation."""
+    """The client does not have sufficient authorisation to complete the
+    requested operation."""
 
 
 class RefreshTokenExpired(AuthorisationError):
-    """Exception thrown when refreshing an access token is not
-    possible."""
+    """Your refresh token has expired."""
 
 
 class DataFrameConversionError(AnalytixError):
-    """Exception thrown when converting a report to a DataFrame
-    fails."""
+    """Your report could not be converted to a DataFrame or table."""
 
 
 class InvalidRequest(AnalytixError):
-    """Exception thrown when a request to be made to the YouTube
-    Analytics API is not valid."""
+    """analytix has found a problem in the request you tried to make
+    to the YouTube Analytics API."""
 
     @staticmethod
     def list_of(values: Set[str]) -> str:
