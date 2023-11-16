@@ -90,15 +90,7 @@ def sp(*paths: Path) -> List[str]:
 
 
 @nox.session(reuse_venv=True)
-@install(
-    meta=True,
-    libs=[
-        "openpyxl>=3.0,<4.0",
-        "pandas>=0.23.2,<3.0; platform_python_implementation=='CPython' and python_version<'3.13'",  # noqa: E501
-        "polars>=0.17.3,<0.20; platform_python_implementation=='CPython' and python_version<'3.13'",  # noqa: E501
-        "pyarrow>=2.0,<15.0; platform_python_implementation=='CPython' and python_version<'3.13'",  # noqa: E501
-    ],
-)
+@install(meta=True)
 def tests(session: nox.Session) -> None:
     session.run(
         "coverage",

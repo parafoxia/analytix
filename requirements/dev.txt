@@ -2,11 +2,7 @@
 -e .
 -r ./base.txt
 -r ./docs.txt
--r ./excel.txt
 -r ./nox.txt
--r ./pandas.txt
--r ./polars.txt
--r ./pyarrow.txt
 
 # Extras
 nox==2023.4.22
