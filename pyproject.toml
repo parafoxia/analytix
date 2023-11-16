@@ -25,6 +25,9 @@ exclude_lines = [
     "raise NotImplementedError",
     "return NotImplemented",
     "except KeyboardInterrupt as exc",
+    # These are run depending on current Python version
+    "from dateutil.parser import parse as du_parse",
+    "du_parse = dt.datetime.fromisoformat",
 ]
 
 [tool.ruff]

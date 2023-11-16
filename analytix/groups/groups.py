@@ -28,13 +28,9 @@
 
 __all__ = ("Group", "GroupList", "GroupItem", "GroupItemList")
 
+import datetime as dt
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
-
-from dateutil.parser import parse as du_parse
-
-if TYPE_CHECKING:
-    import datetime as dt
+from typing import Any, Dict, List, Optional
 
 
 @dataclass(frozen=True)
@@ -50,7 +46,7 @@ class Group(_Resource):
     __slots__ = ("id", "published_at", "title", "item_count", "item_type")
 
     id: str
-    published_at: "dt.datetime"
+    published_at: dt.datetime
     title: str
     item_count: int
     item_type: str
@@ -61,7 +57,9 @@ class Group(_Resource):
             data["kind"],
             data["etag"],
             data["id"],
-            du_parse(data["snippet"]["publishedAt"]),
+            dt.datetime.fromisoformat(
+                data["snippet"]["publishedAt"].replace("Z", "+00:00")
+            ),
             data["snippet"]["title"],
             int(data["contentDetails"]["itemCount"]),
             data["contentDetails"]["itemType"],

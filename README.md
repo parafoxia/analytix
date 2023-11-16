@@ -49,14 +49,13 @@ Below is a list of analytix's dependencies.
 Note that the minimum version assumes you're using CPython 3.8.
 The latest versions of each library are always supported.
 
-| Name              | Min. version | Required? | Description                                                   | 
-|-------------------|--------------|-----------|---------------------------------------------------------------|
-| `python-dateutil` | 2.1          | Yes       | Conversion of API timestamps to Python datetime objects       |
-| `urllib3`         | 1.10         | Yes       | Making HTTP requests                                          |
-| `openpyxl`        | 3.0          | No        | Exporting report data to Excel spreadsheets                   |
-| `pandas`          | 1.4          | No        | Exporting report data to pandas DataFrames                    |
-| `polars`          | 0.15.17      | No        | Exporting report data to Polars DataFrames                    |
-| `pyarrow`         | 5.0          | No        | Exporting report data to Apache Arrow tables and file formats |
+| Name              | Min. version | Required?     | Usage                                                         | 
+|-------------------|--------------|---------------|---------------------------------------------------------------|
+| `urllib3`         | 1.10         | Yes           | Making HTTP requests                                          |
+| `openpyxl`        | 3.0          | No            | Exporting report data to Excel spreadsheets                   |
+| `pandas`          | 1.4          | No            | Exporting report data to pandas DataFrames                    |
+| `polars`          | 0.15.17      | No            | Exporting report data to Polars DataFrames                    |
+| `pyarrow`         | 5.0          | No            | Exporting report data to Apache Arrow tables and file formats |
 
 ## OAuth authentication
 
