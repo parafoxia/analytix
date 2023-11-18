@@ -94,7 +94,9 @@ nav:
     - "guides/sort-options.md"
     - "guides/report-types.md"
     - "guides/webapps.md"
-    - "guides/migrating.md"
+    - "Migrating":
+      - "guides/migrating/v4-v5.md"
+      - "guides/migrating/v3-v4.md"
   - "Reference":
     - "reference/auth.md"
     - "reference/client.md"
