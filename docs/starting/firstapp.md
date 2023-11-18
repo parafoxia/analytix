@@ -16,20 +16,14 @@ client = Client("secrets.json")
 
 Here, we're telling the client we want to use the secrets file we downloaded when we [created our Google Developers application](./googleapp.md).
 
-There is also another way to create our client:
+You can also create a client using a context manager:
 
 ```py
 with Client("secrets.json") as client:
     ...
 ```
 
-By using a context manager, the client will automatically tear itself down once outside of that block.
-Creating a client the other way means we would need to manually call `client.teardown()` to do the same thing.
-The way you create your client is up to you, but bear that difference in mind.
-
-!!! info
-    If you are looking to build an async application, the [`AsyncClient`](../reference/client.md#analytix.client.AsyncClient) would be more suited to you.
-    For web application development, you will probably want the [`AsyncBaseClient`](../reference/client.md#analytix.client.AsyncBaseClient).
+Functionally this makes no difference -- it's just a matter of personal preference!
 
 ## Authorisation
 
@@ -43,8 +37,8 @@ If your access token cannot be used or refreshed, you will need to reauthorise f
 Your Google Developers application is probably in "Testing" mode (if you're not sure, it definitely is), which means your refresh token will expire after seven days.
 To extend this time, you will need to publish your application, though this is never necessary when using analytix for your own personal projects.
 
-!!! info
-    You can manually authorise your client using the [`client.authorise()`](../reference/client.md#analytix.client.Client.authorise) method if you wish. This is particularly helpful when you are trying to pull data from multiple channels.
+!!! note
+    You can manually authorise your client using the [`client.authorise()`](../reference/client.md#analytix.client.Client.authorise) method if you wish.
 
 ## Retrieving analytics data
 
@@ -53,7 +47,7 @@ Now the real fun begins!
 Retrieving an analyrics report is simple:
 
 ```py
-report = client.retrieve_report()
+report = client.fetch_report()
 ```
 
 Unfortunately, deciding what data you want in the report given the constraints imposed by the API is more complicated.
@@ -62,7 +56,7 @@ Let's run over some examples:
 ```py
 from datetime import date
 
-report = client.retrieve_report(
+report = client.fetch_report(
     dimensions=("day",),
     start_date=date(2022, 1, 1),
     end_date=date(2022, 12, 31),
@@ -74,7 +68,7 @@ The above example gets your day-by-day analytics for the 2022 calendar year — 
 Now let's spice it up a bit:
 
 ```py
-report = client.retrieve_report(
+report = client.fetch_report(
     dimensions=("video",),
     filters={"country": "US"},
     sort_options=("-views"),

@@ -10,18 +10,6 @@ pip install analytix
 
 You may need to prefix these commands with a call to the Python interpreter depending on your OS and Python configuration:
 
-=== "Linux/macOS"
-
-    ```sh
-    python3 -m pip install analytix
-    ```
-
-=== "Windows"
-
-    ```cmd
-    py -m pip install analytix
-    ```
-
 You can also install the latest development version if you wish:
 
 === "Prereleases"
@@ -40,19 +28,10 @@ You can also install the latest development version if you wish:
 
 if you don't want to use pip for whatever reason, you can install directly from GitHub instead:
 
-=== "Linux/macOS"
-
-    ```sh
-    git clone https://github.com/parafoxia/analytix
-    python3 setup.py install
-    ```
-
-=== "Windows"
-
-    ```sh
-    git clone https://github.com/parafoxia/analytix
-    py setup.py install
-    ```
+```sh
+git clone https://github.com/parafoxia/analytix
+python setup.py install
+```
 
 ## With the intention to contribute
 

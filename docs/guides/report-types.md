@@ -15,7 +15,8 @@ Each report type has a set of valid:
 * Sort options (usually the same as the valid metrics)
 
 After a report type is selected by analytix, the provided attributes are compared against the valid ones for that report type, and errors are thrown on mismatches.
-For example, if "day" and "country" (two incompatible dimensions) are both provided, analytix will select the "Geography-based activity" report type (as the "country" dimension is checked before the "day" dimension), and the "day" dimension will be flagged as invalid.
+For example, if "day" and "country" (two incompatible dimensions) are both provided, analytix will detect this and throw an error.
+From v4.1.4, these errors are much clearer.
 
 This provides a system with which to prevent invalid requests from counting toward your API quota, as well as one to detail the errors you make, something that the YouTube Analytics API doesn't do.
 
@@ -36,6 +37,9 @@ Below is a list of all possible report types, complete with links to official do
 !!! warning
     The official documentation is not 100% accurate.
     analytix does account for this wherever possible, but note some behaviour may not be as expected.
+
+!!! note
+    Content owner reports are not supported.
 
 ### Video report types
 
