@@ -394,11 +394,11 @@ def auth_uri(secrets: Secrets, scopes: Scopes, port: int) -> UriParams:
           it will be the first in the list not intended to be used in
           OOB authorisation.
     """
-    redirect_uri = [
+    redirect_uri = next(
         uri
         for uri in secrets.redirect_uris
-        if uri != "oob" and not "urn:ietf:wg:oauth:2.0:oob" in uri
-    ][0]
+        if uri != "oob" and "urn:ietf:wg:oauth:2.0:oob" not in uri
+    )
 
     params = {
         "client_id": secrets.client_id,
