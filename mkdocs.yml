@@ -101,7 +101,8 @@ nav:
     - "reference/auth.md"
     - "reference/client.md"
     - "reference/errors.md"
-    # - groups:
+    - "groups":
+      - "reference/groups/groups.md"
     - "reports":
       - "reference/reports/interfaces.md"
       - "reference/reports/resources.md"

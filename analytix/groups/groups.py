@@ -26,6 +26,11 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+"""Group interfaces for analytix.
+
+You should never need to create any of these yourself.
+"""
+
 __all__ = ("Group", "GroupList", "GroupItem", "GroupItemList")
 
 import datetime as dt
@@ -46,6 +51,29 @@ class _Resource:
 
 @dataclass(frozen=True)
 class Group(_Resource):
+    """A group.
+
+    Parameters
+    ----------
+    kind
+        The kind of resource this is. This will always be
+        "youtube#group".
+    etag
+        The Etag of this resource.
+    id
+        The ID that YouTube uses to uniquely identify the group.
+    published_at
+        The date and time that the group was created.
+    title
+        The group name.
+    item_count
+        The number of items in the group.
+    item_type
+        The type of resources that the group contains.
+    shard
+        The shard instance used to fetch this group.
+    """
+
     __slots__ = ("id", "published_at", "title", "item_count", "item_type", "shard")
 
     id: str
@@ -57,6 +85,23 @@ class Group(_Resource):
 
     @classmethod
     def from_json(cls, shard: "Shard", data: Dict[str, Any]) -> "Group":
+        """Create a new `Group` instance from JSON data.
+
+        Parameters
+        ----------
+        shard
+            The shard instance used to fetch the data.
+        data
+            The raw JSON data from the API.
+
+        Returns
+        -------
+        Group
+            The newly created instance.
+
+        !!! note "Changed in version 5.0"
+            This now takes the shard instance used to fetch the data.
+        """
         return cls(
             data["kind"],
             data["etag"],
@@ -72,6 +117,13 @@ class Group(_Resource):
 
     @property
     def data(self) -> Dict[str, Any]:
+        """The raw data for this group in JSON format.
+
+        Returns
+        -------
+        Dict[str, Any]
+            The response data.
+        """
         return {
             "kind": self.kind,
             "etag": self.etag,
@@ -89,11 +141,49 @@ class Group(_Resource):
         }
 
     def fetch_items(self) -> "GroupItemList":
+        """Fetch a list of all items within this group.
+
+        Returns
+        -------
+        GroupItemList
+            An object containing the list of group items and the next
+            page token.
+
+        Raises
+        ------
+        BadRequest
+            Your request was invalid.
+        Unauthorised
+            Your access token is invalid.
+        Forbidden
+            You tried to access data you're not allowed to access. If
+            your channel is not partnered, this is raised when you try
+            to access monetary data.
+
+        !!! note "New in version 5.0"
+        """
         return self.shard.fetch_group_items(self.id)
 
 
 @dataclass(frozen=True)
 class GroupList(_Resource):
+    """A list of groups.
+
+    Parameters
+    ----------
+    kind
+        The kind of resource this is. This will always be
+        "youtube#groupListResponse".
+    etag
+        The Etag of this resource.
+    items
+        A list of groups that match the API request parameters. Each
+        item in the list represents a group resource.
+    next_page_token
+        The token that can be used as the value of the `pageToken`
+        parameter to retrieve the next page in the result set.
+    """
+
     __slots__ = ("items", "next_page_token")
 
     items: List["Group"]
@@ -107,6 +197,25 @@ class GroupList(_Resource):
 
     @classmethod
     def from_json(cls, shard: "Shard", data: Dict[str, Any]) -> "GroupList":
+        """Create a new `GroupList` instance from JSON data.
+
+        Parameters
+        ----------
+        shard
+            The shard instance used to fetch the data.
+        data
+            The raw JSON data from the API.
+
+        Returns
+        -------
+        GroupList
+            The newly created instance.
+
+        !!! note "Changed in version 5.0"
+            * This now takes the shard instance used to fetch the data
+            * This will no longer raise an error if a channel has no
+              groups
+        """
         return cls(
             data["kind"],
             data.get("etag"),
@@ -116,6 +225,13 @@ class GroupList(_Resource):
 
     @property
     def data(self) -> Dict[str, Any]:
+        """The raw data for this group in JSON format.
+
+        Returns
+        -------
+        Dict[str, Any]
+            The response data.
+        """
         return {
             "kind": self.kind,
             "etag": self.etag,
@@ -125,7 +241,18 @@ class GroupList(_Resource):
 
 
 @dataclass(frozen=True)
-class _GroupItemResource:
+class GroupItemResource:
+    """A group item resource.
+
+    Parameters
+    ----------
+    kind
+        Identifies the type of resource being added to the group.
+    id
+        The channel, video, playlist, or asset ID that YouTube uses to
+        uniquely identify the item that is being added to the group.
+    """
+
     __slots__ = ("kind", "id")
 
     kind: str
@@ -134,20 +261,57 @@ class _GroupItemResource:
 
 @dataclass(frozen=True)
 class GroupItem(_Resource):
+    """A group item.
+
+    Parameters
+    ----------
+    kind
+        The kind of resource this is. This will always be
+        "youtube#groupItem".
+    etag
+        The Etag of this resource.
+    id
+        The ID that YouTube uses to uniquely identify the channel,
+        video, playlist, or asset resource that is included in the
+        group.
+    resource
+        The resource object contains information that identifies the
+        item being added to the group.
+
+    !!! important
+        The `id` parameter does NOT refer to the actual ID of the
+        channel, video, playlist, or asset, but instead an ID related
+        to its inclusion within the group.
+
+        To get the actual ID of the resource, use `resource.id`.
+    """
+
     __slots__ = ("id", "group_id", "resource")
 
     id: str
     group_id: str
-    resource: "_GroupItemResource"
+    resource: "GroupItemResource"
 
     @classmethod
     def from_json(cls, data: Dict[str, Any]) -> "GroupItem":
+        """Create a new `GroupItem` instance from JSON data.
+
+        Parameters
+        ----------
+        data
+            The raw JSON data from the API.
+
+        Returns
+        -------
+        GroupItem
+            The newly created instance.
+        """
         return cls(
             data["kind"],
             data["etag"],
             data["id"],
             data["groupId"],
-            _GroupItemResource(
+            GroupItemResource(
                 data["resource"]["kind"],
                 data["resource"]["id"],
             ),
@@ -155,6 +319,13 @@ class GroupItem(_Resource):
 
     @property
     def data(self) -> Dict[str, Any]:
+        """The raw data for this group in JSON format.
+
+        Returns
+        -------
+        Dict[str, Any]
+            The response data.
+        """
         return {
             "kind": self.kind,
             "etag": self.etag,
@@ -169,6 +340,20 @@ class GroupItem(_Resource):
 
 @dataclass(frozen=True)
 class GroupItemList(_Resource):
+    """A list of group items.
+
+    Parameters
+    ----------
+    kind
+        The kind of resource this is. This will always be
+        "youtube#groupListResponse".
+    etag
+        The Etag of this resource.
+    items
+        A list of items that the group contains. Each item in the list
+        represents a groupItem resource.
+    """
+
     __slots__ = "items"
 
     items: List["GroupItem"]
@@ -181,6 +366,18 @@ class GroupItemList(_Resource):
 
     @classmethod
     def from_json(cls, data: Dict[str, Any]) -> "GroupItemList":
+        """Create a new `GroupItemList` instance from JSON data.
+
+        Parameters
+        ----------
+        data
+            The raw JSON data from the API.
+
+        Returns
+        -------
+        GroupItemList
+            The newly created instance.
+        """
         return cls(
             data["kind"],
             data["etag"],
@@ -189,6 +386,13 @@ class GroupItemList(_Resource):
 
     @property
     def data(self) -> Dict[str, Any]:
+        """The raw data for this group in JSON format.
+
+        Returns
+        -------
+        Dict[str, Any]
+            The response data.
+        """
         return {
             "kind": self.kind,
             "etag": self.etag,

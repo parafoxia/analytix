@@ -103,7 +103,7 @@ class ColumnHeader:
 
 @dataclass(frozen=True)
 class ResultTable:
-    """A representation of a resultTable resource.
+    """A result table.
 
     This is the resource type that gets sent from the YouTube Analytics
     API.
