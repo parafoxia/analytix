@@ -30,7 +30,7 @@ __all__ = ("Group", "GroupList", "GroupItem", "GroupItemList")
 
 import datetime as dt
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Iterator, List, Optional
 
 
 @dataclass(frozen=True)
@@ -89,18 +89,21 @@ class GroupList(_Resource):
     __slots__ = ("items", "next_page_token")
 
     items: List["Group"]
-    next_page_token: str
+    next_page_token: Optional[str]
 
     def __getitem__(self, key: int) -> "Group":
         return self.items[key]
+
+    def __iter__(self) -> Iterator["Group"]:
+        return iter(self.items)
 
     @classmethod
     def from_json(cls, data: Dict[str, Any]) -> "GroupList":
         return cls(
             data["kind"],
-            data.get("etag") or None,
+            data.get("etag"),
             [Group.from_json(item) for item in data["items"]],
-            data["nextPageToken"],
+            data.get("nextPageToken"),
         )
 
     @property
@@ -164,6 +167,9 @@ class GroupItemList(_Resource):
 
     def __getitem__(self, key: int) -> "GroupItem":
         return self.items[key]
+
+    def __iter__(self) -> Iterator["GroupItem"]:
+        return iter(self.items)
 
     @classmethod
     def from_json(cls, data: Dict[str, Any]) -> "GroupItemList":

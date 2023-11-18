@@ -230,6 +230,16 @@ def group_list(group):
 
 
 @pytest.fixture()
+def empty_group_list():
+    return GroupList(
+        kind="youtube#groupListResponse",
+        etag=None,
+        items=[],
+        next_page_token=None,
+    )
+
+
+@pytest.fixture()
 def group_item(group_item_data):
     return GroupItem.from_json(group_item_data)
 
@@ -267,6 +277,14 @@ def group_list_data(group_data):
         "etag": "f6g7h8i9j0",
         "items": [group_data],
         "nextPageToken": "a1b2c3d4e5",
+    }
+
+
+@pytest.fixture()
+def empty_group_list_data():
+    return {
+        "kind": "youtube#groupListResponse",
+        "items": [],
     }
 
 

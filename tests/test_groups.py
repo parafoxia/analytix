@@ -26,8 +26,6 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import pytest
-
 from analytix.groups import Group, GroupItem, GroupItemList, GroupList
 
 
@@ -43,12 +41,22 @@ def test_create_group_list_from_json(group_list_data, group_list):
     assert GroupList.from_json(group_list_data) == group_list
 
 
+def test_group_list_from_json_no_groups(empty_group_list_data, empty_group_list):
+    assert GroupList.from_json(empty_group_list_data) == empty_group_list
+
+
 def test_group_list_data_property(group_list_data, group_list):
     assert group_list.data == group_list_data
 
 
 def test_group_list_get_item(group_list, group):
     assert group_list[0] == group_list.items[0] == group
+
+
+def test_group_list_is_iterable(group_list, group):
+    for g in group_list:
+        # There's only one item.
+        assert g == group
 
 
 def test_create_group_item_from_json(group_item_data):
@@ -75,3 +83,9 @@ def test_group_item_list_data_property(group_item_list_data, group_item_list):
 
 def test_group_item_list_get_item(group_item_list, group_item):
     assert group_item_list[0] == group_item_list.items[0] == group_item
+
+
+def test_group_item_list_is_iterable(group_item_list, group_item):
+    for i in group_item_list:
+        # There's only one item.
+        assert i == group_item
