@@ -74,6 +74,20 @@ def secrets():
 
 
 @pytest.fixture()
+def legacy_secrets():
+    return Secrets(
+        type="installed",
+        client_id="a1b2c3d4e5",
+        project_id="rickroll",
+        auth_uri="https://accounts.google.com/o/oauth2/auth",
+        token_uri="https://oauth2.googleapis.com/token",
+        auth_provider_x509_cert_url="https://www.googleapis.com/oauth2/v1/certs",
+        client_secret="f6g7h8i9j0",
+        redirect_uris=["urn:ietf:wg:oauth:2.0:oob", "http://localhost"],
+    )
+
+
+@pytest.fixture()
 def tokens():
     return Tokens(
         access_token="a1b2c3d4e5",

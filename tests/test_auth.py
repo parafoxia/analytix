@@ -136,6 +136,24 @@ def test_auth_uri_all_scopes(secrets: Secrets, auth_params):
     assert headers == {}
 
 
+def test_auth_uri_all_scopes_legacy_secrets(legacy_secrets: Secrets, auth_params):
+    with mock.patch("os.urandom", return_value=b"rickroll"):
+        uri, params, headers = auth_uri(legacy_secrets, Scopes.ALL, 8080)
+
+    assert uri == (
+        "https://accounts.google.com/o/oauth2/auth"
+        "?client_id=a1b2c3d4e5"
+        "&nonce=34c5f166f6abb229ee092be1e7e92ca71434bcb1a27ba0664cd2fea834d85927"
+        "&response_type=code"
+        "&redirect_uri=http%3A%2F%2Flocalhost%3A8080"
+        "&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fyt-analytics.readonly+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fyt-analytics-monetary.readonly"
+        "&state=34c5f166f6abb229ee092be1e7e92ca71434bcb1a27ba0664cd2fea834d85927"
+        "&access_type=offline"
+    )
+    assert params == auth_params
+    assert headers == {}
+
+
 def test_auth_uri_readonly_scope(secrets: Secrets, auth_params_readonly):
     with mock.patch("os.urandom", return_value=b"rickroll"):
         uri, params, headers = auth_uri(secrets, Scopes.READONLY, 8080)

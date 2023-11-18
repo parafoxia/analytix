@@ -365,9 +365,7 @@ def state_token() -> str:
     return hashlib.sha256(os.urandom(1024)).hexdigest()
 
 
-def auth_uri(
-    secrets: Secrets, scopes: Scopes, port: int, redirect_uri_index: int = 0
-) -> UriParams:
+def auth_uri(secrets: Secrets, scopes: Scopes, port: int) -> UriParams:
     """Returns the authentication URI and parameters.
 
     Parameters
@@ -378,11 +376,6 @@ def auth_uri(
         The scopes to allow in requests.
     port
         The websocket port you wish to use.
-    redirect_uri_index
-        The index of the redirect URI list you wish to use in your auth
-        URI. If this is not provided, the first in the list will be
-        used. Passing `-1` here will mimic the behaviour of analytix
-        versions prior to 5.0.
 
     Returns
     -------
@@ -397,21 +390,26 @@ def auth_uri(
         * This now takes scopes as a parameter
         * This now returns headers (albeit always empty) to be more
           consistent with other functions
-        * Secrets files that support OOB authorisation are no longer
-          supported by default
+        * The redirect URI to use is now chosen more intelligently --
+          it will be the first in the list not intended to be used in
+          OOB authorisation.
     """
+    redirect_uri = [
+        uri
+        for uri in secrets.redirect_uris
+        if uri != "oob" and not "urn:ietf:wg:oauth:2.0:oob" in uri
+    ][0]
+
     params = {
         "client_id": secrets.client_id,
         "nonce": state_token(),
         "response_type": "code",
-        "redirect_uri": (
-            secrets.redirect_uris[redirect_uri_index]
-            + (f":{port}" if port != 80 else "")
-        ),
+        "redirect_uri": redirect_uri + (f":{port}" if port != 80 else ""),
         "scope": scopes.value,
         "state": state_token(),
         "access_type": "offline",
     }
+
     return f"{secrets.auth_uri}?{urlencode(params)}", params, {}
 
 
