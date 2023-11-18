@@ -39,7 +39,7 @@ __all__ = ("Report",)
 
 import json
 import logging
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Dict, List, Tuple
 
 from analytix import utils
 from analytix.errors import DataFrameConversionError, MissingOptionalComponents
