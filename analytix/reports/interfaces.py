@@ -173,7 +173,6 @@ class Report:
         self,
         path: "PathLike",
         *,
-        indent: Optional[int] = None,
         overwrite: bool = False,
         **kwargs: Any,
     ) -> None:
@@ -186,26 +185,21 @@ class Report:
         ----------
         path
             The path to save the file to.
-        indent
-            The number of spaces to indent each line of the data. If
-            this is `None`, the data will be written on one line. Note
-            that this does not happen if this is `0`.
         overwrite
             Whether to overwrite an existing file.
+        **kwargs
+            Additional arguments to pass to `json.dump`. This includes
+            `indent`.
 
         Returns
         -------
         None
             This method doesn't return anything.
 
-        Other Parameters
-        ----------------
-        **kwargs
-            Additional arguments to pass to `json.dump`.
-
         !!! note "Changed in version 5.0"
-            * The default indent is now `None`, creating a minified
-              file
+            * `indent` is no longer an argument, but can still be
+              provided as part of the `**kwargs`; as such, JSON exports
+              are no longer indented by default
             * This will no longer overwrite existing files by default
             * You can now pass additional keyword arguments to be passed
               to the `json.dump` function
@@ -224,7 +218,7 @@ class Report:
         data = self.resource.data
 
         with open(path, "w") as f:
-            json.dump(data, f, indent=indent, **kwargs)
+            json.dump(data, f, **kwargs)
 
         _log.info(f"Saved report as JSON to {path.resolve()}")
 
