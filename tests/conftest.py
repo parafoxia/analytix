@@ -207,7 +207,7 @@ def auth_params_port_80():
 
 
 @pytest.fixture()
-def group():
+def group(shard):
     return Group(
         kind="youtube#group",
         etag="f6g7h8i9j0",
@@ -216,6 +216,7 @@ def group():
         title="Barney the Dinosaur",
         item_count=69,
         item_type="youtube#video",
+        shard=shard,
     )
 
 

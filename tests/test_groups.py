@@ -26,23 +26,35 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+from unittest import mock
+
 from analytix.groups import Group, GroupItem, GroupItemList, GroupList
+from analytix.mixins import RequestMixin
 
 
-def test_create_group_from_json(group_data, group):
-    assert Group.from_json(group_data) == group
+def test_create_group_from_json(shard, group_data, group):
+    assert Group.from_json(shard, group_data) == group
 
 
 def test_group_data_property(group_data, group):
     assert group.data == group_data
 
 
-def test_create_group_list_from_json(group_list_data, group_list):
-    assert GroupList.from_json(group_list_data) == group_list
+def test_group_data_fetch_items(
+    group: Group, group_item_list, group_item_list_response
+):
+    with mock.patch.object(
+        RequestMixin, "_request", return_value=group_item_list_response
+    ):
+        assert group.fetch_items() == group_item_list
 
 
-def test_group_list_from_json_no_groups(empty_group_list_data, empty_group_list):
-    assert GroupList.from_json(empty_group_list_data) == empty_group_list
+def test_create_group_list_from_json(shard, group_list_data, group_list):
+    assert GroupList.from_json(shard, group_list_data) == group_list
+
+
+def test_group_list_from_json_no_groups(shard, empty_group_list_data, empty_group_list):
+    assert GroupList.from_json(shard, empty_group_list_data) == empty_group_list
 
 
 def test_group_list_data_property(group_list_data, group_list):

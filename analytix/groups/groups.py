@@ -30,7 +30,10 @@ __all__ = ("Group", "GroupList", "GroupItem", "GroupItemList")
 
 import datetime as dt
 from dataclasses import dataclass
-from typing import Any, Dict, Iterator, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, Iterator, List, Optional
+
+if TYPE_CHECKING:
+    from analytix.shard import Shard
 
 
 @dataclass(frozen=True)
@@ -43,16 +46,17 @@ class _Resource:
 
 @dataclass(frozen=True)
 class Group(_Resource):
-    __slots__ = ("id", "published_at", "title", "item_count", "item_type")
+    __slots__ = ("id", "published_at", "title", "item_count", "item_type", "shard")
 
     id: str
     published_at: dt.datetime
     title: str
     item_count: int
     item_type: str
+    shard: "Shard"
 
     @classmethod
-    def from_json(cls, data: Dict[str, Any]) -> "Group":
+    def from_json(cls, shard: "Shard", data: Dict[str, Any]) -> "Group":
         return cls(
             data["kind"],
             data["etag"],
@@ -63,6 +67,7 @@ class Group(_Resource):
             data["snippet"]["title"],
             int(data["contentDetails"]["itemCount"]),
             data["contentDetails"]["itemType"],
+            shard,
         )
 
     @property
@@ -83,6 +88,9 @@ class Group(_Resource):
             },
         }
 
+    def fetch_items(self) -> "GroupItemList":
+        return self.shard.fetch_group_items(self.id)
+
 
 @dataclass(frozen=True)
 class GroupList(_Resource):
@@ -98,11 +106,11 @@ class GroupList(_Resource):
         return iter(self.items)
 
     @classmethod
-    def from_json(cls, data: Dict[str, Any]) -> "GroupList":
+    def from_json(cls, shard: "Shard", data: Dict[str, Any]) -> "GroupList":
         return cls(
             data["kind"],
             data.get("etag"),
-            [Group.from_json(item) for item in data["items"]],
+            [Group.from_json(shard, item) for item in data["items"]],
             data.get("nextPageToken"),
         )
 

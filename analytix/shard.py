@@ -260,7 +260,7 @@ class Shard(RequestMixin):
         """
         query = GroupQuery(ids, next_page_token)
         with self._request(query.url, token=self._tokens.access_token) as resp:
-            return GroupList.from_json(json.loads(resp.data))
+            return GroupList.from_json(self, json.loads(resp.data))
 
     def fetch_group_items(self, group_id: str) -> GroupItemList:
         """Fetch a list of all items within a group.
