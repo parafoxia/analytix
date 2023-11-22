@@ -123,6 +123,7 @@ def test_base_client_decode_id_token_no_jwt(
         base_client.decode_id_token(full_tokens.id_token)
 
 
+@pytest.mark.skipif(not utils.can_use("jwt"), reason="jwt is not available")
 def test_base_client_decode_id_token(
     base_client: Client, full_tokens: Tokens, public_jwks, id_token_payload
 ):
@@ -132,6 +133,7 @@ def test_base_client_decode_id_token(
         assert base_client.decode_id_token(full_tokens.id_token) == id_token_payload
 
 
+@pytest.mark.skipif(not utils.can_use("jwt"), reason="jwt is not available")
 def test_base_client_decode_id_token(
     base_client: Client, full_tokens: Tokens, public_jwks, id_token_payload, caplog
 ):
@@ -145,6 +147,7 @@ def test_base_client_decode_id_token(
         assert "Attempting decode using JWK with KID '420'"
 
 
+@pytest.mark.skipif(not utils.can_use("jwt"), reason="jwt is not available")
 def test_base_client_decode_id_token_cant_fetch_jwks(
     base_client: Client, full_tokens: Tokens
 ):
@@ -155,6 +158,7 @@ def test_base_client_decode_id_token_cant_fetch_jwks(
             base_client.decode_id_token(full_tokens.id_token)
 
 
+@pytest.mark.skipif(not utils.can_use("jwt"), reason="jwt is not available")
 def test_base_client_decode_id_token_decode_error(
     base_client: Client, full_tokens: Tokens, public_jwks, caplog
 ):
@@ -175,6 +179,7 @@ def test_base_client_decode_id_token_decode_error(
         assert "Attempting decode using JWK with KID '420'"
 
 
+@pytest.mark.skipif(not utils.can_use("jwt"), reason="jwt is not available")
 def test_base_client_decode_id_token_invalid_type(
     base_client: Client, full_tokens: Tokens, public_jwks, caplog
 ):

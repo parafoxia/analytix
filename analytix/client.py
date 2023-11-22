@@ -301,6 +301,10 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
 
         !!! note "New in version 5.1"
 
+        !!! note
+            This requires `jwt` to be installed to use, which is an
+            optional dependency.
+
         ??? example
             ```py
             # This example uses the scripting client.
