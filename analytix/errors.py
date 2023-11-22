@@ -151,6 +151,10 @@ class RefreshTokenExpired(AuthorisationError):
     """Your refresh token has expired."""
 
 
+class IdTokenError(AuthorisationError):
+    """Your ID token could not be token."""
+
+
 class DataFrameConversionError(AnalytixError):
     """Your report could not be converted to a DataFrame or table."""
 

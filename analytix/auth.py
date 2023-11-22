@@ -26,7 +26,6 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
 """Helper methods for client authorisation.
 
 You will only need to use these if you're planning to subclass the base
@@ -54,11 +53,12 @@ import json
 import logging
 import os
 import re
+import sys
 from dataclasses import dataclass
-from enum import Enum
+from enum import Flag
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
-from typing import Dict, List, Literal, Union
+from typing import Dict, List, Literal, Optional, Union
 from urllib.parse import parse_qsl, urlencode
 
 from analytix.errors import AuthorisationError
@@ -66,21 +66,58 @@ from analytix.types import PathLike, UriParams
 
 OAUTH_CHECK_URL = "https://www.googleapis.com/oauth2/v3/tokeninfo?access_token="
 REDIRECT_URI_PATTERN = re.compile("[^//]*//([^:]*):?([0-9]*)")
+SCOPE_URLS = [
+    "https://www.googleapis.com/auth/yt-analytics.readonly",
+    "https://www.googleapis.com/auth/yt-analytics-monetary.readonly",
+    "openid",
+    "https://www.googleapis.com/auth/userinfo.profile",
+    "https://www.googleapis.com/auth/userinfo.email",
+]
 
 _log = logging.getLogger(__name__)
 
 
-class Scopes(Enum):
-    """An enum for API scopes."""
+class Scopes(Flag):
+    """An enum for API scopes.
 
-    READONLY = "https://www.googleapis.com/auth/yt-analytics.readonly"
-    """Omit revenue data from reports."""
+    Possible values are:
 
-    MONETARY_READONLY = "https://www.googleapis.com/auth/yt-analytics-monetary.readonly"
-    """Only include revenue data in reports."""
+    * `READONLY` — Don't include revenue data from reports
+    * `MONETARY_READONLY` — Only include revenue data from reports
+    * `ALL` — Include all data in reports (this does not enable JWT
+      scopes)
+    * `OPENID` — Enable the OpenID scope
+    * `PROFILE` — Include profile information in JWTs
+    * `EMAIL` — Include email information in JWTs
+    * `ALL_JWT` — Include all available information in JWTs
 
-    ALL = f"{READONLY} {MONETARY_READONLY}"
-    """Include all data in reports."""
+    !!! note "Changed in version 5.1"
+        * Added the `OPENID`, `PROFILE`, `EMAIL`, and `ALL_JWT` scopes
+        * This now works like a flag enum rather than a normal one; this
+          doesn't introduce any breaking changes (unless you're using
+          analytix in a particularly unconventional way), but does mean
+          you can now use a `|` to concatenate scopes
+    """
+
+    READONLY = 1 << 0
+    MONETARY_READONLY = 1 << 1
+    ALL = READONLY | MONETARY_READONLY
+    OPENID = 1 << 2
+    PROFILE = 1 << 3
+    EMAIL = 1 << 4
+    ALL_JWT = OPENID | PROFILE | EMAIL
+
+    @property
+    def formatted(self) -> str:
+        return " ".join(
+            url for i, url in enumerate(SCOPE_URLS) if self.value & (1 << i)
+        )
+
+    def validate(self) -> None:
+        if not (self.value & (1 << 0) or self.value & (1 << 1)):
+            raise AuthorisationError(
+                "the READONLY or MONETARY_READONLY scope must be provided"
+            )
 
 
 @dataclass(frozen=True)
@@ -183,9 +220,9 @@ class Secrets:
         )
 
 
-@dataclass()
+@dataclass(**({"slots": True} if sys.version_info >= (3, 10) else {}))
 class Tokens:
-    """A dataclass representation of OAuth tokens.
+    """OAuth tokens.
 
     This should always be created using one of the available
     classmethods.
@@ -204,19 +241,22 @@ class Tokens:
         "Bearer".
     refresh_token
         A token that can be used to refresh your access token.
+    id_token
+        A JWT that contains identity information about the user that is
+        digitally signed by Google. This will be `None` if you did not
+        specifically request JWT tokens when authorising.
 
     !!! warning
         The `expires_in` field is never updated by analytix, and as such
         will always be `3599` unless you update it yourself.
     """
 
-    __slots__ = ("access_token", "expires_in", "scope", "token_type", "refresh_token")
-
     access_token: str
     expires_in: int
     scope: str
     token_type: Literal["Bearer"]
     refresh_token: str
+    id_token: Optional[str] = None
 
     @classmethod
     def load_from(cls, path: PathLike) -> "Tokens":
@@ -314,6 +354,7 @@ class Tokens:
             "scope": self.scope,
             "token_type": self.token_type,
             "refresh_token": self.refresh_token,
+            **({"id_token": self.id_token} if self.id_token else {}),
         }
         tokens_file.write_text(json.dumps(attrs))
 
@@ -405,7 +446,7 @@ def auth_uri(secrets: Secrets, scopes: Scopes, port: int) -> UriParams:
         "nonce": state_token(),
         "response_type": "code",
         "redirect_uri": redirect_uri + (f":{port}" if port != 80 else ""),
-        "scope": scopes.value,
+        "scope": scopes.formatted,
         "state": state_token(),
         "access_type": "offline",
     }

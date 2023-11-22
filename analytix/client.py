@@ -63,9 +63,14 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Collection, Dict, Generator, Optional
 
-from analytix import auth
+from analytix import auth, utils
 from analytix.auth import Scopes, Secrets, Tokens
-from analytix.errors import APIError, AuthorisationError
+from analytix.errors import (
+    APIError,
+    AuthorisationError,
+    IdTokenError,
+    MissingOptionalComponents,
+)
 from analytix.mixins import RequestMixin
 from analytix.shard import Shard
 from analytix.types import PathLike
@@ -75,6 +80,7 @@ if TYPE_CHECKING:
     from analytix.groups import GroupItemList, GroupList
     from analytix.reports import Report
 
+JWKS_URI = "https://www.googleapis.com/oauth2/v3/certs"
 UPDATE_CHECK_URL = "https://pypi.org/pypi/analytix/json"
 
 _log = logging.getLogger(__name__)
@@ -98,8 +104,14 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
         The path to your secrets file.
     scopes
         The scopes to allow in requests. This is used to control whether
-        or not to allow access to monetary data. If this is not
-        provided, monetary data will not be accessible.
+        or not to allow access to monetary data, as well as whether to
+        fetch ID tokens. If this is not provided, neither monetary data
+        nor ID tokens will be accessible.
+
+    Raises
+    ------
+    AuthorisationError
+        Neither the READONLY nor MONETARY_READONLY scopes were provided.
 
     !!! note "New in version 5.0"
 
@@ -130,6 +142,7 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
         self, secrets_file: PathLike, *, scopes: Scopes = Scopes.READONLY
     ) -> None:
         self._secrets = Secrets.load_from(Path(secrets_file))
+        scopes.validate()
         self._scopes = scopes
 
         if not os.environ.get("PYTEST_CURRENT_TEST"):
@@ -253,9 +266,76 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
             ```
         """
         # The <= here means "is LHS a subset of RHS?".
-        sufficient = set(self._scopes.value.split(" ")) <= set(scopes.split(" "))
+        sufficient = set(self._scopes.formatted.split(" ")) <= set(scopes.split(" "))
         _log.debug(f"Stored scopes are {'' if sufficient else 'in'}sufficient")
         return sufficient
+
+    def decode_id_token(self, token: str) -> Dict[str, Any]:
+        """A helper method to decode an ID token.
+
+        ID tokens are returned from the YouTube Analytics API as a JWT,
+        which is a secure way to transfer encrypted JSON objects. This
+        method decrypts and decodes the JWT and returns the stored
+        information.
+
+        You will only receive an ID token if you specifically tell
+        the client to fetch one.
+
+        Parameters
+        ----------
+        token
+            Your ID token.
+
+        Returns
+        -------
+        Dict[str, Any]
+            The decoded ID token.
+
+        Raises
+        ------
+        MissingOptionalComponents
+            python-jwt is not installed.
+        IdTokenError
+            Your ID token could not be decoded. This may be raised
+            alongside other errors.
+
+        !!! note "New in version 5.1"
+
+        ??? example
+            ```py
+            # This example uses the scripting client.
+            client = Client("secrets.json")
+            tokens = client.authorise()
+            id_token = client.decode_id_token(tokens.id_token)
+            ```
+        """
+        if not utils.can_use("jwt"):
+            raise MissingOptionalComponents("jwt")
+
+        from jwt import JWT, jwk_from_dict
+        from jwt.exceptions import JWSDecodeError
+
+        _log.debug("Fetching JWKs")
+        with self._request(JWKS_URI) as resp:
+            if resp.status > 399:
+                raise IdTokenError("could not fetch Google JWKs")
+
+            keys = json.loads(resp.data)["keys"]
+
+        jwt = JWT()  # type: ignore[no-untyped-call]
+
+        for key in keys:
+            jwk = jwk_from_dict(key)
+            _log.debug("Attempting decode using JWK with KID %r", jwk.get_kid())
+            try:
+                return jwt.decode(token, jwk)
+            except Exception as exc:  # noqa: BLE001
+                if not isinstance(exc.__cause__, JWSDecodeError):
+                    # If the error IS a JWSDecodeError, we want to try
+                    # other keys and error later if they also fail.
+                    raise IdTokenError("invalid ID token (see above error)") from exc
+
+        raise IdTokenError("ID token signature could not be validated")
 
     def refresh_access_token(self, tokens: Tokens) -> Optional[Tokens]:
         """Refresh your access token.

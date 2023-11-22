@@ -168,9 +168,9 @@ class ReportQuery:
                 m for m in data.ALL_METRICS_ORDERED if m in self.rtype.metrics.values
             ]
 
-        if Scopes.MONETARY_READONLY.value not in scopes.value:
+        if not scopes & Scopes.MONETARY_READONLY:
             self.metrics = [m for m in self.metrics if m not in data.REVENUE_METRICS]
-        elif Scopes.READONLY.value not in scopes.value:
+        elif not scopes & Scopes.READONLY:
             self.metrics = [m for m in self.metrics if m in data.REVENUE_METRICS]
 
         _log.debug("Metrics set to: " + ", ".join(self.metrics))

@@ -99,6 +99,18 @@ def tokens():
 
 
 @pytest.fixture()
+def full_tokens(id_token):
+    return Tokens(
+        access_token="a1b2c3d4e5",
+        expires_in=3599,
+        scope="https://www.googleapis.com/auth/yt-analytics.readonly https://www.googleapis.com/auth/yt-analytics-monetary.readonly",
+        token_type="Bearer",
+        refresh_token="f6g7h8i9j0",
+        id_token=id_token,
+    )
+
+
+@pytest.fixture()
 def refreshed_tokens():
     return Tokens(
         access_token="5e4d3c2b1a",
@@ -107,6 +119,39 @@ def refreshed_tokens():
         token_type="Bearer",
         refresh_token="f6g7h8i9j0",
     )
+
+
+@pytest.fixture()
+def public_jwks():
+    return json.dumps(
+        {
+            "keys": [
+                {
+                    "kty": "RSA",
+                    "use": "sig",
+                    "alg": "RS256",
+                    "kid": "420",
+                    "n": "3O1ym3_YzGYXHm-Pd6toEDvCx_KsL-68m3N8dOf9bb17GnRoUfUL4HLBFCnpqcmmwqT9Cm9TWuskyynht0c1AWFsW6a8eDeJu_lTwFnydgzQn4EU-yeIE82GbvriC-3SmPLUApNALZCgWmWjDlAFB94SybR9TA3Qqb9IPc0c5QXTCeBmJzhfOBJ5VlMwYsWnftuGxjT4lvlGNO1Ifqa09CedKr5TuNS7L3joMI4RRtejuC_p3LsBgnZ_7kV5C4t4n8USBBnyNms6GQvBoqHLctL56fNHva7vY-dsEZ4VNUeYRjIIuQ6BaAoCZQbbhTfJDBsRBRdq41aOw92xSlGA4Q",
+                    "e": "AQAB",
+                }
+            ]
+        }
+    )
+
+
+@pytest.fixture()
+def id_token():
+    return "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZG1pbiI6dHJ1ZSwiaWF0IjoxNTE2MjM5MDIyLCJuYW1lIjoiQmFybmV5IHRoZSBEaW5vc2F1ciIsInN1YiI6IjEyMzQ1Njc4OTAifQ.glf1K2N9SacjpaK2W_PkqB7Ga-KwmEEpcQUFUhHmfYvd-2eWjWJN3oatXF4gkwh9O7tSqO3QW_REfpgbD-odCn3CZtZGffDEoIkujRwbr8rwnrnDK0aakspEsHBfPPctwOI6SpSqAn4LWdyK5SWzES8NnzJp6OiSXALPW92JkN9Z_pTktO1VL1IQm-NcXz3jOfqewneEkesdm8vesxd1mIeUelkKWpqg0UlT48GKZlkn08BU5GUWCLWxLj96qee4PGmfHsGb6uPx2iqL0BMI9JbKSo6MnkCmjZKwCzJdsYDYfncoDdbm3O_qUCVU4Br7T2HP3YUe-c01zwnzyXqP0A"
+
+
+@pytest.fixture()
+def id_token_payload():
+    return {
+        "admin": True,
+        "iat": 1516239022,
+        "name": "Barney the Dinosaur",
+        "sub": "1234567890",
+    }
 
 
 @pytest.fixture()

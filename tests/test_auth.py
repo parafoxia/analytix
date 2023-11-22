@@ -51,6 +51,81 @@ from analytix.errors import AuthorisationError
 from tests import MockFile
 
 
+def test_scopes_formatting_readonly():
+    assert (
+        Scopes.READONLY.formatted
+        == "https://www.googleapis.com/auth/yt-analytics.readonly"
+    )
+
+
+def test_scopes_formatting_monetary_readonly():
+    assert (
+        Scopes.MONETARY_READONLY.formatted
+        == "https://www.googleapis.com/auth/yt-analytics-monetary.readonly"
+    )
+
+
+def test_scopes_formatting_all():
+    assert (
+        Scopes.ALL.formatted
+        == "https://www.googleapis.com/auth/yt-analytics.readonly https://www.googleapis.com/auth/yt-analytics-monetary.readonly"
+    )
+
+
+def test_scopes_formatting_openid():
+    assert Scopes.OPENID.formatted == "openid"
+
+
+def test_scopes_formatting_profile():
+    assert (
+        Scopes.PROFILE.formatted == "https://www.googleapis.com/auth/userinfo.profile"
+    )
+
+
+def test_scopes_formatting_email():
+    assert Scopes.EMAIL.formatted == "https://www.googleapis.com/auth/userinfo.email"
+
+
+def test_scopes_formatting_all_jwt():
+    assert (
+        Scopes.ALL_JWT.formatted
+        == "openid https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email"
+    )
+
+
+def test_scopes_validate_valid():
+    Scopes.READONLY.validate()
+    Scopes.MONETARY_READONLY.validate()
+    Scopes.ALL.validate()
+    (Scopes.READONLY | Scopes.OPENID).validate()
+
+
+def test_scopes_validate_invalid():
+    with pytest.raises(
+        AuthorisationError,
+        match="the READONLY or MONETARY_READONLY scope must be provided",
+    ):
+        Scopes.OPENID.validate()
+
+    with pytest.raises(
+        AuthorisationError,
+        match="the READONLY or MONETARY_READONLY scope must be provided",
+    ):
+        Scopes.PROFILE.validate()
+
+    with pytest.raises(
+        AuthorisationError,
+        match="the READONLY or MONETARY_READONLY scope must be provided",
+    ):
+        Scopes.EMAIL.validate()
+
+    with pytest.raises(
+        AuthorisationError,
+        match="the READONLY or MONETARY_READONLY scope must be provided",
+    ):
+        Scopes.ALL_JWT.validate()
+
+
 def test_secrets_str(secrets: Secrets):
     assert (
         str(secrets)
@@ -74,7 +149,7 @@ def test_secrets_load_from(secrets: Secrets, secrets_data: str, caplog):
 def test_tokens_str(tokens: Tokens):
     assert (
         str(tokens)
-        == "Tokens(access_token='a1b2c3d4e5', expires_in=3599, scope='https://www.googleapis.com/auth/yt-analytics.readonly https://www.googleapis.com/auth/yt-analytics-monetary.readonly', token_type='Bearer', refresh_token='f6g7h8i9j0')"
+        == "Tokens(access_token='a1b2c3d4e5', expires_in=3599, scope='https://www.googleapis.com/auth/yt-analytics.readonly https://www.googleapis.com/auth/yt-analytics-monetary.readonly', token_type='Bearer', refresh_token='f6g7h8i9j0', id_token=None)"
     )
 
 
