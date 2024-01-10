@@ -310,7 +310,8 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
             # This example uses the scripting client.
             client = Client("secrets.json")
             tokens = client.authorise()
-            id_token = client.decode_id_token(tokens.id_token)
+            if tokens.id_token:
+                id_token = client.decode_id_token(tokens.id_token)
             ```
         """
         if not utils.can_use("jwt"):
