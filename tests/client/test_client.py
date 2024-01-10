@@ -27,6 +27,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import datetime as dt
+import json
 import logging
 import os
 import re
@@ -84,7 +85,9 @@ def test_client_check_for_updates(caplog, secrets_data):
                 with mock.patch.object(
                     Client,
                     "_request",
-                    return_value=MockResponse({"info": {"version": __version__}}, 200),
+                    return_value=MockResponse(
+                        json.dumps({"info": {"version": __version__}}), 200
+                    ),
                 ):
                     Client("secrets.json")._check_for_updates()
                     assert "Checking for updates" in caplog.text
@@ -101,7 +104,7 @@ def test_client_check_for_updates_on_init(caplog, secrets_data):
                         Client,
                         "_request",
                         return_value=MockResponse(
-                            {"info": {"version": __version__}}, 200
+                            json.dumps({"info": {"version": __version__}}), 200
                         ),
                     ):
                         Client("secrets.json")
@@ -123,6 +126,19 @@ def test_client_check_for_updates_failed(caplog, secrets_data):
                     assert len(warns) == 0
 
 
+def test_client_check_for_updates_timed_out(caplog, secrets_data):
+    with mock.patch.object(Path, "read_text", return_value=secrets_data):
+        with caplog.at_level(logging.DEBUG):
+            with warnings.catch_warnings(record=True) as warns:
+                with mock.patch.object(
+                    Client, "_request", return_value=MockResponse({}, 503)
+                ):
+                    Client("secrets.json")._check_for_updates()
+                    assert "Checking for updates" in caplog.text
+                    assert "Failed to get version information" in caplog.text
+                    assert len(warns) == 0
+
+
 def test_client_check_for_updates_not_latest_version(caplog, secrets_data):
     with mock.patch.object(Path, "read_text", return_value=secrets_data):
         with caplog.at_level(logging.DEBUG):
@@ -130,7 +146,9 @@ def test_client_check_for_updates_not_latest_version(caplog, secrets_data):
                 with mock.patch.object(
                     Client,
                     "_request",
-                    return_value=MockResponse({"info": {"version": "4.2.0"}}, 200),
+                    return_value=MockResponse(
+                        json.dumps({"info": {"version": "4.2.0"}}), 200
+                    ),
                 ):
                     Client("secrets.json")._check_for_updates()
                     assert "Checking for updates" in caplog.text

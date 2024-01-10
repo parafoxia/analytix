@@ -29,20 +29,20 @@
 __all__ = ("RequestMixin",)
 
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any, Dict, Generator, Optional
+from typing import Any, Dict, Generator, Optional
 from urllib.parse import urlencode
 
 import urllib3
+from urllib3.exceptions import MaxRetryError
 
 from analytix.errors import APIError, BadRequest, Forbidden, NotFound, Unauthorised
 
-if TYPE_CHECKING:
-    try:
-        from urllib3 import BaseHTTPResponse as HTTPResponse
-    except ImportError:
-        # urllib3 < 2.0 doesn't have the BaseHTTPResponse, so this is
-        # done for compatibility with older versions.
-        from urllib3 import HTTPResponse
+try:
+    from urllib3 import BaseHTTPResponse as HTTPResponse
+except ImportError:
+    # urllib3 < 2.0 doesn't have the BaseHTTPResponse, so this is
+    # done for compatibility with older versions.
+    from urllib3 import HTTPResponse
 
 ERROR_MAPPING = {
     400: BadRequest,
@@ -67,6 +67,7 @@ class RequestMixin:
         post: bool = False,
         ignore_errors: bool = False,
         token: Optional[str] = None,
+        timeout: Optional[float] = None,
     ) -> Generator["HTTPResponse", None, None]:
         method = "POST" if post or data else "GET"
         headers = headers or {}
@@ -74,7 +75,28 @@ class RequestMixin:
         if token:
             headers["Authorization"] = f"Bearer {token}"
 
-        resp = http.request(method, url, body=urlencode(data or {}), headers=headers)
+        try:
+            resp = http.request(
+                method,
+                url,
+                body=urlencode(data or {}),
+                headers=headers,
+                timeout=timeout,
+            )
+        except MaxRetryError as exc:
+            if not ignore_errors:
+                raise exc
+
+            # Mock a 503 response that can be returned in the event of
+            # an ignored timeout failure.
+            resp = HTTPResponse(
+                status=503,
+                version=11,
+                reason=None,
+                decode_content=False,
+                request_url=url,
+            )
+
         if resp.status > 399 and not ignore_errors:
             if resp.status == 403 and "/v2/reports" in url and resp.reason:
                 resp.reason += " (probably misconfigured scopes)"

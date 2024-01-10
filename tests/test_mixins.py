@@ -31,6 +31,7 @@ from unittest import mock
 
 import pytest
 from urllib3 import PoolManager
+from urllib3.exceptions import MaxRetryError
 
 from analytix.errors import APIError
 from analytix.mixins import RequestMixin
@@ -81,3 +82,18 @@ def test_request_forbidden_error_additional_context(error_response):
         ):
             with RequestMixin()._request("https://rickroll.com/v2/reports"):
                 ...
+
+
+def test_request_time_out():
+    with mock.patch.object(PoolManager, "request", side_effect=MaxRetryError(None, "")):
+        with pytest.raises(MaxRetryError):
+            with RequestMixin()._request("https://rickroll.com"):
+                ...
+
+
+def test_request_time_out_ignore_errors():
+    with mock.patch.object(PoolManager, "request", side_effect=MaxRetryError(None, "")):
+        with RequestMixin()._request(
+            "https://rickroll.com", ignore_errors=True
+        ) as resp:
+            assert resp.status == 503

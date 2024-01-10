@@ -158,13 +158,13 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
     def _check_for_updates(self) -> None:
         _log.debug("Checking for updates")
 
-        with self._request(UPDATE_CHECK_URL) as resp:
+        with self._request(UPDATE_CHECK_URL, ignore_errors=True, timeout=0.5) as resp:
             if resp.status > 399:
                 # If we can't get the info, just ignore it.
                 _log.debug("Failed to get version information")
                 return
 
-            latest = resp.json()["info"]["version"]
+            latest = json.loads(resp.data)["info"]["version"]
 
         from analytix import __version__
 
