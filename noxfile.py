@@ -106,7 +106,7 @@ def tests(session: nox.Session) -> None:
     session.run("coverage", "report", "-m")
 
 
-@nox.session(reuse_venv=True)
+@nox.session(reuse_venv=True, python=["3.11"])
 @install()
 def dependencies(session: nox.Session) -> None:
     session.run("deputil", "update", "requirements")
@@ -152,7 +152,7 @@ def linting(session: nox.Session) -> None:
     session.run("ruff", "check", *sp(PROJECT_DIR, NOX_FILE))
 
 
-@nox.session(reuse_venv=True)
+@nox.session(reuse_venv=True, python=["3.11"])
 @install(rfiles=["dev"])
 def safety(session: nox.Session) -> None:
     session.run("mypy", "--install-types", "--non-interactive")
