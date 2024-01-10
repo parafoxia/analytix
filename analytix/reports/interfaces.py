@@ -379,7 +379,8 @@ class Report:
 
         if not skip_date_conversion and len(s := {"day", "month"} & set(df.columns)):
             col = next(iter(s))
-            df[col] = pd.to_datetime(df[col], format="%Y-%m-%d")
+            fmt = {"day": "%Y-%m-%d", "month": "%Y-%m"}[col]
+            df[col] = pd.to_datetime(df[col], format=fmt)
             _log.debug(f"Converted {col!r} column to datetime format")
 
         return df
