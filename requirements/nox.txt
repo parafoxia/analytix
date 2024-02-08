@@ -1,6 +1,7 @@
 # tests
 coverage>=7.0,<8.0
 jwt>=1.2,<2.0; python_version<"3.13"
+cryptography<42.0; platform_python_implementation=="PyPy" and python_version<"3.9"
 openpyxl>=3.0,<4.0
 pandas>=0.23.2,<3.0; platform_python_implementation=="CPython" and python_version<"3.13"
 polars>=0.15.17,<0.21; platform_python_implementation=="CPython" and python_version<"3.13"
