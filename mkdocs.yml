@@ -14,6 +14,8 @@ plugins:
             # docstring_section_style: list
             show_signature_annotations: true
             separate_signature: true
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
   - include-markdown
 
 markdown_extensions:
