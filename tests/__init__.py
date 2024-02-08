@@ -40,8 +40,7 @@ class MockFile:
     def __enter__(self):
         return self
 
-    def __exit__(self, *args):
-        ...
+    def __exit__(self, *args): ...
 
     def read(self):
         return self.read_data
@@ -62,8 +61,7 @@ class MockResponse:
     def __enter__(self):
         return self
 
-    def __exit__(self, *args):
-        ...
+    def __exit__(self, *args): ...
 
     @property
     def data(self):

@@ -152,8 +152,7 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
     def __enter__(self) -> "BaseClient":
         return self
 
-    def __exit__(self, *_: Any) -> None:
-        ...
+    def __exit__(self, *_: Any) -> None: ...
 
     def _check_for_updates(self) -> None:
         _log.debug("Checking for updates")
