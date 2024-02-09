@@ -51,8 +51,8 @@ theme:
         name: Switch to light mode
 
   font:
-    text: Nanum Gothic
-    code: Chivo Mono
+    text: Barlow
+    code: JetBrains Mono
 
   logo: logo_white.png
 
