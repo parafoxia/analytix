@@ -198,14 +198,13 @@ class ReportQuery:
         if self.filters.get("playlist"):
             return True
 
-        if self.filters.get("group") and any(
-            m in data.ALL_PLAYLIST_METRICS for m in self.metrics
-        ):
-            return True
-
-        return False
+        return bool(
+            self.filters.get("group")
+            and any(m in data.ALL_PLAYLIST_METRICS for m in self.metrics)
+        )
 
     def _determine_video_report_type(self) -> "ReportType":
+        # sourcery skip: low-code-quality
         if "adType" in self.dimensions:
             return rt.AdPerformance()
 
