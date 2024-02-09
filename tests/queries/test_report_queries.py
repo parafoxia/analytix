@@ -250,7 +250,7 @@ def test_determine_audience_retention():
 
 
 def test_determine_top_playlists_deprecated():
-    query = ReportQuery(dimensions=["playlist"])
+    query = ReportQuery(dimensions=["playlist"], filters={"isCurated": "1"})
     assert isinstance(query.determine_report_type(), drt.TopPlaylists)
 
 

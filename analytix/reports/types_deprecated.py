@@ -157,7 +157,7 @@ class PlaybackLocationDetailPlaylist(DetailedReportType):
         self.metrics = Metrics(*data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED)
         self.sort_options = SortOptions(
             *data.LOCATION_AND_TRAFFIC_PLAYLIST_SORT_OPTIONS_DEPRECATED,
-            descending_only=True
+            descending_only=True,
         )
         self.max_results = 25
 
@@ -194,7 +194,7 @@ class TrafficSourceDetailPlaylist(DetailedReportType):
         self.metrics = Metrics(*data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED)
         self.sort_options = SortOptions(
             *data.LOCATION_AND_TRAFFIC_PLAYLIST_SORT_OPTIONS_DEPRECATED,
-            descending_only=True
+            descending_only=True,
         )
         self.max_results = 25
 
@@ -296,5 +296,8 @@ class TopPlaylists(DetailedReportType):
             ZeroOrMore("playlist", "subscribedStatus", "youtubeProduct"),
         )
         self.metrics = Metrics(*data.ALL_PLAYLIST_METRICS_DEPRECATED)
-        self.sort_options = SortOptions(*data.TOP_VIDEOS_SORT_OPTIONS)
+        self.sort_options = SortOptions(
+            *data.TOP_VIDEOS_SORT_OPTIONS,
+            descending_only=True,
+        )
         self.max_results = 200
