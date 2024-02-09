@@ -37,6 +37,7 @@ from analytix.auth import Scopes
 from analytix.errors import InvalidRequest
 from analytix.reports import data
 from analytix.reports import types as rt
+from analytix.reports import types_deprecated as drt
 from analytix.warnings import InvalidMonthFormatWarning
 
 if TYPE_CHECKING:
@@ -194,6 +195,17 @@ class ReportQuery:
         # sourcery skip: low-code-quality
         curated = self.filters.get("isCurated", "0") == "1"
 
+        if curated:
+            from analytix import __docs__
+
+            warnings.warn(
+                "The 'isCurated' has been deprecated by YouTube and will stop working "
+                f"on 30 Jun 2024 -- see {__docs__}/guides/new-playlist-reports for "
+                "more info",
+                DeprecationWarning,
+                stacklevel=5,
+            )
+
         if "adType" in self.dimensions:
             return rt.AdPerformance()
 
@@ -204,47 +216,47 @@ class ReportQuery:
             return rt.AudienceRetention()
 
         if "playlist" in self.dimensions:
-            return rt.TopPlaylists()
+            return drt.TopPlaylists()
 
         if "city" in self.dimensions:
             return rt.GeographyBasedActivityByCity()
 
         if "insightPlaybackLocationType" in self.dimensions:
-            return rt.PlaybackLocationPlaylist() if curated else rt.PlaybackLocation()
+            return drt.PlaybackLocationPlaylist() if curated else rt.PlaybackLocation()
 
         if "insightPlaybackLocationDetail" in self.dimensions:
             return (
-                rt.PlaybackLocationDetailPlaylist()
+                drt.PlaybackLocationDetailPlaylist()
                 if curated
                 else rt.PlaybackLocationDetail()
             )
 
         if "insightTrafficSourceType" in self.dimensions:
-            return rt.TrafficSourcePlaylist() if curated else rt.TrafficSource()
+            return drt.TrafficSourcePlaylist() if curated else rt.TrafficSource()
 
         if "insightTrafficSourceDetail" in self.dimensions:
             return (
-                rt.TrafficSourceDetailPlaylist()
+                drt.TrafficSourceDetailPlaylist()
                 if curated
                 else rt.TrafficSourceDetail()
             )
 
         if "ageGroup" in self.dimensions or "gender" in self.dimensions:
             return (
-                rt.ViewerDemographicsPlaylist() if curated else rt.ViewerDemographics()
+                drt.ViewerDemographicsPlaylist() if curated else rt.ViewerDemographics()
             )
 
         if "deviceType" in self.dimensions:
             if "operatingSystem" in self.dimensions:
                 return (
-                    rt.DeviceTypeAndOperatingSystemPlaylist()
+                    drt.DeviceTypeAndOperatingSystemPlaylist()
                     if curated
                     else rt.DeviceTypeAndOperatingSystem()
                 )
-            return rt.DeviceTypePlaylist() if curated else rt.DeviceType()
+            return drt.DeviceTypePlaylist() if curated else rt.DeviceType()
 
         if "operatingSystem" in self.dimensions:
-            return rt.OperatingSystemPlaylist() if curated else rt.OperatingSystem()
+            return drt.OperatingSystemPlaylist() if curated else rt.OperatingSystem()
 
         if "video" in self.dimensions:
             if "province" in self.filters:
@@ -261,7 +273,7 @@ class ReportQuery:
             if "liveOrOnDemand" in self.dimensions or "liveOrOnDemand" in self.filters:
                 return rt.PlaybackDetailsLiveGeographyBased()
             if curated:
-                return rt.GeographyBasedActivityPlaylist()
+                return drt.GeographyBasedActivityPlaylist()
             if (
                 "subscribedStatus" in self.dimensions
                 or "subscribedStatus" in self.filters
@@ -275,7 +287,7 @@ class ReportQuery:
             if "liveOrOnDemand" in self.dimensions or "liveOrOnDemand" in self.filters:
                 return rt.PlaybackDetailsLiveGeographyBasedUS()
             if curated:
-                return rt.GeographyBasedActivityUSPlaylist()
+                return drt.GeographyBasedActivityUSPlaylist()
             if (
                 "subscribedStatus" in self.dimensions
                 or "subscribedStatus" in self.filters
@@ -300,13 +312,13 @@ class ReportQuery:
 
         if "day" in self.dimensions or "month" in self.dimensions:
             if curated:
-                return rt.TimeBasedActivityPlaylist()
+                return drt.TimeBasedActivityPlaylist()
             if "province" in self.filters:
                 return rt.TimeBasedActivityUS()
             return rt.TimeBasedActivity()
 
         if curated:
-            return rt.BasicUserActivityPlaylist()
+            return drt.BasicUserActivityPlaylist()
         if "province" in self.filters:
             return rt.BasicUserActivityUS()
         return rt.BasicUserActivity()
