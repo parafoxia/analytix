@@ -1,6 +1,7 @@
 name: Check Support for Minimum Versions of Data Libraries
 
 on:
+  workflow_dispatch:
   schedule:
     - cron: "0 0 1,15 * *"
 
@@ -23,10 +24,10 @@ jobs:
           python -m pip install openpyxl pandas==1.4 polars==0.15.17 pyarrow==5.0.0 pytest .
 
       - name: Run tests (pandas)
-        run: python -m pytest tests/reports/test_report_interfaces.py -k to_pandas
+        run: python -m pytest tests/reports/test_interfaces.py -k to_pandas
 
       - name: Run tests (PyArrow)
-        run: python -m pytest tests/reports/test_report_interfaces.py -k to_arrow
+        run: python -m pytest tests/reports/test_interfaces.py -k to_arrow
 
       - name: Run tests (Polars)
-        run: python -m pytest tests/reports/test_report_interfaces.py -k to_polars
+        run: python -m pytest tests/reports/test_interfaces.py -k to_polars
