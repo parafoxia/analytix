@@ -191,21 +191,21 @@ class ReportQuery:
         # If it gets to this point, it's fine.
         _log.debug("Request OK!")
 
-    def determine_report_type(self) -> "ReportType":
-        # sourcery skip: low-code-quality
-        curated = self.filters.get("isCurated", "0") == "1"
+    def _is_playlist_report_type(self) -> bool:
+        if "playlist" in self.dimensions:
+            return True
 
-        if curated:
-            from analytix import __docs__
+        if self.filters.get("playlist"):
+            return True
 
-            warnings.warn(
-                "The 'isCurated' has been deprecated by YouTube and will stop working "
-                f"on 30 Jun 2024 -- see {__docs__}/guides/new-playlist-reports for "
-                "more info",
-                DeprecationWarning,
-                stacklevel=5,
-            )
+        if self.filters.get("group") and any(
+            m in data.ALL_PLAYLIST_METRICS for m in self.metrics
+        ):
+            return True
 
+        return False
+
+    def _determine_video_report_type(self) -> "ReportType":
         if "adType" in self.dimensions:
             return rt.AdPerformance()
 
@@ -215,48 +215,31 @@ class ReportQuery:
         if "elapsedVideoTimeRatio" in self.dimensions:
             return rt.AudienceRetention()
 
-        if "playlist" in self.dimensions:
-            return drt.TopPlaylists()
-
         if "city" in self.dimensions:
             return rt.GeographyBasedActivityByCity()
 
         if "insightPlaybackLocationType" in self.dimensions:
-            return drt.PlaybackLocationPlaylist() if curated else rt.PlaybackLocation()
+            return rt.PlaybackLocation()
 
         if "insightPlaybackLocationDetail" in self.dimensions:
-            return (
-                drt.PlaybackLocationDetailPlaylist()
-                if curated
-                else rt.PlaybackLocationDetail()
-            )
+            return rt.PlaybackLocationDetail()
 
         if "insightTrafficSourceType" in self.dimensions:
-            return drt.TrafficSourcePlaylist() if curated else rt.TrafficSource()
+            return rt.TrafficSource()
 
         if "insightTrafficSourceDetail" in self.dimensions:
-            return (
-                drt.TrafficSourceDetailPlaylist()
-                if curated
-                else rt.TrafficSourceDetail()
-            )
+            return rt.TrafficSourceDetail()
 
         if "ageGroup" in self.dimensions or "gender" in self.dimensions:
-            return (
-                drt.ViewerDemographicsPlaylist() if curated else rt.ViewerDemographics()
-            )
+            return rt.ViewerDemographics()
 
         if "deviceType" in self.dimensions:
             if "operatingSystem" in self.dimensions:
-                return (
-                    drt.DeviceTypeAndOperatingSystemPlaylist()
-                    if curated
-                    else rt.DeviceTypeAndOperatingSystem()
-                )
-            return drt.DeviceTypePlaylist() if curated else rt.DeviceType()
+                return rt.DeviceTypeAndOperatingSystem()
+            return rt.DeviceType()
 
         if "operatingSystem" in self.dimensions:
-            return drt.OperatingSystemPlaylist() if curated else rt.OperatingSystem()
+            return rt.OperatingSystem()
 
         if "video" in self.dimensions:
             if "province" in self.filters:
@@ -272,8 +255,6 @@ class ReportQuery:
         if "country" in self.dimensions:
             if "liveOrOnDemand" in self.dimensions or "liveOrOnDemand" in self.filters:
                 return rt.PlaybackDetailsLiveGeographyBased()
-            if curated:
-                return drt.GeographyBasedActivityPlaylist()
             if (
                 "subscribedStatus" in self.dimensions
                 or "subscribedStatus" in self.filters
@@ -286,8 +267,6 @@ class ReportQuery:
         if "province" in self.dimensions:
             if "liveOrOnDemand" in self.dimensions or "liveOrOnDemand" in self.filters:
                 return rt.PlaybackDetailsLiveGeographyBasedUS()
-            if curated:
-                return drt.GeographyBasedActivityUSPlaylist()
             if (
                 "subscribedStatus" in self.dimensions
                 or "subscribedStatus" in self.filters
@@ -311,17 +290,73 @@ class ReportQuery:
             return rt.PlaybackDetailsSubscribedStatus()
 
         if "day" in self.dimensions or "month" in self.dimensions:
-            if curated:
-                return drt.TimeBasedActivityPlaylist()
             if "province" in self.filters:
                 return rt.TimeBasedActivityUS()
             return rt.TimeBasedActivity()
 
-        if curated:
-            return drt.BasicUserActivityPlaylist()
         if "province" in self.filters:
             return rt.BasicUserActivityUS()
+
         return rt.BasicUserActivity()
+
+    def _determine_playlist_report_type(self, deprecated: bool) -> "ReportType":
+        if deprecated:
+            from analytix import __docs__
+
+            warnings.warn(
+                "The 'isCurated' has been deprecated by YouTube and will stop working "
+                f"on 30 Jun 2024 -- see {__docs__}/guides/new-playlist-reports for "
+                "more info",
+                DeprecationWarning,
+                stacklevel=6,
+            )
+
+        if "playlist" in self.dimensions:
+            return drt.TopPlaylists()
+
+        if "insightPlaybackLocationType" in self.dimensions:
+            return drt.PlaybackLocationPlaylist()
+
+        if "insightPlaybackLocationDetail" in self.dimensions:
+            return drt.PlaybackLocationDetailPlaylist()
+
+        if "insightTrafficSourceType" in self.dimensions:
+            return drt.TrafficSourcePlaylist()
+
+        if "insightTrafficSourceDetail" in self.dimensions:
+            return drt.TrafficSourceDetailPlaylist()
+
+        if "ageGroup" in self.dimensions or "gender" in self.dimensions:
+            return drt.ViewerDemographicsPlaylist()
+
+        if "deviceType" in self.dimensions:
+            if "operatingSystem" in self.dimensions:
+                return drt.DeviceTypeAndOperatingSystemPlaylist()
+            return drt.DeviceTypePlaylist()
+
+        if "operatingSystem" in self.dimensions:
+            return drt.OperatingSystemPlaylist()
+
+        if "country" in self.dimensions:
+            return drt.GeographyBasedActivityPlaylist()
+
+        if "province" in self.dimensions:
+            return drt.GeographyBasedActivityUSPlaylist()
+
+        if "day" in self.dimensions or "month" in self.dimensions:
+            return drt.TimeBasedActivityPlaylist()
+
+        return drt.BasicUserActivityPlaylist()
+
+    def determine_report_type(self) -> "ReportType":
+        curated = self.filters.get("isCurated", "0") == "1"
+        playlist = self._is_playlist_report_type()
+
+        return (
+            self._determine_playlist_report_type(deprecated=curated)
+            if curated or playlist
+            else self._determine_video_report_type()
+        )
 
     def set_report_type(self) -> None:
         self.rtype = self.determine_report_type()

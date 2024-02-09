@@ -212,6 +212,28 @@ def test_validate_respects_monetary_readonly_scope():
     assert query.metrics == ["cpm", "grossRevenue"]
 
 
+def test_determine_is_new_playlist_report_playlist_dimension():
+    query = ReportQuery(dimensions=["playlist"])
+    assert query._is_playlist_report_type()
+
+
+def test_determine_is_new_playlist_report_playlist_filter():
+    query = ReportQuery(filters={"playlist": "a1b2c3d4e5"})
+    assert query._is_playlist_report_type()
+
+
+def test_determine_is_new_playlist_report_group_filter():
+    query = ReportQuery(
+        filters={"group": "a1b2c3d4e5"}, metrics=("averageViewDuration",)
+    )
+    assert query._is_playlist_report_type()
+
+
+def test_determine_is_new_playlist_report_group_filter_no_playlist_metrics():
+    query = ReportQuery(dimensions={"group": "a1b2c3d4e5"})
+    assert not query._is_playlist_report_type()
+
+
 def test_determine_ad_performance():
     query = ReportQuery(dimensions=["adType"])
     assert isinstance(query.determine_report_type(), rt.AdPerformance)
