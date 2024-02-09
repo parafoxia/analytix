@@ -312,41 +312,85 @@ class ReportQuery:
             )
 
         if "playlist" in self.dimensions:
-            return drt.TopPlaylists()
+            return drt.TopPlaylists() if deprecated else rt.TopPlaylists()
 
         if "insightPlaybackLocationType" in self.dimensions:
-            return drt.PlaybackLocationPlaylist()
+            return (
+                drt.PlaybackLocationPlaylist()
+                if deprecated
+                else rt.PlaybackLocationPlaylist()
+            )
 
         if "insightPlaybackLocationDetail" in self.dimensions:
-            return drt.PlaybackLocationDetailPlaylist()
+            return (
+                drt.PlaybackLocationDetailPlaylist()
+                if deprecated
+                else rt.PlaybackLocationDetailPlaylist()
+            )
 
         if "insightTrafficSourceType" in self.dimensions:
-            return drt.TrafficSourcePlaylist()
+            return (
+                drt.TrafficSourcePlaylist()
+                if deprecated
+                else rt.TrafficSourcePlaylist()
+            )
 
         if "insightTrafficSourceDetail" in self.dimensions:
-            return drt.TrafficSourceDetailPlaylist()
+            return (
+                drt.TrafficSourceDetailPlaylist()
+                if deprecated
+                else rt.TrafficSourceDetailPlaylist()
+            )
 
         if "ageGroup" in self.dimensions or "gender" in self.dimensions:
-            return drt.ViewerDemographicsPlaylist()
+            return (
+                drt.ViewerDemographicsPlaylist()
+                if deprecated
+                else rt.ViewerDemographicsPlaylist()
+            )
 
         if "deviceType" in self.dimensions:
             if "operatingSystem" in self.dimensions:
-                return drt.DeviceTypeAndOperatingSystemPlaylist()
-            return drt.DeviceTypePlaylist()
+                return (
+                    drt.DeviceTypeAndOperatingSystemPlaylist()
+                    if deprecated
+                    else rt.DeviceTypeAndOperatingSystemPlaylist()
+                )
+            return drt.DeviceTypePlaylist() if deprecated else rt.DeviceTypePlaylist()
 
         if "operatingSystem" in self.dimensions:
-            return drt.OperatingSystemPlaylist()
+            return (
+                drt.OperatingSystemPlaylist()
+                if deprecated
+                else rt.OperatingSystemPlaylist()
+            )
 
         if "country" in self.dimensions:
-            return drt.GeographyBasedActivityPlaylist()
+            return (
+                drt.GeographyBasedActivityPlaylist()
+                if deprecated
+                else rt.GeographyBasedActivityPlaylist()
+            )
 
         if "province" in self.dimensions:
-            return drt.GeographyBasedActivityUSPlaylist()
+            return (
+                drt.GeographyBasedActivityUSPlaylist()
+                if deprecated
+                else rt.GeographyBasedActivityUSPlaylist()
+            )
 
         if "day" in self.dimensions or "month" in self.dimensions:
-            return drt.TimeBasedActivityPlaylist()
+            return (
+                drt.TimeBasedActivityPlaylist()
+                if deprecated
+                else rt.TimeBasedActivityPlaylist()
+            )
 
-        return drt.BasicUserActivityPlaylist()
+        return (
+            drt.BasicUserActivityPlaylist()
+            if deprecated
+            else rt.BasicUserActivityPlaylist()
+        )
 
     def determine_report_type(self) -> "ReportType":
         curated = self.filters.get("isCurated", "0") == "1"
