@@ -2,7 +2,7 @@ name: Check Dependencies
 
 on:
   schedule:
-    - cron: "0 0 * * 4"
+    - cron: "0 0 * * 1"
 
 jobs:
   run-check:

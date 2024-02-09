@@ -3,7 +3,7 @@ name: Check Support for Minimum Versions of Data Libraries
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 0 1,15 * *"
+    - cron: "0 0 * * 1"
 
 jobs:
   run-check:
