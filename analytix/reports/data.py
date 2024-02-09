@@ -894,9 +894,13 @@ ALL_METRICS_ORDERED = (
     "viewerPercentage",
     "audienceWatchRatio",
     "relativeRetentionPerformance",
-    "playlistStarts",
-    "viewsPerPlaylistStart",
     "averageTimeInPlaylist",
+    "playlistAverageViewDuration",
+    "playlistEstimatedMinutesWatched",
+    "playlistSaves",
+    "playlistStarts",
+    "playlistViews",
+    "viewsPerPlaylistStart",
 )
 
 ALL_METRICS = set(ALL_METRICS_ORDERED)
