@@ -63,7 +63,7 @@ from analytix.reports.features import (
 
 class BasicUserActivityPlaylist(ReportType):
     def __init__(self) -> None:
-        self.name = "Basic user activity for playlists"
+        self.name = "Basic user activity for playlists (deprecated)"
         self.dimensions = Dimensions()
         self.filters = Filters(
             Required("isCurated==1"),
@@ -71,13 +71,13 @@ class BasicUserActivityPlaylist(ReportType):
             ZeroOrOne("playlist", "group"),
             ZeroOrMore("subscribedStatus", "youtubeProduct"),
         )
-        self.metrics = Metrics(*data.ALL_PLAYLIST_METRICS)
+        self.metrics = Metrics(*data.ALL_PLAYLIST_METRICS_DEPRECATED)
         self.sort_options = SortOptions(*self.metrics.values)
 
 
 class TimeBasedActivityPlaylist(ReportType):
     def __init__(self) -> None:
-        self.name = "Time-based activity for playlists"
+        self.name = "Time-based activity for playlists (deprecated)"
         self.dimensions = Dimensions(
             ExactlyOne("day", "month"),
             ZeroOrMore("subscribedStatus", "youtubeProduct"),
@@ -88,13 +88,13 @@ class TimeBasedActivityPlaylist(ReportType):
             ZeroOrOne("playlist", "group"),
             ZeroOrMore("subscribedStatus", "youtubeProduct"),
         )
-        self.metrics = Metrics(*data.ALL_PLAYLIST_METRICS)
+        self.metrics = Metrics(*data.ALL_PLAYLIST_METRICS_DEPRECATED)
         self.sort_options = SortOptions(*self.metrics.values)
 
 
 class GeographyBasedActivityPlaylist(ReportType):
     def __init__(self) -> None:
-        self.name = "Geography-based activity for playlists"
+        self.name = "Geography-based activity for playlists (deprecated)"
         self.dimensions = Dimensions(
             Required("country"),
             ZeroOrMore("subscribedStatus", "youtubeProduct"),
@@ -105,13 +105,13 @@ class GeographyBasedActivityPlaylist(ReportType):
             ZeroOrOne("playlist", "group"),
             ZeroOrMore("subscribedStatus", "youtubeProduct"),
         )
-        self.metrics = Metrics(*data.ALL_PLAYLIST_METRICS)
+        self.metrics = Metrics(*data.ALL_PLAYLIST_METRICS_DEPRECATED)
         self.sort_options = SortOptions(*self.metrics.values)
 
 
 class GeographyBasedActivityUSPlaylist(ReportType):
     def __init__(self) -> None:
-        self.name = "Geography-based activity for playlists (US)"
+        self.name = "Geography-based activity for playlists (US) (deprecated)"
         self.dimensions = Dimensions(
             Required("province"),
             ZeroOrMore("subscribedStatus", "youtubeProduct"),
@@ -121,13 +121,13 @@ class GeographyBasedActivityUSPlaylist(ReportType):
             ZeroOrOne("playlist", "group"),
             ZeroOrMore("subscribedStatus", "youtubeProduct"),
         )
-        self.metrics = Metrics(*data.ALL_PLAYLIST_METRICS)
+        self.metrics = Metrics(*data.ALL_PLAYLIST_METRICS_DEPRECATED)
         self.sort_options = SortOptions(*self.metrics.values)
 
 
 class PlaybackLocationPlaylist(ReportType):
     def __init__(self) -> None:
-        self.name = "Playback locations for playlists"
+        self.name = "Playback locations for playlists (deprecated)"
         self.dimensions = Dimensions(
             Required("insightPlaybackLocationType"),
             ZeroOrMore("day", "subscribedStatus"),
@@ -138,13 +138,13 @@ class PlaybackLocationPlaylist(ReportType):
             ZeroOrOne("playlist", "group"),
             Optional("subscribedStatus"),
         )
-        self.metrics = Metrics(*data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS)
+        self.metrics = Metrics(*data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED)
         self.sort_options = SortOptions(*self.metrics.values)
 
 
 class PlaybackLocationDetailPlaylist(DetailedReportType):
     def __init__(self) -> None:
-        self.name = "Playback locations for playlists (detailed)"
+        self.name = "Playback locations for playlists (detailed) (deprecated)"
         self.dimensions = Dimensions(
             Required("insightPlaybackLocationDetail"),
         )
@@ -154,16 +154,17 @@ class PlaybackLocationDetailPlaylist(DetailedReportType):
             ZeroOrOne("playlist", "group"),
             Optional("subscribedStatus"),
         )
-        self.metrics = Metrics(*data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS)
+        self.metrics = Metrics(*data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED)
         self.sort_options = SortOptions(
-            *data.LOCATION_AND_TRAFFIC_PLAYLIST_SORT_OPTIONS, descending_only=True
+            *data.LOCATION_AND_TRAFFIC_PLAYLIST_SORT_OPTIONS_DEPRECATED,
+            descending_only=True
         )
         self.max_results = 25
 
 
 class TrafficSourcePlaylist(ReportType):
     def __init__(self) -> None:
-        self.name = "Traffic sources for playlists"
+        self.name = "Traffic sources for playlists (deprecated)"
         self.dimensions = Dimensions(
             Required("insightTrafficSourceType"),
             ZeroOrMore("day", "subscribedStatus"),
@@ -174,13 +175,13 @@ class TrafficSourcePlaylist(ReportType):
             ZeroOrOne("playlist", "group"),
             Optional("subscribedStatus"),
         )
-        self.metrics = Metrics(*data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS)
+        self.metrics = Metrics(*data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED)
         self.sort_options = SortOptions(*self.metrics.values)
 
 
 class TrafficSourceDetailPlaylist(DetailedReportType):
     def __init__(self) -> None:
-        self.name = "Traffic sources for playlists (detailed)"
+        self.name = "Traffic sources for playlists (detailed) (deprecated)"
         self.dimensions = Dimensions(
             Required("insightTrafficSourceDetail"),
         )
@@ -190,9 +191,10 @@ class TrafficSourceDetailPlaylist(DetailedReportType):
             ZeroOrOne("playlist", "group"),
             Optional("subscribedStatus"),
         )
-        self.metrics = Metrics(*data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS)
+        self.metrics = Metrics(*data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED)
         self.sort_options = SortOptions(
-            *data.LOCATION_AND_TRAFFIC_PLAYLIST_SORT_OPTIONS, descending_only=True
+            *data.LOCATION_AND_TRAFFIC_PLAYLIST_SORT_OPTIONS_DEPRECATED,
+            descending_only=True
         )
         self.max_results = 25
 
@@ -218,7 +220,7 @@ class TrafficSourceDetailPlaylist(DetailedReportType):
 
 class DeviceTypePlaylist(ReportType):
     def __init__(self) -> None:
-        self.name = "Device types for playlists"
+        self.name = "Device types for playlists (deprecated)"
         self.dimensions = Dimensions(
             Required("deviceType"),
             ZeroOrMore("day", "subscribedStatus", "youtubeProduct"),
@@ -229,13 +231,13 @@ class DeviceTypePlaylist(ReportType):
             ZeroOrOne("playlist", "group"),
             ZeroOrMore("operatingSystem", "subscribedStatus", "youtubeProduct"),
         )
-        self.metrics = Metrics(*data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS)
+        self.metrics = Metrics(*data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED)
         self.sort_options = SortOptions(*self.metrics.values)
 
 
 class OperatingSystemPlaylist(ReportType):
     def __init__(self) -> None:
-        self.name = "Operating systems for playlists"
+        self.name = "Operating systems for playlists (deprecated)"
         self.dimensions = Dimensions(
             Required("operatingSystem"),
             ZeroOrMore("day", "subscribedStatus", "youtubeProduct"),
@@ -246,13 +248,13 @@ class OperatingSystemPlaylist(ReportType):
             ZeroOrOne("playlist", "group"),
             ZeroOrMore("deviceType", "subscribedStatus", "youtubeProduct"),
         )
-        self.metrics = Metrics(*data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS)
+        self.metrics = Metrics(*data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED)
         self.sort_options = SortOptions(*self.metrics.values)
 
 
 class DeviceTypeAndOperatingSystemPlaylist(ReportType):
     def __init__(self) -> None:
-        self.name = "Device types and operating systems for playlists"
+        self.name = "Device types and operating systems for playlists (deprecated)"
         self.dimensions = Dimensions(
             Required("deviceType", "operatingSystem"),
             ZeroOrMore("day", "subscribedStatus", "youtubeProduct"),
@@ -263,13 +265,13 @@ class DeviceTypeAndOperatingSystemPlaylist(ReportType):
             ZeroOrOne("playlist", "group"),
             ZeroOrMore("subscribedStatus", "youtubeProduct"),
         )
-        self.metrics = Metrics(*data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS)
+        self.metrics = Metrics(*data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED)
         self.sort_options = SortOptions(*self.metrics.values)
 
 
 class ViewerDemographicsPlaylist(ReportType):
     def __init__(self) -> None:
-        self.name = "Viewer demographics for playlists"
+        self.name = "Viewer demographics for playlists (deprecated)"
         self.dimensions = Dimensions(
             OneOrMore("ageGroup", "gender"),
             Optional("subscribedStatus"),
@@ -286,13 +288,13 @@ class ViewerDemographicsPlaylist(ReportType):
 
 class TopPlaylists(DetailedReportType):
     def __init__(self) -> None:
-        self.name = "Top playlists"
+        self.name = "Top playlists (deprecated)"
         self.dimensions = Dimensions(Required("playlist"))
         self.filters = Filters(
             Required("isCurated==1"),
             ZeroOrOne("country", "province", "continent", "subContinent"),
             ZeroOrMore("playlist", "subscribedStatus", "youtubeProduct"),
         )
-        self.metrics = Metrics(*data.ALL_PLAYLIST_METRICS)
+        self.metrics = Metrics(*data.ALL_PLAYLIST_METRICS_DEPRECATED)
         self.sort_options = SortOptions(*data.TOP_VIDEOS_SORT_OPTIONS)
         self.max_results = 200

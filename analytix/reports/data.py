@@ -47,11 +47,13 @@ __all__ = (
     "VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS",
     "LOCATION_AND_TRAFFIC_METRICS",
     "ALL_PLAYLIST_METRICS",
-    "LOCATION_AND_TRAFFIC_PLAYLIST_METRICS",
+    "ALL_PLAYLIST_METRICS_DEPRECATED",
+    "LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED",
     "LOCATION_AND_TRAFFIC_SORT_OPTIONS",
     "TOP_VIDEOS_SORT_OPTIONS",
     "TOP_VIDEOS_EXTRA_SORT_OPTIONS",
     "LOCATION_AND_TRAFFIC_PLAYLIST_SORT_OPTIONS",
+    "LOCATION_AND_TRAFFIC_PLAYLIST_SORT_OPTIONS_DEPRECATED",
 )
 
 COUNTRIES = {
@@ -832,7 +834,7 @@ VALID_FILTER_OPTIONS = {
         "self",
         "thirdParty",
     ),
-    "isCurated": ("1",),
+    "isCurated": ("1",),  # DEPRECATED
 }
 
 ALL_FILTERS = set(VALID_FILTER_OPTIONS.keys())
@@ -1032,6 +1034,19 @@ LOCATION_AND_TRAFFIC_METRICS = {
 
 ALL_PLAYLIST_METRICS = {
     "views",
+    "estimatedMinutesWatched",
+    "averageViewDuration",
+    "averageTimeInPlaylist",
+    "playlistAverageViewDuration",
+    "playlistEstimatedMinutesWatched",
+    "playlistSaves",
+    "playlistStarts",
+    "playlistViews",
+    "viewsPerPlaylistStart",
+}
+
+ALL_PLAYLIST_METRICS_DEPRECATED = {
+    "views",
     "redViews",
     "estimatedMinutesWatched",
     "estimatedRedMinutesWatched",
@@ -1041,12 +1056,40 @@ ALL_PLAYLIST_METRICS = {
     "averageTimeInPlaylist",
 }
 
-LOCATION_AND_TRAFFIC_PLAYLIST_METRICS = {
+GEOGRAPHICAL_PLAYLIST_METRICS = {
+    "views",
+    "estimatedMinutesWatched",
+    "averageViewDuration",
+}
+
+LOCATION_PLAYLIST_METRICS = {
+    "views",
+    "estimatedMinutesWatched",
+    "averageViewDuration",
+    "averageTimeInPlaylist",
+    "playlistAverageViewDuration",
+    "playlistEstimatedMinutesWatched",
+    "playlistStarts",
+    "playlistViews",
+    "viewsPerPlaylistStart",
+}
+
+LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED = {
     "views",
     "estimatedMinutesWatched",
     "playlistStarts",
     "viewsPerPlaylistStart",
     "averageTimeInPlaylist",
+}
+
+TOP_PLAYLIST_METRICS = {
+    "averageTimeInPlaylist",
+    "playlistAverageViewDuration",
+    "playlistEstimatedMinutesWatched",
+    "playlistSaves",
+    "playlistStarts",
+    "playlistViews",
+    "viewsPerPlaylistStart",
 }
 
 LOCATION_AND_TRAFFIC_SORT_OPTIONS = {
@@ -1073,6 +1116,12 @@ TOP_VIDEOS_EXTRA_SORT_OPTIONS = {
 }
 
 LOCATION_AND_TRAFFIC_PLAYLIST_SORT_OPTIONS = {
+    "playlistViews",
+    "playlistEstimatedMinutesWatched",
+    "playlistStarts",
+}
+
+LOCATION_AND_TRAFFIC_PLAYLIST_SORT_OPTIONS_DEPRECATED = {
     "views",
     "estimatedMinutesWatched",
     "playlistStarts",

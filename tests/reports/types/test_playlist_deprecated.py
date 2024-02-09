@@ -37,7 +37,7 @@ from analytix.reports import types_deprecated as rt
 
 def test_basic_user_activity_playlist_1():
     report = rt.BasicUserActivityPlaylist()
-    assert report.name == "Basic user activity for playlists"
+    assert report.name == "Basic user activity for playlists (deprecated)"
     d = []
     f = {
         "isCurated": "1",
@@ -45,14 +45,14 @@ def test_basic_user_activity_playlist_1():
         "playlist": "nf97ng98bg9",
         "subscribedStatus": "SUBSCRIBED",
     }
-    m = data.ALL_PLAYLIST_METRICS
-    s = data.ALL_PLAYLIST_METRICS
+    m = data.ALL_PLAYLIST_METRICS_DEPRECATED
+    s = data.ALL_PLAYLIST_METRICS_DEPRECATED
     report.validate(d, f, m, s)
 
 
 def test_basic_user_activity_playlist_2():
     report = rt.BasicUserActivityPlaylist()
-    assert report.name == "Basic user activity for playlists"
+    assert report.name == "Basic user activity for playlists (deprecated)"
     d = []
     f = {
         "isCurated": "1",
@@ -61,38 +61,38 @@ def test_basic_user_activity_playlist_2():
         "subscribedStatus": "SUBSCRIBED",
         "youtubeProduct": "CORE",
     }
-    m = data.ALL_PLAYLIST_METRICS
-    s = data.ALL_PLAYLIST_METRICS
+    m = data.ALL_PLAYLIST_METRICS_DEPRECATED
+    s = data.ALL_PLAYLIST_METRICS_DEPRECATED
     report.validate(d, f, m, s)
 
 
 def test_basic_user_activity_playlist_3():
     report = rt.BasicUserActivityPlaylist()
-    assert report.name == "Basic user activity for playlists"
+    assert report.name == "Basic user activity for playlists (deprecated)"
     d = []
     f = {"isCurated": "1", "continent": "002"}
-    m = data.ALL_PLAYLIST_METRICS
-    s = data.ALL_PLAYLIST_METRICS
+    m = data.ALL_PLAYLIST_METRICS_DEPRECATED
+    s = data.ALL_PLAYLIST_METRICS_DEPRECATED
     report.validate(d, f, m, s)
 
 
 def test_basic_user_activity_playlist_4():
     report = rt.BasicUserActivityPlaylist()
-    assert report.name == "Basic user activity for playlists"
+    assert report.name == "Basic user activity for playlists (deprecated)"
     d = []
     f = {"isCurated": "1", "subContinent": "014"}
-    m = data.ALL_PLAYLIST_METRICS
-    s = data.ALL_PLAYLIST_METRICS
+    m = data.ALL_PLAYLIST_METRICS_DEPRECATED
+    s = data.ALL_PLAYLIST_METRICS_DEPRECATED
     report.validate(d, f, m, s)
 
 
 def test_basic_user_activity_playlist_5():
     report = rt.BasicUserActivityPlaylist()
-    assert report.name == "Basic user activity for playlists"
+    assert report.name == "Basic user activity for playlists (deprecated)"
     d = []
     f = {"isCurated": "1"}
-    m = data.ALL_PLAYLIST_METRICS
-    s = data.ALL_PLAYLIST_METRICS
+    m = data.ALL_PLAYLIST_METRICS_DEPRECATED
+    s = data.ALL_PLAYLIST_METRICS_DEPRECATED
     report.validate(d, f, m, s)
 
 
@@ -101,7 +101,7 @@ def test_basic_user_activity_playlist_5():
 
 def test_time_based_activity_playlist_1():
     report = rt.TimeBasedActivityPlaylist()
-    assert report.name == "Time-based activity for playlists"
+    assert report.name == "Time-based activity for playlists (deprecated)"
     d = ["day", "subscribedStatus"]
     f = {
         "isCurated": "1",
@@ -109,14 +109,14 @@ def test_time_based_activity_playlist_1():
         "playlist": "nf97ng98bg9",
         "subscribedStatus": "SUBSCRIBED",
     }
-    m = data.ALL_PLAYLIST_METRICS
-    s = data.ALL_PLAYLIST_METRICS
+    m = data.ALL_PLAYLIST_METRICS_DEPRECATED
+    s = data.ALL_PLAYLIST_METRICS_DEPRECATED
     report.validate(d, f, m, s)
 
 
 def test_time_based_activity_playlist_2():
     report = rt.TimeBasedActivityPlaylist()
-    assert report.name == "Time-based activity for playlists"
+    assert report.name == "Time-based activity for playlists (deprecated)"
     d = ["month", "subscribedStatus", "youtubeProduct"]
     f = {
         "isCurated": "1",
@@ -125,38 +125,38 @@ def test_time_based_activity_playlist_2():
         "subscribedStatus": "SUBSCRIBED",
         "youtubeProduct": "CORE",
     }
-    m = data.ALL_PLAYLIST_METRICS
-    s = data.ALL_PLAYLIST_METRICS
+    m = data.ALL_PLAYLIST_METRICS_DEPRECATED
+    s = data.ALL_PLAYLIST_METRICS_DEPRECATED
     report.validate(d, f, m, s)
 
 
 def test_time_based_activity_playlist_3():
     report = rt.TimeBasedActivityPlaylist()
-    assert report.name == "Time-based activity for playlists"
+    assert report.name == "Time-based activity for playlists (deprecated)"
     d = ["day"]
     f = {"isCurated": "1", "continent": "002"}
-    m = data.ALL_PLAYLIST_METRICS
-    s = data.ALL_PLAYLIST_METRICS
+    m = data.ALL_PLAYLIST_METRICS_DEPRECATED
+    s = data.ALL_PLAYLIST_METRICS_DEPRECATED
     report.validate(d, f, m, s)
 
 
 def test_time_based_activity_playlist_4():
     report = rt.TimeBasedActivityPlaylist()
-    assert report.name == "Time-based activity for playlists"
+    assert report.name == "Time-based activity for playlists (deprecated)"
     d = ["month"]
     f = {"isCurated": "1", "subContinent": "014"}
-    m = data.ALL_PLAYLIST_METRICS
-    s = data.ALL_PLAYLIST_METRICS
+    m = data.ALL_PLAYLIST_METRICS_DEPRECATED
+    s = data.ALL_PLAYLIST_METRICS_DEPRECATED
     report.validate(d, f, m, s)
 
 
 def test_time_based_activity_playlist_5():
     report = rt.TimeBasedActivityPlaylist()
-    assert report.name == "Time-based activity for playlists"
+    assert report.name == "Time-based activity for playlists (deprecated)"
     d = ["day"]
     f = {"isCurated": "1"}
-    m = data.ALL_PLAYLIST_METRICS
-    s = data.ALL_PLAYLIST_METRICS
+    m = data.ALL_PLAYLIST_METRICS_DEPRECATED
+    s = data.ALL_PLAYLIST_METRICS_DEPRECATED
     report.validate(d, f, m, s)
 
 
@@ -165,7 +165,7 @@ def test_time_based_activity_playlist_5():
 
 def test_geography_based_activity_playlist_1():
     report = rt.GeographyBasedActivityPlaylist()
-    assert report.name == "Geography-based activity for playlists"
+    assert report.name == "Geography-based activity for playlists (deprecated)"
     d = ["country", "subscribedStatus"]
     f = {
         "isCurated": "1",
@@ -173,14 +173,14 @@ def test_geography_based_activity_playlist_1():
         "playlist": "nf97ng98bg9",
         "subscribedStatus": "SUBSCRIBED",
     }
-    m = data.ALL_PLAYLIST_METRICS
-    s = data.ALL_PLAYLIST_METRICS
+    m = data.ALL_PLAYLIST_METRICS_DEPRECATED
+    s = data.ALL_PLAYLIST_METRICS_DEPRECATED
     report.validate(d, f, m, s)
 
 
 def test_geography_based_activity_playlist_2():
     report = rt.GeographyBasedActivityPlaylist()
-    assert report.name == "Geography-based activity for playlists"
+    assert report.name == "Geography-based activity for playlists (deprecated)"
     d = ["country", "subscribedStatus", "youtubeProduct"]
     f = {
         "isCurated": "1",
@@ -189,18 +189,18 @@ def test_geography_based_activity_playlist_2():
         "subscribedStatus": "SUBSCRIBED",
         "youtubeProduct": "CORE",
     }
-    m = data.ALL_PLAYLIST_METRICS
-    s = data.ALL_PLAYLIST_METRICS
+    m = data.ALL_PLAYLIST_METRICS_DEPRECATED
+    s = data.ALL_PLAYLIST_METRICS_DEPRECATED
     report.validate(d, f, m, s)
 
 
 def test_geography_based_activity_playlist_3():
     report = rt.GeographyBasedActivityPlaylist()
-    assert report.name == "Geography-based activity for playlists"
+    assert report.name == "Geography-based activity for playlists (deprecated)"
     d = ["country"]
     f = {"isCurated": "1"}
-    m = data.ALL_PLAYLIST_METRICS
-    s = data.ALL_PLAYLIST_METRICS
+    m = data.ALL_PLAYLIST_METRICS_DEPRECATED
+    s = data.ALL_PLAYLIST_METRICS_DEPRECATED
     report.validate(d, f, m, s)
 
 
@@ -209,7 +209,7 @@ def test_geography_based_activity_playlist_3():
 
 def test_geography_based_activity_us_playlist_1():
     report = rt.GeographyBasedActivityUSPlaylist()
-    assert report.name == "Geography-based activity for playlists (US)"
+    assert report.name == "Geography-based activity for playlists (US) (deprecated)"
     d = ["province", "subscribedStatus"]
     f = {
         "isCurated": "1",
@@ -217,14 +217,14 @@ def test_geography_based_activity_us_playlist_1():
         "playlist": "nf97ng98bg9",
         "subscribedStatus": "SUBSCRIBED",
     }
-    m = data.ALL_PLAYLIST_METRICS
-    s = data.ALL_PLAYLIST_METRICS
+    m = data.ALL_PLAYLIST_METRICS_DEPRECATED
+    s = data.ALL_PLAYLIST_METRICS_DEPRECATED
     report.validate(d, f, m, s)
 
 
 def test_geography_based_activity_us_playlist_2():
     report = rt.GeographyBasedActivityUSPlaylist()
-    assert report.name == "Geography-based activity for playlists (US)"
+    assert report.name == "Geography-based activity for playlists (US) (deprecated)"
     d = ["province", "subscribedStatus", "youtubeProduct"]
     f = {
         "isCurated": "1",
@@ -233,18 +233,18 @@ def test_geography_based_activity_us_playlist_2():
         "subscribedStatus": "SUBSCRIBED",
         "youtubeProduct": "CORE",
     }
-    m = data.ALL_PLAYLIST_METRICS
-    s = data.ALL_PLAYLIST_METRICS
+    m = data.ALL_PLAYLIST_METRICS_DEPRECATED
+    s = data.ALL_PLAYLIST_METRICS_DEPRECATED
     report.validate(d, f, m, s)
 
 
 def test_geography_based_activity_us_playlist_3():
     report = rt.GeographyBasedActivityUSPlaylist()
-    assert report.name == "Geography-based activity for playlists (US)"
+    assert report.name == "Geography-based activity for playlists (US) (deprecated)"
     d = ["province"]
     f = {"isCurated": "1", "country": "US"}
-    m = data.ALL_PLAYLIST_METRICS
-    s = data.ALL_PLAYLIST_METRICS
+    m = data.ALL_PLAYLIST_METRICS_DEPRECATED
+    s = data.ALL_PLAYLIST_METRICS_DEPRECATED
     report.validate(d, f, m, s)
 
 
@@ -253,7 +253,7 @@ def test_geography_based_activity_us_playlist_3():
 
 def test_playback_location_playlist_1():
     report = rt.PlaybackLocationPlaylist()
-    assert report.name == "Playback locations for playlists"
+    assert report.name == "Playback locations for playlists (deprecated)"
     d = ["insightPlaybackLocationType", "day"]
     f = {
         "isCurated": "1",
@@ -261,48 +261,48 @@ def test_playback_location_playlist_1():
         "playlist": "nf97ng98bg9",
         "subscribedStatus": "SUBSCRIBED",
     }
-    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
-    s = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
+    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
+    s = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
     report.validate(d, f, m, s)
 
 
 def test_playback_location_playlist_2():
     report = rt.PlaybackLocationPlaylist()
-    assert report.name == "Playback locations for playlists"
+    assert report.name == "Playback locations for playlists (deprecated)"
     d = ["insightPlaybackLocationType", "day", "subscribedStatus"]
     f = {"isCurated": "1", "province": "US-OH", "group": "nf97ng98bg9"}
-    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
-    s = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
+    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
+    s = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
     report.validate(d, f, m, s)
 
 
 def test_playback_location_playlist_3():
     report = rt.PlaybackLocationPlaylist()
-    assert report.name == "Playback locations for playlists"
+    assert report.name == "Playback locations for playlists (deprecated)"
     d = ["insightPlaybackLocationType"]
     f = {"isCurated": "1", "continent": "002"}
-    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
-    s = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
+    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
+    s = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
     report.validate(d, f, m, s)
 
 
 def test_playback_location_playlist_4():
     report = rt.PlaybackLocationPlaylist()
-    assert report.name == "Playback locations for playlists"
+    assert report.name == "Playback locations for playlists (deprecated)"
     d = ["insightPlaybackLocationType"]
     f = {"isCurated": "1", "subContinent": "014"}
-    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
-    s = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
+    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
+    s = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
     report.validate(d, f, m, s)
 
 
 def test_playback_location_playlist_5():
     report = rt.PlaybackLocationPlaylist()
-    assert report.name == "Playback locations for playlists"
+    assert report.name == "Playback locations for playlists (deprecated)"
     d = ["insightPlaybackLocationType"]
     f = {"isCurated": "1"}
-    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
-    s = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
+    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
+    s = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
     report.validate(d, f, m, s)
 
 
@@ -311,7 +311,7 @@ def test_playback_location_playlist_5():
 
 def test_playback_location_detail_playlist_1():
     report = rt.PlaybackLocationDetailPlaylist()
-    assert report.name == "Playback locations for playlists (detailed)"
+    assert report.name == "Playback locations for playlists (detailed) (deprecated)"
     d = ["insightPlaybackLocationDetail"]
     f = {
         "isCurated": "1",
@@ -320,14 +320,14 @@ def test_playback_location_detail_playlist_1():
         "playlist": "nf97ng98bg9",
         "subscribedStatus": "SUBSCRIBED",
     }
-    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
-    s = [f"-{o}" for o in data.LOCATION_AND_TRAFFIC_PLAYLIST_SORT_OPTIONS]
+    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
+    s = [f"-{o}" for o in data.LOCATION_AND_TRAFFIC_PLAYLIST_SORT_OPTIONS_DEPRECATED]
     report.validate(d, f, m, s, 25)
 
 
 def test_playback_location_detail_playlist_2():
     report = rt.PlaybackLocationDetailPlaylist()
-    assert report.name == "Playback locations for playlists (detailed)"
+    assert report.name == "Playback locations for playlists (detailed) (deprecated)"
     d = ["insightPlaybackLocationDetail"]
     f = {
         "isCurated": "1",
@@ -335,49 +335,49 @@ def test_playback_location_detail_playlist_2():
         "province": "US-OH",
         "group": "nf97ng98bg9",
     }
-    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
-    s = [f"-{o}" for o in data.LOCATION_AND_TRAFFIC_PLAYLIST_SORT_OPTIONS]
+    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
+    s = [f"-{o}" for o in data.LOCATION_AND_TRAFFIC_PLAYLIST_SORT_OPTIONS_DEPRECATED]
     report.validate(d, f, m, s, 25)
 
 
 def test_playback_location_detail_playlist_3():
     report = rt.PlaybackLocationDetailPlaylist()
-    assert report.name == "Playback locations for playlists (detailed)"
+    assert report.name == "Playback locations for playlists (detailed) (deprecated)"
     d = ["insightPlaybackLocationDetail"]
     f = {
         "isCurated": "1",
         "insightPlaybackLocationType": "EMBEDDED",
         "continent": "002",
     }
-    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
-    s = [f"-{o}" for o in data.LOCATION_AND_TRAFFIC_PLAYLIST_SORT_OPTIONS]
+    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
+    s = [f"-{o}" for o in data.LOCATION_AND_TRAFFIC_PLAYLIST_SORT_OPTIONS_DEPRECATED]
     report.validate(d, f, m, s, 25)
 
 
 def test_playback_location_detail_playlist_4():
     report = rt.PlaybackLocationDetailPlaylist()
-    assert report.name == "Playback locations for playlists (detailed)"
+    assert report.name == "Playback locations for playlists (detailed) (deprecated)"
     d = ["insightPlaybackLocationDetail"]
     f = {
         "isCurated": "1",
         "insightPlaybackLocationType": "EMBEDDED",
         "subContinent": "014",
     }
-    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
-    s = [f"-{o}" for o in data.LOCATION_AND_TRAFFIC_PLAYLIST_SORT_OPTIONS]
+    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
+    s = [f"-{o}" for o in data.LOCATION_AND_TRAFFIC_PLAYLIST_SORT_OPTIONS_DEPRECATED]
     report.validate(d, f, m, s, 25)
 
 
 def test_playback_location_detail_playlist_5():
     report = rt.PlaybackLocationDetailPlaylist()
-    assert report.name == "Playback locations for playlists (detailed)"
+    assert report.name == "Playback locations for playlists (detailed) (deprecated)"
     d = ["insightPlaybackLocationDetail"]
     f = {
         "isCurated": "1",
         "insightPlaybackLocationType": "EMBEDDED",
     }
-    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
-    s = [f"-{o}" for o in data.LOCATION_AND_TRAFFIC_PLAYLIST_SORT_OPTIONS]
+    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
+    s = [f"-{o}" for o in data.LOCATION_AND_TRAFFIC_PLAYLIST_SORT_OPTIONS_DEPRECATED]
     report.validate(d, f, m, s, 25)
 
 
@@ -386,7 +386,7 @@ def test_playback_location_detail_playlist_5():
 
 def test_traffic_source_playlist_1():
     report = rt.TrafficSourcePlaylist()
-    assert report.name == "Traffic sources for playlists"
+    assert report.name == "Traffic sources for playlists (deprecated)"
     d = ["insightTrafficSourceType", "day"]
     f = {
         "isCurated": "1",
@@ -394,48 +394,48 @@ def test_traffic_source_playlist_1():
         "playlist": "nf97ng98bg9",
         "subscribedStatus": "SUBSCRIBED",
     }
-    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
-    s = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
+    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
+    s = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
     report.validate(d, f, m, s)
 
 
 def test_traffic_source_playlist_2():
     report = rt.TrafficSourcePlaylist()
-    assert report.name == "Traffic sources for playlists"
+    assert report.name == "Traffic sources for playlists (deprecated)"
     d = ["insightTrafficSourceType", "day", "subscribedStatus"]
     f = {"isCurated": "1", "province": "US-OH", "group": "nf97ng98bg9"}
-    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
-    s = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
+    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
+    s = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
     report.validate(d, f, m, s)
 
 
 def test_traffic_source_playlist_3():
     report = rt.TrafficSourcePlaylist()
-    assert report.name == "Traffic sources for playlists"
+    assert report.name == "Traffic sources for playlists (deprecated)"
     d = ["insightTrafficSourceType"]
     f = {"isCurated": "1", "continent": "002"}
-    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
-    s = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
+    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
+    s = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
     report.validate(d, f, m, s)
 
 
 def test_traffic_source_playlist_4():
     report = rt.TrafficSourcePlaylist()
-    assert report.name == "Traffic sources for playlists"
+    assert report.name == "Traffic sources for playlists (deprecated)"
     d = ["insightTrafficSourceType"]
     f = {"isCurated": "1", "subContinent": "014"}
-    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
-    s = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
+    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
+    s = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
     report.validate(d, f, m, s)
 
 
 def test_traffic_source_playlist_5():
     report = rt.TrafficSourcePlaylist()
-    assert report.name == "Traffic sources for playlists"
+    assert report.name == "Traffic sources for playlists (deprecated)"
     d = ["insightTrafficSourceType"]
     f = {"isCurated": "1"}
-    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
-    s = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
+    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
+    s = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
     report.validate(d, f, m, s)
 
 
@@ -444,7 +444,7 @@ def test_traffic_source_playlist_5():
 
 def test_traffic_source_detail_playlist_1():
     report = rt.TrafficSourceDetailPlaylist()
-    assert report.name == "Traffic sources for playlists (detailed)"
+    assert report.name == "Traffic sources for playlists (detailed) (deprecated)"
     d = ["insightTrafficSourceDetail"]
     f = {
         "isCurated": "1",
@@ -453,14 +453,14 @@ def test_traffic_source_detail_playlist_1():
         "playlist": "nf97ng98bg9",
         "subscribedStatus": "SUBSCRIBED",
     }
-    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
-    s = [f"-{o}" for o in data.LOCATION_AND_TRAFFIC_PLAYLIST_SORT_OPTIONS]
+    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
+    s = [f"-{o}" for o in data.LOCATION_AND_TRAFFIC_PLAYLIST_SORT_OPTIONS_DEPRECATED]
     report.validate(d, f, m, s, 25)
 
 
 def test_traffic_source_detail_playlist_2():
     report = rt.TrafficSourceDetailPlaylist()
-    assert report.name == "Traffic sources for playlists (detailed)"
+    assert report.name == "Traffic sources for playlists (detailed) (deprecated)"
     d = ["insightTrafficSourceDetail"]
     f = {
         "isCurated": "1",
@@ -468,55 +468,55 @@ def test_traffic_source_detail_playlist_2():
         "province": "US-OH",
         "group": "nf97ng98bg9",
     }
-    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
-    s = [f"-{o}" for o in data.LOCATION_AND_TRAFFIC_PLAYLIST_SORT_OPTIONS]
+    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
+    s = [f"-{o}" for o in data.LOCATION_AND_TRAFFIC_PLAYLIST_SORT_OPTIONS_DEPRECATED]
     report.validate(d, f, m, s, 25)
 
 
 def test_traffic_source_detail_playlist_3():
     report = rt.TrafficSourceDetailPlaylist()
-    assert report.name == "Traffic sources for playlists (detailed)"
+    assert report.name == "Traffic sources for playlists (detailed) (deprecated)"
     d = ["insightTrafficSourceDetail"]
     f = {
         "isCurated": "1",
         "insightTrafficSourceType": "ADVERTISING",
         "continent": "002",
     }
-    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
-    s = [f"-{o}" for o in data.LOCATION_AND_TRAFFIC_PLAYLIST_SORT_OPTIONS]
+    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
+    s = [f"-{o}" for o in data.LOCATION_AND_TRAFFIC_PLAYLIST_SORT_OPTIONS_DEPRECATED]
     report.validate(d, f, m, s, 25)
 
 
 def test_traffic_source_detail_playlist_4():
     report = rt.TrafficSourceDetailPlaylist()
-    assert report.name == "Traffic sources for playlists (detailed)"
+    assert report.name == "Traffic sources for playlists (detailed) (deprecated)"
     d = ["insightTrafficSourceDetail"]
     f = {
         "isCurated": "1",
         "insightTrafficSourceType": "ADVERTISING",
         "subContinent": "014",
     }
-    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
-    s = [f"-{o}" for o in data.LOCATION_AND_TRAFFIC_PLAYLIST_SORT_OPTIONS]
+    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
+    s = [f"-{o}" for o in data.LOCATION_AND_TRAFFIC_PLAYLIST_SORT_OPTIONS_DEPRECATED]
     report.validate(d, f, m, s, 25)
 
 
 def test_traffic_source_detail_playlist_5():
     report = rt.TrafficSourceDetailPlaylist()
-    assert report.name == "Traffic sources for playlists (detailed)"
+    assert report.name == "Traffic sources for playlists (detailed) (deprecated)"
     d = ["insightTrafficSourceDetail"]
     f = {
         "isCurated": "1",
         "insightTrafficSourceType": "ADVERTISING",
     }
-    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
-    s = [f"-{o}" for o in data.LOCATION_AND_TRAFFIC_PLAYLIST_SORT_OPTIONS]
+    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
+    s = [f"-{o}" for o in data.LOCATION_AND_TRAFFIC_PLAYLIST_SORT_OPTIONS_DEPRECATED]
     report.validate(d, f, m, s, 25)
 
 
 def test_traffic_source_detail_playlist_invalid_source():
     report = rt.TrafficSourceDetailPlaylist()
-    assert report.name == "Traffic sources for playlists (detailed)"
+    assert report.name == "Traffic sources for playlists (detailed) (deprecated)"
     d = ["insightTrafficSourceDetail"]
     f = {"isCurated": "1", "insightTrafficSourceType": "ANNOTATION"}
     m = data.LOCATION_AND_TRAFFIC_METRICS
@@ -534,7 +534,7 @@ def test_traffic_source_detail_playlist_invalid_source():
 
 def test_device_type_playlist_1():
     report = rt.DeviceTypePlaylist()
-    assert report.name == "Device types for playlists"
+    assert report.name == "Device types for playlists (deprecated)"
     d = ["deviceType", "day"]
     f = {
         "isCurated": "1",
@@ -542,14 +542,14 @@ def test_device_type_playlist_1():
         "playlist": "nf97ng98bg9",
         "operatingSystem": "WINDOWS",
     }
-    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
-    s = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
+    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
+    s = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
     report.validate(d, f, m, s)
 
 
 def test_device_type_playlist_2():
     report = rt.DeviceTypePlaylist()
-    assert report.name == "Device types for playlists"
+    assert report.name == "Device types for playlists (deprecated)"
     d = ["deviceType", "day", "subscribedStatus"]
     f = {
         "isCurated": "1",
@@ -558,14 +558,14 @@ def test_device_type_playlist_2():
         "operatingSystem": "WINDOWS",
         "subscribedStatus": "SUBSCRIBED",
     }
-    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
-    s = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
+    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
+    s = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
     report.validate(d, f, m, s)
 
 
 def test_device_type_playlist_3():
     report = rt.DeviceTypePlaylist()
-    assert report.name == "Device types for playlists"
+    assert report.name == "Device types for playlists (deprecated)"
     d = ["deviceType", "day", "subscribedStatus", "youtubeProduct"]
     f = {
         "isCurated": "1",
@@ -574,28 +574,28 @@ def test_device_type_playlist_3():
         "subscribedStatus": "SUBSCRIBED",
         "youtubeProduct": "CORE",
     }
-    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
-    s = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
+    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
+    s = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
     report.validate(d, f, m, s)
 
 
 def test_device_type_playlist_4():
     report = rt.DeviceTypePlaylist()
-    assert report.name == "Device types for playlists"
+    assert report.name == "Device types for playlists (deprecated)"
     d = ["deviceType"]
     f = {"isCurated": "1", "subContinent": "014"}
-    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
-    s = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
+    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
+    s = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
     report.validate(d, f, m, s)
 
 
 def test_device_type_playlist_5():
     report = rt.DeviceTypePlaylist()
-    assert report.name == "Device types for playlists"
+    assert report.name == "Device types for playlists (deprecated)"
     d = ["deviceType"]
     f = {"isCurated": "1"}
-    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
-    s = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
+    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
+    s = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
     report.validate(d, f, m, s)
 
 
@@ -604,7 +604,7 @@ def test_device_type_playlist_5():
 
 def test_operating_system_playlist_1():
     report = rt.OperatingSystemPlaylist()
-    assert report.name == "Operating systems for playlists"
+    assert report.name == "Operating systems for playlists (deprecated)"
     d = ["operatingSystem", "day"]
     f = {
         "isCurated": "1",
@@ -612,14 +612,14 @@ def test_operating_system_playlist_1():
         "playlist": "nf97ng98bg9",
         "deviceType": "MOBILE",
     }
-    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
-    s = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
+    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
+    s = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
     report.validate(d, f, m, s)
 
 
 def test_operating_system_playlist_2():
     report = rt.OperatingSystemPlaylist()
-    assert report.name == "Operating systems for playlists"
+    assert report.name == "Operating systems for playlists (deprecated)"
     d = ["operatingSystem", "day", "subscribedStatus"]
     f = {
         "isCurated": "1",
@@ -628,14 +628,14 @@ def test_operating_system_playlist_2():
         "deviceType": "MOBILE",
         "subscribedStatus": "SUBSCRIBED",
     }
-    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
-    s = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
+    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
+    s = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
     report.validate(d, f, m, s)
 
 
 def test_operating_system_playlist_3():
     report = rt.OperatingSystemPlaylist()
-    assert report.name == "Operating systems for playlists"
+    assert report.name == "Operating systems for playlists (deprecated)"
     d = ["operatingSystem", "day", "subscribedStatus", "youtubeProduct"]
     f = {
         "isCurated": "1",
@@ -644,28 +644,28 @@ def test_operating_system_playlist_3():
         "subscribedStatus": "SUBSCRIBED",
         "youtubeProduct": "CORE",
     }
-    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
-    s = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
+    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
+    s = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
     report.validate(d, f, m, s)
 
 
 def test_operating_system_playlist_4():
     report = rt.OperatingSystemPlaylist()
-    assert report.name == "Operating systems for playlists"
+    assert report.name == "Operating systems for playlists (deprecated)"
     d = ["operatingSystem"]
     f = {"isCurated": "1", "subContinent": "014"}
-    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
-    s = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
+    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
+    s = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
     report.validate(d, f, m, s)
 
 
 def test_operating_system_playlist_5():
     report = rt.OperatingSystemPlaylist()
-    assert report.name == "Operating systems for playlists"
+    assert report.name == "Operating systems for playlists (deprecated)"
     d = ["operatingSystem"]
     f = {"isCurated": "1"}
-    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
-    s = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
+    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
+    s = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
     report.validate(d, f, m, s)
 
 
@@ -674,21 +674,25 @@ def test_operating_system_playlist_5():
 
 def test_device_type_and_operating_system_playlist_1():
     report = rt.DeviceTypeAndOperatingSystemPlaylist()
-    assert report.name == "Device types and operating systems for playlists"
+    assert (
+        report.name == "Device types and operating systems for playlists (deprecated)"
+    )
     d = ["deviceType", "operatingSystem", "day"]
     f = {
         "isCurated": "1",
         "country": "US",
         "playlist": "nf97ng98bg9",
     }
-    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
-    s = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
+    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
+    s = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
     report.validate(d, f, m, s)
 
 
 def test_device_type_and_operating_system_playlist_2():
     report = rt.DeviceTypeAndOperatingSystemPlaylist()
-    assert report.name == "Device types and operating systems for playlists"
+    assert (
+        report.name == "Device types and operating systems for playlists (deprecated)"
+    )
     d = ["deviceType", "operatingSystem", "day", "subscribedStatus"]
     f = {
         "isCurated": "1",
@@ -696,14 +700,16 @@ def test_device_type_and_operating_system_playlist_2():
         "group": "nf97ng98bg9",
         "subscribedStatus": "SUBSCRIBED",
     }
-    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
-    s = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
+    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
+    s = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
     report.validate(d, f, m, s)
 
 
 def test_device_type_and_operating_system_playlist_3():
     report = rt.DeviceTypeAndOperatingSystemPlaylist()
-    assert report.name == "Device types and operating systems for playlists"
+    assert (
+        report.name == "Device types and operating systems for playlists (deprecated)"
+    )
     d = ["deviceType", "operatingSystem", "day", "subscribedStatus", "youtubeProduct"]
     f = {
         "isCurated": "1",
@@ -711,28 +717,32 @@ def test_device_type_and_operating_system_playlist_3():
         "subscribedStatus": "SUBSCRIBED",
         "youtubeProduct": "CORE",
     }
-    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
-    s = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
+    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
+    s = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
     report.validate(d, f, m, s)
 
 
 def test_device_type_and_operating_system_playlist_4():
     report = rt.DeviceTypeAndOperatingSystemPlaylist()
-    assert report.name == "Device types and operating systems for playlists"
+    assert (
+        report.name == "Device types and operating systems for playlists (deprecated)"
+    )
     d = ["deviceType", "operatingSystem"]
     f = {"isCurated": "1", "subContinent": "014"}
-    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
-    s = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
+    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
+    s = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
     report.validate(d, f, m, s)
 
 
 def test_device_type_and_operating_system_playlist_5():
     report = rt.DeviceTypeAndOperatingSystemPlaylist()
-    assert report.name == "Device types and operating systems for playlists"
+    assert (
+        report.name == "Device types and operating systems for playlists (deprecated)"
+    )
     d = ["deviceType", "operatingSystem"]
     f = {"isCurated": "1"}
-    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
-    s = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS
+    m = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
+    s = data.LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED
     report.validate(d, f, m, s)
 
 
@@ -741,7 +751,7 @@ def test_device_type_and_operating_system_playlist_5():
 
 def test_viewer_demographics_playlist_1():
     report = rt.ViewerDemographicsPlaylist()
-    assert report.name == "Viewer demographics for playlists"
+    assert report.name == "Viewer demographics for playlists (deprecated)"
     d = ["ageGroup", "subscribedStatus"]
     f = {
         "isCurated": "1",
@@ -756,7 +766,7 @@ def test_viewer_demographics_playlist_1():
 
 def test_viewer_demographics_playlist_2():
     report = rt.ViewerDemographicsPlaylist()
-    assert report.name == "Viewer demographics for playlists"
+    assert report.name == "Viewer demographics for playlists (deprecated)"
     d = ["ageGroup", "gender"]
     f = {
         "isCurated": "1",
@@ -770,7 +780,7 @@ def test_viewer_demographics_playlist_2():
 
 def test_viewer_demographics_playlist_3():
     report = rt.ViewerDemographicsPlaylist()
-    assert report.name == "Viewer demographics for playlists"
+    assert report.name == "Viewer demographics for playlists (deprecated)"
     d = ["gender"]
     f = {"isCurated": "1", "continent": "002"}
     m = ["viewerPercentage"]
@@ -780,7 +790,7 @@ def test_viewer_demographics_playlist_3():
 
 def test_viewer_demographics_playlist_4():
     report = rt.ViewerDemographicsPlaylist()
-    assert report.name == "Viewer demographics for playlists"
+    assert report.name == "Viewer demographics for playlists (deprecated)"
     d = ["gender"]
     f = {"isCurated": "1", "subContinent": "014"}
     m = ["viewerPercentage"]
@@ -790,7 +800,7 @@ def test_viewer_demographics_playlist_4():
 
 def test_viewer_demographics_playlist_5():
     report = rt.ViewerDemographicsPlaylist()
-    assert report.name == "Viewer demographics for playlists"
+    assert report.name == "Viewer demographics for playlists (deprecated)"
     d = ["gender"]
     f = {"isCurated": "1"}
     m = ["viewerPercentage"]
@@ -803,21 +813,21 @@ def test_viewer_demographics_playlist_5():
 
 def test_top_playlists_1():
     report = rt.TopPlaylists()
-    assert report.name == "Top playlists"
+    assert report.name == "Top playlists (deprecated)"
     d = ["playlist"]
     f = {
         "isCurated": "1",
         "country": "US",
         "playlist": "nf97ng98bg9",
     }
-    m = data.ALL_PLAYLIST_METRICS
+    m = data.ALL_PLAYLIST_METRICS_DEPRECATED
     s = [f"-{o}" for o in data.TOP_VIDEOS_SORT_OPTIONS]
     report.validate(d, f, m, s, 200)
 
 
 def test_top_playlists_2():
     report = rt.TopPlaylists()
-    assert report.name == "Top playlists"
+    assert report.name == "Top playlists (deprecated)"
     d = ["playlist"]
     f = {
         "isCurated": "1",
@@ -825,14 +835,14 @@ def test_top_playlists_2():
         "playlist": "nf97ng98bg9",
         "subscribedStatus": "SUBSCRIBED",
     }
-    m = data.ALL_PLAYLIST_METRICS
+    m = data.ALL_PLAYLIST_METRICS_DEPRECATED
     s = [f"-{o}" for o in data.TOP_VIDEOS_SORT_OPTIONS]
     report.validate(d, f, m, s, 200)
 
 
 def test_top_playlists_3():
     report = rt.TopPlaylists()
-    assert report.name == "Top playlists"
+    assert report.name == "Top playlists (deprecated)"
     d = ["playlist"]
     f = {
         "isCurated": "1",
@@ -841,26 +851,26 @@ def test_top_playlists_3():
         "subscribedStatus": "SUBSCRIBED",
         "youtubeProduct": "CORE",
     }
-    m = data.ALL_PLAYLIST_METRICS
+    m = data.ALL_PLAYLIST_METRICS_DEPRECATED
     s = [f"-{o}" for o in data.TOP_VIDEOS_SORT_OPTIONS]
     report.validate(d, f, m, s, 200)
 
 
 def test_top_playlists_4():
     report = rt.TopPlaylists()
-    assert report.name == "Top playlists"
+    assert report.name == "Top playlists (deprecated)"
     d = ["playlist"]
     f = {"isCurated": "1", "subContinent": "014"}
-    m = data.ALL_PLAYLIST_METRICS
+    m = data.ALL_PLAYLIST_METRICS_DEPRECATED
     s = [f"-{o}" for o in data.TOP_VIDEOS_SORT_OPTIONS]
     report.validate(d, f, m, s, 200)
 
 
 def test_top_playlists_5():
     report = rt.TopPlaylists()
-    assert report.name == "Top playlists"
+    assert report.name == "Top playlists (deprecated)"
     d = ["playlist"]
     f = {"isCurated": "1"}
-    m = data.ALL_PLAYLIST_METRICS
+    m = data.ALL_PLAYLIST_METRICS_DEPRECATED
     s = [f"-{o}" for o in data.TOP_VIDEOS_SORT_OPTIONS]
     report.validate(d, f, m, s, 200)
