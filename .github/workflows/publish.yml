@@ -40,7 +40,7 @@ jobs:
     - name: Upload artefacts to workflow
       uses: actions/upload-artifact@v4
       with:
-        name: artefacts
+        name: artefacts-${{ github.sha }}
         path: dist/
 
   publish:
@@ -70,7 +70,7 @@ jobs:
     - name: Download artefacts
       uses: actions/download-artifact@v4
       with:
-        name: artefacts
+        name: artefacts-${{ github.sha }}
         path: dist/
 
     - name: Attach artefacts to release

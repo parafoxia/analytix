@@ -94,7 +94,7 @@ jobs:
       - name: Upload coverage to action
         uses: actions/upload-artifact@v4
         with:
-          name: coverage
+          name: coverage-${{ matrix.os }}-${{ matrix.python-version }}
           path: .coverage.${{ matrix.os }}.${{ matrix.python-version }}
           retention-days: 1
           if-no-files-found: error
@@ -119,8 +119,6 @@ jobs:
 
       - name: Download coverage
         uses: actions/download-artifact@v4
-        with:
-          name: coverage
 
       - name: Combine coverage
         run: |
