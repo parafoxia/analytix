@@ -77,7 +77,7 @@ class ReportQuery:
         end_date: Optional[dt.date] = None,
         currency: str = "USD",
         start_index: int = 1,
-        include_historical_data: bool = False,
+        include_historical_data: bool = False,  # noqa: FBT001, FBT002
     ) -> None:
         self.dimensions = dimensions or ()
         self.filters = filters or {}
@@ -127,7 +127,7 @@ class ReportQuery:
 
         if self.max_results < 0:
             raise InvalidRequest(
-                "the max results should be non-negative (0 for unlimited results)"
+                "the max results should be non-negative (0 for unlimited results)",
             )
 
         if not isinstance(self._start_date, dt.date):
@@ -155,7 +155,7 @@ class ReportQuery:
 
         if self.currency not in data.CURRENCIES:
             raise InvalidRequest(
-                f"expected a valid ISO 4217 currency code, got {self.currency!r}"
+                f"expected a valid ISO 4217 currency code, got {self.currency!r}",
             )
 
         if self.start_index < 1:
@@ -200,7 +200,7 @@ class ReportQuery:
 
         return bool(
             self.filters.get("group")
-            and any(m in data.ALL_PLAYLIST_METRICS for m in self.metrics)
+            and any(m in data.ALL_PLAYLIST_METRICS for m in self.metrics),
         )
 
     def _determine_video_report_type(self) -> "ReportType":
@@ -298,7 +298,7 @@ class ReportQuery:
 
         return rt.BasicUserActivity()
 
-    def _determine_playlist_report_type(self, deprecated: bool) -> "ReportType":
+    def _determine_playlist_report_type(self, *, deprecated: bool) -> "ReportType":
         if deprecated:
             from analytix import __docs__
 

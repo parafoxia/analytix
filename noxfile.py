@@ -140,7 +140,7 @@ def licensing(session: nox.Session) -> None:
     if errors:
         session.error(
             f"\n{len(errors):,} file(s) are missing their licenses:\n"
-            + "\n".join(f" - {file}" for file in errors)
+            + "\n".join(f" - {file}" for file in errors),
         )
 
 

@@ -122,7 +122,7 @@ class SortOptions(abc.FeatureType, _CompareMixin):
         if self.descending_only and {i for i in inputs if not i.startswith("-")}:
             raise InvalidRequest(
                 "dimensions and filters are incompatible with ascending sort "
-                "options (hint: prefix with '-')"
+                "options (hint: prefix with '-')",
             )
 
 
@@ -186,7 +186,10 @@ class Required(abc.SetType, _CompareMixin):
             return
 
         raise InvalidRequest.invalid_set(
-            "dimension", self.values, "all", len(inputs & self.values)
+            "dimension",
+            self.values,
+            "all",
+            len(inputs & self.values),
         )
 
     def validate_filters(self, keys: Set[str]) -> None:
@@ -194,7 +197,10 @@ class Required(abc.SetType, _CompareMixin):
             return
 
         raise InvalidRequest.invalid_set(
-            "filter", self.values, "all", len(keys & self.values)
+            "filter",
+            self.values,
+            "all",
+            len(keys & self.values),
         )
 
 
@@ -204,7 +210,10 @@ class ExactlyOne(abc.SetType, _CompareMixin):
             return
 
         raise InvalidRequest.invalid_set(
-            "dimension", self.values, "1", len(inputs & self.values)
+            "dimension",
+            self.values,
+            "1",
+            len(inputs & self.values),
         )
 
     def validate_filters(self, keys: Set[str]) -> None:
@@ -212,7 +221,10 @@ class ExactlyOne(abc.SetType, _CompareMixin):
             return
 
         raise InvalidRequest.invalid_set(
-            "filter", self.values, "1", len(keys & self.values)
+            "filter",
+            self.values,
+            "1",
+            len(keys & self.values),
         )
 
 
@@ -222,7 +234,10 @@ class OneOrMore(abc.SetType, _CompareMixin):
             return
 
         raise InvalidRequest.invalid_set(
-            "dimension", self.values, "at least 1", len(inputs & self.values)
+            "dimension",
+            self.values,
+            "at least 1",
+            len(inputs & self.values),
         )
 
     def validate_filters(self, keys: Set[str]) -> None:
@@ -230,7 +245,10 @@ class OneOrMore(abc.SetType, _CompareMixin):
             return
 
         raise InvalidRequest.invalid_set(
-            "filter", self.values, "at least 1", len(keys & self.values)
+            "filter",
+            self.values,
+            "at least 1",
+            len(keys & self.values),
         )
 
 
@@ -250,7 +268,10 @@ class ZeroOrOne(abc.SetType, _CompareMixin):
             return
 
         raise InvalidRequest.invalid_set(
-            "dimension", self.values, "0 or 1", len(inputs & self.values)
+            "dimension",
+            self.values,
+            "0 or 1",
+            len(inputs & self.values),
         )
 
     def validate_filters(self, keys: Set[str]) -> None:
@@ -258,7 +279,10 @@ class ZeroOrOne(abc.SetType, _CompareMixin):
             return
 
         raise InvalidRequest.invalid_set(
-            "filter", self.values, "0 or 1", len(keys & self.values)
+            "filter",
+            self.values,
+            "0 or 1",
+            len(keys & self.values),
         )
 
 

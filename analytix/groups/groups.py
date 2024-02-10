@@ -107,7 +107,7 @@ class Group(_Resource):
             data["etag"],
             data["id"],
             dt.datetime.fromisoformat(
-                data["snippet"]["publishedAt"].replace("Z", "+00:00")
+                data["snippet"]["publishedAt"].replace("Z", "+00:00"),
             ),
             data["snippet"]["title"],
             int(data["contentDetails"]["itemCount"]),

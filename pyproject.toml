@@ -32,32 +32,46 @@ exclude_lines = [
 ]
 
 [tool.ruff]
+show-fixes = true
+target-version = "py38"
+
+[tool.ruff.lint]
 extend-select = [
     "B",
     "BLE",
     "C4",
+    "COM",
+    # "CPY",
     "E",
     "ERA",
+    "FBT",
+    "FLY",
+    "G",
     "I",
     "ICN",
     "INP",
     "ISC",
+    "LOG",
     "N",
     "NPY",
+    "PERF",
     "PGH",
     "PIE",
     # "PTH",
+    "PYI",
     "Q",
     "RET",
     "RSE",
     "RUF",
     "S",
     "SIM",
+    "SLF",
+    "SLOT",
+    "T10",
     "T20",
     "TCH",
     "TID",
+    "UP",
     "YTT",
 ]
 ignore = ["E402", "B905", "N818", "S101"]
-show-fixes = true
-target-version = "py38"

@@ -116,7 +116,7 @@ class Scopes(Flag):
     def validate(self) -> None:
         if not (self.value & (1 << 0) or self.value & (1 << 1)):
             raise AuthorisationError(
-                "the READONLY or MONETARY_READONLY scope must be provided"
+                "the READONLY or MONETARY_READONLY scope must be provided",
             )
 
 
@@ -543,7 +543,9 @@ def run_flow(auth_params: Dict[str, str]) -> str:
 
     class RequestHandler(BaseHTTPRequestHandler):
         def log_request(
-            self, code: Union[int, str] = "-", _: Union[int, str] = "-"
+            self,
+            code: Union[int, str] = "-",
+            _: Union[int, str] = "-",
         ) -> None:
             _log.debug(f"Received request ({code})")
 

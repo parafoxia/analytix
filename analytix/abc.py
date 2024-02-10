@@ -94,7 +94,8 @@ class DetailedReportType(ReportType, metaclass=abc.ABCMeta):
             if max_results == 0:
                 raise InvalidRequest("expected a maximum number of results")
             raise InvalidRequest(
-                f"expected no more than {self.max_results} results, got {max_results:,}"
+                f"expected no more than {self.max_results} results, got "
+                f"{max_results:,}",
             )
 
         if self.max_results and start_index + max_results > self.max_results + 1:

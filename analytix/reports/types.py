@@ -122,7 +122,8 @@ class TimeBasedActivity(ReportType):
     def __init__(self) -> None:
         self.name = "Time-based activity"
         self.dimensions = Dimensions(
-            ExactlyOne("day", "month"), Optional("creatorContentType")
+            ExactlyOne("day", "month"),
+            Optional("creatorContentType"),
         )
         self.filters = Filters(
             ZeroOrOne("country", "continent", "subContinent"),
@@ -136,7 +137,8 @@ class TimeBasedActivityUS(ReportType):
     def __init__(self) -> None:
         self.name = "Time-based activity (US)"
         self.dimensions = Dimensions(
-            ExactlyOne("day", "month"), Optional("creatorContentType")
+            ExactlyOne("day", "month"),
+            Optional("creatorContentType"),
         )
         self.filters = Filters(
             Required("province"),
@@ -150,7 +152,8 @@ class GeographyBasedActivity(ReportType):
     def __init__(self) -> None:
         self.name = "Geography-based activity"
         self.dimensions = Dimensions(
-            Required("country"), Optional("creatorContentType")
+            Required("country"),
+            Optional("creatorContentType"),
         )
         self.filters = Filters(
             ZeroOrOne("continent", "subContinent"),
@@ -164,7 +167,8 @@ class GeographyBasedActivityUS(ReportType):
     def __init__(self) -> None:
         self.name = "Geography-based activity (US)"
         self.dimensions = Dimensions(
-            Required("province"), Optional("creatorContentType")
+            Required("province"),
+            Optional("creatorContentType"),
         )
         self.filters = Filters(
             Required("country==US"),
@@ -193,7 +197,8 @@ class GeographyBasedActivityByCity(DetailedReportType):
             "averageViewPercentage",
         )
         self.sort_options = SortOptions(
-            *data.LOCATION_AND_TRAFFIC_SORT_OPTIONS, descending_only=True
+            *data.LOCATION_AND_TRAFFIC_SORT_OPTIONS,
+            descending_only=True,
         )
         self.max_results = 25
 
@@ -220,7 +225,12 @@ class GeographyBasedActivityByCity(DetailedReportType):
             self.filters = Filters(Required("country==US"), ZeroOrOne("video", "group"))
 
         super().validate(
-            dimensions, filters, metrics, sort_options, max_results, start_index
+            dimensions,
+            filters,
+            metrics,
+            sort_options,
+            max_results,
+            start_index,
         )
 
 
@@ -372,7 +382,10 @@ class PlaybackLocation(ReportType):
         self.dimensions = Dimensions(
             Required("insightPlaybackLocationType"),
             ZeroOrMore(
-                "creatorContentType", "day", "liveOrOnDemand", "subscribedStatus"
+                "creatorContentType",
+                "day",
+                "liveOrOnDemand",
+                "subscribedStatus",
             ),
         )
         self.filters = Filters(
@@ -388,7 +401,8 @@ class PlaybackLocationDetail(DetailedReportType):
     def __init__(self) -> None:
         self.name = "Playback locations (detailed)"
         self.dimensions = Dimensions(
-            Required("insightPlaybackLocationDetail"), Optional("creatorContentType")
+            Required("insightPlaybackLocationDetail"),
+            Optional("creatorContentType"),
         )
         self.filters = Filters(
             Required("insightPlaybackLocationType==EMBEDDED"),
@@ -398,7 +412,8 @@ class PlaybackLocationDetail(DetailedReportType):
         )
         self.metrics = Metrics(*data.LOCATION_AND_TRAFFIC_METRICS)
         self.sort_options = SortOptions(
-            *data.LOCATION_AND_TRAFFIC_SORT_OPTIONS, descending_only=True
+            *data.LOCATION_AND_TRAFFIC_SORT_OPTIONS,
+            descending_only=True,
         )
         self.max_results = 25
 
@@ -409,7 +424,10 @@ class TrafficSource(ReportType):
         self.dimensions = Dimensions(
             Required("insightTrafficSourceType"),
             ZeroOrMore(
-                "creatorContentType", "day", "liveOrOnDemand", "subscribedStatus"
+                "creatorContentType",
+                "day",
+                "liveOrOnDemand",
+                "subscribedStatus",
             ),
         )
         self.filters = Filters(
@@ -425,7 +443,8 @@ class TrafficSourceDetail(DetailedReportType):
     def __init__(self) -> None:
         self.name = "Traffic sources (detailed)"
         self.dimensions = Dimensions(
-            Required("insightTrafficSourceDetail"), Optional("creatorContentType")
+            Required("insightTrafficSourceDetail"),
+            Optional("creatorContentType"),
         )
         self.filters = Filters(
             Required("insightTrafficSourceType"),
@@ -435,7 +454,8 @@ class TrafficSourceDetail(DetailedReportType):
         )
         self.metrics = Metrics(*data.LOCATION_AND_TRAFFIC_METRICS)
         self.sort_options = SortOptions(
-            *data.LOCATION_AND_TRAFFIC_SORT_OPTIONS, descending_only=True
+            *data.LOCATION_AND_TRAFFIC_SORT_OPTIONS,
+            descending_only=True,
         )
         self.max_results = 25
 
@@ -449,13 +469,19 @@ class TrafficSourceDetail(DetailedReportType):
         start_index: int = 1,
     ) -> None:
         super().validate(
-            dimensions, filters, metrics, sort_options, max_results, start_index
+            dimensions,
+            filters,
+            metrics,
+            sort_options,
+            max_results,
+            start_index,
         )
 
         itst = filters["insightTrafficSourceType"]
         if itst not in data.VALID_FILTER_OPTIONS["insightTrafficSourceDetail"]:
             raise InvalidRequest.incompatible_filter_value(
-                "insightTrafficSourceType", itst
+                "insightTrafficSourceType",
+                itst,
             )
 
 
@@ -571,7 +597,8 @@ class AudienceRetention(ReportType):
     def __init__(self) -> None:
         self.name = "Audience retention"
         self.dimensions = Dimensions(
-            Required("elapsedVideoTimeRatio"), Optional("creatorContentType")
+            Required("elapsedVideoTimeRatio"),
+            Optional("creatorContentType"),
         )
         self.filters = Filters(
             Required("video"),
@@ -595,7 +622,7 @@ class AudienceRetention(ReportType):
         if "," in v:
             raise InvalidRequest(
                 "only one video ID can be provided when 'elapsedVideoTimeRatio' "
-                "is a dimension"
+                "is a dimension",
             )
 
 
@@ -606,7 +633,8 @@ class TopVideosRegional(DetailedReportType):
         self.filters = Filters(ZeroOrOne("country", "continent", "subContinent"))
         self.metrics = Metrics(*data.ALL_VIDEO_METRICS)
         self.sort_options = SortOptions(
-            *data.TOP_VIDEOS_EXTRA_SORT_OPTIONS, descending_only=True
+            *data.TOP_VIDEOS_EXTRA_SORT_OPTIONS,
+            descending_only=True,
         )
         self.max_results = 200
 
@@ -618,7 +646,8 @@ class TopVideosUS(DetailedReportType):
         self.filters = Filters(Required("province"), Optional("subscribedStatus"))
         self.metrics = Metrics(*data.ALL_PROVINCE_METRICS)
         self.sort_options = SortOptions(
-            *data.TOP_VIDEOS_SORT_OPTIONS, descending_only=True
+            *data.TOP_VIDEOS_SORT_OPTIONS,
+            descending_only=True,
         )
         self.max_results = 200
 
@@ -633,7 +662,8 @@ class TopVideosSubscribed(DetailedReportType):
         )
         self.metrics = Metrics(*data.SUBSCRIPTION_METRICS)
         self.sort_options = SortOptions(
-            *data.TOP_VIDEOS_SORT_OPTIONS, descending_only=True
+            *data.TOP_VIDEOS_SORT_OPTIONS,
+            descending_only=True,
         )
         self.max_results = 200
 
@@ -648,7 +678,8 @@ class TopVideosYouTubeProduct(DetailedReportType):
         )
         self.metrics = Metrics(*data.VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS)
         self.sort_options = SortOptions(
-            *data.TOP_VIDEOS_SORT_OPTIONS, descending_only=True
+            *data.TOP_VIDEOS_SORT_OPTIONS,
+            descending_only=True,
         )
         self.max_results = 200
 
@@ -663,7 +694,8 @@ class TopVideosPlaybackDetail(DetailedReportType):
         )
         self.metrics = Metrics(*data.VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS)
         self.sort_options = SortOptions(
-            *data.TOP_VIDEOS_SORT_OPTIONS, descending_only=True
+            *data.TOP_VIDEOS_SORT_OPTIONS,
+            descending_only=True,
         )
         self.max_results = 200
 
@@ -746,7 +778,8 @@ class TrafficSourceDetailPlaylist(DetailedReportType):
         self.name = "Traffic sources for playlists (detailed)"
         self.dimensions = Dimensions(Required("insightTrafficSourceDetail"))
         self.filters = Filters(
-            Required("insightTrafficSourceType"), ExactlyOne("playlist", "group")
+            Required("insightTrafficSourceType"),
+            ExactlyOne("playlist", "group"),
         )
         self.metrics = Metrics(*data.ALL_PLAYLIST_METRICS)
         self.sort_options = SortOptions(
@@ -765,7 +798,12 @@ class TrafficSourceDetailPlaylist(DetailedReportType):
         start_index: int = 1,
     ) -> None:
         super().validate(
-            dimensions, filters, metrics, sort_options, max_results, start_index
+            dimensions,
+            filters,
+            metrics,
+            sort_options,
+            max_results,
+            start_index,
         )
 
         src_type = filters["insightTrafficSourceType"]

@@ -208,13 +208,19 @@ class TrafficSourceDetailPlaylist(DetailedReportType):
         start_index: int = 1,
     ) -> None:
         super().validate(
-            dimensions, filters, metrics, sort_options, max_results, start_index
+            dimensions,
+            filters,
+            metrics,
+            sort_options,
+            max_results,
+            start_index,
         )
 
         itst = filters["insightTrafficSourceType"]
         if itst not in data.VALID_FILTER_OPTIONS["insightTrafficSourceDetail"]:
             raise InvalidRequest.incompatible_filter_value(
-                "insightTrafficSourceType", itst
+                "insightTrafficSourceType",
+                itst,
             )
 
 

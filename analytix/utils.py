@@ -37,15 +37,15 @@ if TYPE_CHECKING:
 
 
 def can_use(*packages: str) -> bool:
-    for package in packages:
-        try:
+    try:
+        for package in packages:
             metadata.distribution(package)
-        except metadata.PackageNotFoundError:
-            return False
+    except metadata.PackageNotFoundError:
+        return False
     return True
 
 
-def process_path(path: "PathLike", extension: str, overwrite: bool) -> Path:
+def process_path(path: "PathLike", extension: str, *, overwrite: bool) -> Path:
     if not isinstance(path, Path):
         path = Path(path)
 

@@ -209,7 +209,7 @@ class Report:
 
         >>> report.to_json("output.json", indent=4)
         """
-        path = process_path(path, ".json", overwrite)
+        path = process_path(path, ".json", overwrite=overwrite)
         data = self.resource.data
 
         with open(path, "w") as f:
@@ -218,7 +218,11 @@ class Report:
         _log.info(f"Saved report as JSON to {path.resolve()}")
 
     def to_csv(
-        self, path: "PathLike", *, delimiter: str = ",", overwrite: bool = False
+        self,
+        path: "PathLike",
+        *,
+        delimiter: str = ",",
+        overwrite: bool = False,
     ) -> None:
         """Save this report as a CSV or TSV file.
 
@@ -253,7 +257,7 @@ class Report:
         >>> report.to_csv("output.tsv", delimiter="\\t")
         """
         extension = ".tsv" if delimiter == "\t" else ".csv"
-        path = process_path(path, extension, overwrite)
+        path = process_path(path, extension, overwrite=overwrite)
 
         with open(path, "w") as f:
             f.write(f"{delimiter.join(self.columns)}\n")
@@ -307,7 +311,7 @@ class Report:
 
         from openpyxl import Workbook
 
-        path = process_path(path, ".xlsx", overwrite)
+        path = process_path(path, ".xlsx", overwrite=overwrite)
         wb = Workbook()
         ws = wb.active
         ws.title = sheet_name
@@ -363,7 +367,7 @@ class Report:
 
         if not self._shape[0]:
             raise DataFrameConversionError(
-                "cannot convert to DataFrame as the returned data has no rows"
+                "cannot convert to DataFrame as the returned data has no rows",
             )
 
         import pandas as pd
@@ -427,7 +431,7 @@ class Report:
 
         if not self._shape[0]:
             raise DataFrameConversionError(
-                "cannot convert to Arrow table as the returned data has no rows"
+                "cannot convert to Arrow table as the returned data has no rows",
             )
 
         import pyarrow as pa
@@ -436,7 +440,7 @@ class Report:
         table = pa.table(list(zip(*self.resource.rows)), names=self.columns)
 
         if not skip_date_conversion and len(
-            s := {"day", "month"} & set(table.column_names)
+            s := {"day", "month"} & set(table.column_names),
         ):
             col = next(iter(s))
             fmt = {"day": "%Y-%m-%d", "month": "%Y-%m"}[col]
@@ -499,7 +503,7 @@ class Report:
 
         if not self._shape[0]:
             raise DataFrameConversionError(
-                "cannot convert to DataFrame as the returned data has no rows"
+                "cannot convert to DataFrame as the returned data has no rows",
             )
 
         import polars as pl
@@ -565,9 +569,11 @@ class Report:
 
         import pyarrow.feather as pf
 
-        path = process_path(path, ".feather", overwrite)
+        path = process_path(path, ".feather", overwrite=overwrite)
         pf.write_feather(
-            self.to_arrow(skip_date_conversion=skip_date_conversion), path, **kwargs
+            self.to_arrow(skip_date_conversion=skip_date_conversion),
+            path,
+            **kwargs,
         )
 
         _log.info(f"Saved report as Apache Feather file to {path.resolve()}")
@@ -624,9 +630,11 @@ class Report:
 
         import pyarrow.parquet as pq
 
-        path = process_path(path, ".parquet", overwrite)
+        path = process_path(path, ".parquet", overwrite=overwrite)
         pq.write_table(
-            self.to_arrow(skip_date_conversion=skip_date_conversion), path, **kwargs
+            self.to_arrow(skip_date_conversion=skip_date_conversion),
+            path,
+            **kwargs,
         )
 
         _log.info(f"Saved report as Apache Parquet file to {path.resolve()}")

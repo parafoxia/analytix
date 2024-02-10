@@ -102,7 +102,8 @@ class RequestMixin:
                 resp.reason += " (probably misconfigured scopes)"
 
             raise ERROR_MAPPING.get(resp.status, APIError)(
-                resp.status, resp.reason or "An error occurred"
+                resp.status,
+                resp.reason or "An error occurred",
             )
 
         yield resp

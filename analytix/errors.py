@@ -63,7 +63,7 @@ class MissingOptionalComponents(AnalytixError):
     def __init__(self, *args: str) -> None:
         vals = " ".join(args)
         super().__init__(
-            f"some necessary libraries are not installed (hint: pip install {vals})"
+            f"some necessary libraries are not installed (hint: pip install {vals})",
         )
 
 
@@ -191,7 +191,7 @@ class InvalidRequest(AnalytixError):
     def incompatible_filter_value(cls, key: str, value: str) -> "InvalidRequest":
         return cls(
             f"value {value!r} for filter {key!r} cannot be used with the given "
-            "dimensions"
+            "dimensions",
         )
 
     @classmethod
@@ -199,7 +199,7 @@ class InvalidRequest(AnalytixError):
         plural = "s" if len(values) > 1 else ""
         return cls(
             f"metric{plural} {cls.list_of(values)} cannot be used with the given "
-            "dimensions and filters"
+            "dimensions and filters",
         )
 
     @classmethod
@@ -207,7 +207,7 @@ class InvalidRequest(AnalytixError):
         plural = "s" if len(values) > 1 else ""
         return cls(
             f"sort option{plural} {cls.list_of(values)} cannot be used with the given "
-            "dimensions and filters"
+            "dimensions and filters",
         )
 
     @classmethod
@@ -216,14 +216,18 @@ class InvalidRequest(AnalytixError):
         isare = "are" if plural else "is"
         return cls(
             f"sort option{plural} {cls.list_of(values)} {isare} not part of the given "
-            "metrics"
+            "metrics",
         )
 
     @classmethod
     def invalid_set(
-        cls, key: str, values: Set[str], expd: str, recv: int
+        cls,
+        key: str,
+        values: Set[str],
+        expd: str,
+        recv: int,
     ) -> "InvalidRequest":
         plural = "" if expd in {"1", "at least 1"} else "s"
         return cls(
-            f"expected {expd} {key}{plural} from {cls.list_of(values)}, got {recv}"
+            f"expected {expd} {key}{plural} from {cls.list_of(values)}, got {recv}",
         )

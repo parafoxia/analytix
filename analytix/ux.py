@@ -94,7 +94,7 @@ def display_splash() -> None:
         f" • Documentation: \33[4m{analytix.__docs__}\33[0m\n"
         f" • Source: \33[4m{analytix.__url__}\33[0m\n"
         f" • Changelog: \33[4m{analytix.__changelog__}\33[0m\n\n"
-        f"\33[1m{l}Thanks for using analytix!\33[0m"
+        f"\33[1m{l}Thanks for using analytix!\33[0m",
     )
 
 
@@ -138,7 +138,7 @@ def enable_logging(level: int = logging.INFO) -> "logging.StreamHandler[TextIO]"
     handler = logging.StreamHandler()
     handler.setFormatter(CustomFormatter())
     logging.basicConfig(level=level, handlers=[handler])
-    logging._srcfile = None
+    logging._srcfile = None  # noqa: SLF001
     logging.logThreads = False
     logging.logProcesses = False
     logging.logMultiprocessing = False

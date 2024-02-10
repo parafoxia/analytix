@@ -146,7 +146,10 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
     __slots__ = ("_secrets", "_scopes")
 
     def __init__(
-        self, secrets_file: PathLike, *, scopes: Scopes = Scopes.READONLY
+        self,
+        secrets_file: PathLike,
+        *,
+        scopes: Scopes = Scopes.READONLY,
     ) -> None:
         self._secrets = Secrets.load_from(Path(secrets_file))
         scopes.validate()
@@ -159,7 +162,7 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
     def __enter__(self) -> "BaseClient":
         return self
 
-    def __exit__(self, *_: Any) -> None: ...
+    def __exit__(self, *_: object) -> None: ...
 
     def _check_for_updates(self) -> None:
         _log.debug("Checking for updates")
@@ -381,7 +384,10 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
 
         _log.debug("Refreshing access token")
         with self._request(
-            refresh_uri, data=data, headers=headers, ignore_errors=True
+            refresh_uri,
+            data=data,
+            headers=headers,
+            ignore_errors=True,
         ) as resp:
             if resp.status > 399:
                 _log.debug("Access token could not be refreshed")
@@ -392,7 +398,10 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
 
     @contextmanager
     def shard(
-        self, tokens: Tokens, *, scopes: Optional[Scopes] = None
+        self,
+        tokens: Tokens,
+        *,
+        scopes: Optional[Scopes] = None,
     ) -> Generator[Shard, None, None]:
         """A context manager for creating shards.
 
@@ -572,18 +581,20 @@ class Client(BaseClient):
 
         auth_uri, params, _ = auth.auth_uri(self._secrets, self._scopes, self._ws_port)
         if self._auto_open_browser:
-            if not webbrowser.open(auth_uri, 0, True):
+            if not webbrowser.open(auth_uri, 0, autoraise=True):
                 raise RuntimeError("web browser failed to open")
         else:
             print(  # noqa: T201
                 "\33[38;5;45mYou need to authorise analytix.\33[0m "
-                f"\33[4m{auth_uri}\33[0m"
+                f"\33[4m{auth_uri}\33[0m",
             )
 
         code = auth.run_flow(params)
         _log.debug("Authorisation code: %s", code)
         token_uri, data, headers = auth.token_uri(
-            self._secrets, code, params["redirect_uri"]
+            self._secrets,
+            code,
+            params["redirect_uri"],
         )
 
         with self._request(token_uri, data=data, headers=headers) as resp:
@@ -591,7 +602,7 @@ class Client(BaseClient):
                 error = json.loads(resp.data)
                 raise AuthorisationError(
                     f"could not authorise: {error['error_description']} "
-                    f"({error['error']})"
+                    f"({error['error']})",
                 )
 
             tokens = Tokens.from_json(resp.data)
@@ -601,7 +612,10 @@ class Client(BaseClient):
         return tokens
 
     def refresh_access_token(
-        self, tokens: Tokens, *, force: bool = False
+        self,
+        tokens: Tokens,
+        *,
+        force: bool = False,
     ) -> Optional[Tokens]:
         """Refresh your access token.
 
