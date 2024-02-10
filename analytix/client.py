@@ -495,7 +495,9 @@ class Client(BaseClient):
 
         super().__init__(secrets_file, scopes=scopes)
         self._ws_port = ws_port
-        self._auto_open_browser = not in_wsl() if auto_open_browser is None else True
+        self._auto_open_browser = (
+            not in_wsl() if auto_open_browser is None else auto_open_browser
+        )
 
         self._tokens_file = Path(tokens_file)
         if self._tokens_file.suffix != ".json":
