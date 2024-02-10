@@ -161,15 +161,15 @@ class Shard(RequestMixin):
             monetary data will result in a `Forbidden` error. Ensure
             your scopes are set up correctly before calling this method.
 
+        !!! warning
+            The "isCurated" filter will stop working on 30 Jun 2024. See
+            the [guide on new playlist reports](../guides/
+            new-playlist-reports.md) for information on how to migrate.
+
         !!! info "See also"
             You can learn more about dimensions, filters, metrics, and
             sort options by reading the [detailed guides](../guides/
             dimensions.md).
-
-        !!! important
-            To get playlist reports, you must set the `"isCurated"`
-            filter to `"1"`. View the playlist example to see how this
-            is done.
 
         !!! note "Changed in version 5.0"
             This used to be `retrieve_report`.
@@ -193,11 +193,6 @@ class Shard(RequestMixin):
                 sort_options=("-estimatedMinutesWatched"),
                 max_results=10,
             )
-            ```
-
-        ??? example "Fetching playlist analytics"
-            ```py
-            shard.fetch_report(filters={"isCurated": "1"})
             ```
         """
         query = ReportQuery(

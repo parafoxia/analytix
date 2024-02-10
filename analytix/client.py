@@ -645,9 +645,6 @@ class Client(BaseClient):
     ) -> "Report":
         """Authorise the client and fetch an analytics report.
 
-        This gets video reports by default. To get playlist reports, you
-        must set the `"isCurated"` filter to `"1"`.
-
         Parameters
         ----------
         dimensions
@@ -714,6 +711,11 @@ class Client(BaseClient):
             monetary data will result in a `Forbidden` error. Ensure
             your scopes are set up correctly before calling this method.
 
+        !!! warning
+            The "isCurated" filter will stop working on 30 Jun 2024. See
+            the [guide on new playlist reports](../guides/
+            new-playlist-reports.md) for information on how to migrate.
+
         !!! info "See also"
             You can learn more about dimensions, filters, metrics, and
             sort options by reading the [detailed guides](../guides/
@@ -741,11 +743,6 @@ class Client(BaseClient):
                 sort_options=("-estimatedMinutesWatched"),
                 max_results=10,
             )
-            ```
-
-        ??? example "Fetching playlist analytics"
-            ```py
-            shard.fetch_report(filters={"isCurated": "1"})
             ```
         """
         tokens = self.authorise(**kwargs)

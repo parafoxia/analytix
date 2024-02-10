@@ -303,9 +303,8 @@ class ReportQuery:
             from analytix import __docs__
 
             warnings.warn(
-                "The 'isCurated' has been deprecated by YouTube and will stop working "
-                f"on 30 Jun 2024 -- see {__docs__}/guides/new-playlist-reports for "
-                "more info",
+                "The 'isCurated' filter is deprecated -- use the new playlist reports "
+                f"instead ({__docs__}/guides/new-playlist-reports)",
                 DeprecationWarning,
                 stacklevel=6,
             )
