@@ -36,7 +36,10 @@ import platform
 import sys
 import warnings
 from importlib.util import find_spec
-from typing import Optional, TextIO, Type, Union
+from typing import Optional
+from typing import TextIO
+from typing import Type
+from typing import Union
 
 import analytix
 

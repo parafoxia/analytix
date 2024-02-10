@@ -39,11 +39,17 @@ __all__ = ("Report",)
 
 import json
 import logging
-from typing import TYPE_CHECKING, Any, Dict, List, Tuple
+from typing import TYPE_CHECKING
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Tuple
 
 from analytix import utils
-from analytix.errors import DataFrameConversionError, MissingOptionalComponents
-from analytix.reports.resources import ColumnType, ResultTable
+from analytix.errors import DataFrameConversionError
+from analytix.errors import MissingOptionalComponents
+from analytix.reports.resources import ColumnType
+from analytix.reports.resources import ResultTable
 from analytix.utils import process_path
 
 if TYPE_CHECKING:

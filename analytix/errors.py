@@ -43,7 +43,8 @@ __all__ = (
     "InvalidRequest",
 )
 
-from typing import Set, Union
+from typing import Set
+from typing import Union
 
 
 class AnalytixError(Exception):

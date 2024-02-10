@@ -30,6 +30,9 @@
 
 __all__ = ("data", "features", "interfaces", "types", "Report", "ResultTable")
 
-from . import data, features, interfaces, types
+from . import data
+from . import features
+from . import interfaces
+from . import types
 from .interfaces import Report
 from .resources import ResultTable

@@ -75,3 +75,6 @@ extend-select = [
     "YTT",
 ]
 ignore = ["E402", "B905", "N818", "S101"]
+
+[tool.ruff.lint.isort]
+force-single-line = true

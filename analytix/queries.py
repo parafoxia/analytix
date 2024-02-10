@@ -31,7 +31,10 @@ __all__ = ("ReportQuery", "GroupQuery", "GroupItemQuery")
 import datetime as dt
 import logging
 import warnings
-from typing import TYPE_CHECKING, Collection, Dict, Optional
+from typing import TYPE_CHECKING
+from typing import Collection
+from typing import Dict
+from typing import Optional
 
 from analytix.auth import Scopes
 from analytix.errors import InvalidRequest

@@ -38,15 +38,22 @@ __all__ = ("Shard",)
 import datetime as dt
 import json
 import logging
-from typing import TYPE_CHECKING, Collection, Dict, Optional
+from typing import TYPE_CHECKING
+from typing import Collection
+from typing import Dict
+from typing import Optional
 
-from analytix.groups import GroupItemList, GroupList
+from analytix.groups import GroupItemList
+from analytix.groups import GroupList
 from analytix.mixins import RequestMixin
-from analytix.queries import GroupItemQuery, GroupQuery, ReportQuery
+from analytix.queries import GroupItemQuery
+from analytix.queries import GroupQuery
+from analytix.queries import ReportQuery
 from analytix.reports import Report
 
 if TYPE_CHECKING:
-    from analytix.auth import Scopes, Tokens
+    from analytix.auth import Scopes
+    from analytix.auth import Tokens
 
 
 _log = logging.getLogger(__name__)

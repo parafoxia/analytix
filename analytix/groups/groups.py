@@ -35,7 +35,12 @@ __all__ = ("Group", "GroupList", "GroupItem", "GroupItemList")
 
 import datetime as dt
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Dict, Iterator, List, Optional
+from typing import TYPE_CHECKING
+from typing import Any
+from typing import Dict
+from typing import Iterator
+from typing import List
+from typing import Optional
 
 if TYPE_CHECKING:
     from analytix.shard import Shard

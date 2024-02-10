@@ -42,23 +42,23 @@ __all__ = (
     "TopPlaylists",
 )
 
-from typing import Collection, Dict
+from typing import Collection
+from typing import Dict
 
-from analytix.abc import DetailedReportType, ReportType
+from analytix.abc import DetailedReportType
+from analytix.abc import ReportType
 from analytix.errors import InvalidRequest
 from analytix.reports import data
-from analytix.reports.features import (
-    Dimensions,
-    ExactlyOne,
-    Filters,
-    Metrics,
-    OneOrMore,
-    Optional,
-    Required,
-    SortOptions,
-    ZeroOrMore,
-    ZeroOrOne,
-)
+from analytix.reports.features import Dimensions
+from analytix.reports.features import ExactlyOne
+from analytix.reports.features import Filters
+from analytix.reports.features import Metrics
+from analytix.reports.features import OneOrMore
+from analytix.reports.features import Optional
+from analytix.reports.features import Required
+from analytix.reports.features import SortOptions
+from analytix.reports.features import ZeroOrMore
+from analytix.reports.features import ZeroOrOne
 
 
 class BasicUserActivityPlaylist(ReportType):

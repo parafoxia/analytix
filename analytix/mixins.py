@@ -29,13 +29,20 @@
 __all__ = ("RequestMixin",)
 
 from contextlib import contextmanager
-from typing import Any, Dict, Generator, Optional
+from typing import Any
+from typing import Dict
+from typing import Generator
+from typing import Optional
 from urllib.parse import urlencode
 
 import urllib3
 from urllib3.exceptions import MaxRetryError
 
-from analytix.errors import APIError, BadRequest, Forbidden, NotFound, Unauthorised
+from analytix.errors import APIError
+from analytix.errors import BadRequest
+from analytix.errors import Forbidden
+from analytix.errors import NotFound
+from analytix.errors import Unauthorised
 
 try:
     from urllib3 import BaseHTTPResponse as HTTPResponse

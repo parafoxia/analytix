@@ -39,7 +39,9 @@ __all__ = (
     "ZeroOrMore",
 )
 
-from typing import Collection, Dict, Set
+from typing import Collection
+from typing import Dict
+from typing import Set
 
 from analytix import abc
 from analytix.errors import InvalidRequest

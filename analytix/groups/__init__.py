@@ -28,4 +28,7 @@
 
 __all__ = ("Group", "GroupList", "GroupItem", "GroupItemList")
 
-from .groups import Group, GroupItem, GroupItemList, GroupList
+from .groups import Group
+from .groups import GroupItem
+from .groups import GroupItemList
+from .groups import GroupList

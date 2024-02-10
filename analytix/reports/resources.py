@@ -36,7 +36,11 @@ __all__ = ("DataType", "ColumnType", "ColumnHeader", "ResultTable")
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, List, Literal, Union
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Literal
+from typing import Union
 
 
 class DataType(Enum):

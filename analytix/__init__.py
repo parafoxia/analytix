@@ -49,8 +49,11 @@ __bugtracker__ = "https://github.com/parafoxia/analytix/issues"
 __ci__ = "https://github.com/parafoxia/analytix/actions"
 __changelog__ = "https://github.com/parafoxia/analytix/releases"
 
-from . import groups, reports
+from . import groups
+from . import reports
 from .auth import Scopes
-from .client import BaseClient, Client
-from .utils import can_use, process_path
+from .client import BaseClient
+from .client import Client
+from .utils import can_use
+from .utils import process_path
 from .ux import enable_logging

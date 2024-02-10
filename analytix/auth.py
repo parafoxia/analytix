@@ -56,13 +56,20 @@ import re
 import sys
 from dataclasses import dataclass
 from enum import Flag
-from http.server import BaseHTTPRequestHandler, HTTPServer
+from http.server import BaseHTTPRequestHandler
+from http.server import HTTPServer
 from pathlib import Path
-from typing import Dict, List, Literal, Optional, Union
-from urllib.parse import parse_qsl, urlencode
+from typing import Dict
+from typing import List
+from typing import Literal
+from typing import Optional
+from typing import Union
+from urllib.parse import parse_qsl
+from urllib.parse import urlencode
 
 from analytix.errors import AuthorisationError
-from analytix.types import PathLike, UriParams
+from analytix.types import PathLike
+from analytix.types import UriParams
 
 OAUTH_CHECK_URL = "https://www.googleapis.com/oauth2/v3/tokeninfo?access_token="
 REDIRECT_URI_PATTERN = re.compile("[^//]*//([^:]*):?([0-9]*)")

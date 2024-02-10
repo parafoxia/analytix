@@ -37,12 +37,18 @@ __all__ = (
 
 import abc
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Collection, Dict, Set
+from typing import TYPE_CHECKING
+from typing import Collection
+from typing import Dict
+from typing import Set
 
 from analytix.errors import InvalidRequest
 
 if TYPE_CHECKING:
-    from analytix.reports.features import Dimensions, Filters, Metrics, SortOptions
+    from analytix.reports.features import Dimensions
+    from analytix.reports.features import Filters
+    from analytix.reports.features import Metrics
+    from analytix.reports.features import SortOptions
 
 
 @dataclass()

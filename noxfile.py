@@ -28,7 +28,9 @@
 
 from functools import wraps
 from pathlib import Path
-from typing import Callable, List, Optional
+from typing import Callable
+from typing import List
+from typing import Optional
 
 import nox
 

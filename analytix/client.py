@@ -58,26 +58,34 @@ import os
 import platform
 import warnings
 import webbrowser
-from abc import ABCMeta, abstractmethod
+from abc import ABCMeta
+from abc import abstractmethod
 from contextlib import contextmanager
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Collection, Dict, Generator, Optional
+from typing import TYPE_CHECKING
+from typing import Any
+from typing import Collection
+from typing import Dict
+from typing import Generator
+from typing import Optional
 
-from analytix import auth, utils
-from analytix.auth import Scopes, Secrets, Tokens
-from analytix.errors import (
-    APIError,
-    AuthorisationError,
-    IdTokenError,
-    MissingOptionalComponents,
-)
+from analytix import auth
+from analytix import utils
+from analytix.auth import Scopes
+from analytix.auth import Secrets
+from analytix.auth import Tokens
+from analytix.errors import APIError
+from analytix.errors import AuthorisationError
+from analytix.errors import IdTokenError
+from analytix.errors import MissingOptionalComponents
 from analytix.mixins import RequestMixin
 from analytix.shard import Shard
 from analytix.types import PathLike
 from analytix.warnings import NotUpdatedWarning
 
 if TYPE_CHECKING:
-    from analytix.groups import GroupItemList, GroupList
+    from analytix.groups import GroupItemList
+    from analytix.groups import GroupList
     from analytix.reports import Report
 
 JWKS_URI = "https://www.googleapis.com/oauth2/v3/certs"
@@ -323,7 +331,8 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
         if not utils.can_use("jwt"):
             raise MissingOptionalComponents("jwt")
 
-        from jwt import JWT, jwk_from_dict
+        from jwt import JWT
+        from jwt import jwk_from_dict
         from jwt.exceptions import JWSDecodeError
 
         _log.debug("Fetching JWKs")
