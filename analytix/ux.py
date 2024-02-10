@@ -111,10 +111,13 @@ def enable_logging(level: int = logging.INFO) -> "logging.StreamHandler[TextIO]"
     StreamHandler object
         The created log handler.
 
-    ??? example
-        ```py
-        analytix.enable_logging(logging.DEBUG)
-        ```
+    Examples
+    --------
+    >>> analytix.enable_logging(logging.DEBUG)
+
+    Enable the logger in DEBUG mode.
+
+    >>> analytix.enable_logging(logging.DEBUG)
     """
 
     fmt = "{asctime}.{msecs:03.0f} [ {levelname:<7} ] {name}: {message}"

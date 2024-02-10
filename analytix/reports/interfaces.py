@@ -64,6 +64,9 @@ class Report:
     direct mapping. This class provides additional properties and
     methods designed to make it easier to perform certain operations.
 
+    ???+ note "Changed in version 5.0"
+        This used to be `AnalyticsReport`.
+
     Parameters
     ----------
     data
@@ -77,9 +80,6 @@ class Report:
         An instance representing a `resultTable` resource.
     type : ReportType
         The report type.
-
-    !!! note "Changed in version 5.0"
-        This used to be `AnalyticsReport`.
     """
 
     def __init__(self, data: Dict[str, Any], type: "ReportType") -> None:
@@ -98,11 +98,10 @@ class Report:
         Tuple[int, int]
             The shape of the report.
 
-        ??? example
-            ```py
-            >>> report.shape
-            (120, 42)
-            ```
+        Examples
+        --------
+        >>> report.shape
+        (120, 42)
         """
         return self._shape
 
@@ -115,15 +114,15 @@ class Report:
         List[str]
             The column list.
 
-        !!! info "See also"
-            This does not return a list of column headers. If you want
-            that, use `report.resource.column_headers` instead.
+        See Also
+        --------
+        This does not return a list of column headers. If you want that,
+        use `report.resource.column_headers` instead.
 
-        ??? example
-            ```py
-            >>> report.columns
-            ["day", "subscribedStatus", "views", "likes", "comments"]
-            ```
+        Examples
+        --------
+        >>> report.columns
+        ["day", "subscribedStatus", "views", "likes", "comments"]
         """
         return [c.name for c in self.resource.column_headers]
 
@@ -136,11 +135,10 @@ class Report:
         List[str]
             The dimension list.
 
-        ??? example
-            ```py
-            >>> report.dimensions
-            ["day", "subscribedStatus"]
-            ```
+        Examples
+        --------
+        >>> report.dimensions
+        ["day", "subscribedStatus"]
         """
         return [
             c.name
@@ -157,11 +155,10 @@ class Report:
         List[str]
             The metric list.
 
-        ??? example
-            ```py
-            >>> report.metrics
-            ["views", "likes", "comments"]
-            ```
+        Examples
+        --------
+        >>> report.metrics
+        ["views", "likes", "comments"]
         """
         return [
             c.name
@@ -181,6 +178,14 @@ class Report:
         This saves the data as it arrived from the YouTube Analytics
         API.
 
+        ???+ note "Changed in version 5.0"
+            * `indent` is no longer an argument, but can still be
+              provided as part of the `**kwargs`; as such, JSON exports
+              are no longer indented by default
+            * This will no longer overwrite existing files by default
+            * You can now pass additional keyword arguments to be passed
+              to the `json.dump` function
+
         Parameters
         ----------
         path
@@ -196,23 +201,13 @@ class Report:
         None
             This method doesn't return anything.
 
-        !!! note "Changed in version 5.0"
-            * `indent` is no longer an argument, but can still be
-              provided as part of the `**kwargs`; as such, JSON exports
-              are no longer indented by default
-            * This will no longer overwrite existing files by default
-            * You can now pass additional keyword arguments to be passed
-              to the `json.dump` function
+        Examples
+        --------
+        >>> report.to_json("output.json")
 
-        ??? example
-            ```py
-            >>> report.to_json("output.json")
-            ```
+        Saving in a pretty format.
 
-        ??? example "Saving in a pretty format"
-            ```py
-            >>> report.to_json("output.json", indent=4)
-            ```
+        >>> report.to_json("output.json", indent=4)
         """
         path = process_path(path, ".json", overwrite)
         data = self.resource.data
@@ -231,6 +226,9 @@ class Report:
         pass a tab character as a delimiter, the file will be saved as
         a TSV. It will be saved as a CSV in all other instances.
 
+        ???+ note "Changed in version 5.0"
+            This will no longer overwrite existing files by default.
+
         Parameters
         ----------
         path
@@ -246,18 +244,13 @@ class Report:
         None
             This method doesn't return anything.
 
-        !!! note "Changed in version 5.0"
-            This will no longer overwrite existing files by default.
+        Examples
+        --------
+        >>> report.to_csv("output.csv")
 
-        ??? example
-            ```py
-            >>> report.to_csv("output.csv")
-            ```
+        Saving as a TSV.
 
-        ??? example "Saving as a TSV"
-            ```py
-            >>> report.to_csv("output.tsv", delimiter="\\t")
-            ```
+        >>> report.to_csv("output.tsv", delimiter="\\t")
         """
         extension = ".tsv" if delimiter == "\t" else ".csv"
         path = process_path(path, extension, overwrite)
@@ -283,6 +276,9 @@ class Report:
         If you wish to do this, you will need to save the data to a new
         spreadsheet file, then copy the data over.
 
+        ???+ note "Changed in version 5.0"
+            This will no longer overwrite existing files by default.
+
         Parameters
         ----------
         path
@@ -297,17 +293,14 @@ class Report:
         None
             This method doesn't return anything.
 
-        !!! note
-            This requires `openpyxl` to be installed to use, which is an
-            optional dependency.
+        Notes
+        -----
+        This requires `openpyxl` to be installed to use, which is an
+        optional dependency.
 
-        !!! note "Changed in version 5.0"
-            This will no longer overwrite existing files by default.
-
-        ??? example
-            ```py
-            >>> report.to_excel("output.xlsx")
-            ```
+        Examples
+        --------
+        >>> report.to_excel("output.xlsx")
         """
         if not utils.can_use("openpyxl"):
             raise MissingOptionalComponents("openpyxl")
@@ -348,21 +341,21 @@ class Report:
         DataFrameConversionError
             There is no data from which to create a DataFrame.
 
-        !!! note
-            This requires `pandas` to be installed to use, which is an
-            optional dependency.
+        Notes
+        -----
+        This requires `pandas` to be installed to use, which is an
+        optional dependency.
 
-        ??? example
-            ```py
-            >>> df = report.to_pandas()
-            >>> df.head(5)
-                     day  views  likes  comments  grossRevenue
-            0 2022-06-20    778      8         0         2.249
-            1 2022-06-21   1062     32         8         3.558
-            2 2022-06-22    946     38         6         2.910
-            3 2022-06-23   5107    199        15        24.428
-            4 2022-06-24   2137     61         2         6.691
-            ```
+        Examples
+        --------
+        >>> df = report.to_pandas()
+        >>> df.head(5)
+                 day  views  likes  comments  grossRevenue
+        0 2022-06-20    778      8         0         2.249
+        1 2022-06-21   1062     32         8         3.558
+        2 2022-06-22    946     38         6         2.910
+        3 2022-06-23   5107    199        15        24.428
+        4 2022-06-24   2137     61         2         6.691
         """
         # sourcery skip: class-extract-method
         if not utils.can_use("pandas"):
@@ -407,27 +400,27 @@ class Report:
         DataFrameConversionError
             There is no data from which to create an Arrow table.
 
-        !!! note
-            This requires `pyarrow` to be installed to use, which is an
-            optional dependency.
+        Notes
+        -----
+        This requires `pyarrow` to be installed to use, which is an
+        optional dependency.
 
-        ??? example
-            ```py
-            >>> table = report.to_arrow()
-            >>> table.slice(length=3)
-            pyarrow.Table
-            day: timestamp[ns]
-            views: int64
-            likes: int64
-            comments: int64
-            grossRevenue: double
-            ----
-            day: [[2022-06-20 00:00:00.000000000,...]]
-            views: [[778,1062,946,5107,2137]]
-            likes: [[8,32,38,199,61]]
-            comments: [[0,8,6,15,2]]
-            grossRevenue: [[2.249,3.558,2.91,24.428,6.691]]
-            ```
+        Examples
+        --------
+        >>> table = report.to_arrow()
+        >>> table.slice(length=3)
+        pyarrow.Table
+        day: timestamp[ns]
+        views: int64
+        likes: int64
+        comments: int64
+        grossRevenue: double
+        ----
+        day: [[2022-06-20 00:00:00.000000000,...]]
+        views: [[778,1062,946,5107,2137]]
+        likes: [[8,32,38,199,61]]
+        comments: [[0,8,6,15,2]]
+        grossRevenue: [[2.249,3.558,2.91,24.428,6.691]]
         """
         if not utils.can_use("pyarrow"):
             raise MissingOptionalComponents("pyarrow")
@@ -475,31 +468,31 @@ class Report:
         DataFrameConversionError
             There is no data from which to create a DataFrame.
 
-        !!! note
-            This requires `polars` to be installed to use, which is an
-            optional dependency.
+        Notes
+        -----
+        This requires `polars` to be installed to use, which is an
+        optional dependency.
 
-        ??? example
-            ```py
-            >>> df = report.to_polars()
-            >>> df.head(5)
-            shape: (5, 5)
-            ┌────────────┬───────┬───────┬──────────┬──────────────┐
-            │ day        ┆ views ┆ likes ┆ comments ┆ grossRevenue │
-            │ ---        ┆ ---   ┆ ---   ┆ ---      ┆ ---          │
-            │ date       ┆ i64   ┆ i64   ┆ i64      ┆ f64          │
-            ╞════════════╪═══════╪═══════╪══════════╪══════════════╡
-            │ 2022-06-20 ┆ 778   ┆ 8     ┆ 0        ┆ 2.249        │
-            ├╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤
-            │ 2022-06-21 ┆ 1062  ┆ 32    ┆ 8        ┆ 3.558        │
-            ├╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤
-            │ 2022-06-22 ┆ 946   ┆ 38    ┆ 6        ┆ 2.91         │
-            ├╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤
-            │ 2022-06-23 ┆ 5107  ┆ 199   ┆ 15       ┆ 24.428       │
-            ├╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤
-            │ 2022-06-24 ┆ 2137  ┆ 61    ┆ 2        ┆ 6.691        │
-            └────────────┴───────┴───────┴──────────┴──────────────┘
-            ```
+        Examples
+        --------
+        >>> df = report.to_polars()
+        >>> df.head(5)
+        shape: (5, 5)
+        ┌────────────┬───────┬───────┬──────────┬──────────────┐
+        │ day        ┆ views ┆ likes ┆ comments ┆ grossRevenue │
+        │ ---        ┆ ---   ┆ ---   ┆ ---      ┆ ---          │
+        │ date       ┆ i64   ┆ i64   ┆ i64      ┆ f64          │
+        ╞════════════╪═══════╪═══════╪══════════╪══════════════╡
+        │ 2022-06-20 ┆ 778   ┆ 8     ┆ 0        ┆ 2.249        │
+        ├╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤
+        │ 2022-06-21 ┆ 1062  ┆ 32    ┆ 8        ┆ 3.558        │
+        ├╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤
+        │ 2022-06-22 ┆ 946   ┆ 38    ┆ 6        ┆ 2.91         │
+        ├╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤
+        │ 2022-06-23 ┆ 5107  ┆ 199   ┆ 15       ┆ 24.428       │
+        ├╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤
+        │ 2022-06-24 ┆ 2137  ┆ 61    ┆ 2        ┆ 6.691        │
+        └────────────┴───────┴───────┴──────────┴──────────────┘
         """
         if not utils.can_use("polars"):
             raise MissingOptionalComponents("polars")
@@ -531,6 +524,12 @@ class Report:
     ) -> None:
         """Save this report as an Apache Feather file.
 
+        ???+ note "Changed in version 5.0"
+            * This will no longer overwrite existing files by default
+            * You can now pass additional keyword arguments to be passed
+              to the `pf.write_feather` function
+            * This no longer returns a PyArrow table
+
         Parameters
         ----------
         path
@@ -552,20 +551,14 @@ class Report:
         **kwargs
             Additional arguments to pass to `pf.write_feather`.
 
-        !!! note
-            This requires `pyarrow` to be installed to use, which is an
-            optional dependency.
+        Notes
+        -----
+        This requires `pyarrow` to be installed to use, which is an
+        optional dependency.
 
-        !!! note "Changed in version 5.0"
-            * This will no longer overwrite existing files by default
-            * You can now pass additional keyword arguments to be passed
-              to the `pf.write_feather` function
-            * This no longer returns a PyArrow table
-
-        ??? example
-            ```py
-            >>> report.to_feather("output.feather")
-            ```
+        Examples
+        --------
+        >>> report.to_feather("output.feather")
         """
         if not utils.can_use("pyarrow"):
             raise MissingOptionalComponents("pyarrow")
@@ -589,6 +582,12 @@ class Report:
     ) -> None:
         """Save this report as an Apache Parquet file.
 
+        ???+ note "Changed in version 5.0"
+            * This will no longer overwrite existing files by default
+            * You can now pass additional keyword arguments to be passed
+              to the `pq.write_table` function
+            * This no longer returns a PyArrow table
+
         Parameters
         ----------
         path
@@ -610,20 +609,14 @@ class Report:
         **kwargs
             Additional arguments to pass to `pq.write_table`.
 
-        !!! note
-            This requires `pyarrow` to be installed to use, which is an
-            optional dependency.
+        Notes
+        -----
+        This requires `pyarrow` to be installed to use, which is an
+        optional dependency.
 
-        !!! note "Changed in version 5.0"
-            * This will no longer overwrite existing files by default
-            * You can now pass additional keyword arguments to be passed
-              to the `pq.write_table` function
-            * This no longer returns a PyArrow table
-
-        ??? example
-            ```py
-            >>> report.to_parquet("output.parquet")
-            ```
+        Examples
+        --------
+        >>> report.to_parquet("output.parquet")
         """
 
         if not utils.can_use("pyarrow"):

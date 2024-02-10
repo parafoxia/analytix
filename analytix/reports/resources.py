@@ -119,9 +119,9 @@ class ResultTable:
     rows
         The rows in the report. This will be a list of lists.
 
-    !!! info "See also"
-        Instances of this class are presented as part of
-        `Report` instances.
+    See Also
+    --------
+    Instances of this class are presented as part of `Report` instances.
     """
 
     kind: Literal["youtubeAnalytics#resultTable"]

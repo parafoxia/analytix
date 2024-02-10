@@ -87,6 +87,9 @@ class Group(_Resource):
     def from_json(cls, shard: "Shard", data: Dict[str, Any]) -> "Group":
         """Create a new `Group` instance from JSON data.
 
+        ???+ note "Changed in version 5.0"
+            This now takes the shard instance used to fetch the data.
+
         Parameters
         ----------
         shard
@@ -98,9 +101,6 @@ class Group(_Resource):
         -------
         Group
             The newly created instance.
-
-        !!! note "Changed in version 5.0"
-            This now takes the shard instance used to fetch the data.
         """
         return cls(
             data["kind"],
@@ -143,6 +143,8 @@ class Group(_Resource):
     def fetch_items(self) -> "GroupItemList":
         """Fetch a list of all items within this group.
 
+        ???+ note "New in version 5.0"
+
         Returns
         -------
         GroupItemList
@@ -159,8 +161,6 @@ class Group(_Resource):
             You tried to access data you're not allowed to access. If
             your channel is not partnered, this is raised when you try
             to access monetary data.
-
-        !!! note "New in version 5.0"
         """
         return self.shard.fetch_group_items(self.id)
 
@@ -199,6 +199,11 @@ class GroupList(_Resource):
     def from_json(cls, shard: "Shard", data: Dict[str, Any]) -> "GroupList":
         """Create a new `GroupList` instance from JSON data.
 
+        ???+ note "Changed in version 5.0"
+            * This now takes the shard instance used to fetch the data
+            * This will no longer raise an error if a channel has no
+              groups
+
         Parameters
         ----------
         shard
@@ -210,11 +215,6 @@ class GroupList(_Resource):
         -------
         GroupList
             The newly created instance.
-
-        !!! note "Changed in version 5.0"
-            * This now takes the shard instance used to fetch the data
-            * This will no longer raise an error if a channel has no
-              groups
         """
         return cls(
             data["kind"],
@@ -278,12 +278,13 @@ class GroupItem(_Resource):
         The resource object contains information that identifies the
         item being added to the group.
 
-    !!! important
-        The `id` parameter does NOT refer to the actual ID of the
-        channel, video, playlist, or asset, but instead an ID related
-        to its inclusion within the group.
+    Notes
+    -----
+    The `id` parameter does NOT refer to the actual ID of the channel,
+    video, playlist, or asset, but instead an ID related to its
+    inclusion within the group.
 
-        To get the actual ID of the resource, use `resource.id`.
+    To get the actual ID of the resource, use `resource.id`.
     """
 
     __slots__ = ("id", "group_id", "resource")

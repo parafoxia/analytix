@@ -85,16 +85,15 @@ class APIError(AnalytixError):
 class BadRequest(APIError):
     """The YouTube Analytics API has returned a 400 status.
 
+    This only happens when analytix has failed to catch an invalid
+    request. If you see an error like this, report it!
+
     Parameters
     ----------
     code
         The error code.
     message
         The error message.
-
-    !!! important
-        This only happens when analytix has failed to catch an invalid
-        request. If you see an error like this, report it!
     """
 
 
@@ -113,16 +112,15 @@ class Unauthorised(APIError):
 class Forbidden(APIError):
     """The YouTube Analytics API has returned a 403 status.
 
+    This is raised when you attempt to access monetary data from a
+    non-partnered channel.
+
     Parameters
     ----------
     code
         The error code.
     message
         The error message.
-
-    !!! important
-        This is raised when you attempt to access monetary data from a
-        non-partnered channel.
     """
 
 

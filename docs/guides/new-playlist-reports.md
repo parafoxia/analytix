@@ -4,7 +4,7 @@
     This page details actions to mitigate breaking changes in the YouTube Analytics API.
     You will need to complete these migrations by 30 Jun 2024 in order to use playlist reports.
 
-!!! info "See also"
+!!! info "See Also"
     You can read about the API changes in full on the [YouTube Analytics API documentation](https://developers.google.com/youtube/analytics/revision_history#january-19,-2024).
 
 ## Overview

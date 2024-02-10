@@ -98,6 +98,8 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
 
     This will work as a context manager.
 
+    ???+ note "New in version 5.0"
+
     Parameters
     ----------
     secrets_file
@@ -113,27 +115,32 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
     AuthorisationError
         Neither the READONLY nor MONETARY_READONLY scopes were provided.
 
-    !!! note "New in version 5.0"
+    Examples
+    --------
+    >>> from analytix import BaseClient
+    >>> class CustomClient(BaseClient):
+    ...     pass
+    ...
+    >>> client = CustomClient("secrets.json")
 
-    ??? example
-        ```py
-        from analytix import BaseClient
+    Providing custom scopes.
 
-        class CustomClient(BaseClient):
-            ...
+    >>> from analytix import BaseClient, Scopes
+    >>> class CustomClient(BaseClient):
+    ...     pass
+    ...
+    >>> client = CustomClient("secrets.json", scopes=Scopes.ALL)
 
-        client = CustomClient("secrets.json")
-        ```
+    Providing JWT scopes.
 
-    ??? example "Providing custom scopes"
-        ```py
-        from analytix import BaseClient, Scopes
-
-        class CustomClient(BaseClient):
-            ...
-
-        client = CustomClient("secrets.json", scopes=Scopes.ALL)
-        ```
+    >>> from analytix import BaseClient, Scopes
+    >>> class CustomClient(BaseClient):
+    ...     pass
+    ...
+    >>> client = CustomClient(
+    ...     "secrets.json",
+    ...     scopes=Scopes.READONLY | Scopes.ALL_JWT,
+    ... )
     """
 
     __slots__ = ("_secrets", "_scopes")
@@ -192,9 +199,10 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
         NotImplementedError
             You called this method without overloading it.
 
-        !!! info "See also"
-            You may find the `analytix.auth.auth_uri` and `.token_uri`
-            functions helpful when writing your custom implementation.
+        See Also
+        --------
+        You may find the `analytix.auth.auth_uri` and `.token_uri`
+        functions helpful when writing your custom implementation.
         """
         raise NotImplementedError
 
@@ -203,6 +211,8 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
 
         The default implementation makes a call to Google's OAuth2 API
         to determine the token's validity.
+
+        ???+ note "New in version 5.0"
 
         Parameters
         ----------
@@ -215,13 +225,10 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
             Whether the token is valid or not. If it isn't, it needs
             refreshing.
 
-        !!! note "New in version 5.0"
-
-        ??? example
-            ```py
-            >>> client.token_is_valid("1234567890")
-            True
-            ```
+        Examples
+        --------
+        >>> client.token_is_valid("1234567890")
+        True
         """
         try:
             with self._request(auth.OAUTH_CHECK_URL + access_token, post=True):
@@ -243,6 +250,8 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
         with all scopes, but you only passed the READONLY scope to the
         client, this will return `True`.
 
+        ???+ note "New in version 5.0"
+
         Parameters
         ----------
         scopes
@@ -255,14 +264,10 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
             Whether the scopes are sufficient or not. If they're not,
             you'll need to reauthorise.
 
-        !!! note "New in version 5.0"
-
-        ??? example
-            ```py
-            # Yes, it's `.scope`, not `.scopes`.
-            >>> client.scopes_are_sufficient(tokens.scope)
-            True
-            ```
+        Examples
+        --------
+        >>> client.scopes_are_sufficient(tokens.scope)
+        True
         """
         # The <= here means "is LHS a subset of RHS?".
         sufficient = set(self._scopes.formatted.split(" ")) <= set(scopes.split(" "))
@@ -279,6 +284,8 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
 
         You will only receive an ID token if you specifically tell
         the client to fetch one.
+
+        ???+ note "New in version 5.1"
 
         Parameters
         ----------
@@ -298,20 +305,17 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
             Your ID token could not be decoded. This may be raised
             alongside other errors.
 
-        !!! note "New in version 5.1"
+        Notes
+        -----
+        This requires `jwt` to be installed to use, which is an optional
+        dependency.
 
-        !!! note
-            This requires `jwt` to be installed to use, which is an
-            optional dependency.
-
-        ??? example
-            ```py
-            # This example uses the scripting client.
-            client = Client("secrets.json")
-            tokens = client.authorise()
-            if tokens.id_token:
-                id_token = client.decode_id_token(tokens.id_token)
-            ```
+        Examples
+        --------
+        >>> client = BaseClient("secrets.json")
+        >>> tokens = client.authorise()  # Overloaded using your impl.
+        >>> if tokens.id_token:
+        ...     id_token = client.decode_id_token(tokens.id_token)
         """
         if not utils.can_use("jwt"):
             raise MissingOptionalComponents("jwt")
@@ -344,10 +348,9 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
     def refresh_access_token(self, tokens: Tokens) -> Optional[Tokens]:
         """Refresh your access token.
 
-        While this method should always be sufficient to refresh your
-        access token, the default implementation does not save new
-        tokens anywhere. If this is something you need, you will need
-        to extend this method to accommodate that.
+        ???+ note "Changed in version 5.0"
+            This is now handled by the client rather than by individual
+            shards.
 
         Parameters
         ----------
@@ -361,15 +364,17 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
             refreshed. In the latter instance, your client will need to
             be reauthorised from scratch.
 
-        !!! note "Changed in version 5.0"
-            This is now handled by the client rather than by individual
-            shards.
+        Notes
+        -----
+        While this method should always be sufficient to refresh your
+        access token, the default implementation does not save new
+        tokens anywhere. If this is something you need, you will need
+        to extend this method to accommodate that.
 
-        ??? example
-            ```py
-            >>> client.refresh_access_token(tokens)
-            Tokens(access_token="1234567890", ...)
-            ```
+        Examples
+        --------
+        >>> client.refresh_access_token(tokens)
+        Tokens(access_token="1234567890", ...)
         """
         refresh_token = tokens.refresh_token
         refresh_uri, data, headers = auth.refresh_uri(self._secrets, refresh_token)
@@ -400,6 +405,9 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
         Generally, shards should only live for a single request or
         a batch of related requests.
 
+        ???+ note "Changed in version 5.0"
+            You can now provide custom scopes for shards.
+
         Parameters
         ----------
         tokens
@@ -414,24 +422,19 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
             A new shard. It will be destroyed upon exiting the context
             manager.
 
-        !!! note "Changed in version 5.0"
-            You can now provide custom scopes for shards.
+        Examples
+        --------
+        >>> tokens = client.authorise()
+        >>> with client.shard(tokens) as shard:
+        ...     shard.fetch_report()
 
-        ??? example
-            ```py
-            tokens = client.authorise()
-            with client.shard(tokens) as shard:
-                shard.fetch_report()
-            ```
+        Providing custom scopes.
 
-        ??? example "Providing custom scopes"
-            ```py
-            from analytix import Scopes
-
-            tokens = client.authorise()
-            with client.shard(tokens, scopes=Scopes.ALL) as shard:
-                shard.fetch_groups()
-            ```
+        >>> from analytix import Scopes
+        >>> # Other custom logic.
+        >>> tokens = client.authorise()
+        >>> with client.shard(tokens, scopes=Scopes.ALL) as shard:
+        ...     shard.fetch_groups()
         """
         shard = Shard(scopes or self._scopes, tokens)
         yield shard
@@ -446,6 +449,12 @@ class Client(BaseClient):
     from you.
 
     This will work as a context manager.
+
+    ???+ note "Changed in version 5.0"
+        * You should now provide a tokens file rather than a tokens
+          directory
+        * `auto_open_browser` is now set based on your OS by default
+        * Monetary data is now no longer accessible by default
 
     Parameters
     ----------
@@ -473,12 +482,6 @@ class Client(BaseClient):
     ------
     ValueError
         `tokens_file` is not a JSON file.
-
-    !!! note "Changed in version 5.0"
-        * You should now provide a tokens file rather than a tokens
-          directory
-        * `auto_open_browser` is now set based on your OS by default
-        * Monetary data is now no longer accessible by default
     """
 
     def __init__(
@@ -509,17 +512,19 @@ class Client(BaseClient):
     def authorise(self, *, force: bool = False, force_refresh: bool = False) -> Tokens:
         """Authorise the client.
 
-        This method always does the minimum possible work necessary to
-        authorise the client unless forced to do otherwise. This means
-        that stored tokens will be prioritised, and the full auth flow
-        will only trigger when necessary. Token refreshing is handled
-        automatically.
-
         Client methods authorise the client for you, so you don't need
         to call this manually when using those. If you plan to make
         multiple requests in a row using the same client, it's better to
         call this manually and create a shard with the generated tokens
         to avoid authorising the client multiple times.
+
+        ???+ note "Changed in version 5.0"
+            * You can no longer pass a filename to load a specific set
+              of tokens; if you wish to change which channel is
+              authorised, you should either utilise shards or forcibly
+              reauthorise the client
+            * You can now forcibly refresh access tokens using this
+              method
 
         Parameters
         ----------
@@ -542,19 +547,18 @@ class Client(BaseClient):
         AuthorisationError
             Something went wrong during authorisation.
 
-        !!! note "Changed in version 5.0"
-            * You can no longer pass a filename to load a specific set
-              of tokens; if you wish to change which channel is
-              authorised, you should either utilise shards or forcibly
-              reauthorise the client
-            * You can now forcibly refresh access tokens using this
-              method
+        Notes
+        -----
+        This method always does the minimum possible work necessary to
+        authorise the client unless forced to do otherwise. This means
+        that stored tokens will be prioritised, and the full auth flow
+        will only trigger when necessary. Token refreshing is handled
+        automatically.
 
-        ??? example
-            ```py
-            >>> client.authorise()
-            Tokens(access_token="1234567890", ...)
-            ```
+        Examples
+        --------
+        >>> client.authorise()
+        Tokens(access_token="1234567890", ...)
         """
         if not force and self._tokens_file.is_file():
             tokens = Tokens.load_from(self._tokens_file)
@@ -601,6 +605,8 @@ class Client(BaseClient):
     ) -> Optional[Tokens]:
         """Refresh your access token.
 
+        ???+ note "New in version 5.0"
+
         Parameters
         ----------
         tokens
@@ -615,12 +621,15 @@ class Client(BaseClient):
             Your refreshed tokens, or `None` if they could not be
             refreshed.
 
-        !!! note
-            This method should never need to be called, as the
-            `authorise` method will call it automatically when
-            necessary.
+        Notes
+        -----
+        This method should never need to be called, as the `authorise`
+        method will call it automatically when necessary.
 
-        !!! note "New in version 5.0"
+        Examples
+        --------
+        >>> client.refresh_access_token(tokens)
+        Tokens(access_token="1234567890", ...)
         """
         if not force and self.token_is_valid(tokens.access_token):
             return tokens
@@ -646,6 +655,13 @@ class Client(BaseClient):
         **kwargs: Any,
     ) -> "Report":
         """Authorise the client and fetch an analytics report.
+
+        ???+ note "Changed in version 5.0"
+            This used to be `retrieve_report`.
+
+        ???+ note "Changed in version 5.2"
+            Support for [new playlst reports](../guides/
+            new-playlist-reports.md) has been added.
 
         Parameters
         ----------
@@ -708,44 +724,40 @@ class Client(BaseClient):
         AuthorisationError
             Something went wrong during authorisation.
 
-        !!! warning
-            If your channel is not partnered, attempting to access
-            monetary data will result in a `Forbidden` error. Ensure
-            your scopes are set up correctly before calling this method.
+        Warnings
+        --------
+        * If your channel is not partnered, attempting to access
+          monetary data will result in a `Forbidden` error. Ensure your
+          scopes are set up correctly before calling this method.
+        * The "isCurated" filter will stop working on 30 Jun 2024. See
+          the [guide on new playlist reports](../guides/
+          new-playlist-reports.md) for information on how to migrate.
 
-        !!! warning
-            The "isCurated" filter will stop working on 30 Jun 2024. See
-            the [guide on new playlist reports](../guides/
-            new-playlist-reports.md) for information on how to migrate.
+        See Also
+        --------
+        You can learn more about dimensions, filters, metrics, and sort
+        options by reading the [detailed guides](../guides/
+        dimensions.md).
 
-        !!! info "See also"
-            You can learn more about dimensions, filters, metrics, and
-            sort options by reading the [detailed guides](../guides/
-            dimensions.md).
+        Examples
+        --------
+        Fetching daily analytics data for 2022.
 
-        !!! note "Changed in version 5.0"
-            This used to be `retrieve_report`.
+        >>> import datetime
+        >>> shard.fetch_report(
+        ...     dimensions=("day",),
+        ...     start_date=datetime.date(2022, 1, 1),
+        ...     end_date=datetime.date(2022, 12, 31),
+        ... )
 
-        ??? example "Fetching daily analytics data for 2022"
-            ```py
-            from datetime import datetime
+        Fetching 10 most watched videos over last 28 days.
 
-            shard.fetch_report(
-                dimensions=("day",),
-                start_date=datetime.date(2022, 1, 1),
-                end_date=datetime.date(2022, 12, 31),
-            )
-            ```
-
-        ??? example "Fetching 10 most watched videos over last 28 days"
-            ```py
-            shard.fetch_report(
-                dimensions=("video",),
-                metrics=("estimatedMinutesWatched", "views"),
-                sort_options=("-estimatedMinutesWatched"),
-                max_results=10,
-            )
-            ```
+        >>> shard.fetch_report(
+        ...     dimensions=("video",),
+        ...     metrics=("estimatedMinutesWatched", "views"),
+        ...     sort_options=("-estimatedMinutesWatched",),
+        ...     max_results=10,
+        ... )
         """
         tokens = self.authorise(**kwargs)
         with self.shard(tokens) as shard:
@@ -770,6 +782,10 @@ class Client(BaseClient):
         **kwargs: Any,
     ) -> "GroupList":
         """Authorise the client and fetch a list of analytics groups.
+
+        ???+ note "Changed in version 5.0"
+            You can now pass a series of keyword arguments to be passed
+            on to the `authorise` method.
 
         Parameters
         ----------
@@ -805,10 +821,6 @@ class Client(BaseClient):
             The client attempted to open a new browser tab, but failed.
         AuthorisationError
             Something went wrong during authorisation.
-
-        !!! note "Changed in version 5.0"
-            You can now pass a series of keyword arguments to be passed
-            on to the `authorise` method.
         """
         tokens = self.authorise(**kwargs)
         with self.shard(tokens) as shard:
@@ -817,6 +829,10 @@ class Client(BaseClient):
     def fetch_group_items(self, group_id: str, **kwargs: Any) -> "GroupItemList":
         """Authorise the client and fetch a list of all items within a
         group.
+
+        ???+ note "Changed in version 5.0"
+            You can now pass a series of keyword arguments to be passed
+            on to the `authorise` method.
 
         Parameters
         ----------
@@ -846,10 +862,6 @@ class Client(BaseClient):
             The client attempted to open a new browser tab, but failed.
         AuthorisationError
             Something went wrong during authorisation.
-
-        !!! note "Changed in version 5.0"
-            You can now pass a series of keyword arguments to be passed
-            on to the `authorise` method.
         """
         tokens = self.authorise(**kwargs)
         with self.shard(tokens) as shard:

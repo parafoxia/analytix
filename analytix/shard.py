@@ -59,6 +59,10 @@ class Shard(RequestMixin):
     Shards should only be created using the `BaseClient.shard` or
     `Client.shard` context managers.
 
+    ???+ note "Changed in version 5.0"
+        * Shard-specific scopes can now be passed to the constructor
+        * Shards can no longer refresh their own tokens
+
     Parameters
     ----------
     scopes
@@ -67,14 +71,11 @@ class Shard(RequestMixin):
     tokens
         Your tokens.
 
-    !!! warning
-        Shards cannot refresh their own tokens. You may want to take
-        extra precautions to ensure a shard's token doesn't expire
-        during its lifetime.
-
-    !!! note "Changed in version 5.0"
-        * Shard-specific scopes can now be passed to the constructor
-        * Shards can no longer refresh their own tokens
+    Warnings
+    --------
+    Shards cannot refresh their own tokens. You may want to take extra
+    precautions to ensure a shard's tokens don't expire during its
+    lifetime.
     """
 
     __slots__ = ("_scopes", "_tokens")
@@ -99,8 +100,12 @@ class Shard(RequestMixin):
     ) -> Report:
         """Fetch an analytics report.
 
-        This gets video reports by default. To get playlist reports, you
-        must set the `"isCurated"` filter to `"1"`.
+        ???+ note "Changed in version 5.0"
+            This used to be `retrieve_report`.
+
+        ???+ note "Changed in version 5.2"
+            Support for [new playlst reports](../guides/
+            new-playlist-reports.md) has been added.
 
         Parameters
         ----------
@@ -156,44 +161,40 @@ class Shard(RequestMixin):
             your channel is not partnered, this is raised when you try
             to access monetary data.
 
-        !!! warning
-            If your channel is not partnered, attempting to access
-            monetary data will result in a `Forbidden` error. Ensure
-            your scopes are set up correctly before calling this method.
+        Warnings
+        --------
+        * If your channel is not partnered, attempting to access
+          monetary data will result in a `Forbidden` error. Ensure
+          your scopes are set up correctly before calling this method.
+        * The "isCurated" filter will stop working on 30 Jun 2024. See
+          the [guide on new playlist reports](../guides/
+          new-playlist-reports.md) for information on how to migrate.
 
-        !!! warning
-            The "isCurated" filter will stop working on 30 Jun 2024. See
-            the [guide on new playlist reports](../guides/
-            new-playlist-reports.md) for information on how to migrate.
+        See Also
+        --------
+        You can learn more about dimensions, filters, metrics, and sort
+        options by reading the [detailed guides](../guides/
+        dimensions.md).
 
-        !!! info "See also"
-            You can learn more about dimensions, filters, metrics, and
-            sort options by reading the [detailed guides](../guides/
-            dimensions.md).
+        Examples
+        --------
+        Fetching daily analytics data for 2022.
 
-        !!! note "Changed in version 5.0"
-            This used to be `retrieve_report`.
+        >>> import datetime
+        >>> shard.fetch_report(
+        ...     dimensions=("day",),
+        ...     start_date=datetime.date(2022, 1, 1),
+        ...     end_date=datetime.date(2022, 12, 31),
+        ... )
 
-        ??? example "Fetching daily analytics data for 2022"
-            ```py
-            from datetime import datetime
+        Fetching 10 most watched videos over last 28 days.
 
-            shard.fetch_report(
-                dimensions=("day",),
-                start_date=datetime.date(2022, 1, 1),
-                end_date=datetime.date(2022, 12, 31),
-            )
-            ```
-
-        ??? example "Fetching 10 most watched videos over last 28 days"
-            ```py
-            shard.fetch_report(
-                dimensions=("video",),
-                metrics=("estimatedMinutesWatched", "views"),
-                sort_options=("-estimatedMinutesWatched"),
-                max_results=10,
-            )
-            ```
+        >>> shard.fetch_report(
+        ...     dimensions=("video",),
+        ...     metrics=("estimatedMinutesWatched", "views"),
+        ...     sort_options=("-estimatedMinutesWatched",),
+        ...     max_results=10,
+        ... )
         """
         query = ReportQuery(
             dimensions,

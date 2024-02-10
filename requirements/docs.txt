@@ -1,6 +1,4 @@
+griffe>=0.40.2
 mkdocs-material>=9.0.2,<10.0
 mkdocs-include-markdown-plugin>=6.0,<7.0
 mkdocstrings[python]~=0.24.0
-
-# Hopefully temporary pin to resolve a parsing bug.
-griffe<0.39

@@ -31,7 +31,7 @@
 You will only need to use these if you're planning to subclass the base
 client.
 
-!!! info "See also"
+???+ info "See also"
     This follows the OpenID Connect specification as described in the
     [Google Identity documentation](https://developers.google.com/
     identity/openid-connect/openid-connect).
@@ -91,7 +91,7 @@ class Scopes(Flag):
     * `EMAIL` — Include email information in JWTs
     * `ALL_JWT` — Include all available information in JWTs
 
-    !!! note "Changed in version 5.1"
+    ???+ note "Changed in version 5.1"
         * Added the `OPENID`, `PROFILE`, `EMAIL`, and `ALL_JWT` scopes
         * This now works like a flag enum rather than a normal one; this
           doesn't introduce any breaking changes (unless you're using
@@ -175,6 +175,9 @@ class Secrets:
     def load_from(cls, path: PathLike) -> "Secrets":
         """Load secrets from a JSON file.
 
+        ???+ note "Changed in version 5.0"
+            This used to be `from_file`.
+
         Parameters
         ----------
         path
@@ -192,14 +195,10 @@ class Secrets:
         JSONDecodeError
             The given file is not a valid JSON file.
 
-        !!! note "Changed in version 5.0"
-            This used to be `from_file`.
-
-        ??? example
-            ```py
-            >>> Secrets.load_from("secrets.json")
-            Secrets(type="installed", ...)
-            ```
+        Examples
+        --------
+        >>> Secrets.load_from("secrets.json")
+        Secrets(type="installed", ...)
         """
         secrets_file = Path(path)
 
@@ -246,9 +245,10 @@ class Tokens:
         digitally signed by Google. This will be `None` if you did not
         specifically request JWT tokens when authorising.
 
-    !!! warning
-        The `expires_in` field is never updated by analytix, and as such
-        will always be `3599` unless you update it yourself.
+    Warnings
+    --------
+    The `expires_in` field is never updated by analytix, and as such
+    will always be `3599` unless you update it yourself.
     """
 
     access_token: str
@@ -261,6 +261,9 @@ class Tokens:
     @classmethod
     def load_from(cls, path: PathLike) -> "Tokens":
         """Load tokens from a JSON file.
+
+        ???+ note "Changed in version 5.0"
+            This used to be `from_file`.
 
         Parameters
         ----------
@@ -279,14 +282,10 @@ class Tokens:
         JSONDecodeError
             The given file is not a valid JSON file.
 
-        !!! note "Changed in version 5.0"
-            This used to be `from_file`.
-
-        ??? example
-            ```py
-            >>> Tokens.load_from("tokens.json")
-            Tokens(access_token="1234567890", ...)
-            ```
+        Examples
+        --------
+        >>> Tokens.load_from("tokens.json")
+        Tokens(access_token="1234567890", ...)
         """
         tokens_file = Path(path)
 
@@ -314,16 +313,18 @@ class Tokens:
         JSONDecodeError
             The given file is not a valid JSON file.
 
-        ??? example
-            ```py
-            >>> Tokens.from_json('{"access_token": "1234567890", ...}')
-            Tokens(access_token="1234567890", ...)
-            ```
+        Examples
+        --------
+        >>> Tokens.from_json('{"access_token": "1234567890", ...}')
+        Tokens(access_token="1234567890", ...)
         """
         return cls(**json.loads(data))
 
     def save_to(self, path: PathLike) -> None:
         """Save your tokens to disk.
+
+        ???+ note "Changed in version 5.0"
+            This used to be `write`.
 
         Parameters
         ----------
@@ -335,13 +336,9 @@ class Tokens:
         None
             This method doesn't return anything.
 
-        !!! note "Changed in version 5.0"
-            This used to be `write`.
-
-        ??? example
-            ```py
-            Tokens.save_to("tokens.json")
-            ```
+        Examples
+        --------
+        >>> Tokens.save_to("tokens.json")
         """
         tokens_file = Path(path)
 
@@ -361,6 +358,9 @@ class Tokens:
     def refresh(self, data: Union[str, bytes]) -> "Tokens":
         """Updates your tokens to match those you refreshed.
 
+        ???+ note "Changed in version 5.0"
+            This used to be `update`.
+
         Parameters
         ----------
         data
@@ -373,21 +373,16 @@ class Tokens:
         Tokens
             Your refreshed tokens.
 
-        !!! info "See also"
-            This method does not actually refresh your access token;
-            for that, you'll need to use `Client.refresh_access_token`.
+        See Also
+        --------
+        * This method does not actually refresh your access token;
+          for that, you'll need to use `Client.refresh_access_token`.
+        * To save tokens, you'll need the `save_to` method.
 
-        !!! info "See also"
-            To save tokens, you'll need the `save_to` method.
-
-        !!! note "Changed in version 5.0"
-            This used to be `update`.
-
-        ??? example
-            ```py
-            >>> Tokens.refresh('{"access_token": "abcdefghij", ...}')
-            Tokens(access_token="abcdefghij", ...)
-            ```
+        Examples
+        --------
+        >>> Tokens.refresh('{"access_token": "abcdefghij", ...}')
+        Tokens(access_token="abcdefghij", ...)
         """
         attrs = json.loads(data)
         for key, value in attrs.items():
@@ -402,12 +397,25 @@ def state_token() -> str:
     -------
     str
         A new state token.
+
+    Examples
+    --------
+    >>> state_token()
+    '385cdc1c6e9410120755ecf1c0558299be58bd3bcc6f515addaa817df5e10fd2'
     """
     return hashlib.sha256(os.urandom(1024)).hexdigest()
 
 
 def auth_uri(secrets: Secrets, scopes: Scopes, port: int) -> UriParams:
     """Returns the authentication URI and parameters.
+
+    ???+ note "Changed in version 5.0"
+        * This now takes scopes as a parameter
+        * This now returns headers (albeit always empty) to be more
+          consistent with other functions
+        * The redirect URI to use is now chosen more intelligently --
+          it will be the first in the list not intended to be used in
+          OOB authorisation.
 
     Parameters
     ----------
@@ -426,14 +434,6 @@ def auth_uri(secrets: Secrets, scopes: Scopes, port: int) -> UriParams:
         The query parameters as a dictionary.
     headers : Dict[str, str]
         Necessary request headers. This is always empty.
-
-    !!! note "Changed in version 5.0"
-        * This now takes scopes as a parameter
-        * This now returns headers (albeit always empty) to be more
-          consistent with other functions
-        * The redirect URI to use is now chosen more intelligently --
-          it will be the first in the list not intended to be used in
-          OOB authorisation.
     """
     redirect_uri = next(
         uri
@@ -519,6 +519,9 @@ def refresh_uri(secrets: Secrets, token: str) -> UriParams:
 def run_flow(auth_params: Dict[str, str]) -> str:
     """Start a webserver and listen for an authentication code.
 
+    ???+ note "Changed in version 5.0"
+        This used to be `authenticate`.
+
     Parameters
     ----------
     auth_params
@@ -534,9 +537,6 @@ def run_flow(auth_params: Dict[str, str]) -> str:
     AuthorisationError
         * You provided an invalid redirect URI
         * The received state does not match the generated one
-
-    !!! note "Changed in version 5.0"
-        This used to be `authenticate`.
     """
     if not (match := REDIRECT_URI_PATTERN.match(auth_params["redirect_uri"])):
         raise AuthorisationError("invalid redirect URI")
