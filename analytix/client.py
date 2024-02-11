@@ -98,7 +98,7 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
 
     This will work as a context manager.
 
-    ???+ note "New in version 5.0"
+    !!! note "New in version 5.0"
 
     Parameters
     ----------
@@ -212,7 +212,7 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
         The default implementation makes a call to Google's OAuth2 API
         to determine the token's validity.
 
-        ???+ note "New in version 5.0"
+        !!! note "New in version 5.0"
 
         Parameters
         ----------
@@ -250,7 +250,7 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
         with all scopes, but you only passed the READONLY scope to the
         client, this will return `True`.
 
-        ???+ note "New in version 5.0"
+        !!! note "New in version 5.0"
 
         Parameters
         ----------
@@ -285,7 +285,7 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
         You will only receive an ID token if you specifically tell
         the client to fetch one.
 
-        ???+ note "New in version 5.1"
+        !!! note "New in version 5.1"
 
         Parameters
         ----------
@@ -605,7 +605,7 @@ class Client(BaseClient):
     ) -> Optional[Tokens]:
         """Refresh your access token.
 
-        ???+ note "New in version 5.0"
+        !!! note "New in version 5.0"
 
         Parameters
         ----------

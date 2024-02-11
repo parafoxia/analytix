@@ -143,7 +143,7 @@ class Group(_Resource):
     def fetch_items(self) -> "GroupItemList":
         """Fetch a list of all items within this group.
 
-        ???+ note "New in version 5.0"
+        !!! note "New in version 5.0"
 
         Returns
         -------
