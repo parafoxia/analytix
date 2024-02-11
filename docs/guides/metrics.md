@@ -54,8 +54,12 @@ This means you only ever need to supply a series of metrics if you want your rep
 * viewerPercentage [^1]
 * audienceWatchRatio
 * relativeRetentionPerformance
-* playlistStarts
-* viewsPerPlaylistStart
 * averageTimeInPlaylist
+* playlistAverageViewDuration
+* playlistEstimatedMinutesWatched
+* playlistSaves
+* playlistStarts
+* playlistViews
+* viewsPerPlaylistStart
 
 [^1]: Core metric (subject to YouTube’s deprecation policy)

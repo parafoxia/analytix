@@ -17,6 +17,10 @@ filters={"isCurated": "1"}
 
 Other filters can be additionally supplied as normal, provided they are supported by playlist report types.
 
+!!! warning
+    This functionality is deprecated and will not work beyond 30 Jun 2024.
+    See the [guide on new playlist reports](./new-playlist-reports.md) for more information.
+
 ## Other special cases
 
 There are a few other special cases worth keeping in mind:
@@ -209,6 +213,7 @@ Click on a box to view the filter's possible values.
     <ul>
         <li>1</li>
     </ul>
+    WARNING: This is deprecated and will be removed on 30 Jun 2024.
 </details>
 
 <details>
