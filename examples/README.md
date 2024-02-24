@@ -4,6 +4,8 @@ This folder contains various examples of how analytix can be used to retrieve da
 This set does not aim to be exhaustive, but instead cover the most common use cases.
 Examples are generally derived from the [sample requests](https://developers.google.com/youtube/analytics/sample-requests) on the YouTube Analytics API documentation.
 
+The `custom` directory contains examples of ways I've used analytix with my own channel.
+
 Note that each example requires a secrets file, which is not provided.
 
 ## License
