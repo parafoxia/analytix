@@ -14,5 +14,4 @@ jobs:
         with:
           python-version: 3.x
       - run: pip install -r requirements/docs.txt
-      - run: pip install git+https://github.com/parafoxia/griffe@fix-warnings-section-admonition
       - run: mkdocs gh-deploy --force
