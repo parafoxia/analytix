@@ -95,17 +95,12 @@ def sp(*paths: Path) -> List[str]:
 @install(meta=True)
 def tests(session: nox.Session) -> None:
     session.run(
-        "coverage",
-        "run",
-        "--source",
-        PROJECT_NAME,
-        "--omit",
-        "tests/*",
-        "-m",
         "pytest",
         "--log-level=1",
+        f"--cov={PROJECT_NAME}",
+        "--cov-report=term-missing",
+        "-n=4",
     )
-    session.run("coverage", "report", "-m")
 
 
 @nox.session(reuse_venv=True, python=["3.11"])

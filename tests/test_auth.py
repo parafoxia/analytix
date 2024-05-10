@@ -309,11 +309,13 @@ def test_refresh_uri(secrets: Secrets):
 
 
 def test_run_flow(auth_params, caplog):
+    auth_params["redirect_uri"] = f"http://localhost:8081"
+
     def req():
         # Sleeping for a tick makes sure the server is set up before a
         # request is made to it.
         time.sleep(0.1)
-        url = "http://localhost:8080?state=34c5f166f6abb229ee092be1e7e92ca71434bcb1a27ba0664cd2fea834d85927&code=a1b2c3d4e5"
+        url = f"http://localhost:8081?state=34c5f166f6abb229ee092be1e7e92ca71434bcb1a27ba0664cd2fea834d85927&code=a1b2c3d4e5"
         urlopen(url)
 
     with caplog.at_level(logging.DEBUG):
@@ -333,7 +335,7 @@ def test_run_flow_invalid_url(auth_params, caplog):
         # Sleeping for a tick makes sure the server is set up before a
         # request is made to it.
         time.sleep(0.1)
-        url = "http://localhost:8080?state=34c5f166f6abb229ee092be1e7e92ca71434bcb1a27ba0664cd2fea834d85927&code=a1b2c3d4e5"
+        url = "http://localhost:8082?state=34c5f166f6abb229ee092be1e7e92ca71434bcb1a27ba0664cd2fea834d85927&code=a1b2c3d4e5"
         urlopen(url)
 
     with caplog.at_level(logging.DEBUG):
@@ -345,11 +347,13 @@ def test_run_flow_invalid_url(auth_params, caplog):
 
 
 def test_run_flow_invalid_state(auth_params, caplog):
+    auth_params["redirect_uri"] = f"http://localhost:8083"
+
     def req():
         # Sleeping for a tick makes sure the server is set up before a
         # request is made to it.
         time.sleep(0.1)
-        url = "http://localhost:8080?state=rickroll&code=a1b2c3d4e5"
+        url = "http://localhost:8083?state=rickroll&code=a1b2c3d4e5"
         urlopen(url)
 
     with caplog.at_level(logging.DEBUG):
