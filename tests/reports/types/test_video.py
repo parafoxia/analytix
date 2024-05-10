@@ -26,331 +26,286 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import random
 import warnings
 
 import pytest
 
+from analytix.abc import ReportType
 from analytix.errors import InvalidRequest
 from analytix.reports import data
 from analytix.reports import types as rt
-from analytix.reports.features import Filters, Required, ZeroOrOne
-
-# BASIC USER ACTIVITY
 
 
-def test_basic_user_activity_1():
+def select_metrics(rtype: ReportType):
+    metrics = list(rtype.metrics.values)
+    sort_options = list(rtype.sort_options.values)
+    return [
+        metrics,
+        random.sample(sort_options, random.randint(1, len(sort_options))),
+    ]
+
+
+def select_sort_options(metrics, descending_only=False):
+    if descending_only:
+        return [(f"-{m[0]}",) for m in metrics[1:]]
+    return [(m[0], f"-{m[0]}") for m in metrics[1:]]
+
+
+def sample(s: set[str], n: int = 3) -> list[str]:
+    return s if len(s) < n else random.sample(list(s), n)
+
+
+@pytest.mark.parametrize("dimensions", [()])
+@pytest.mark.parametrize(
+    "filters",
+    [
+        {},
+        *[{"country": x} for x in sample(data.COUNTRIES)],
+        *[{"continent": x} for x in sample(data.VALID_FILTER_OPTIONS["continent"])],
+        *[
+            {"subContinent": x}
+            for x in sample(data.VALID_FILTER_OPTIONS["subContinent"])
+        ],
+        {"video": "rickroll"},
+        {"group": "rickroll"},
+        {"video": "rickroll", "country": "US"},
+        {"group": "rickroll", "country": "US"},
+        {"video": "rickroll", "continent": "002"},
+        {"group": "rickroll", "continent": "002"},
+        {"video": "rickroll", "subContinent": "015"},
+        {"group": "rickroll", "subContinent": "015"},
+    ],
+)
+@pytest.mark.parametrize("metrics", m := select_metrics(rt.BasicUserActivity()))
+@pytest.mark.parametrize("sort_options", select_sort_options(m))
+def test_basic_user_activity(dimensions, filters, metrics, sort_options):
     report = rt.BasicUserActivity()
     assert report.name == "Basic user activity"
-    d = []
-    f = {"country": "US", "video": "nf97ng98bg9"}
-    m = data.ALL_VIDEO_METRICS
-    s = data.ALL_VIDEO_METRICS
-    report.validate(d, f, m, s)
+    report.validate(dimensions, filters, metrics, sort_options)
 
 
-def test_basic_user_activity_2():
+@pytest.mark.parametrize("dimensions", [()])
+@pytest.mark.parametrize(
+    "filters",
+    [
+        {"country": "UK", "video": "rickroll"},
+        {"country": "UK", "group": "rickroll"},
+        {"continent": "015", "video": "rickroll"},
+        {"continent": "015", "group": "rickroll"},
+        {"subContinent": "002", "video": "rickroll"},
+        {"subContinent": "002", "group": "rickroll"},
+    ],
+)
+@pytest.mark.parametrize("metrics", m := select_metrics(rt.BasicUserActivity()))
+@pytest.mark.parametrize("sort_options", select_sort_options(m))
+def test_basic_user_activity_errors(dimensions, filters, metrics, sort_options):
     report = rt.BasicUserActivity()
     assert report.name == "Basic user activity"
-    d = []
-    f = {"continent": "002", "group": "fn849bng984b"}
-    m = data.ALL_VIDEO_METRICS
-    s = data.ALL_VIDEO_METRICS
-    report.validate(d, f, m, s)
+    with pytest.raises(InvalidRequest):
+        report.validate(dimensions, filters, metrics, sort_options)
 
 
-def test_basic_user_activity_3():
-    report = rt.BasicUserActivity()
-    assert report.name == "Basic user activity"
-    d = []
-    f = {"subContinent": "014"}
-    m = data.ALL_VIDEO_METRICS
-    s = data.ALL_VIDEO_METRICS
-    report.validate(d, f, m, s)
-
-
-def test_basic_user_activity_4():
-    report = rt.BasicUserActivity()
-    assert report.name == "Basic user activity"
-    d = []
-    f = {}
-    m = data.ALL_VIDEO_METRICS
-    s = data.ALL_VIDEO_METRICS
-    report.validate(d, f, m, s)
-
-
-# BASIC USER ACTIVITY (US)
-
-
-def test_basic_user_activity_us_1():
+@pytest.mark.parametrize("dimensions", [()])
+@pytest.mark.parametrize(
+    "filters",
+    [
+        *[{"province": x} for x in sample(data.SUBDIVISIONS)],
+        {"province": "US-OH", "video": "rickroll"},
+        {"province": "US-OH", "group": "rickroll"},
+    ],
+)
+@pytest.mark.parametrize("metrics", m := select_metrics(rt.BasicUserActivityUS()))
+@pytest.mark.parametrize("sort_options", select_sort_options(m))
+def test_basic_user_activity_us(dimensions, filters, metrics, sort_options):
     report = rt.BasicUserActivityUS()
     assert report.name == "Basic user activity (US)"
-    d = []
-    f = {"province": "US-OH", "video": "fnu74ng98wb49g"}
-    m = data.ALL_PROVINCE_METRICS
-    s = data.ALL_PROVINCE_METRICS
-    report.validate(d, f, m, s)
+    report.validate(dimensions, filters, metrics, sort_options)
 
 
-def test_basic_user_activity_us_2():
+@pytest.mark.parametrize("dimensions", [()])
+@pytest.mark.parametrize(
+    "filters",
+    [
+        {"province": "US-XX", "video": "rickroll"},
+        {"province": "US-XX", "group": "rickroll"},
+    ],
+)
+@pytest.mark.parametrize("metrics", m := select_metrics(rt.BasicUserActivityUS()))
+@pytest.mark.parametrize("sort_options", select_sort_options(m))
+def test_basic_user_activity_us_errors(dimensions, filters, metrics, sort_options):
     report = rt.BasicUserActivityUS()
     assert report.name == "Basic user activity (US)"
-    d = []
-    f = {"province": "US-OH", "group": "fnu74ng98wb49g"}
-    m = data.ALL_PROVINCE_METRICS
-    s = data.ALL_PROVINCE_METRICS
-    report.validate(d, f, m, s)
+    with pytest.raises(InvalidRequest):
+        report.validate(dimensions, filters, metrics, sort_options)
 
 
-def test_basic_user_activity_us_3():
-    report = rt.BasicUserActivityUS()
-    assert report.name == "Basic user activity (US)"
-    d = []
-    f = {"province": "US-OH"}
-    m = data.ALL_PROVINCE_METRICS
-    s = data.ALL_PROVINCE_METRICS
-    report.validate(d, f, m, s)
-
-
-# TIME-BASED ACTIVITY
-
-
-def test_time_based_activity_1():
+@pytest.mark.parametrize(
+    "dimensions",
+    [
+        ("day",),
+        ("month",),
+        ("day", "creatorContentType"),
+        ("month", "creatorContentType"),
+    ],
+)
+@pytest.mark.parametrize(
+    "filters",
+    [
+        {},
+        *[{"country": x} for x in sample(data.COUNTRIES)],
+        *[{"continent": x} for x in sample(data.VALID_FILTER_OPTIONS["continent"])],
+        *[
+            {"subContinent": x}
+            for x in sample(data.VALID_FILTER_OPTIONS["subContinent"])
+        ],
+        {"video": "rickroll"},
+        {"group": "rickroll"},
+        {"video": "rickroll", "country": "US"},
+        {"group": "rickroll", "country": "US"},
+        {"video": "rickroll", "continent": "002"},
+        {"group": "rickroll", "continent": "002"},
+        {"video": "rickroll", "subContinent": "015"},
+        {"group": "rickroll", "subContinent": "015"},
+    ],
+)
+@pytest.mark.parametrize("metrics", m := select_metrics(rt.TimeBasedActivity()))
+@pytest.mark.parametrize("sort_options", select_sort_options(m))
+def test_time_based_activity(dimensions, filters, metrics, sort_options):
     report = rt.TimeBasedActivity()
     assert report.name == "Time-based activity"
-    d = ["day"]
-    f = {"country": "US", "video": "nf97ng98bg9"}
-    m = data.ALL_VIDEO_METRICS
-    s = data.ALL_VIDEO_METRICS
-    report.validate(d, f, m, s)
+    report.validate(dimensions, filters, metrics, sort_options)
 
 
-def test_time_based_activity_2():
-    report = rt.TimeBasedActivity()
-    assert report.name == "Time-based activity"
-    d = ["month"]
-    f = {"continent": "002", "group": "fn849bng984b"}
-    m = data.ALL_VIDEO_METRICS
-    s = data.ALL_VIDEO_METRICS
-    report.validate(d, f, m, s)
-
-
-def test_time_based_activity_3():
-    report = rt.TimeBasedActivity()
-    assert report.name == "Time-based activity"
-    d = ["day"]
-    f = {"subContinent": "014"}
-    m = data.ALL_VIDEO_METRICS
-    s = data.ALL_VIDEO_METRICS
-    report.validate(d, f, m, s)
-
-
-def test_time_based_activity_4():
-    report = rt.TimeBasedActivity()
-    assert report.name == "Time-based activity"
-    d = ["month"]
-    f = {}
-    m = data.ALL_VIDEO_METRICS
-    s = data.ALL_VIDEO_METRICS
-    report.validate(d, f, m, s)
-
-
-# TIME-BASED ACTIVITY (US)
-
-
-def test_time_based_activity_us_1():
+@pytest.mark.parametrize(
+    "dimensions",
+    [
+        ("day",),
+        ("month",),
+        ("day", "creatorContentType"),
+        ("month", "creatorContentType"),
+    ],
+)
+@pytest.mark.parametrize(
+    "filters",
+    [
+        *[{"province": x} for x in sample(data.SUBDIVISIONS)],
+        {"province": "US-OH", "video": "rickroll"},
+        {"province": "US-OH", "group": "rickroll"},
+    ],
+)
+@pytest.mark.parametrize("metrics", m := select_metrics(rt.TimeBasedActivityUS()))
+@pytest.mark.parametrize("sort_options", select_sort_options(m))
+def test_time_based_activity_us(dimensions, filters, metrics, sort_options):
     report = rt.TimeBasedActivityUS()
     assert report.name == "Time-based activity (US)"
-    d = ["day"]
-    f = {"province": "US-OH", "video": "fnu74ng98wb49g"}
-    m = data.ALL_PROVINCE_METRICS
-    s = data.ALL_PROVINCE_METRICS
-    report.validate(d, f, m, s)
+    report.validate(dimensions, filters, metrics, sort_options)
 
 
-def test_time_based_activity_us_2():
-    report = rt.TimeBasedActivityUS()
-    assert report.name == "Time-based activity (US)"
-    d = ["month"]
-    f = {"province": "US-OH", "group": "fnu74ng98wb49g"}
-    m = data.ALL_PROVINCE_METRICS
-    s = data.ALL_PROVINCE_METRICS
-    report.validate(d, f, m, s)
-
-
-def test_time_based_activity_us_3():
-    report = rt.TimeBasedActivityUS()
-    assert report.name == "Time-based activity (US)"
-    d = ["day"]
-    f = {"province": "US-OH"}
-    m = data.ALL_PROVINCE_METRICS
-    s = data.ALL_PROVINCE_METRICS
-    report.validate(d, f, m, s)
-
-
-# GEOGRAPHY-BASED ACTIVITY
-
-
-def test_geography_based_activity_1():
+@pytest.mark.parametrize(
+    "dimensions",
+    [("country",), ("country", "creatorContentType")],
+)
+@pytest.mark.parametrize(
+    "filters",
+    [
+        {},
+        *[{"continent": x} for x in sample(data.VALID_FILTER_OPTIONS["continent"])],
+        *[
+            {"subContinent": x}
+            for x in sample(data.VALID_FILTER_OPTIONS["subContinent"])
+        ],
+        {"video": "rickroll"},
+        {"group": "rickroll"},
+        {"video": "rickroll", "continent": "002"},
+        {"group": "rickroll", "continent": "002"},
+        {"video": "rickroll", "subContinent": "015"},
+        {"group": "rickroll", "subContinent": "015"},
+    ],
+)
+@pytest.mark.parametrize("metrics", m := select_metrics(rt.GeographyBasedActivity()))
+@pytest.mark.parametrize("sort_options", select_sort_options(m))
+def test_geography_based_activity(dimensions, filters, metrics, sort_options):
     report = rt.GeographyBasedActivity()
     assert report.name == "Geography-based activity"
-    d = ["country"]
-    f = {"continent": "002", "video": "fn849bng984b"}
-    m = data.ALL_VIDEO_METRICS
-    s = data.ALL_VIDEO_METRICS
-    report.validate(d, f, m, s)
+    report.validate(dimensions, filters, metrics, sort_options)
 
 
-def test_geography_based_activity_2():
-    report = rt.GeographyBasedActivity()
-    assert report.name == "Geography-based activity"
-    d = ["country"]
-    f = {"subContinent": "014", "group": "fn849bng984b"}
-    m = data.ALL_VIDEO_METRICS
-    s = data.ALL_VIDEO_METRICS
-    report.validate(d, f, m, s)
-
-
-def test_geography_based_activity_3():
-    report = rt.GeographyBasedActivity()
-    assert report.name == "Geography-based activity"
-    d = ["country"]
-    f = {}
-    m = data.ALL_VIDEO_METRICS
-    s = data.ALL_VIDEO_METRICS
-    report.validate(d, f, m, s)
-
-
-# GEOGRAPHY-BASED ACTIVITY (US)
-
-
-def test_geography_based_activity_us_1():
+@pytest.mark.parametrize(
+    "dimensions",
+    [("province",), ("province", "creatorContentType")],
+)
+@pytest.mark.parametrize(
+    "filters",
+    [{"country": "US", "video": "rickroll"}, {"country": "US", "group": "rickroll"}],
+)
+@pytest.mark.parametrize("metrics", m := select_metrics(rt.GeographyBasedActivityUS()))
+@pytest.mark.parametrize("sort_options", select_sort_options(m))
+def test_geography_based_activity_us(dimensions, filters, metrics, sort_options):
     report = rt.GeographyBasedActivityUS()
     assert report.name == "Geography-based activity (US)"
-    d = ["province"]
-    f = {"country": "US", "video": "fn849bng984b"}
-    m = data.ALL_PROVINCE_METRICS
-    s = data.ALL_PROVINCE_METRICS
-    report.validate(d, f, m, s)
+    report.validate(dimensions, filters, metrics, sort_options)
 
 
-def test_geography_based_activity_us_2():
-    report = rt.GeographyBasedActivityUS()
-    assert report.name == "Geography-based activity (US)"
-    d = ["province"]
-    f = {"country": "US", "group": "fn849bng984b"}
-    m = data.ALL_PROVINCE_METRICS
-    s = data.ALL_PROVINCE_METRICS
-    report.validate(d, f, m, s)
-
-
-def test_geography_based_activity_us_3():
-    report = rt.GeographyBasedActivityUS()
-    assert report.name == "Geography-based activity (US)"
-    d = ["province"]
-    f = {"country": "US"}
-    m = data.ALL_PROVINCE_METRICS
-    s = data.ALL_PROVINCE_METRICS
-    report.validate(d, f, m, s)
-
-
-# GEOGRAPHY-BASED ACTIVITY (BY CITY)
-
-
-def test_geography_based_activity_by_city_1():
+@pytest.mark.parametrize(
+    "dimensions",
+    [
+        ("city",),
+        ("city", "creatorContentType"),
+        ("city", "country"),
+        ("city", "subscribedStatus"),
+        ("city", "day"),
+        ("city", "month"),
+        (
+            "city",
+            "creatorContentType",
+            "country",
+            "subscribedStatus",
+            "day",
+        ),
+        (
+            "city",
+            "creatorContentType",
+            "country",
+            "subscribedStatus",
+            "month",
+        ),
+    ],
+)
+@pytest.mark.parametrize(
+    "filters",
+    [
+        {},
+        *[{"country": x} for x in sample(data.COUNTRIES)],
+        *[{"province": x} for x in sample(data.SUBDIVISIONS)],
+        *[{"continent": x} for x in sample(data.VALID_FILTER_OPTIONS["continent"])],
+        *[
+            {"subContinent": x}
+            for x in sample(data.VALID_FILTER_OPTIONS["subContinent"])
+        ],
+        {"video": "rickroll"},
+        {"group": "rickroll"},
+        {"video": "rickroll", "country": "US"},
+        {"group": "rickroll", "country": "US"},
+        {"video": "rickroll", "province": "US-OH"},
+        {"group": "rickroll", "province": "US-OH"},
+        {"video": "rickroll", "continent": "002"},
+        {"group": "rickroll", "continent": "002"},
+        {"video": "rickroll", "subContinent": "015"},
+        {"group": "rickroll", "subContinent": "015"},
+    ],
+)
+@pytest.mark.parametrize(
+    "metrics", m := select_metrics(rt.GeographyBasedActivityByCity())
+)
+@pytest.mark.parametrize("sort_options", select_sort_options(m, descending_only=True))
+def test_geography_based_activity_by_city(dimensions, filters, metrics, sort_options):
     report = rt.GeographyBasedActivityByCity()
     assert report.name == "Geography-based activity (by city)"
-    d = ["city", "creatorContentType", "day"]
-    f = {"country": "US", "video": "fn849bng984b"}
-    m = (
-        "views",
-        "estimatedMinutesWatched",
-        "averageViewDuration",
-        "averageViewPercentage",
-    )
-    s = [f"-{o}" for o in data.LOCATION_AND_TRAFFIC_SORT_OPTIONS]
-    report.validate(d, f, m, s, 25)
+    report.validate(dimensions, filters, metrics, sort_options, max_results=25)
 
 
-def test_geography_based_activity_by_city_2():
-    report = rt.GeographyBasedActivityByCity()
-    assert report.name == "Geography-based activity (by city)"
-    d = ["city", "country", "month"]
-    f = {"province": "US-OH", "group": "fn849bng984b"}
-    m = (
-        "views",
-        "estimatedMinutesWatched",
-        "averageViewDuration",
-        "averageViewPercentage",
-    )
-    s = [f"-{o}" for o in data.LOCATION_AND_TRAFFIC_SORT_OPTIONS]
-    report.validate(d, f, m, s, 25)
-
-
-def test_geography_based_activity_by_city_3():
-    report = rt.GeographyBasedActivityByCity()
-    assert report.name == "Geography-based activity (by city)"
-    d = ["city", "province"]
-    f = {"country": "US"}
-    m = (
-        "views",
-        "estimatedMinutesWatched",
-        "averageViewDuration",
-        "averageViewPercentage",
-    )
-    s = [f"-{o}" for o in data.LOCATION_AND_TRAFFIC_SORT_OPTIONS]
-    report.validate(d, f, m, s, 25)
-
-    assert report.filters == Filters(
-        Required("country==US"), ZeroOrOne("video", "group")
-    )
-
-
-def test_geography_based_activity_by_city_4():
-    report = rt.GeographyBasedActivityByCity()
-    assert report.name == "Geography-based activity (by city)"
-    d = ["city", "subscribedStatus"]
-    f = {"continent": "002"}
-    m = (
-        "views",
-        "estimatedMinutesWatched",
-        "averageViewDuration",
-        "averageViewPercentage",
-    )
-    s = [f"-{o}" for o in data.LOCATION_AND_TRAFFIC_SORT_OPTIONS]
-    report.validate(d, f, m, s, 25)
-
-
-def test_geography_based_activity_by_city_5():
-    report = rt.GeographyBasedActivityByCity()
-    assert report.name == "Geography-based activity (by city)"
-    d = ["city"]
-    f = {"subContinent": "014"}
-    m = (
-        "views",
-        "estimatedMinutesWatched",
-        "averageViewDuration",
-        "averageViewPercentage",
-    )
-    s = [f"-{o}" for o in data.LOCATION_AND_TRAFFIC_SORT_OPTIONS]
-    report.validate(d, f, m, s, 25)
-
-
-def test_geography_based_activity_by_city_6():
-    report = rt.GeographyBasedActivityByCity()
-    assert report.name == "Geography-based activity (by city)"
-    d = ["city"]
-    f = {}
-    m = (
-        "views",
-        "estimatedMinutesWatched",
-        "averageViewDuration",
-        "averageViewPercentage",
-    )
-    s = [f"-{o}" for o in data.LOCATION_AND_TRAFFIC_SORT_OPTIONS]
-    report.validate(d, f, m, s, 25)
-
-
-def test_geography_based_activity_by_city_7():
+def test_geography_based_activity_by_city_warning():
     report = rt.GeographyBasedActivityByCity()
     assert report.name == "Geography-based activity (by city)"
     d = ["city"]
@@ -375,1001 +330,1155 @@ def test_geography_based_activity_by_city_7():
         )
 
 
-# PLAYBACK DETAILS: SUBSCRIBED STATUS
+@pytest.mark.parametrize(
+    "dimensions",
+    [
+        ("city",),
+        ("city", "province"),
+        ("city", "province", "day"),
+        ("city", "province", "month"),
+    ],
+)
+@pytest.mark.parametrize(
+    "filters",
+    [
+        {"country": "US"},
+        {"video": "rickroll", "country": "US"},
+        {"group": "rickroll", "country": "US"},
+    ],
+)
+@pytest.mark.parametrize(
+    "metrics", m := select_metrics(rt.GeographyBasedActivityByCity())
+)
+@pytest.mark.parametrize("sort_options", select_sort_options(m, descending_only=True))
+def test_geography_based_activity_by_city_with_province(
+    dimensions, filters, metrics, sort_options
+):
+    report = rt.GeographyBasedActivityByCity()
+    assert report.name == "Geography-based activity (by city)"
+    report.validate(dimensions, filters, metrics, sort_options, max_results=25)
 
 
-def test_playback_details_subscribed_status_1():
+@pytest.mark.parametrize(
+    "dimensions",
+    [
+        ("city", "province"),
+        ("city", "province", "day"),
+        ("city", "province", "month"),
+    ],
+)
+@pytest.mark.parametrize(
+    "filters",
+    [
+        {"country": "UK"},
+        {"continent": "002"},
+        {"subContinent": "015"},
+    ],
+)
+@pytest.mark.parametrize(
+    "metrics", m := select_metrics(rt.GeographyBasedActivityByCity())
+)
+@pytest.mark.parametrize("sort_options", select_sort_options(m, descending_only=True))
+def test_geography_based_activity_by_city_with_province_errors(
+    dimensions, filters, metrics, sort_options
+):
+    report = rt.GeographyBasedActivityByCity()
+    assert report.name == "Geography-based activity (by city)"
+    with pytest.raises(InvalidRequest):
+        report.validate(dimensions, filters, metrics, sort_options, max_results=25)
+
+
+@pytest.mark.parametrize(
+    "dimensions",
+    [
+        (),
+        ("creatorContentType",),
+        ("subscribedStatus",),
+        ("day",),
+        ("month",),
+        ("creatorContentType", "day"),
+        ("subscribedStatus", "day"),
+        ("creatorContentType", "month"),
+        ("subscribedStatus", "month"),
+        ("creatorContentType", "subscribedStatus", "day"),
+        ("creatorContentType", "subscribedStatus", "month"),
+    ],
+)
+@pytest.mark.parametrize(
+    "filters",
+    [
+        {},
+        *[{"country": x} for x in sample(data.COUNTRIES)],
+        *[{"continent": x} for x in sample(data.VALID_FILTER_OPTIONS["continent"])],
+        *[
+            {"subContinent": x}
+            for x in sample(data.VALID_FILTER_OPTIONS["subContinent"])
+        ],
+        {"video": "rickroll"},
+        {"group": "rickroll"},
+        {"video": "rickroll", "country": "US"},
+        {"group": "rickroll", "country": "US"},
+        {"video": "rickroll", "continent": "002"},
+        {"group": "rickroll", "continent": "002"},
+        {"video": "rickroll", "subContinent": "015"},
+        {"group": "rickroll", "subContinent": "015"},
+        {"video": "rickroll", "subscribedStatus": "SUBSCRIBED"},
+        {"group": "rickroll", "subscribedStatus": "SUBSCRIBED"},
+        {"video": "rickroll", "subscribedStatus": "UNSUBSCRIBED"},
+        {"group": "rickroll", "subscribedStatus": "UNSUBSCRIBED"},
+        {"video": "rickroll", "country": "US", "subscribedStatus": "SUBSCRIBED"},
+    ],
+)
+@pytest.mark.parametrize(
+    "metrics", m := select_metrics(rt.PlaybackDetailsSubscribedStatus())
+)
+@pytest.mark.parametrize("sort_options", select_sort_options(m))
+def test_playback_details_subscribed_status(dimensions, filters, metrics, sort_options):
     report = rt.PlaybackDetailsSubscribedStatus()
     assert report.name == "User activity by subscribed status"
-    d = ["subscribedStatus", "day"]
-    f = {"country": "US", "video": "fn849bng984b"}
-    m = data.SUBSCRIPTION_METRICS
-    s = data.SUBSCRIPTION_METRICS
-    report.validate(d, f, m, s)
+    report.validate(dimensions, filters, metrics, sort_options)
 
 
-def test_playback_details_subscribed_status_2():
-    report = rt.PlaybackDetailsSubscribedStatus()
-    assert report.name == "User activity by subscribed status"
-    d = ["month"]
-    f = {"continent": "002", "group": "fn849bng984b", "subscribedStatus": "SUBSCRIBED"}
-    m = data.SUBSCRIPTION_METRICS
-    s = data.SUBSCRIPTION_METRICS
-    report.validate(d, f, m, s)
-
-
-def test_playback_details_subscribed_status_3():
-    report = rt.PlaybackDetailsSubscribedStatus()
-    assert report.name == "User activity by subscribed status"
-    d = []
-    f = {"subContinent": "014"}
-    m = data.SUBSCRIPTION_METRICS
-    s = data.SUBSCRIPTION_METRICS
-    report.validate(d, f, m, s)
-
-
-def test_playback_details_subscribed_status_4():
-    report = rt.PlaybackDetailsSubscribedStatus()
-    assert report.name == "User activity by subscribed status"
-    d = []
-    f = {}
-    m = data.SUBSCRIPTION_METRICS
-    s = data.SUBSCRIPTION_METRICS
-    report.validate(d, f, m, s)
-
-
-# PLAYBACK DETAILS: SUBSCRIBED STATUS (US)
-
-
-def test_playback_details_subscribed_status_us_1():
+@pytest.mark.parametrize(
+    "dimensions",
+    [
+        (),
+        ("creatorContentType",),
+        ("subscribedStatus",),
+        ("day",),
+        ("month",),
+        ("creatorContentType", "day"),
+        ("subscribedStatus", "day"),
+        ("creatorContentType", "month"),
+        ("subscribedStatus", "month"),
+        ("creatorContentType", "subscribedStatus", "day"),
+        ("creatorContentType", "subscribedStatus", "month"),
+    ],
+)
+@pytest.mark.parametrize(
+    "filters",
+    [
+        {},
+        *[{"province": x} for x in sample(data.SUBDIVISIONS)],
+        {"video": "rickroll"},
+        {"group": "rickroll"},
+        {"video": "rickroll", "province": "US-OH"},
+        {"group": "rickroll", "province": "US-OH"},
+        {"video": "rickroll", "subscribedStatus": "SUBSCRIBED"},
+        {"group": "rickroll", "subscribedStatus": "SUBSCRIBED"},
+        {"video": "rickroll", "subscribedStatus": "UNSUBSCRIBED"},
+        {"group": "rickroll", "subscribedStatus": "UNSUBSCRIBED"},
+        {"video": "rickroll", "province": "US-OH", "subscribedStatus": "SUBSCRIBED"},
+    ],
+)
+@pytest.mark.parametrize(
+    "metrics", m := select_metrics(rt.PlaybackDetailsSubscribedStatusUS())
+)
+@pytest.mark.parametrize("sort_options", select_sort_options(m))
+def test_playback_details_subscribed_status_us(
+    dimensions, filters, metrics, sort_options
+):
     report = rt.PlaybackDetailsSubscribedStatusUS()
     assert report.name == "User activity by subscribed status (US)"
-    d = ["subscribedStatus", "day"]
-    f = {"video": "fn849bng984b", "province": "US-OH"}
-    m = data.LESSER_SUBSCRIPTION_METRICS
-    s = data.LESSER_SUBSCRIPTION_METRICS
-    report.validate(d, f, m, s)
+    report.validate(dimensions, filters, metrics, sort_options)
 
 
-def test_playback_details_subscribed_status_us_2():
-    report = rt.PlaybackDetailsSubscribedStatusUS()
-    assert report.name == "User activity by subscribed status (US)"
-    d = ["month"]
-    f = {"group": "fn849bng984b", "province": "US-OH", "subscribedStatus": "SUBSCRIBED"}
-    m = data.LESSER_SUBSCRIPTION_METRICS
-    s = data.LESSER_SUBSCRIPTION_METRICS
-    report.validate(d, f, m, s)
-
-
-def test_playback_details_subscribed_status_us_3():
-    report = rt.PlaybackDetailsSubscribedStatusUS()
-    assert report.name == "User activity by subscribed status (US)"
-    d = []
-    f = {}
-    m = data.LESSER_SUBSCRIPTION_METRICS
-    s = data.LESSER_SUBSCRIPTION_METRICS
-    report.validate(d, f, m, s)
-
-
-# PLAYBACK DETAILS: TIME-BASED (LIVE)
-
-
-def test_playback_details_live_time_based_1():
+@pytest.mark.parametrize(
+    "dimensions",
+    [
+        (),
+        ("creatorContentType",),
+        ("liveOrOnDemand",),
+        ("subscribedStatus",),
+        ("youtubeProduct",),
+        ("day",),
+        ("month",),
+        ("creatorContentType", "day"),
+        ("liveOrOnDemand", "day"),
+        ("subscribedStatus", "day"),
+        ("youtubeProduct", "day"),
+        ("creatorContentType", "month"),
+        ("liveOrOnDemand", "month"),
+        ("subscribedStatus", "month"),
+        ("youtubeProduct", "month"),
+        (
+            "creatorContentType",
+            "liveOrOnDemand",
+            "subscribedStatus",
+            "youtubeProduct",
+            "day",
+        ),
+        (
+            "creatorContentType",
+            "liveOrOnDemand",
+            "subscribedStatus",
+            "youtubeProduct",
+            "month",
+        ),
+    ],
+)
+@pytest.mark.parametrize(
+    "filters",
+    [
+        {},
+        *[{"country": x} for x in sample(data.COUNTRIES)],
+        *[{"province": x} for x in sample(data.SUBDIVISIONS)],
+        *[{"continent": x} for x in sample(data.VALID_FILTER_OPTIONS["continent"])],
+        *[
+            {"subContinent": x}
+            for x in sample(data.VALID_FILTER_OPTIONS["subContinent"])
+        ],
+        {"video": "rickroll"},
+        {"group": "rickroll"},
+        {"video": "rickroll", "country": "US"},
+        {"group": "rickroll", "country": "US"},
+        {"video": "rickroll", "province": "US-OH"},
+        {"group": "rickroll", "province": "US-OH"},
+        {"video": "rickroll", "continent": "002"},
+        {"group": "rickroll", "continent": "002"},
+        {"video": "rickroll", "subContinent": "015"},
+        {"group": "rickroll", "subContinent": "015"},
+        {"video": "rickroll", "subscribedStatus": "SUBSCRIBED"},
+        {"group": "rickroll", "subscribedStatus": "UNSUBSCRIBED"},
+        {"video": "rickroll", "liveOrOnDemand": "LIVE"},
+        {"group": "rickroll", "liveOrOnDemand": "ON_DEMAND"},
+        *[
+            {"video": "rickroll", "youtubeProduct": x}
+            for x in sample(data.VALID_FILTER_OPTIONS["youtubeProduct"])
+        ],
+        {"group": "rickroll", "youtubeProduct": "CORE"},
+        {"video": "rickroll", "country": "US", "subscribedStatus": "SUBSCRIBED"},
+        {"video": "rickroll", "province": "US-OH", "subscribedStatus": "SUBSCRIBED"},
+    ],
+)
+@pytest.mark.parametrize(
+    "metrics", m := select_metrics(rt.PlaybackDetailsLiveTimeBased())
+)
+@pytest.mark.parametrize("sort_options", select_sort_options(m))
+def test_playback_details_live_time_based(dimensions, filters, metrics, sort_options):
     report = rt.PlaybackDetailsLiveTimeBased()
     assert report.name == "Time-based playback details (live)"
-    d = ["subscribedStatus", "day"]
-    f = {"country": "US", "video": "fn849bng984b", "youtubeProduct": "CORE"}
-    m = data.LIVE_PLAYBACK_DETAIL_METRICS
-    s = data.LIVE_PLAYBACK_DETAIL_METRICS
-    report.validate(d, f, m, s)
+    report.validate(dimensions, filters, metrics, sort_options)
 
 
-def test_playback_details_live_time_based_2():
-    report = rt.PlaybackDetailsLiveTimeBased()
-    assert report.name == "Time-based playback details (live)"
-    d = ["subscribedStatus", "liveOrOnDemand", "month"]
-    f = {
-        "continent": "002",
-        "group": "fn849bng984b",
-        "youtubeProduct": "CORE",
-        "subscribedStatus": "SUBSCRIBED",
-    }
-    m = data.LIVE_PLAYBACK_DETAIL_METRICS
-    s = data.LIVE_PLAYBACK_DETAIL_METRICS
-    report.validate(d, f, m, s)
-
-
-def test_playback_details_live_time_based_3():
-    report = rt.PlaybackDetailsLiveTimeBased()
-    assert report.name == "Time-based playback details (live)"
-    d = ["subscribedStatus", "liveOrOnDemand", "youtubeProduct"]
-    f = {
-        "subContinent": "014",
-        "youtubeProduct": "CORE",
-        "subscribedStatus": "SUBSCRIBED",
-        "liveOrOnDemand": "LIVE",
-    }
-    m = data.LIVE_PLAYBACK_DETAIL_METRICS
-    s = data.LIVE_PLAYBACK_DETAIL_METRICS
-    report.validate(d, f, m, s)
-
-
-def test_playback_details_live_time_based_4():
-    report = rt.PlaybackDetailsLiveTimeBased()
-    assert report.name == "Time-based playback details (live)"
-    d = []
-    f = {"province": "US-OH"}
-    m = data.LIVE_PLAYBACK_DETAIL_METRICS
-    s = data.LIVE_PLAYBACK_DETAIL_METRICS
-    report.validate(d, f, m, s)
-
-
-def test_playback_details_live_time_based_5():
-    report = rt.PlaybackDetailsLiveTimeBased()
-    assert report.name == "Time-based playback details (live)"
-    d = []
-    f = {}
-    m = data.LIVE_PLAYBACK_DETAIL_METRICS
-    s = data.LIVE_PLAYBACK_DETAIL_METRICS
-    report.validate(d, f, m, s)
-
-
-# PLAYBACK DETAILS: TIME-BASED (VIEW PERCENTAGE)
-
-
-def test_playback_details_view_percentage_time_based_1():
+@pytest.mark.parametrize(
+    "dimensions",
+    [
+        (),
+        ("creatorContentType",),
+        ("subscribedStatus",),
+        ("youtubeProduct",),
+        ("day",),
+        ("month",),
+        ("creatorContentType", "day"),
+        ("subscribedStatus", "day"),
+        ("youtubeProduct", "day"),
+        ("creatorContentType", "month"),
+        ("subscribedStatus", "month"),
+        ("youtubeProduct", "month"),
+        (
+            "creatorContentType",
+            "subscribedStatus",
+            "youtubeProduct",
+            "day",
+        ),
+        (
+            "creatorContentType",
+            "subscribedStatus",
+            "youtubeProduct",
+            "month",
+        ),
+    ],
+)
+@pytest.mark.parametrize(
+    "filters",
+    [
+        {},
+        *[{"country": x} for x in sample(data.COUNTRIES)],
+        *[{"province": x} for x in sample(data.SUBDIVISIONS)],
+        *[{"continent": x} for x in sample(data.VALID_FILTER_OPTIONS["continent"])],
+        *[
+            {"subContinent": x}
+            for x in sample(data.VALID_FILTER_OPTIONS["subContinent"])
+        ],
+        {"video": "rickroll"},
+        {"group": "rickroll"},
+        {"video": "rickroll", "country": "US"},
+        {"group": "rickroll", "country": "US"},
+        {"video": "rickroll", "province": "US-OH"},
+        {"group": "rickroll", "province": "US-OH"},
+        {"video": "rickroll", "continent": "002"},
+        {"group": "rickroll", "continent": "002"},
+        {"video": "rickroll", "subContinent": "015"},
+        {"group": "rickroll", "subContinent": "015"},
+        {"video": "rickroll", "subscribedStatus": "SUBSCRIBED"},
+        {"group": "rickroll", "subscribedStatus": "UNSUBSCRIBED"},
+        *[
+            {"video": "rickroll", "youtubeProduct": x}
+            for x in sample(data.VALID_FILTER_OPTIONS["youtubeProduct"])
+        ],
+        {"video": "rickroll", "country": "US", "subscribedStatus": "SUBSCRIBED"},
+        {"video": "rickroll", "province": "US-OH", "subscribedStatus": "SUBSCRIBED"},
+    ],
+)
+@pytest.mark.parametrize(
+    "metrics", m := select_metrics(rt.PlaybackDetailsViewPercentageTimeBased())
+)
+@pytest.mark.parametrize("sort_options", select_sort_options(m))
+def test_playback_details_view_percentage_time_based(
+    dimensions, filters, metrics, sort_options
+):
     report = rt.PlaybackDetailsViewPercentageTimeBased()
     assert report.name == "Time-based playback details (view percentage)"
-    d = ["subscribedStatus", "day"]
-    f = {"country": "US", "video": "fn849bng984b", "youtubeProduct": "CORE"}
-    m = data.VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS
-    s = data.VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS
-    report.validate(d, f, m, s)
+    report.validate(dimensions, filters, metrics, sort_options)
 
 
-def test_playback_details_view_percentage_time_based_2():
-    report = rt.PlaybackDetailsViewPercentageTimeBased()
-    assert report.name == "Time-based playback details (view percentage)"
-    d = ["subscribedStatus", "youtubeProduct", "month"]
-    f = {
-        "continent": "002",
-        "group": "fn849bng984b",
-        "youtubeProduct": "CORE",
-        "subscribedStatus": "SUBSCRIBED",
-    }
-    m = data.VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS
-    s = data.VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS
-    report.validate(d, f, m, s)
-
-
-def test_playback_details_view_percentage_time_based_3():
-    report = rt.PlaybackDetailsViewPercentageTimeBased()
-    assert report.name == "Time-based playback details (view percentage)"
-    d = []
-    f = {"province": "US-OH"}
-    m = data.VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS
-    s = data.VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS
-    report.validate(d, f, m, s)
-
-
-def test_playback_details_view_percentage_time_based_4():
-    report = rt.PlaybackDetailsViewPercentageTimeBased()
-    assert report.name == "Time-based playback details (view percentage)"
-    d = []
-    f = {}
-    m = data.VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS
-    s = data.VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS
-    report.validate(d, f, m, s)
-
-
-# PLAYBACK DETAILS: GEOGRAPHY-BASED (LIVE)
-
-
-def test_playback_details_live_geography_based_1():
+@pytest.mark.parametrize(
+    "dimensions",
+    [
+        ("country",),
+        ("country", "creatorContentType"),
+        ("country", "liveOrOnDemand"),
+        ("country", "subscribedStatus"),
+        ("country", "youtubeProduct"),
+        (
+            "country",
+            "creatorContentType",
+            "liveOrOnDemand",
+            "subscribedStatus",
+            "youtubeProduct",
+        ),
+    ],
+)
+@pytest.mark.parametrize(
+    "filters",
+    [
+        {},
+        *[{"continent": x} for x in sample(data.VALID_FILTER_OPTIONS["continent"])],
+        *[
+            {"subContinent": x}
+            for x in sample(data.VALID_FILTER_OPTIONS["subContinent"])
+        ],
+        {"video": "rickroll"},
+        {"group": "rickroll"},
+        {"video": "rickroll", "continent": "002"},
+        {"group": "rickroll", "continent": "002"},
+        {"video": "rickroll", "subContinent": "015"},
+        {"group": "rickroll", "subContinent": "015"},
+        {"video": "rickroll", "subscribedStatus": "SUBSCRIBED"},
+        {"group": "rickroll", "subscribedStatus": "UNSUBSCRIBED"},
+        {"video": "rickroll", "liveOrOnDemand": "LIVE"},
+        {"group": "rickroll", "liveOrOnDemand": "ON_DEMAND"},
+        *[
+            {"video": "rickroll", "youtubeProduct": x}
+            for x in sample(data.VALID_FILTER_OPTIONS["youtubeProduct"])
+        ],
+        {"group": "rickroll", "youtubeProduct": "CORE"},
+    ],
+)
+@pytest.mark.parametrize(
+    "metrics", m := select_metrics(rt.PlaybackDetailsLiveGeographyBased())
+)
+@pytest.mark.parametrize("sort_options", select_sort_options(m))
+def test_playback_details_live_geography_based(
+    dimensions, filters, metrics, sort_options
+):
     report = rt.PlaybackDetailsLiveGeographyBased()
     assert report.name == "Geography-based playback details (live)"
-    d = ["country", "liveOrOnDemand"]
-    f = {"continent": "002", "video": "fn849bng984b", "youtubeProduct": "CORE"}
-    m = data.LIVE_PLAYBACK_DETAIL_METRICS
-    s = data.LIVE_PLAYBACK_DETAIL_METRICS
-    report.validate(d, f, m, s)
+    report.validate(dimensions, filters, metrics, sort_options)
 
 
-def test_playback_details_live_geography_based_2():
-    report = rt.PlaybackDetailsLiveGeographyBased()
-    assert report.name == "Geography-based playback details (live)"
-    d = ["country", "liveOrOnDemand", "subscribedStatus"]
-    f = {
-        "subContinent": "014",
-        "group": "fn849bng984b",
-        "youtubeProduct": "CORE",
-        "subscribedStatus": "SUBSCRIBED",
-    }
-    m = data.LIVE_PLAYBACK_DETAIL_METRICS
-    s = data.LIVE_PLAYBACK_DETAIL_METRICS
-    report.validate(d, f, m, s)
-
-
-def test_playback_details_live_geography_based_3():
-    report = rt.PlaybackDetailsLiveGeographyBased()
-    assert report.name == "Geography-based playback details (live)"
-    d = ["country", "liveOrOnDemand", "subscribedStatus", "youtubeProduct"]
-    f = {
-        "youtubeProduct": "CORE",
-        "subscribedStatus": "SUBSCRIBED",
-        "liveOrOnDemand": "LIVE",
-    }
-    m = data.LIVE_PLAYBACK_DETAIL_METRICS
-    s = data.LIVE_PLAYBACK_DETAIL_METRICS
-    report.validate(d, f, m, s)
-
-
-def test_playback_details_live_geography_based_4():
-    report = rt.PlaybackDetailsLiveGeographyBased()
-    assert report.name == "Geography-based playback details (live)"
-    d = ["country"]
-    f = {}
-    m = data.LIVE_PLAYBACK_DETAIL_METRICS
-    s = data.LIVE_PLAYBACK_DETAIL_METRICS
-    report.validate(d, f, m, s)
-
-
-# PLAYBACK DETAILS: GEOGRAPHY-BASED (VIEW PERCENTAGE)
-
-
-def test_playback_details_view_percentage_geography_based_1():
+@pytest.mark.parametrize(
+    "dimensions",
+    [
+        ("country",),
+        ("country", "creatorContentType"),
+        ("country", "subscribedStatus"),
+        ("country", "youtubeProduct"),
+        (
+            "country",
+            "creatorContentType",
+            "subscribedStatus",
+            "youtubeProduct",
+        ),
+    ],
+)
+@pytest.mark.parametrize(
+    "filters",
+    [
+        {},
+        *[{"continent": x} for x in sample(data.VALID_FILTER_OPTIONS["continent"])],
+        *[
+            {"subContinent": x}
+            for x in sample(data.VALID_FILTER_OPTIONS["subContinent"])
+        ],
+        {"video": "rickroll"},
+        {"group": "rickroll"},
+        {"video": "rickroll", "continent": "002"},
+        {"group": "rickroll", "continent": "002"},
+        {"video": "rickroll", "subContinent": "015"},
+        {"group": "rickroll", "subContinent": "015"},
+        {"video": "rickroll", "subscribedStatus": "SUBSCRIBED"},
+        {"group": "rickroll", "subscribedStatus": "UNSUBSCRIBED"},
+        *[
+            {"video": "rickroll", "youtubeProduct": x}
+            for x in sample(data.VALID_FILTER_OPTIONS["youtubeProduct"])
+        ],
+        {"group": "rickroll", "youtubeProduct": "CORE"},
+    ],
+)
+@pytest.mark.parametrize(
+    "metrics", m := select_metrics(rt.PlaybackDetailsViewPercentageGeographyBased())
+)
+@pytest.mark.parametrize("sort_options", select_sort_options(m))
+def test_playback_details_view_percentage_geography_based(
+    dimensions, filters, metrics, sort_options
+):
     report = rt.PlaybackDetailsViewPercentageGeographyBased()
     assert report.name == "Geography-based playback details (view percentage)"
-    d = ["country", "subscribedStatus"]
-    f = {"continent": "002", "video": "fn849bng984b", "youtubeProduct": "CORE"}
-    m = data.VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS
-    s = data.VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS
-    report.validate(d, f, m, s)
+    report.validate(dimensions, filters, metrics, sort_options)
 
 
-def test_playback_details_view_percentage_geography_based_2():
-    report = rt.PlaybackDetailsViewPercentageGeographyBased()
-    assert report.name == "Geography-based playback details (view percentage)"
-    d = ["country", "subscribedStatus", "youtubeProduct"]
-    f = {
-        "subContinent": "014",
-        "group": "fn849bng984b",
-        "youtubeProduct": "CORE",
-        "subscribedStatus": "SUBSCRIBED",
-    }
-    m = data.VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS
-    s = data.VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS
-    report.validate(d, f, m, s)
-
-
-def test_playback_details_view_percentage_geography_based_3():
-    report = rt.PlaybackDetailsViewPercentageGeographyBased()
-    assert report.name == "Geography-based playback details (view percentage)"
-    d = ["country"]
-    f = {}
-    m = data.VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS
-    s = data.VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS
-    report.validate(d, f, m, s)
-
-
-# PLAYBACK DETAILS: GEOGRAPHY-BASED (LIVE, US)
-
-
-def test_playback_details_live_geography_based_us_1():
+@pytest.mark.parametrize(
+    "dimensions",
+    [
+        ("province",),
+        ("province", "creatorContentType"),
+        ("province", "liveOrOnDemand"),
+        ("province", "subscribedStatus"),
+        ("province", "youtubeProduct"),
+        (
+            "province",
+            "creatorContentType",
+            "liveOrOnDemand",
+            "subscribedStatus",
+            "youtubeProduct",
+        ),
+    ],
+)
+@pytest.mark.parametrize(
+    "filters",
+    [
+        {"country": "US"},
+        {"country": "US", "video": "rickroll"},
+        {"country": "US", "group": "rickroll"},
+        {"country": "US", "video": "rickroll", "subscribedStatus": "SUBSCRIBED"},
+        {"country": "US", "group": "rickroll", "subscribedStatus": "UNSUBSCRIBED"},
+        {"country": "US", "video": "rickroll", "liveOrOnDemand": "LIVE"},
+        {"country": "US", "group": "rickroll", "liveOrOnDemand": "ON_DEMAND"},
+        *[
+            {"country": "US", "video": "rickroll", "youtubeProduct": x}
+            for x in sample(data.VALID_FILTER_OPTIONS["youtubeProduct"])
+        ],
+        {"country": "US", "group": "rickroll", "youtubeProduct": "CORE"},
+    ],
+)
+@pytest.mark.parametrize(
+    "metrics", m := select_metrics(rt.PlaybackDetailsLiveGeographyBasedUS())
+)
+@pytest.mark.parametrize("sort_options", select_sort_options(m))
+def test_playback_details_live_geography_based_us(
+    dimensions, filters, metrics, sort_options
+):
     report = rt.PlaybackDetailsLiveGeographyBasedUS()
     assert report.name == "Geography-based playback details (live, US)"
-    d = ["province", "liveOrOnDemand"]
-    f = {"country": "US", "video": "fn849bng984b", "youtubeProduct": "CORE"}
-    m = data.LIVE_PLAYBACK_DETAIL_METRICS
-    s = data.LIVE_PLAYBACK_DETAIL_METRICS
-    report.validate(d, f, m, s)
+    report.validate(dimensions, filters, metrics, sort_options)
 
 
-def test_playback_details_live_geography_based_us_2():
-    report = rt.PlaybackDetailsLiveGeographyBasedUS()
-    assert report.name == "Geography-based playback details (live, US)"
-    d = ["province", "liveOrOnDemand", "subscribedStatus"]
-    f = {
-        "country": "US",
-        "group": "fn849bng984b",
-        "youtubeProduct": "CORE",
-        "subscribedStatus": "SUBSCRIBED",
-    }
-    m = data.LIVE_PLAYBACK_DETAIL_METRICS
-    s = data.LIVE_PLAYBACK_DETAIL_METRICS
-    report.validate(d, f, m, s)
-
-
-def test_playback_details_live_geography_based_us_3():
-    report = rt.PlaybackDetailsLiveGeographyBasedUS()
-    assert report.name == "Geography-based playback details (live, US)"
-    d = ["province", "liveOrOnDemand", "subscribedStatus", "youtubeProduct"]
-    f = {
-        "country": "US",
-        "youtubeProduct": "CORE",
-        "subscribedStatus": "SUBSCRIBED",
-        "liveOrOnDemand": "LIVE",
-    }
-    m = data.LIVE_PLAYBACK_DETAIL_METRICS
-    s = data.LIVE_PLAYBACK_DETAIL_METRICS
-    report.validate(d, f, m, s)
-
-
-def test_playback_details_live_geography_based_us_4():
-    report = rt.PlaybackDetailsLiveGeographyBasedUS()
-    assert report.name == "Geography-based playback details (live, US)"
-    d = ["province"]
-    f = {"country": "US"}
-    m = data.LIVE_PLAYBACK_DETAIL_METRICS
-    s = data.LIVE_PLAYBACK_DETAIL_METRICS
-    report.validate(d, f, m, s)
-
-
-# PLAYBACK DETAILS: GEOGRAPHY-BASED (VIEW PERCENTAGE, US)
-
-
-def test_playback_details_view_percentage_geography_based_us_1():
+@pytest.mark.parametrize(
+    "dimensions",
+    [
+        ("province",),
+        ("province", "creatorContentType"),
+        ("province", "subscribedStatus"),
+        ("province", "youtubeProduct"),
+        (
+            "province",
+            "creatorContentType",
+            "subscribedStatus",
+            "youtubeProduct",
+        ),
+    ],
+)
+@pytest.mark.parametrize(
+    "filters",
+    [
+        {"country": "US"},
+        {"country": "US", "video": "rickroll"},
+        {"country": "US", "group": "rickroll"},
+        {"country": "US", "video": "rickroll", "subscribedStatus": "SUBSCRIBED"},
+        {"country": "US", "group": "rickroll", "subscribedStatus": "UNSUBSCRIBED"},
+        *[
+            {"country": "US", "video": "rickroll", "youtubeProduct": x}
+            for x in sample(data.VALID_FILTER_OPTIONS["youtubeProduct"])
+        ],
+        {"country": "US", "group": "rickroll", "youtubeProduct": "CORE"},
+    ],
+)
+@pytest.mark.parametrize(
+    "metrics", m := select_metrics(rt.PlaybackDetailsViewPercentageGeographyBasedUS())
+)
+@pytest.mark.parametrize("sort_options", select_sort_options(m))
+def test_playback_details_view_percentage_geography_based_us(
+    dimensions, filters, metrics, sort_options
+):
     report = rt.PlaybackDetailsViewPercentageGeographyBasedUS()
     assert report.name == "Geography-based playback details (view percentage, US)"
-    d = ["province", "subscribedStatus"]
-    f = {"country": "US", "video": "fn849bng984b", "youtubeProduct": "CORE"}
-    m = data.VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS
-    s = data.VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS
-    report.validate(d, f, m, s)
+    report.validate(dimensions, filters, metrics, sort_options)
 
 
-def test_playback_details_view_percentage_geography_based_us_2():
-    report = rt.PlaybackDetailsViewPercentageGeographyBasedUS()
-    assert report.name == "Geography-based playback details (view percentage, US)"
-    d = ["province", "subscribedStatus", "youtubeProduct"]
-    f = {
-        "country": "US",
-        "group": "fn849bng984b",
-        "youtubeProduct": "CORE",
-        "subscribedStatus": "SUBSCRIBED",
-    }
-    m = data.VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS
-    s = data.VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS
-    report.validate(d, f, m, s)
-
-
-def test_playback_details_view_percentage_geography_based_us_3():
-    report = rt.PlaybackDetailsViewPercentageGeographyBasedUS()
-    assert report.name == "Geography-based playback details (view percentage, US)"
-    d = ["province"]
-    f = {"country": "US"}
-    m = data.VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS
-    s = data.VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS
-    report.validate(d, f, m, s)
-
-
-# PLAYBACK LOCATIONS
-
-
-def test_playback_location_1():
+@pytest.mark.parametrize(
+    "dimensions",
+    [
+        ("insightPlaybackLocationType",),
+        ("insightPlaybackLocationType", "creatorContentType"),
+        ("insightPlaybackLocationType", "liveOrOnDemand"),
+        ("insightPlaybackLocationType", "subscribedStatus"),
+        ("insightPlaybackLocationType", "day"),
+        (
+            "insightPlaybackLocationType",
+            "creatorContentType",
+            "liveOrOnDemand",
+            "subscribedStatus",
+            "day",
+        ),
+    ],
+)
+@pytest.mark.parametrize(
+    "filters",
+    [
+        {},
+        *[{"country": x} for x in sample(data.COUNTRIES)],
+        *[{"province": x} for x in sample(data.SUBDIVISIONS)],
+        *[{"continent": x} for x in sample(data.VALID_FILTER_OPTIONS["continent"])],
+        *[
+            {"subContinent": x}
+            for x in sample(data.VALID_FILTER_OPTIONS["subContinent"])
+        ],
+        {"video": "rickroll"},
+        {"group": "rickroll"},
+        {"video": "rickroll", "country": "US"},
+        {"group": "rickroll", "country": "US"},
+        {"video": "rickroll", "province": "US-OH"},
+        {"group": "rickroll", "province": "US-OH"},
+        {"video": "rickroll", "continent": "002"},
+        {"group": "rickroll", "continent": "002"},
+        {"video": "rickroll", "subContinent": "015"},
+        {"group": "rickroll", "subContinent": "015"},
+        {"video": "rickroll", "subscribedStatus": "SUBSCRIBED"},
+        {"group": "rickroll", "subscribedStatus": "UNSUBSCRIBED"},
+        {"video": "rickroll", "liveOrOnDemand": "LIVE"},
+        {"group": "rickroll", "liveOrOnDemand": "ON_DEMAND"},
+        {"video": "rickroll", "country": "US", "subscribedStatus": "SUBSCRIBED"},
+        {"video": "rickroll", "province": "US-OH", "subscribedStatus": "SUBSCRIBED"},
+    ],
+)
+@pytest.mark.parametrize("metrics", m := select_metrics(rt.PlaybackLocation()))
+@pytest.mark.parametrize("sort_options", select_sort_options(m))
+def test_playback_location(dimensions, filters, metrics, sort_options):
     report = rt.PlaybackLocation()
     assert report.name == "Playback locations"
-    d = ["insightPlaybackLocationType", "day"]
-    f = {"country": "US", "video": "fn849bng984b", "liveOrOnDemand": "LIVE"}
-    m = data.LOCATION_AND_TRAFFIC_METRICS
-    s = data.LOCATION_AND_TRAFFIC_METRICS
-    report.validate(d, f, m, s)
+    report.validate(dimensions, filters, metrics, sort_options)
 
 
-def test_playback_location_2():
-    report = rt.PlaybackLocation()
-    assert report.name == "Playback locations"
-    d = ["insightPlaybackLocationType", "day", "liveOrOnDemand"]
-    f = {
-        "province": "US-OH",
-        "group": "fn849bng984b",
-        "liveOrOnDemand": "LIVE",
-        "subscribedStatus": "SUBSCRIBED",
-    }
-    m = data.LOCATION_AND_TRAFFIC_METRICS
-    s = data.LOCATION_AND_TRAFFIC_METRICS
-    report.validate(d, f, m, s)
-
-
-def test_playback_location_3():
-    report = rt.PlaybackLocation()
-    assert report.name == "Playback locations"
-    d = ["insightPlaybackLocationType", "day", "liveOrOnDemand", "subscribedStatus"]
-    f = {"continent": "002"}
-    m = data.LOCATION_AND_TRAFFIC_METRICS
-    s = data.LOCATION_AND_TRAFFIC_METRICS
-    report.validate(d, f, m, s)
-
-
-def test_playback_location_4():
-    report = rt.PlaybackLocation()
-    assert report.name == "Playback locations"
-    d = ["insightPlaybackLocationType"]
-    f = {"subContinent": "014"}
-    m = data.LOCATION_AND_TRAFFIC_METRICS
-    s = data.LOCATION_AND_TRAFFIC_METRICS
-    report.validate(d, f, m, s)
-
-
-def test_playback_location_5():
-    report = rt.PlaybackLocation()
-    assert report.name == "Playback locations"
-    d = ["insightPlaybackLocationType"]
-    f = {}
-    m = data.LOCATION_AND_TRAFFIC_METRICS
-    s = data.LOCATION_AND_TRAFFIC_METRICS
-    report.validate(d, f, m, s)
-
-
-# PLAYBACK LOCATIONS (DETAILED)
-
-
-def test_playback_location_detail_1():
+@pytest.mark.parametrize(
+    "dimensions",
+    [
+        ("insightPlaybackLocationDetail",),
+        ("insightPlaybackLocationDetail", "creatorContentType"),
+    ],
+)
+@pytest.mark.parametrize(
+    "filters",
+    [
+        {"insightPlaybackLocationType": "EMBEDDED"},
+        *[
+            {"insightPlaybackLocationType": "EMBEDDED", "country": x}
+            for x in sample(data.COUNTRIES)
+        ],
+        *[
+            {"insightPlaybackLocationType": "EMBEDDED", "province": x}
+            for x in sample(data.SUBDIVISIONS)
+        ],
+        *[
+            {"insightPlaybackLocationType": "EMBEDDED", "continent": x}
+            for x in sample(data.VALID_FILTER_OPTIONS["continent"])
+        ],
+        *[
+            {"insightPlaybackLocationType": "EMBEDDED", "subContinent": x}
+            for x in sample(data.VALID_FILTER_OPTIONS["subContinent"])
+        ],
+        {"insightPlaybackLocationType": "EMBEDDED", "video": "rickroll"},
+        {"insightPlaybackLocationType": "EMBEDDED", "group": "rickroll"},
+        {
+            "insightPlaybackLocationType": "EMBEDDED",
+            "video": "rickroll",
+            "country": "US",
+        },
+        {
+            "insightPlaybackLocationType": "EMBEDDED",
+            "group": "rickroll",
+            "country": "US",
+        },
+        {
+            "insightPlaybackLocationType": "EMBEDDED",
+            "video": "rickroll",
+            "province": "US-OH",
+        },
+        {
+            "insightPlaybackLocationType": "EMBEDDED",
+            "group": "rickroll",
+            "province": "US-OH",
+        },
+        {
+            "insightPlaybackLocationType": "EMBEDDED",
+            "video": "rickroll",
+            "continent": "002",
+        },
+        {
+            "insightPlaybackLocationType": "EMBEDDED",
+            "group": "rickroll",
+            "continent": "002",
+        },
+        {
+            "insightPlaybackLocationType": "EMBEDDED",
+            "video": "rickroll",
+            "subContinent": "015",
+        },
+        {
+            "insightPlaybackLocationType": "EMBEDDED",
+            "group": "rickroll",
+            "subContinent": "015",
+        },
+        {
+            "insightPlaybackLocationType": "EMBEDDED",
+            "video": "rickroll",
+            "subscribedStatus": "SUBSCRIBED",
+        },
+        {
+            "insightPlaybackLocationType": "EMBEDDED",
+            "group": "rickroll",
+            "subscribedStatus": "UNSUBSCRIBED",
+        },
+        {
+            "insightPlaybackLocationType": "EMBEDDED",
+            "video": "rickroll",
+            "liveOrOnDemand": "LIVE",
+        },
+        {
+            "insightPlaybackLocationType": "EMBEDDED",
+            "group": "rickroll",
+            "liveOrOnDemand": "ON_DEMAND",
+        },
+        {
+            "insightPlaybackLocationType": "EMBEDDED",
+            "video": "rickroll",
+            "country": "US",
+            "subscribedStatus": "SUBSCRIBED",
+        },
+        {
+            "insightPlaybackLocationType": "EMBEDDED",
+            "video": "rickroll",
+            "province": "US-OH",
+            "subscribedStatus": "SUBSCRIBED",
+        },
+    ],
+)
+@pytest.mark.parametrize("metrics", m := select_metrics(rt.PlaybackLocationDetail()))
+@pytest.mark.parametrize("sort_options", select_sort_options(m, descending_only=True))
+def test_playback_location_detail(dimensions, filters, metrics, sort_options):
     report = rt.PlaybackLocationDetail()
     assert report.name == "Playback locations (detailed)"
-    d = ["insightPlaybackLocationDetail"]
-    f = {
-        "insightPlaybackLocationType": "EMBEDDED",
-        "country": "US",
-        "video": "fn849bng984b",
-        "liveOrOnDemand": "LIVE",
-    }
-    m = data.LOCATION_AND_TRAFFIC_METRICS
-    s = [f"-{o}" for o in data.LOCATION_AND_TRAFFIC_SORT_OPTIONS]
-    report.validate(d, f, m, s, 25)
+    report.validate(dimensions, filters, metrics, sort_options, max_results=25)
 
 
-def test_playback_location_detail_2():
-    report = rt.PlaybackLocationDetail()
-    assert report.name == "Playback locations (detailed)"
-    d = ["insightPlaybackLocationDetail"]
-    f = {
-        "insightPlaybackLocationType": "EMBEDDED",
-        "province": "US-OH",
-        "group": "fn849bng984b",
-        "liveOrOnDemand": "LIVE",
-        "subscribedStatus": "SUBSCRIBED",
-    }
-    m = data.LOCATION_AND_TRAFFIC_METRICS
-    s = [f"-{o}" for o in data.LOCATION_AND_TRAFFIC_SORT_OPTIONS]
-    report.validate(d, f, m, s, 25)
-
-
-def test_playback_location_detail_3():
-    report = rt.PlaybackLocationDetail()
-    assert report.name == "Playback locations (detailed)"
-    d = ["insightPlaybackLocationDetail"]
-    f = {"insightPlaybackLocationType": "EMBEDDED", "continent": "002"}
-    m = data.LOCATION_AND_TRAFFIC_METRICS
-    s = [f"-{o}" for o in data.LOCATION_AND_TRAFFIC_SORT_OPTIONS]
-    report.validate(d, f, m, s, 25)
-
-
-def test_playback_location_detail_4():
-    report = rt.PlaybackLocationDetail()
-    assert report.name == "Playback locations (detailed)"
-    d = ["insightPlaybackLocationDetail"]
-    f = {"insightPlaybackLocationType": "EMBEDDED", "subContinent": "014"}
-    m = data.LOCATION_AND_TRAFFIC_METRICS
-    s = [f"-{o}" for o in data.LOCATION_AND_TRAFFIC_SORT_OPTIONS]
-    report.validate(d, f, m, s, 25)
-
-
-def test_playback_location_detail_5():
-    report = rt.PlaybackLocationDetail()
-    assert report.name == "Playback locations (detailed)"
-    d = ["insightPlaybackLocationDetail"]
-    f = {"insightPlaybackLocationType": "EMBEDDED"}
-    m = data.LOCATION_AND_TRAFFIC_METRICS
-    s = [f"-{o}" for o in data.LOCATION_AND_TRAFFIC_SORT_OPTIONS]
-    report.validate(d, f, m, s, 25)
-
-
-# TRAFFIC SOURCES
-
-
-def test_traffic_source_1():
+@pytest.mark.parametrize(
+    "dimensions",
+    [
+        ("insightTrafficSourceType",),
+        ("insightTrafficSourceType", "creatorContentType"),
+        ("insightTrafficSourceType", "liveOrOnDemand"),
+        ("insightTrafficSourceType", "subscribedStatus"),
+        ("insightTrafficSourceType", "day"),
+        (
+            "insightTrafficSourceType",
+            "creatorContentType",
+            "liveOrOnDemand",
+            "subscribedStatus",
+            "day",
+        ),
+    ],
+)
+@pytest.mark.parametrize(
+    "filters",
+    [
+        {},
+        *[{"country": x} for x in sample(data.COUNTRIES)],
+        *[{"province": x} for x in sample(data.SUBDIVISIONS)],
+        *[{"continent": x} for x in sample(data.VALID_FILTER_OPTIONS["continent"])],
+        *[
+            {"subContinent": x}
+            for x in sample(data.VALID_FILTER_OPTIONS["subContinent"])
+        ],
+        {"video": "rickroll"},
+        {"group": "rickroll"},
+        {"video": "rickroll", "country": "US"},
+        {"group": "rickroll", "country": "US"},
+        {"video": "rickroll", "province": "US-OH"},
+        {"group": "rickroll", "province": "US-OH"},
+        {"video": "rickroll", "continent": "002"},
+        {"group": "rickroll", "continent": "002"},
+        {"video": "rickroll", "subContinent": "015"},
+        {"group": "rickroll", "subContinent": "015"},
+        {"video": "rickroll", "subscribedStatus": "SUBSCRIBED"},
+        {"group": "rickroll", "subscribedStatus": "UNSUBSCRIBED"},
+        {"video": "rickroll", "liveOrOnDemand": "LIVE"},
+        {"group": "rickroll", "liveOrOnDemand": "ON_DEMAND"},
+        {"video": "rickroll", "country": "US", "subscribedStatus": "SUBSCRIBED"},
+        {"video": "rickroll", "province": "US-OH", "subscribedStatus": "SUBSCRIBED"},
+    ],
+)
+@pytest.mark.parametrize("metrics", m := select_metrics(rt.TrafficSource()))
+@pytest.mark.parametrize("sort_options", select_sort_options(m))
+def test_traffic_source(dimensions, filters, metrics, sort_options):
     report = rt.TrafficSource()
     assert report.name == "Traffic sources"
-    d = ["insightTrafficSourceType", "day"]
-    f = {"country": "US", "video": "fn849bng984b", "liveOrOnDemand": "LIVE"}
-    m = data.LOCATION_AND_TRAFFIC_METRICS
-    s = data.LOCATION_AND_TRAFFIC_METRICS
-    report.validate(d, f, m, s)
+    report.validate(dimensions, filters, metrics, sort_options)
 
 
-def test_traffic_source_2():
-    report = rt.TrafficSource()
-    assert report.name == "Traffic sources"
-    d = ["insightTrafficSourceType", "day", "liveOrOnDemand"]
-    f = {
-        "province": "US-OH",
-        "group": "fn849bng984b",
-        "liveOrOnDemand": "LIVE",
-        "subscribedStatus": "SUBSCRIBED",
-    }
-    m = data.LOCATION_AND_TRAFFIC_METRICS
-    s = data.LOCATION_AND_TRAFFIC_METRICS
-    report.validate(d, f, m, s)
-
-
-def test_traffic_source_3():
-    report = rt.TrafficSource()
-    assert report.name == "Traffic sources"
-    d = ["insightTrafficSourceType", "day", "liveOrOnDemand", "subscribedStatus"]
-    f = {"continent": "002"}
-    m = data.LOCATION_AND_TRAFFIC_METRICS
-    s = data.LOCATION_AND_TRAFFIC_METRICS
-    report.validate(d, f, m, s)
-
-
-def test_traffic_source_4():
-    report = rt.TrafficSource()
-    assert report.name == "Traffic sources"
-    d = ["insightTrafficSourceType"]
-    f = {"subContinent": "014"}
-    m = data.LOCATION_AND_TRAFFIC_METRICS
-    s = data.LOCATION_AND_TRAFFIC_METRICS
-    report.validate(d, f, m, s)
-
-
-def test_traffic_source_5():
-    report = rt.TrafficSource()
-    assert report.name == "Traffic sources"
-    d = ["insightTrafficSourceType"]
-    f = {}
-    m = data.LOCATION_AND_TRAFFIC_METRICS
-    s = data.LOCATION_AND_TRAFFIC_METRICS
-    report.validate(d, f, m, s)
-
-
-# TRAFFIC SOURCES (DETAILED)
-
-
-def test_traffic_source_detail_1():
+@pytest.mark.parametrize(
+    "dimensions",
+    [
+        ("insightTrafficSourceDetail",),
+        ("insightTrafficSourceDetail", "creatorContentType"),
+    ],
+)
+@pytest.mark.parametrize(
+    "filters",
+    [
+        *[
+            {"insightTrafficSourceType": x}
+            for x in data.VALID_FILTER_OPTIONS["insightTrafficSourceDetail"]
+        ],
+        *[
+            {"insightTrafficSourceType": "ADVERTISING", "country": x}
+            for x in sample(data.COUNTRIES)
+        ],
+        *[
+            {"insightTrafficSourceType": "ADVERTISING", "province": x}
+            for x in sample(data.SUBDIVISIONS)
+        ],
+        *[
+            {"insightTrafficSourceType": "ADVERTISING", "continent": x}
+            for x in sample(data.VALID_FILTER_OPTIONS["continent"])
+        ],
+        *[
+            {"insightTrafficSourceType": "ADVERTISING", "subContinent": x}
+            for x in sample(data.VALID_FILTER_OPTIONS["subContinent"])
+        ],
+        {"insightTrafficSourceType": "ADVERTISING", "video": "rickroll"},
+        {"insightTrafficSourceType": "ADVERTISING", "group": "rickroll"},
+        {
+            "insightTrafficSourceType": "ADVERTISING",
+            "video": "rickroll",
+            "country": "US",
+        },
+        {
+            "insightTrafficSourceType": "ADVERTISING",
+            "group": "rickroll",
+            "country": "US",
+        },
+        {
+            "insightTrafficSourceType": "ADVERTISING",
+            "video": "rickroll",
+            "province": "US-OH",
+        },
+        {
+            "insightTrafficSourceType": "ADVERTISING",
+            "group": "rickroll",
+            "province": "US-OH",
+        },
+        {
+            "insightTrafficSourceType": "ADVERTISING",
+            "video": "rickroll",
+            "continent": "002",
+        },
+        {
+            "insightTrafficSourceType": "ADVERTISING",
+            "group": "rickroll",
+            "continent": "002",
+        },
+        {
+            "insightTrafficSourceType": "ADVERTISING",
+            "video": "rickroll",
+            "subContinent": "015",
+        },
+        {
+            "insightTrafficSourceType": "ADVERTISING",
+            "group": "rickroll",
+            "subContinent": "015",
+        },
+        {
+            "insightTrafficSourceType": "ADVERTISING",
+            "video": "rickroll",
+            "subscribedStatus": "SUBSCRIBED",
+        },
+        {
+            "insightTrafficSourceType": "ADVERTISING",
+            "group": "rickroll",
+            "subscribedStatus": "UNSUBSCRIBED",
+        },
+        {
+            "insightTrafficSourceType": "ADVERTISING",
+            "video": "rickroll",
+            "liveOrOnDemand": "LIVE",
+        },
+        {
+            "insightTrafficSourceType": "ADVERTISING",
+            "group": "rickroll",
+            "liveOrOnDemand": "ON_DEMAND",
+        },
+        {
+            "insightTrafficSourceType": "ADVERTISING",
+            "video": "rickroll",
+            "country": "US",
+            "subscribedStatus": "SUBSCRIBED",
+        },
+        {
+            "insightTrafficSourceType": "ADVERTISING",
+            "video": "rickroll",
+            "province": "US-OH",
+            "subscribedStatus": "SUBSCRIBED",
+        },
+    ],
+)
+@pytest.mark.parametrize("metrics", m := select_metrics(rt.TrafficSourceDetail()))
+@pytest.mark.parametrize("sort_options", select_sort_options(m, descending_only=True))
+def test_traffic_source_detail(dimensions, filters, metrics, sort_options):
     report = rt.TrafficSourceDetail()
     assert report.name == "Traffic sources (detailed)"
-    d = ["insightTrafficSourceDetail"]
-    f = {
-        "insightTrafficSourceType": "ADVERTISING",
-        "country": "US",
-        "video": "fn849bng984b",
-        "liveOrOnDemand": "LIVE",
-    }
-    m = data.LOCATION_AND_TRAFFIC_METRICS
-    s = [f"-{o}" for o in data.LOCATION_AND_TRAFFIC_SORT_OPTIONS]
-    report.validate(d, f, m, s, 25)
+    report.validate(dimensions, filters, metrics, sort_options, max_results=25)
 
 
-def test_traffic_source_detail_2():
+@pytest.mark.parametrize(
+    "dimensions",
+    [
+        ("insightTrafficSourceDetail",),
+        ("insightTrafficSourceDetail", "creatorContentType"),
+    ],
+)
+@pytest.mark.parametrize(
+    "filters",
+    [
+        *[
+            {"insightTrafficSourceType": x}
+            for x in set(data.VALID_FILTER_OPTIONS["insightTrafficSourceType"])
+            - set(data.VALID_FILTER_OPTIONS["insightTrafficSourceDetail"])
+        ],
+    ],
+)
+@pytest.mark.parametrize("metrics", m := select_metrics(rt.TrafficSourceDetail()))
+@pytest.mark.parametrize("sort_options", select_sort_options(m, descending_only=True))
+def test_traffic_source_detail_errors(dimensions, filters, metrics, sort_options):
     report = rt.TrafficSourceDetail()
     assert report.name == "Traffic sources (detailed)"
-    d = ["insightTrafficSourceDetail"]
-    f = {
-        "insightTrafficSourceType": "ADVERTISING",
-        "province": "US-OH",
-        "group": "fn849bng984b",
-        "liveOrOnDemand": "LIVE",
-        "subscribedStatus": "SUBSCRIBED",
-    }
-    m = data.LOCATION_AND_TRAFFIC_METRICS
-    s = [f"-{o}" for o in data.LOCATION_AND_TRAFFIC_SORT_OPTIONS]
-    report.validate(d, f, m, s, 25)
+    with pytest.raises(InvalidRequest):
+        report.validate(dimensions, filters, metrics, sort_options, max_results=25)
 
 
-def test_traffic_source_detail_3():
-    report = rt.TrafficSourceDetail()
-    assert report.name == "Traffic sources (detailed)"
-    d = ["insightTrafficSourceDetail"]
-    f = {"insightTrafficSourceType": "ADVERTISING", "continent": "002"}
-    m = data.LOCATION_AND_TRAFFIC_METRICS
-    s = [f"-{o}" for o in data.LOCATION_AND_TRAFFIC_SORT_OPTIONS]
-    report.validate(d, f, m, s, 25)
-
-
-def test_traffic_source_detail_4():
-    report = rt.TrafficSourceDetail()
-    assert report.name == "Traffic sources (detailed)"
-    d = ["insightTrafficSourceDetail"]
-    f = {"insightTrafficSourceType": "ADVERTISING", "subContinent": "014"}
-    m = data.LOCATION_AND_TRAFFIC_METRICS
-    s = [f"-{o}" for o in data.LOCATION_AND_TRAFFIC_SORT_OPTIONS]
-    report.validate(d, f, m, s, 25)
-
-
-def test_traffic_source_detail_5():
-    report = rt.TrafficSourceDetail()
-    assert report.name == "Traffic sources (detailed)"
-    d = ["insightTrafficSourceDetail"]
-    f = {"insightTrafficSourceType": "ADVERTISING"}
-    m = data.LOCATION_AND_TRAFFIC_METRICS
-    s = [f"-{o}" for o in data.LOCATION_AND_TRAFFIC_SORT_OPTIONS]
-    report.validate(d, f, m, s, 25)
-
-
-def test_traffic_source_detail_invalid_source():
-    report = rt.TrafficSourceDetail()
-    assert report.name == "Traffic sources (detailed)"
-    d = ["insightTrafficSourceDetail"]
-    f = {"insightTrafficSourceType": "ANNOTATION"}
-    m = data.LOCATION_AND_TRAFFIC_METRICS
-    s = [f"-{o}" for o in data.LOCATION_AND_TRAFFIC_SORT_OPTIONS]
-
-    with pytest.raises(
-        InvalidRequest,
-        match="value 'ANNOTATION' for filter 'insightTrafficSourceType' cannot be used with the given dimensions",
-    ):
-        report.validate(d, f, m, s, 25)
-
-
-# DEVICE TYPES
-
-
-def test_device_type_1():
+@pytest.mark.parametrize(
+    "dimensions",
+    [
+        ("deviceType",),
+        ("deviceType", "creatorContentType"),
+        ("deviceType", "day"),
+        ("deviceType", "liveOrOnDemand"),
+        ("deviceType", "subscribedStatus"),
+        ("deviceType", "youtubeProduct"),
+        (
+            "deviceType",
+            "creatorContentType",
+            "day",
+            "liveOrOnDemand",
+            "subscribedStatus",
+            "youtubeProduct",
+        ),
+    ],
+)
+@pytest.mark.parametrize(
+    "filters",
+    [
+        {},
+        *[{"country": x} for x in sample(data.COUNTRIES)],
+        *[{"province": x} for x in sample(data.SUBDIVISIONS)],
+        *[{"continent": x} for x in sample(data.VALID_FILTER_OPTIONS["continent"])],
+        *[
+            {"subContinent": x}
+            for x in sample(data.VALID_FILTER_OPTIONS["subContinent"])
+        ],
+        {"video": "rickroll"},
+        {"group": "rickroll"},
+        {"video": "rickroll", "country": "US"},
+        {"group": "rickroll", "country": "US"},
+        {"video": "rickroll", "province": "US-OH"},
+        {"group": "rickroll", "province": "US-OH"},
+        {"video": "rickroll", "continent": "002"},
+        {"group": "rickroll", "continent": "002"},
+        {"video": "rickroll", "subContinent": "015"},
+        {"group": "rickroll", "subContinent": "015"},
+        {"video": "rickroll", "subscribedStatus": "SUBSCRIBED"},
+        {"group": "rickroll", "subscribedStatus": "UNSUBSCRIBED"},
+        {"video": "rickroll", "liveOrOnDemand": "LIVE"},
+        {"group": "rickroll", "liveOrOnDemand": "ON_DEMAND"},
+        {"video": "rickroll", "operatingSystem": "WINDOWS"},
+        {"group": "rickroll", "operatingSystem": "MACINTOSH"},
+        {"video": "rickroll", "youtubeProduct": "CORE"},
+        {"group": "rickroll", "youtubeProduct": "GAMING"},
+        {"video": "rickroll", "country": "US", "subscribedStatus": "SUBSCRIBED"},
+        {"video": "rickroll", "province": "US-OH", "subscribedStatus": "SUBSCRIBED"},
+    ],
+)
+@pytest.mark.parametrize("metrics", m := select_metrics(rt.DeviceType()))
+@pytest.mark.parametrize("sort_options", select_sort_options(m))
+def test_device_type(dimensions, filters, metrics, sort_options):
     report = rt.DeviceType()
     assert report.name == "Device types"
-    d = ["deviceType", "day"]
-    f = {"country": "US", "video": "fn849bng984b", "operatingSystem": "WINDOWS"}
-    m = data.LOCATION_AND_TRAFFIC_METRICS
-    s = data.LOCATION_AND_TRAFFIC_METRICS
-    report.validate(d, f, m, s)
+    report.validate(dimensions, filters, metrics, sort_options)
 
 
-def test_device_type_2():
-    report = rt.DeviceType()
-    assert report.name == "Device types"
-    d = ["deviceType", "day", "liveOrOnDemand", "subscribedStatus"]
-    f = {
-        "province": "US-OH",
-        "group": "fn849bng984b",
-        "operatingSystem": "WINDOWS",
-        "liveOrOnDemand": "LIVE",
-    }
-    m = data.LOCATION_AND_TRAFFIC_METRICS
-    s = data.LOCATION_AND_TRAFFIC_METRICS
-    report.validate(d, f, m, s)
-
-
-def test_device_type_3():
-    report = rt.DeviceType()
-    assert report.name == "Device types"
-    d = ["deviceType", "day", "liveOrOnDemand", "subscribedStatus", "youtubeProduct"]
-    f = {
-        "continent": "002",
-        "operatingSystem": "WINDOWS",
-        "liveOrOnDemand": "LIVE",
-        "subscribedStatus": "SUBSCRIBED",
-    }
-    m = data.LOCATION_AND_TRAFFIC_METRICS
-    s = data.LOCATION_AND_TRAFFIC_METRICS
-    report.validate(d, f, m, s)
-
-
-def test_device_type_4():
-    report = rt.DeviceType()
-    assert report.name == "Device types"
-    d = ["deviceType"]
-    f = {
-        "subContinent": "014",
-        "operatingSystem": "WINDOWS",
-        "liveOrOnDemand": "LIVE",
-        "subscribedStatus": "SUBSCRIBED",
-        "youtubeProduct": "CORE",
-    }
-    m = data.LOCATION_AND_TRAFFIC_METRICS
-    s = data.LOCATION_AND_TRAFFIC_METRICS
-    report.validate(d, f, m, s)
-
-
-def test_device_type_5():
-    report = rt.DeviceType()
-    assert report.name == "Device types"
-    d = ["deviceType"]
-    f = {}
-    m = data.LOCATION_AND_TRAFFIC_METRICS
-    s = data.LOCATION_AND_TRAFFIC_METRICS
-    report.validate(d, f, m, s)
-
-
-# OPERATING SYSTEMS
-
-
-def test_operating_system_1():
+@pytest.mark.parametrize(
+    "dimensions",
+    [
+        ("operatingSystem",),
+        ("operatingSystem", "creatorContentType"),
+        ("operatingSystem", "day"),
+        ("operatingSystem", "liveOrOnDemand"),
+        ("operatingSystem", "subscribedStatus"),
+        ("operatingSystem", "youtubeProduct"),
+        (
+            "operatingSystem",
+            "creatorContentType",
+            "day",
+            "liveOrOnDemand",
+            "subscribedStatus",
+            "youtubeProduct",
+        ),
+    ],
+)
+@pytest.mark.parametrize(
+    "filters",
+    [
+        {},
+        *[{"country": x} for x in sample(data.COUNTRIES)],
+        *[{"province": x} for x in sample(data.SUBDIVISIONS)],
+        *[{"continent": x} for x in sample(data.VALID_FILTER_OPTIONS["continent"])],
+        *[
+            {"subContinent": x}
+            for x in sample(data.VALID_FILTER_OPTIONS["subContinent"])
+        ],
+        {"video": "rickroll"},
+        {"group": "rickroll"},
+        {"video": "rickroll", "country": "US"},
+        {"group": "rickroll", "country": "US"},
+        {"video": "rickroll", "province": "US-OH"},
+        {"group": "rickroll", "province": "US-OH"},
+        {"video": "rickroll", "continent": "002"},
+        {"group": "rickroll", "continent": "002"},
+        {"video": "rickroll", "subContinent": "015"},
+        {"group": "rickroll", "subContinent": "015"},
+        {"video": "rickroll", "subscribedStatus": "SUBSCRIBED"},
+        {"group": "rickroll", "subscribedStatus": "UNSUBSCRIBED"},
+        {"video": "rickroll", "liveOrOnDemand": "LIVE"},
+        {"group": "rickroll", "liveOrOnDemand": "ON_DEMAND"},
+        {"video": "rickroll", "deviceType": "DESKTOP"},
+        {"group": "rickroll", "deviceType": "MOBILE"},
+        {"video": "rickroll", "youtubeProduct": "CORE"},
+        {"group": "rickroll", "youtubeProduct": "GAMING"},
+        {"video": "rickroll", "country": "US", "subscribedStatus": "SUBSCRIBED"},
+        {"video": "rickroll", "province": "US-OH", "subscribedStatus": "SUBSCRIBED"},
+    ],
+)
+@pytest.mark.parametrize("metrics", m := select_metrics(rt.OperatingSystem()))
+@pytest.mark.parametrize("sort_options", select_sort_options(m))
+def test_operating_system(dimensions, filters, metrics, sort_options):
     report = rt.OperatingSystem()
     assert report.name == "Operating systems"
-    d = ["operatingSystem", "day"]
-    f = {"country": "US", "video": "fn849bng984b", "deviceType": "MOBILE"}
-    m = data.LOCATION_AND_TRAFFIC_METRICS
-    s = data.LOCATION_AND_TRAFFIC_METRICS
-    report.validate(d, f, m, s)
+    report.validate(dimensions, filters, metrics, sort_options)
 
 
-def test_operating_system_2():
-    report = rt.OperatingSystem()
-    assert report.name == "Operating systems"
-    d = ["operatingSystem", "day", "liveOrOnDemand", "subscribedStatus"]
-    f = {
-        "province": "US-OH",
-        "group": "fn849bng984b",
-        "deviceType": "MOBILE",
-        "liveOrOnDemand": "LIVE",
-    }
-    m = data.LOCATION_AND_TRAFFIC_METRICS
-    s = data.LOCATION_AND_TRAFFIC_METRICS
-    report.validate(d, f, m, s)
-
-
-def test_operating_system_3():
-    report = rt.OperatingSystem()
-    assert report.name == "Operating systems"
-    d = [
-        "operatingSystem",
-        "day",
-        "liveOrOnDemand",
-        "subscribedStatus",
-        "youtubeProduct",
-    ]
-    f = {
-        "continent": "002",
-        "deviceType": "MOBILE",
-        "liveOrOnDemand": "LIVE",
-        "subscribedStatus": "SUBSCRIBED",
-    }
-    m = data.LOCATION_AND_TRAFFIC_METRICS
-    s = data.LOCATION_AND_TRAFFIC_METRICS
-    report.validate(d, f, m, s)
-
-
-def test_operating_system_4():
-    report = rt.OperatingSystem()
-    assert report.name == "Operating systems"
-    d = ["operatingSystem"]
-    f = {
-        "subContinent": "014",
-        "deviceType": "MOBILE",
-        "liveOrOnDemand": "LIVE",
-        "subscribedStatus": "SUBSCRIBED",
-        "youtubeProduct": "CORE",
-    }
-    m = data.LOCATION_AND_TRAFFIC_METRICS
-    s = data.LOCATION_AND_TRAFFIC_METRICS
-    report.validate(d, f, m, s)
-
-
-def test_operating_system_5():
-    report = rt.OperatingSystem()
-    assert report.name == "Operating systems"
-    d = ["operatingSystem"]
-    f = {}
-    m = data.LOCATION_AND_TRAFFIC_METRICS
-    s = data.LOCATION_AND_TRAFFIC_METRICS
-    report.validate(d, f, m, s)
-
-
-# DEVICE TYPES AND OPERATING SYSTEMS
-
-
-def test_device_type_and_operating_system_1():
+@pytest.mark.parametrize(
+    "dimensions",
+    [
+        ("deviceType", "operatingSystem"),
+        ("deviceType", "operatingSystem", "creatorContentType"),
+        ("deviceType", "operatingSystem", "day"),
+        ("deviceType", "operatingSystem", "liveOrOnDemand"),
+        ("deviceType", "operatingSystem", "subscribedStatus"),
+        ("deviceType", "operatingSystem", "youtubeProduct"),
+        (
+            "deviceType",
+            "operatingSystem",
+            "creatorContentType",
+            "day",
+            "liveOrOnDemand",
+            "subscribedStatus",
+            "youtubeProduct",
+        ),
+    ],
+)
+@pytest.mark.parametrize(
+    "filters",
+    [
+        {},
+        *[{"country": x} for x in sample(data.COUNTRIES)],
+        *[{"province": x} for x in sample(data.SUBDIVISIONS)],
+        *[{"continent": x} for x in sample(data.VALID_FILTER_OPTIONS["continent"])],
+        *[
+            {"subContinent": x}
+            for x in sample(data.VALID_FILTER_OPTIONS["subContinent"])
+        ],
+        {"video": "rickroll"},
+        {"group": "rickroll"},
+        {"video": "rickroll", "country": "US"},
+        {"group": "rickroll", "country": "US"},
+        {"video": "rickroll", "province": "US-OH"},
+        {"group": "rickroll", "province": "US-OH"},
+        {"video": "rickroll", "continent": "002"},
+        {"group": "rickroll", "continent": "002"},
+        {"video": "rickroll", "subContinent": "015"},
+        {"group": "rickroll", "subContinent": "015"},
+        {"video": "rickroll", "subscribedStatus": "SUBSCRIBED"},
+        {"group": "rickroll", "subscribedStatus": "UNSUBSCRIBED"},
+        {"video": "rickroll", "liveOrOnDemand": "LIVE"},
+        {"group": "rickroll", "liveOrOnDemand": "ON_DEMAND"},
+        {"video": "rickroll", "youtubeProduct": "CORE"},
+        {"group": "rickroll", "youtubeProduct": "GAMING"},
+        {"video": "rickroll", "country": "US", "subscribedStatus": "SUBSCRIBED"},
+        {"video": "rickroll", "province": "US-OH", "subscribedStatus": "SUBSCRIBED"},
+    ],
+)
+@pytest.mark.parametrize(
+    "metrics", m := select_metrics(rt.DeviceTypeAndOperatingSystem())
+)
+@pytest.mark.parametrize("sort_options", select_sort_options(m))
+def test_device_type_and_operating_system(dimensions, filters, metrics, sort_options):
     report = rt.DeviceTypeAndOperatingSystem()
     assert report.name == "Device types and operating systems"
-    d = ["deviceType", "operatingSystem", "day"]
-    f = {"country": "US", "video": "fn849bng984b"}
-    m = data.LOCATION_AND_TRAFFIC_METRICS
-    s = data.LOCATION_AND_TRAFFIC_METRICS
-    report.validate(d, f, m, s)
+    report.validate(dimensions, filters, metrics, sort_options)
 
 
-def test_device_type_and_operating_system_2():
-    report = rt.DeviceTypeAndOperatingSystem()
-    assert report.name == "Device types and operating systems"
-    d = ["deviceType", "operatingSystem", "day", "liveOrOnDemand", "subscribedStatus"]
-    f = {
-        "province": "US-OH",
-        "group": "fn849bng984b",
-        "liveOrOnDemand": "LIVE",
-    }
-    m = data.LOCATION_AND_TRAFFIC_METRICS
-    s = data.LOCATION_AND_TRAFFIC_METRICS
-    report.validate(d, f, m, s)
-
-
-def test_device_type_and_operating_system_3():
-    report = rt.DeviceTypeAndOperatingSystem()
-    assert report.name == "Device types and operating systems"
-    d = [
-        "deviceType",
-        "operatingSystem",
-        "day",
-        "liveOrOnDemand",
-        "subscribedStatus",
-        "youtubeProduct",
-    ]
-    f = {
-        "continent": "002",
-        "liveOrOnDemand": "LIVE",
-        "subscribedStatus": "SUBSCRIBED",
-    }
-    m = data.LOCATION_AND_TRAFFIC_METRICS
-    s = data.LOCATION_AND_TRAFFIC_METRICS
-    report.validate(d, f, m, s)
-
-
-def test_device_type_and_operating_system_4():
-    report = rt.DeviceTypeAndOperatingSystem()
-    assert report.name == "Device types and operating systems"
-    d = ["deviceType", "operatingSystem"]
-    f = {
-        "subContinent": "014",
-        "liveOrOnDemand": "LIVE",
-        "subscribedStatus": "SUBSCRIBED",
-        "youtubeProduct": "CORE",
-    }
-    m = data.LOCATION_AND_TRAFFIC_METRICS
-    s = data.LOCATION_AND_TRAFFIC_METRICS
-    report.validate(d, f, m, s)
-
-
-def test_device_type_and_operating_system_5():
-    report = rt.DeviceTypeAndOperatingSystem()
-    assert report.name == "Device types and operating systems"
-    d = ["deviceType", "operatingSystem"]
-    f = {}
-    m = data.LOCATION_AND_TRAFFIC_METRICS
-    s = data.LOCATION_AND_TRAFFIC_METRICS
-    report.validate(d, f, m, s)
-
-
-# VIEWER DEMOGRAPHICS
-
-
-def test_viewer_demographics_1():
+@pytest.mark.parametrize(
+    "dimensions",
+    [
+        ("ageGroup",),
+        ("gender",),
+        ("ageGroup", "creatorContentType"),
+        ("gender", "liveOrOnDemand"),
+        ("ageGroup", "subscribedStatus"),
+        ("gender", "creatorContentType", "liveOrOnDemand", "subscribedStatus"),
+    ],
+)
+@pytest.mark.parametrize(
+    "filters",
+    [
+        {},
+        *[{"country": x} for x in sample(data.COUNTRIES)],
+        *[{"province": x} for x in sample(data.SUBDIVISIONS)],
+        *[{"continent": x} for x in sample(data.VALID_FILTER_OPTIONS["continent"])],
+        *[
+            {"subContinent": x}
+            for x in sample(data.VALID_FILTER_OPTIONS["subContinent"])
+        ],
+        {"video": "rickroll"},
+        {"group": "rickroll"},
+        {"video": "rickroll", "country": "US"},
+        {"group": "rickroll", "country": "US"},
+        {"video": "rickroll", "province": "US-OH"},
+        {"group": "rickroll", "province": "US-OH"},
+        {"video": "rickroll", "continent": "002"},
+        {"group": "rickroll", "continent": "002"},
+        {"video": "rickroll", "subContinent": "015"},
+        {"group": "rickroll", "subContinent": "015"},
+        {"video": "rickroll", "subscribedStatus": "SUBSCRIBED"},
+        {"group": "rickroll", "subscribedStatus": "UNSUBSCRIBED"},
+        {"video": "rickroll", "liveOrOnDemand": "LIVE"},
+        {"group": "rickroll", "liveOrOnDemand": "ON_DEMAND"},
+        {"video": "rickroll", "country": "US", "subscribedStatus": "SUBSCRIBED"},
+        {"video": "rickroll", "province": "US-OH", "subscribedStatus": "SUBSCRIBED"},
+    ],
+)
+@pytest.mark.parametrize("metrics", m := select_metrics(rt.ViewerDemographics()))
+@pytest.mark.parametrize("sort_options", select_sort_options(m))
+def test_viewer_demographics(dimensions, filters, metrics, sort_options):
     report = rt.ViewerDemographics()
     assert report.name == "Viewer demographics"
-    d = ["ageGroup", "liveOrOnDemand"]
-    f = {"country": "US", "video": "fn849bng984b", "liveOrOnDemand": "LIVE"}
-    m = ["viewerPercentage"]
-    s = ["viewerPercentage"]
-    report.validate(d, f, m, s)
+    report.validate(dimensions, filters, metrics, sort_options)
 
 
-def test_viewer_demographics_2():
-    report = rt.ViewerDemographics()
-    assert report.name == "Viewer demographics"
-    d = ["ageGroup", "gender", "liveOrOnDemand", "subscribedStatus"]
-    f = {
-        "province": "US-OH",
-        "group": "fn849bng984b",
-        "liveOrOnDemand": "LIVE",
-        "subscribedStatus": "SUBSCRIBED",
-    }
-    m = ["viewerPercentage"]
-    s = ["viewerPercentage"]
-    report.validate(d, f, m, s)
-
-
-def test_viewer_demographics_3():
-    report = rt.ViewerDemographics()
-    assert report.name == "Viewer demographics"
-    d = ["gender"]
-    f = {"continent": "002"}
-    m = ["viewerPercentage"]
-    s = ["viewerPercentage"]
-    report.validate(d, f, m, s)
-
-
-def test_viewer_demographics_4():
-    report = rt.ViewerDemographics()
-    assert report.name == "Viewer demographics"
-    d = ["ageGroup"]
-    f = {"subContinent": "014"}
-    m = ["viewerPercentage"]
-    s = ["viewerPercentage"]
-    report.validate(d, f, m, s)
-
-
-def test_viewer_demographics_5():
-    report = rt.ViewerDemographics()
-    assert report.name == "Viewer demographics"
-    d = ["ageGroup", "gender"]
-    f = {}
-    m = ["viewerPercentage"]
-    s = ["viewerPercentage"]
-    report.validate(d, f, m, s)
-
-
-# ENGAGEMENT AND CONTENT SHARING
-
-
-def test_engagement_and_content_sharing_1():
+@pytest.mark.parametrize(
+    "dimensions",
+    [
+        ("sharingService",),
+        ("sharingService", "creatorContentType"),
+        ("sharingService", "subscribedStatus"),
+        ("sharingService", "creatorContentType", "subscribedStatus"),
+    ],
+)
+@pytest.mark.parametrize(
+    "filters",
+    [
+        {},
+        *[{"country": x} for x in sample(data.COUNTRIES)],
+        *[{"continent": x} for x in sample(data.VALID_FILTER_OPTIONS["continent"])],
+        *[
+            {"subContinent": x}
+            for x in sample(data.VALID_FILTER_OPTIONS["subContinent"])
+        ],
+        {"video": "rickroll"},
+        {"group": "rickroll"},
+        {"video": "rickroll", "country": "US"},
+        {"group": "rickroll", "country": "US"},
+        {"video": "rickroll", "continent": "002"},
+        {"group": "rickroll", "continent": "002"},
+        {"video": "rickroll", "subContinent": "015"},
+        {"group": "rickroll", "subContinent": "015"},
+        {"video": "rickroll", "subscribedStatus": "SUBSCRIBED"},
+        {"group": "rickroll", "subscribedStatus": "UNSUBSCRIBED"},
+        {"video": "rickroll", "country": "US", "subscribedStatus": "SUBSCRIBED"},
+    ],
+)
+@pytest.mark.parametrize(
+    "metrics", m := select_metrics(rt.EngagementAndContentSharing())
+)
+@pytest.mark.parametrize("sort_options", select_sort_options(m))
+def test_engagement_and_content_sharing(dimensions, filters, metrics, sort_options):
     report = rt.EngagementAndContentSharing()
     assert report.name == "Engagement and content sharing"
-    d = ["sharingService", "subscribedStatus"]
-    f = {"country": "US", "video": "fn849bng984b", "subscribedStatus": "SUBSCRIBED"}
-    m = ["shares"]
-    s = ["shares"]
-    report.validate(d, f, m, s)
+    report.validate(dimensions, filters, metrics, sort_options)
 
 
-def test_engagement_and_content_sharing_2():
-    report = rt.EngagementAndContentSharing()
-    assert report.name == "Engagement and content sharing"
-    d = ["sharingService"]
-    f = {"continent": "002", "group": "fn849bng984b"}
-    m = ["shares"]
-    s = ["shares"]
-    report.validate(d, f, m, s)
-
-
-def test_engagement_and_content_sharing_3():
-    report = rt.EngagementAndContentSharing()
-    assert report.name == "Engagement and content sharing"
-    d = ["sharingService"]
-    f = {"subContinent": "014"}
-    m = ["shares"]
-    s = ["shares"]
-    report.validate(d, f, m, s)
-
-
-def test_engagement_and_content_sharing_4():
-    report = rt.EngagementAndContentSharing()
-    assert report.name == "Engagement and content sharing"
-    d = ["sharingService"]
-    f = {}
-    m = ["shares"]
-    s = ["shares"]
-    report.validate(d, f, m, s)
-
-
-# AUDIENCE RETENTION
-
-
-def test_audience_retention_1():
+@pytest.mark.parametrize(
+    "dimensions",
+    [
+        ("elapsedVideoTimeRatio",),
+        ("elapsedVideoTimeRatio", "creatorContentType"),
+    ],
+)
+@pytest.mark.parametrize(
+    "filters",
+    [
+        {"video": "rickroll"},
+        {"video": "rickroll", "audienceType": "ORGANIC"},
+        {"video": "rickroll", "subscribedStatus": "SUBSCRIBED"},
+        {"video": "rickroll", "youtubeProduct": "CORE"},
+    ],
+)
+@pytest.mark.parametrize("metrics", m := select_metrics(rt.AudienceRetention()))
+@pytest.mark.parametrize("sort_options", select_sort_options(m))
+def test_audience_retention(dimensions, filters, metrics, sort_options):
     report = rt.AudienceRetention()
     assert report.name == "Audience retention"
-    d = ["elapsedVideoTimeRatio"]
-    f = {"video": "fn849bng984b", "audienceType": "ORGANIC"}
-    m = ["audienceWatchRatio", "relativeRetentionPerformance"]
-    s = ["audienceWatchRatio", "relativeRetentionPerformance"]
-    report.validate(d, f, m, s)
-
-
-def test_audience_retention_2():
-    report = rt.AudienceRetention()
-    assert report.name == "Audience retention"
-    d = ["elapsedVideoTimeRatio"]
-    f = {
-        "video": "fn849bng984b",
-        "audienceType": "ORGANIC",
-        "subscribedStatus": "SUBSCRIBED",
-    }
-    m = ["audienceWatchRatio", "relativeRetentionPerformance"]
-    s = ["audienceWatchRatio", "relativeRetentionPerformance"]
-    report.validate(d, f, m, s)
-
-
-def test_audience_retention_3():
-    report = rt.AudienceRetention()
-    assert report.name == "Audience retention"
-    d = ["elapsedVideoTimeRatio"]
-    f = {
-        "video": "fn849bng984b",
-        "audienceType": "ORGANIC",
-        "subscribedStatus": "SUBSCRIBED",
-        "youtubeProduct": "CORE",
-    }
-    m = ["audienceWatchRatio", "relativeRetentionPerformance"]
-    s = ["audienceWatchRatio", "relativeRetentionPerformance"]
-    report.validate(d, f, m, s)
-
-
-def test_audience_retention_4():
-    report = rt.AudienceRetention()
-    assert report.name == "Audience retention"
-    d = ["elapsedVideoTimeRatio"]
-    f = {"video": "fn849bng984b"}
-    m = ["audienceWatchRatio", "relativeRetentionPerformance"]
-    s = ["audienceWatchRatio", "relativeRetentionPerformance"]
-    report.validate(d, f, m, s)
+    report.validate(dimensions, filters, metrics, sort_options)
 
 
 def test_audience_retention_invalid_video_filters():
@@ -1386,219 +1495,151 @@ def test_audience_retention_invalid_video_filters():
         report.validate(d, f, m, s)
 
 
-# TOP VIDEOS BY REGION
-
-
-def test_top_videos_regional_1():
+@pytest.mark.parametrize(
+    "dimensions",
+    [
+        ("video",),
+        ("video", "creatorContentType"),
+    ],
+)
+@pytest.mark.parametrize(
+    "filters",
+    [
+        {},
+        *[{"country": x} for x in sample(data.COUNTRIES)],
+        *[{"continent": x} for x in sample(data.VALID_FILTER_OPTIONS["continent"])],
+        *[
+            {"subContinent": x}
+            for x in sample(data.VALID_FILTER_OPTIONS["subContinent"])
+        ],
+    ],
+)
+@pytest.mark.parametrize("metrics", m := select_metrics(rt.TopVideosRegional()))
+@pytest.mark.parametrize("sort_options", select_sort_options(m, descending_only=True))
+def test_top_videos_regional(dimensions, filters, metrics, sort_options):
     report = rt.TopVideosRegional()
     assert report.name == "Top videos by region"
-    d = ["video"]
-    f = {"country": "US"}
-    m = data.ALL_VIDEO_METRICS
-    s = [f"-{o}" for o in data.TOP_VIDEOS_EXTRA_SORT_OPTIONS]
-    report.validate(d, f, m, s, 200)
+    report.validate(dimensions, filters, metrics, sort_options, max_results=200)
 
 
-def test_top_videos_regional_2():
-    report = rt.TopVideosRegional()
-    assert report.name == "Top videos by region"
-    d = ["video"]
-    f = {"continent": "002"}
-    m = data.ALL_VIDEO_METRICS
-    s = [f"-{o}" for o in data.TOP_VIDEOS_EXTRA_SORT_OPTIONS]
-    report.validate(d, f, m, s, 200)
-
-
-def test_top_videos_regional_3():
-    report = rt.TopVideosRegional()
-    assert report.name == "Top videos by region"
-    d = ["video"]
-    f = {"subContinent": "014"}
-    m = data.ALL_VIDEO_METRICS
-    s = [f"-{o}" for o in data.TOP_VIDEOS_EXTRA_SORT_OPTIONS]
-    report.validate(d, f, m, s, 200)
-
-
-def test_top_videos_regional_4():
-    report = rt.TopVideosRegional()
-    assert report.name == "Top videos by region"
-    d = ["video"]
-    f = {}
-    m = data.ALL_VIDEO_METRICS
-    s = [f"-{o}" for o in data.TOP_VIDEOS_EXTRA_SORT_OPTIONS]
-    report.validate(d, f, m, s, 200)
-
-
-# TOP VIDEOS BY STATE
-
-
-def test_top_videos_us_1():
+@pytest.mark.parametrize(
+    "dimensions",
+    [
+        ("video",),
+        ("video", "creatorContentType"),
+    ],
+)
+@pytest.mark.parametrize(
+    "filters",
+    [
+        *[{"province": x} for x in sample(data.SUBDIVISIONS)],
+        {"province": "US-OH", "subscribedStatus": "SUBSCRIBED"},
+    ],
+)
+@pytest.mark.parametrize("metrics", m := select_metrics(rt.TopVideosUS()))
+@pytest.mark.parametrize("sort_options", select_sort_options(m, descending_only=True))
+def test_top_videos_us(dimensions, filters, metrics, sort_options):
     report = rt.TopVideosUS()
     assert report.name == "Top videos by state"
-    d = ["video"]
-    f = {"province": "US-OH", "subscribedStatus": "SUBSCRIBED"}
-    m = data.ALL_PROVINCE_METRICS
-    s = [f"-{o}" for o in data.TOP_VIDEOS_SORT_OPTIONS]
-    report.validate(d, f, m, s, 200)
+    report.validate(dimensions, filters, metrics, sort_options, max_results=200)
 
 
-def test_top_videos_us_2():
-    report = rt.TopVideosUS()
-    assert report.name == "Top videos by state"
-    d = ["video"]
-    f = {"province": "US-OH"}
-    m = data.ALL_PROVINCE_METRICS
-    s = [f"-{o}" for o in data.TOP_VIDEOS_SORT_OPTIONS]
-    report.validate(d, f, m, s, 200)
-
-
-# TOP VIDEOS BY SUBSCRIPTION STATUS
-
-
-def test_top_videos_subscribed_1():
+@pytest.mark.parametrize(
+    "dimensions",
+    [
+        ("video",),
+        ("video", "creatorContentType"),
+    ],
+)
+@pytest.mark.parametrize(
+    "filters",
+    [
+        {},
+        {"subscribedStatus": "SUBSCRIBED"},
+        *[
+            {"subscribedStatus": "SUBSCRIBED", "country": x}
+            for x in sample(data.COUNTRIES)
+        ],
+        *[
+            {"subscribedStatus": "SUBSCRIBED", "continent": x}
+            for x in sample(data.VALID_FILTER_OPTIONS["continent"])
+        ],
+        *[
+            {"subscribedStatus": "SUBSCRIBED", "subContinent": x}
+            for x in sample(data.VALID_FILTER_OPTIONS["subContinent"])
+        ],
+    ],
+)
+@pytest.mark.parametrize("metrics", m := select_metrics(rt.TopVideosSubscribed()))
+@pytest.mark.parametrize("sort_options", select_sort_options(m, descending_only=True))
+def test_top_videos_subscribed(dimensions, filters, metrics, sort_options):
     report = rt.TopVideosSubscribed()
     assert report.name == "Top videos by subscription status"
-    d = ["video"]
-    f = {"subscribedStatus": "SUBSCRIBED", "country": "US"}
-    m = data.SUBSCRIPTION_METRICS
-    s = [f"-{o}" for o in data.TOP_VIDEOS_SORT_OPTIONS]
-    report.validate(d, f, m, s, 200)
+    report.validate(dimensions, filters, metrics, sort_options, max_results=200)
 
 
-def test_top_videos_subscribed_2():
-    report = rt.TopVideosSubscribed()
-    assert report.name == "Top videos by subscription status"
-    d = ["video"]
-    f = {"continent": "002"}
-    m = data.SUBSCRIPTION_METRICS
-    s = [f"-{o}" for o in data.TOP_VIDEOS_SORT_OPTIONS]
-    report.validate(d, f, m, s, 200)
-
-
-def test_top_videos_subscribed_3():
-    report = rt.TopVideosSubscribed()
-    assert report.name == "Top videos by subscription status"
-    d = ["video"]
-    f = {"subContinent": "014"}
-    m = data.SUBSCRIPTION_METRICS
-    s = [f"-{o}" for o in data.TOP_VIDEOS_SORT_OPTIONS]
-    report.validate(d, f, m, s, 200)
-
-
-# TOP VIDEOS BY SUBSCRIPTION STATUS
-
-
-def test_top_videos_youtube_product_1():
+@pytest.mark.parametrize(
+    "dimensions",
+    [
+        ("video",),
+        ("video", "creatorContentType"),
+    ],
+)
+@pytest.mark.parametrize(
+    "filters",
+    [
+        {},
+        {"youtubeProduct": "CORE"},
+        {"subscribedStatus": "SUBSCRIBED"},
+        *[{"youtubeProduct": "CORE", "country": x} for x in sample(data.COUNTRIES)],
+        *[{"youtubeProduct": "CORE", "province": x} for x in sample(data.SUBDIVISIONS)],
+        *[
+            {"youtubeProduct": "CORE", "continent": x}
+            for x in sample(data.VALID_FILTER_OPTIONS["continent"])
+        ],
+        *[
+            {"youtubeProduct": "CORE", "subContinent": x}
+            for x in sample(data.VALID_FILTER_OPTIONS["subContinent"])
+        ],
+    ],
+)
+@pytest.mark.parametrize("metrics", m := select_metrics(rt.TopVideosYouTubeProduct()))
+@pytest.mark.parametrize("sort_options", select_sort_options(m, descending_only=True))
+def test_top_videos_youtube_product(dimensions, filters, metrics, sort_options):
     report = rt.TopVideosYouTubeProduct()
     assert report.name == "Top videos by YouTube product"
-    d = ["video"]
-    f = {"country": "US", "subscribedStatus": "SUBSCRIBED"}
-    m = data.VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS
-    s = [f"-{o}" for o in data.TOP_VIDEOS_SORT_OPTIONS]
-    report.validate(d, f, m, s, 200)
+    report.validate(dimensions, filters, metrics, sort_options, max_results=200)
 
 
-def test_top_videos_youtube_product_2():
-    report = rt.TopVideosYouTubeProduct()
-    assert report.name == "Top videos by YouTube product"
-    d = ["video"]
-    f = {
-        "province": "US-OH",
-        "subscribedStatus": "SUBSCRIBED",
-        "youtubeProduct": "CORE",
-    }
-    m = data.VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS
-    s = [f"-{o}" for o in data.TOP_VIDEOS_SORT_OPTIONS]
-    report.validate(d, f, m, s, 200)
-
-
-def test_top_videos_youtube_product_3():
-    report = rt.TopVideosYouTubeProduct()
-    assert report.name == "Top videos by YouTube product"
-    d = ["video"]
-    f = {"continent": "002"}
-    m = data.VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS
-    s = [f"-{o}" for o in data.TOP_VIDEOS_SORT_OPTIONS]
-    report.validate(d, f, m, s, 200)
-
-
-def test_top_videos_youtube_product_4():
-    report = rt.TopVideosYouTubeProduct()
-    assert report.name == "Top videos by YouTube product"
-    d = ["video"]
-    f = {"subContinent": "014"}
-    m = data.VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS
-    s = [f"-{o}" for o in data.TOP_VIDEOS_SORT_OPTIONS]
-    report.validate(d, f, m, s, 200)
-
-
-def test_top_videos_youtube_product_5():
-    report = rt.TopVideosYouTubeProduct()
-    assert report.name == "Top videos by YouTube product"
-    d = ["video"]
-    f = {}
-    m = data.VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS
-    s = [f"-{o}" for o in data.TOP_VIDEOS_SORT_OPTIONS]
-    report.validate(d, f, m, s, 200)
-
-
-# TOP VIDEOS BY PLAYBACK DETAIL
-
-
-def test_top_videos_playback_detail_1():
+@pytest.mark.parametrize(
+    "dimensions",
+    [
+        ("video",),
+        ("video", "creatorContentType"),
+    ],
+)
+@pytest.mark.parametrize(
+    "filters",
+    [
+        {},
+        {"liveOrOnDemand": "LIVE"},
+        {"youtubeProduct": "CORE"},
+        {"subscribedStatus": "SUBSCRIBED"},
+        *[{"liveOrOnDemand": "LIVE", "country": x} for x in sample(data.COUNTRIES)],
+        *[{"liveOrOnDemand": "LIVE", "province": x} for x in sample(data.SUBDIVISIONS)],
+        *[
+            {"liveOrOnDemand": "LIVE", "continent": x}
+            for x in sample(data.VALID_FILTER_OPTIONS["continent"])
+        ],
+        *[
+            {"liveOrOnDemand": "LIVE", "subContinent": x}
+            for x in sample(data.VALID_FILTER_OPTIONS["subContinent"])
+        ],
+    ],
+)
+@pytest.mark.parametrize("metrics", m := select_metrics(rt.TopVideosPlaybackDetail()))
+@pytest.mark.parametrize("sort_options", select_sort_options(m, descending_only=True))
+def test_top_videos_playback_detail(dimensions, filters, metrics, sort_options):
     report = rt.TopVideosPlaybackDetail()
     assert report.name == "Top videos by playback detail"
-    d = ["video"]
-    f = {"country": "US", "liveOrOnDemand": "LIVE"}
-    m = data.VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS
-    s = [f"-{o}" for o in data.TOP_VIDEOS_SORT_OPTIONS]
-    report.validate(d, f, m, s, 200)
-
-
-def test_top_videos_playback_detail_2():
-    report = rt.TopVideosPlaybackDetail()
-    assert report.name == "Top videos by playback detail"
-    d = ["video"]
-    f = {
-        "province": "US-OH",
-        "liveOrOnDemand": "LIVE",
-        "subscribedStatus": "SUBSCRIBED",
-    }
-    m = data.VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS
-    s = [f"-{o}" for o in data.TOP_VIDEOS_SORT_OPTIONS]
-    report.validate(d, f, m, s, 200)
-
-
-def test_top_videos_playback_detail_3():
-    report = rt.TopVideosPlaybackDetail()
-    assert report.name == "Top videos by playback detail"
-    d = ["video"]
-    f = {
-        "continent": "002",
-        "liveOrOnDemand": "LIVE",
-        "subscribedStatus": "SUBSCRIBED",
-        "youtubeProduct": "CORE",
-    }
-    m = data.VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS
-    s = [f"-{o}" for o in data.TOP_VIDEOS_SORT_OPTIONS]
-    report.validate(d, f, m, s, 200)
-
-
-def test_top_videos_playback_detail_4():
-    report = rt.TopVideosPlaybackDetail()
-    assert report.name == "Top videos by playback detail"
-    d = ["video"]
-    f = {"subContinent": "014"}
-    m = data.VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS
-    s = [f"-{o}" for o in data.TOP_VIDEOS_SORT_OPTIONS]
-    report.validate(d, f, m, s, 200)
-
-
-def test_top_videos_playback_detail_5():
-    report = rt.TopVideosPlaybackDetail()
-    assert report.name == "Top videos by playback detail"
-    d = ["video"]
-    f = {}
-    m = data.VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS
-    s = [f"-{o}" for o in data.TOP_VIDEOS_SORT_OPTIONS]
-    report.validate(d, f, m, s, 200)
+    report.validate(dimensions, filters, metrics, sort_options, max_results=200)
