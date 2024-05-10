@@ -1,4 +1,4 @@
 griffe>=0.41,<1.0
 mkdocs-material>=9.0.2,<10.0
 mkdocs-include-markdown-plugin>=6.0,<7.0
-mkdocstrings[python]~=0.24.0
+mkdocstrings[python]~=0.25.1
