@@ -349,7 +349,7 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
             _log.debug("Attempting decode using JWK with KID %r", jwk.get_kid())
             try:
                 return jwt.decode(token, jwk)
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 if not isinstance(exc.__cause__, JWSDecodeError):
                     # If the error IS a JWSDecodeError, we want to try
                     # other keys and error later if they also fail.
