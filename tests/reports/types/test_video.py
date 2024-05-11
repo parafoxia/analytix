@@ -28,6 +28,8 @@
 
 import random
 import warnings
+from typing import List
+from typing import Set
 
 import pytest
 
@@ -52,7 +54,7 @@ def select_sort_options(metrics, descending_only=False):
     return [(m[0], f"-{m[0]}") for m in metrics[1:]]
 
 
-def sample(s: set[str], n: int = 3) -> list[str]:
+def sample(s: Set[str], n: int = 3) -> List[str]:
     return s if len(s) < n else random.sample(list(s), n)
 
 
