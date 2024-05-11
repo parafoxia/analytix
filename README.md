@@ -49,14 +49,14 @@ Below is a list of analytix's dependencies.
 Note that the minimum version assumes you're using CPython 3.8.
 The latest versions of each library are always supported.
 
-| Name              | Min. version | Required?     | Usage                                                         | 
-|-------------------|--------------|---------------|---------------------------------------------------------------|
-| `urllib3`         | 1.10.0       | Yes           | Making HTTP requests                                          |
-| `jwt`             | 1.2.0        | No            | Decoding JWT ID tokens (from v5.1)                            |
-| `openpyxl`        | 3.0.0        | No            | Exporting report data to Excel spreadsheets                   |
-| `pandas`          | 1.4.0        | No            | Exporting report data to pandas DataFrames                    |
-| `polars`          | 0.15.17      | No            | Exporting report data to Polars DataFrames                    |
-| `pyarrow`         | 5.0.0        | No            | Exporting report data to Apache Arrow tables and file formats |
+| Name              | Min. version | Required? | Usage                                                         | 
+|-------------------|--------------|-----------|---------------------------------------------------------------|
+| `urllib3`         | 1.10.0       | Yes       | Making HTTP requests                                          |
+| `jwt`             | 1.2.0        | No        | Decoding JWT ID tokens (from v5.1)                            |
+| `openpyxl`        | 3.0.0        | No        | Exporting report data to Excel spreadsheets                   |
+| `pandas`          | ~1.3.0       | No        | Exporting report data to pandas DataFrames                    |
+| `polars`          | 0.15.17      | No        | Exporting report data to Polars DataFrames                    |
+| `pyarrow`         | ~5.0.0       | No        | Exporting report data to Apache Arrow tables and file formats |
 
 ## OAuth authentication
 
