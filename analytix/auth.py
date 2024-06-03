@@ -560,7 +560,7 @@ def run_flow(auth_params: Dict[str, str]) -> str:
             self.send_header("Content-Type", "text/html")
             self.end_headers()
 
-            self.server: "Server"
+            self.server: Server
             self.server.query_params = dict(parse_qsl(self.path.split("?")[1]))
             self.wfile.write((Path(__file__).parent / "landing.html").read_bytes())
 

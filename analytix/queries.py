@@ -94,7 +94,7 @@ class ReportQuery:
         self.start_index = start_index
         self._include_historical_data = include_historical_data
 
-        self.rtype: Optional["ReportType"] = None
+        self.rtype: Optional[ReportType] = None
 
     @property
     def start_date(self) -> str:
