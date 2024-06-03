@@ -89,6 +89,7 @@ if TYPE_CHECKING:
     from analytix.reports import Report
 
 JWKS_URI = "https://www.googleapis.com/oauth2/v3/certs"
+OAUTH_CHECK_URL = "https://www.googleapis.com/oauth2/v3/tokeninfo?access_token="
 UPDATE_CHECK_URL = "https://pypi.org/pypi/analytix/json"
 
 _log = logging.getLogger(__name__)
@@ -242,7 +243,7 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
         True
         """
         try:
-            with self._request(auth.OAUTH_CHECK_URL + access_token, post=True):
+            with self._request(OAUTH_CHECK_URL + access_token, post=True):
                 _log.debug("Access token does not need refreshing")
                 return True
         except APIError:

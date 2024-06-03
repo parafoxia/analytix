@@ -71,7 +71,6 @@ from analytix.errors import AuthorisationError
 from analytix.types import PathLike
 from analytix.types import UriParams
 
-OAUTH_CHECK_URL = "https://www.googleapis.com/oauth2/v3/tokeninfo?access_token="
 REDIRECT_URI_PATTERN = re.compile("[^//]*//([^:]*):?([0-9]*)")
 SCOPE_URLS = [
     "https://www.googleapis.com/auth/yt-analytics.readonly",
