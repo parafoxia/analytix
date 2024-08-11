@@ -34,27 +34,34 @@ from unittest import mock
 import pytest
 import pytz
 
-from analytix.auth import Scopes, Secrets, Tokens
+from analytix.auth import Scopes
+from analytix.auth import Secrets
+from analytix.auth import Tokens
 from analytix.client import Client
-from analytix.groups import Group, GroupItem, GroupItemList, GroupList
+from analytix.groups import Group
+from analytix.groups import GroupItem
+from analytix.groups import GroupItemList
+from analytix.groups import GroupList
 from analytix.queries import ReportQuery
-from analytix.reports.features import (
-    Dimensions,
-    ExactlyOne,
-    Filters,
-    Metrics,
-    OneOrMore,
-    Optional,
-    Required,
-    SortOptions,
-    ZeroOrMore,
-    ZeroOrOne,
-)
+from analytix.reports.features import Dimensions
+from analytix.reports.features import ExactlyOne
+from analytix.reports.features import Filters
+from analytix.reports.features import Metrics
+from analytix.reports.features import OneOrMore
+from analytix.reports.features import Optional
+from analytix.reports.features import Required
+from analytix.reports.features import SortOptions
+from analytix.reports.features import ZeroOrMore
+from analytix.reports.features import ZeroOrOne
 from analytix.reports.interfaces import Report
-from analytix.reports.resources import ColumnHeader, ColumnType, DataType, ResultTable
+from analytix.reports.resources import ColumnHeader
+from analytix.reports.resources import ColumnType
+from analytix.reports.resources import DataType
+from analytix.reports.resources import ResultTable
 from analytix.reports.types import TimeBasedActivity
 from analytix.shard import Shard
-from tests import CustomBaseClient, MockResponse
+from tests import CustomBaseClient
+from tests import MockResponse
 
 # AUTH
 
@@ -96,6 +103,19 @@ def tokens():
         token_type="Bearer",
         refresh_token="f6g7h8i9j0",
     )
+
+
+@pytest.fixture()
+def saved_tokens():
+    t = Tokens(
+        access_token="a1b2c3d4e5",
+        expires_in=3599,
+        scope="https://www.googleapis.com/auth/yt-analytics.readonly https://www.googleapis.com/auth/yt-analytics-monetary.readonly",
+        token_type="Bearer",
+        refresh_token="f6g7h8i9j0",
+    )
+    t._path = Path("tokens.json")
+    return t
 
 
 @pytest.fixture()
