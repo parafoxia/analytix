@@ -683,10 +683,6 @@ class Client(BaseClient):
         ???+ note "Changed in version 5.0"
             This used to be `retrieve_report`.
 
-        ???+ note "Changed in version 5.2"
-            Support for [new playlst reports](../guides/
-            new-playlist-reports.md) has been added.
-
         Parameters
         ----------
         dimensions
@@ -753,9 +749,9 @@ class Client(BaseClient):
         * If your channel is not partnered, attempting to access
           monetary data will result in a `Forbidden` error. Ensure your
           scopes are set up correctly before calling this method.
-        * The "isCurated" filter will stop working on 30 Jun 2024. See
-          the [guide on new playlist reports](../guides/
-          new-playlist-reports.md) for information on how to migrate.
+        * The "isCurated" filter stopped working on 30 Jun 2024. See the
+          [guide on new playlist reports](../guides/new-playlist-reports.md)
+          for information on how to migrate.
 
         See Also
         --------

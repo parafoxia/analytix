@@ -1,28 +1,24 @@
 # Migrating to new playlist reports
 
-!!! warning
-    This page details actions to mitigate breaking changes in the YouTube Analytics API.
-    You will need to complete these migrations by 30 Jun 2024 in order to use playlist reports.
-
 !!! info "See Also"
     You can read about the API changes in full on the [YouTube Analytics API documentation](https://developers.google.com/youtube/analytics/revision_history#january-19,-2024).
 
 ## Overview
 
-The "isCurated" filter has been deprecated by YouTube and will cease to work on 30 Jun 2024.
-As a result, all playlist reports will be changing, as will the way in which you create them.
+The "isCurated" filter was deprecated by YouTube and ceased to work on 30 Jun 2024.
+As a result, legacy playlist reports will no longer work.
 
-Support for the new playlist reports was introduced in v5.2.
-Deprecated playlist reports will continue to work in analytix until at least v5.3.
+From v5.3, only new playlist reports are supported (though v5.2 supported both new and legacy playlist reports).
+Attempting to fetch playlist reports in earlier versions will raise an `APIError`.
 
-There will be no breaking changes to analytix's functionality outside of these API changes.
+There are no breaking changes to analytix's functionality outside of these API changes.
 
 ## What's different?
 
 ### Accessing playlist reports
 
-For now, if the "isCurated" filter is provided, a deprecated playlist report is returned (this will error in future versions of analytix).
-New playlist reports are returned if any of the following conditions are true:
+Previously, analytix determined a report was a playlist report if the "isCurated" filter was provided.
+Now, this determination is made based on whether any of these conditions are true:
 
 * The "playlist" dimension is provided
 * The "playlist" filter is provided
@@ -36,6 +32,7 @@ The only exception is the "Top playlists" report which takes "playlist" as a dim
 As an example, when fetching time-based playlist activity, this is possible using deprecated reports:
 
 ```py
+# This will no longer work.
 report = client.fetch_report(
     dimensions=("day", "youtubeProduct"),
     filters={
