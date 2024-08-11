@@ -48,12 +48,17 @@ class Scopes(Flag):
 
     * `READONLY` — Don't include revenue data from reports
     * `MONETARY_READONLY` — Only include revenue data from reports
-    * `ALL` — Include all data in reports (this does not enable JWT
-      scopes)
+    * `ALL_READONLY` — Include all data in reports
     * `OPENID` — Enable the OpenID scope
     * `PROFILE` — Include profile information in JWTs
     * `EMAIL` — Include email information in JWTs
     * `ALL_JWT` — Include all available information in JWTs
+    * `ALL` — Include all data in reports
+
+    ???+ note "Changed in version 6.0"
+        The `ALL_READONLY` scope has been added and mimics the behaviour
+        of the `ALL` scope from v5. The `ALL` scope now includes all JWT
+        scopes.
 
     ???+ note "Changed in version 5.1"
         * Added the `OPENID`, `PROFILE`, `EMAIL`, and `ALL_JWT` scopes
@@ -65,11 +70,12 @@ class Scopes(Flag):
 
     READONLY = 1 << 0
     MONETARY_READONLY = 1 << 1
-    ALL = READONLY | MONETARY_READONLY
+    ALL_READONLY = READONLY | MONETARY_READONLY
     OPENID = 1 << 2
     PROFILE = 1 << 3
     EMAIL = 1 << 4
     ALL_JWT = OPENID | PROFILE | EMAIL
+    ALL = ALL_READONLY | ALL_JWT
 
     @property
     def formatted(self) -> str:
