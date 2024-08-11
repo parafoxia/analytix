@@ -32,18 +32,32 @@ import json
 import logging
 import sys
 from dataclasses import dataclass
+from dataclasses import field
 from pathlib import Path
+from typing import Any
+from typing import Dict
 from typing import Literal
 from typing import Optional
 from typing import Union
 
+from analytix.errors import APIError
+from analytix.errors import IdTokenError
+from analytix.errors import MissingOptionalComponents
+from analytix.mixins import RequestMixin
 from analytix.types import PathLike
+from analytix.utils import can_use
+
+from . import utils
+from .scopes import Scopes
+
+JWKS_URI = "https://www.googleapis.com/oauth2/v3/certs"
+OAUTH_CHECK_URL = "https://www.googleapis.com/oauth2/v3/tokeninfo?access_token="
 
 _log = logging.getLogger(__name__)
 
 
 @dataclass(**({"slots": True} if sys.version_info >= (3, 10) else {}))
-class Tokens:
+class Tokens(RequestMixin):
     """OAuth tokens.
 
     This should always be created using one of the available
@@ -80,6 +94,7 @@ class Tokens:
     token_type: Literal["Bearer"]
     refresh_token: str
     id_token: Optional[str] = None
+    _path: Optional[Path] = field(default=None, init=False, repr=False)
 
     @classmethod
     def load_from(cls, path: PathLike) -> "Tokens":
@@ -115,7 +130,9 @@ class Tokens:
         if _log.isEnabledFor(logging.DEBUG):
             _log.debug("Loading tokens from %s", tokens_file.resolve())
 
-        return cls.from_json(tokens_file.read_text())
+        t = cls.from_json(tokens_file.read_text())
+        t._path = tokens_file
+        return t
 
     @classmethod
     def from_json(cls, data: Union[str, bytes]) -> "Tokens":
@@ -177,37 +194,132 @@ class Tokens:
             **({"id_token": self.id_token} if self.id_token else {}),
         }
         tokens_file.write_text(json.dumps(attrs))
+        self._path = tokens_file
 
-    def refresh(self, data: Union[str, bytes]) -> "Tokens":
-        """Updates your tokens to match those you refreshed.
+    @property
+    def are_valid(self) -> bool:
+        """Whether your access token is valid.
 
-        ???+ note "Changed in version 5.0"
-            This used to be `update`.
+        The default implementation makes a call to Google's OAuth2 API
+        to determine the token's validity.
 
-        Parameters
-        ----------
-        data
-            Your refreshed tokens in JSON form. These will not entirely
-            replace your previous tokens, but instead update any
-            out-of-date keys.
+        !!! note "New in version 6.0"
 
         Returns
         -------
-        Tokens
-            Your refreshed tokens.
-
-        See Also
-        --------
-        * This method does not actually refresh your access token;
-          for that, you'll need to use `Client.refresh_access_token`.
-        * To save tokens, you'll need the `save_to` method.
+        bool
+            Whether the token is valid or not. If it isn't, it needs
+            refreshing.
 
         Examples
         --------
-        >>> Tokens.refresh('{"access_token": "abcdefghij", ...}')
-        Tokens(access_token="abcdefghij", ...)
+        >>> token.are_valid
+        True
         """
-        attrs = json.loads(data)
-        for key, value in attrs.items():
-            setattr(self, key, value)
-        return self
+        try:
+            with self._request(OAUTH_CHECK_URL + self.access_token, post=True):
+                _log.debug("Access token does not need refreshing")
+                return True
+        except APIError:
+            _log.debug("Access token needs refreshing")
+            return False
+
+    def are_scoped_for(self, scopes: Scopes) -> bool:
+        """Check whether your token's scopes are sufficient.
+
+        This cross-checks the scopes you provided the client with the
+        scopes your tokens are authorised with and determines whether
+        your tokens provide enough access.
+
+        This is not an equality check; if your tokens are authorised
+        with all scopes, but you only passed the READONLY scope to the
+        client, this will return `True`.
+
+        !!! note "New in version 6.0"
+
+        Parameters
+        ----------
+        scopes
+            Your client's scopes.
+
+        Returns
+        -------
+        bool
+            Whether the scopes are sufficient or not. If they're not,
+            you'll need to reauthorise.
+
+        Examples
+        --------
+        >>> tokens.are_scopes_for(client.scopes)
+        True
+        """
+        sufficient = set(scopes.formatted.split(" ")) <= set(self.scope.split(" "))
+        _log.debug(f"Stored scopes are {'' if sufficient else 'in'}sufficient")
+        return sufficient
+
+    @property
+    def decoded_id_token(self) -> Optional[Dict[str, Any]]:
+        """The decoded ID token.
+
+        ID tokens are returned from the YouTube Analytics API as a JWT,
+        which is a secure way to transfer encrypted JSON objects. This
+        property decrypts and decodes the JWT and returns the stored
+        information.
+
+        !!! note "New in version 6.0"
+
+        Returns
+        -------
+        Optional[Dict[str, Any]]
+            The decoded ID token, or `None` if there is no ID token.
+
+        Raises
+        ------
+        MissingOptionalComponents
+            python-jwt is not installed.
+        IdTokenError
+            Your ID token could not be decoded. This may be raised
+            alongside other errors.
+
+        Notes
+        -----
+        This requires `jwt` to be installed to use, which is an optional
+        dependency.
+
+        Examples
+        --------
+        >>> client = BaseClient("secrets.json")
+        >>> tokens = client.authorise()  # Overloaded using your impl.
+        >>> tokens.decoded_id_token
+        """
+        if not self.id_token:
+            return None
+
+        if not can_use("jwt"):
+            raise MissingOptionalComponents("jwt")
+
+        from jwt import JWT
+        from jwt import jwk_from_dict
+        from jwt.exceptions import JWSDecodeError
+
+        _log.debug("Fetching JWKs")
+        with self._request(JWKS_URI) as resp:
+            if resp.status > 399:
+                raise IdTokenError("could not fetch Google JWKs")
+
+            keys = json.loads(resp.data)["keys"]
+
+        jwt = JWT()  # type: ignore[no-untyped-call]
+
+        for key in keys:
+            jwk = jwk_from_dict(key)
+            _log.debug("Attempting decode using JWK with KID %r", jwk.get_kid())
+            try:
+                return jwt.decode(self.id_token, jwk)
+            except Exception as exc:
+                if not isinstance(exc.__cause__, JWSDecodeError):
+                    # If the error IS a JWSDecodeError, we want to try
+                    # other keys and error later if they also fail.
+                    raise IdTokenError("invalid ID token (see above error)") from exc
+
+        raise IdTokenError("ID token signature could not be validated")

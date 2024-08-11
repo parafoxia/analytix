@@ -74,7 +74,6 @@ from analytix import utils
 from analytix.auth import Scopes
 from analytix.auth import Secrets
 from analytix.auth import Tokens
-from analytix.errors import APIError
 from analytix.errors import AuthorisationError
 from analytix.errors import IdTokenError
 from analytix.errors import MissingOptionalComponents
@@ -88,8 +87,7 @@ if TYPE_CHECKING:
     from analytix.groups import GroupList
     from analytix.reports import Report
 
-JWKS_URI = "https://www.googleapis.com/oauth2/v3/certs"
-OAUTH_CHECK_URL = "https://www.googleapis.com/oauth2/v3/tokeninfo?access_token="
+
 UPDATE_CHECK_URL = "https://pypi.org/pypi/analytix/json"
 
 _log = logging.getLogger(__name__)
@@ -218,146 +216,6 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
         """
         raise NotImplementedError
 
-    def token_is_valid(self, access_token: str) -> bool:
-        """A helper method to check whether your access token is valid.
-
-        The default implementation makes a call to Google's OAuth2 API
-        to determine the token's validity.
-
-        !!! note "New in version 5.0"
-
-        Parameters
-        ----------
-        access_token
-            Your access token.
-
-        Returns
-        -------
-        bool
-            Whether the token is valid or not. If it isn't, it needs
-            refreshing.
-
-        Examples
-        --------
-        >>> client.token_is_valid("1234567890")
-        True
-        """
-        try:
-            with self._request(OAUTH_CHECK_URL + access_token, post=True):
-                _log.debug("Access token does not need refreshing")
-                return True
-        except APIError:
-            _log.debug("Access token needs refreshing")
-            return False
-
-    def scopes_are_sufficient(self, scopes: str) -> bool:
-        """A helper method to check whether your stored scopes are
-        sufficient.
-
-        This cross-checks the scopes you provided the client with the
-        scopes your tokens are authorised with and determines whether
-        your tokens provide enough access.
-
-        This is not an equality check; if your tokens are authorised
-        with all scopes, but you only passed the READONLY scope to the
-        client, this will return `True`.
-
-        !!! note "New in version 5.0"
-
-        Parameters
-        ----------
-        scopes
-            Your stored scopes. These are the scopes in your tokens, not
-            the ones you passed to the client.
-
-        Returns
-        -------
-        bool
-            Whether the scopes are sufficient or not. If they're not,
-            you'll need to reauthorise.
-
-        Examples
-        --------
-        >>> client.scopes_are_sufficient(tokens.scope)
-        True
-        """
-        # The <= here means "is LHS a subset of RHS?".
-        sufficient = set(self._scopes.formatted.split(" ")) <= set(scopes.split(" "))
-        _log.debug(f"Stored scopes are {'' if sufficient else 'in'}sufficient")
-        return sufficient
-
-    def decode_id_token(self, token: str) -> Dict[str, Any]:
-        """A helper method to decode an ID token.
-
-        ID tokens are returned from the YouTube Analytics API as a JWT,
-        which is a secure way to transfer encrypted JSON objects. This
-        method decrypts and decodes the JWT and returns the stored
-        information.
-
-        You will only receive an ID token if you specifically tell
-        the client to fetch one.
-
-        !!! note "New in version 5.1"
-
-        Parameters
-        ----------
-        token
-            Your ID token.
-
-        Returns
-        -------
-        Dict[str, Any]
-            The decoded ID token.
-
-        Raises
-        ------
-        MissingOptionalComponents
-            python-jwt is not installed.
-        IdTokenError
-            Your ID token could not be decoded. This may be raised
-            alongside other errors.
-
-        Notes
-        -----
-        This requires `jwt` to be installed to use, which is an optional
-        dependency.
-
-        Examples
-        --------
-        >>> client = BaseClient("secrets.json")
-        >>> tokens = client.authorise()  # Overloaded using your impl.
-        >>> if tokens.id_token:
-        ...     id_token = client.decode_id_token(tokens.id_token)
-        """
-        if not utils.can_use("jwt"):
-            raise MissingOptionalComponents("jwt")
-
-        from jwt import JWT
-        from jwt import jwk_from_dict
-        from jwt.exceptions import JWSDecodeError
-
-        _log.debug("Fetching JWKs")
-        with self._request(JWKS_URI) as resp:
-            if resp.status > 399:
-                raise IdTokenError("could not fetch Google JWKs")
-
-            keys = json.loads(resp.data)["keys"]
-
-        jwt = JWT()  # type: ignore[no-untyped-call]
-
-        for key in keys:
-            jwk = jwk_from_dict(key)
-            _log.debug("Attempting decode using JWK with KID %r", jwk.get_kid())
-            try:
-                return jwt.decode(token, jwk)
-            except Exception as exc:
-                if not isinstance(exc.__cause__, JWSDecodeError):
-                    # If the error IS a JWSDecodeError, we want to try
-                    # other keys and error later if they also fail.
-                    raise IdTokenError("invalid ID token (see above error)") from exc
-
-        raise IdTokenError("ID token signature could not be validated")
-
     def refresh_access_token(self, tokens: Tokens) -> Optional[Tokens]:
         """Refresh your access token.
 
@@ -403,8 +261,10 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
                 _log.debug("Access token could not be refreshed")
                 return None
 
+            for key, value in json.loads(resp.data).items():
+                setattr(tokens, key, value)
+
             _log.debug("Access token has been refreshed successfully")
-            return tokens.refresh(resp.data)
 
     @contextmanager
     def shard(
@@ -581,7 +441,7 @@ class Client(BaseClient):
         """
         if not force and self._tokens_file.is_file():
             tokens = Tokens.load_from(self._tokens_file)
-            if self.scopes_are_sufficient(tokens.scope) and (
+            if tokens.are_scoped_for(self._scopes) and (
                 refreshed := self.refresh_access_token(tokens, force=force_refresh)
             ):
                 _log.info("Existing tokens are valid -- no authorisation necessary")
@@ -655,7 +515,7 @@ class Client(BaseClient):
         >>> client.refresh_access_token(tokens)
         Tokens(access_token="1234567890", ...)
         """
-        if not force and self.token_is_valid(tokens.access_token):
+        if not force and tokens.are_valid:
             return tokens
 
         if refreshed := super().refresh_access_token(tokens):
