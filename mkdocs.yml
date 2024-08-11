@@ -98,17 +98,23 @@ nav:
     - "guides/report-types.md"
     - "guides/new-playlist-reports.md"
     - "Migrating":
+      - "guides/migrating/v5-v6.md"
       - "guides/migrating/v4-v5.md"
       - "guides/migrating/v3-v4.md"
   - "Reference":
-    - "reference/auth.md"
     - "reference/client.md"
     - "reference/errors.md"
+    - "reference/shard.md"
+    - "reference/ux.md"
+    - "reference/warnings.md"
+    - "auth":
+      - "reference/auth/flow.md"
+      - "reference/auth/scopes.md"
+      - "reference/auth/secrets.md"
+      - "reference/auth/tokens.md"
+      - "reference/auth/utils.md"
     - "groups":
       - "reference/groups/groups.md"
     - "reports":
       - "reference/reports/interfaces.md"
       - "reference/reports/resources.md"
-    - "reference/shard.md"
-    - "reference/ux.md"
-    - "reference/warnings.md"

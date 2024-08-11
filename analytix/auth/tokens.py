@@ -283,7 +283,8 @@ class Tokens(RequestMixin):
 
         Examples
         --------
-        >>> tokens.are_scopes_for(client.scopes)
+        >>> # This would only be used internally.
+        >>> tokens.are_scopes_for(client._scopes)
         True
         """
         sufficient = set(scopes.formatted.split(" ")) <= set(self.scope.split(" "))

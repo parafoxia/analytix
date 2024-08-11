@@ -1,0 +1,3 @@
+# scopes
+
+::: analytix.auth.scopes

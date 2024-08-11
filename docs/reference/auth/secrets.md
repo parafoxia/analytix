@@ -1,0 +1,3 @@
+# secrets
+
+::: analytix.auth.secrets
