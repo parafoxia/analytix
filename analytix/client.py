@@ -70,13 +70,10 @@ from typing import Generator
 from typing import Optional
 
 from analytix import auth
-from analytix import utils
 from analytix.auth import Scopes
 from analytix.auth import Secrets
 from analytix.auth import Tokens
 from analytix.errors import AuthorisationError
-from analytix.errors import IdTokenError
-from analytix.errors import MissingOptionalComponents
 from analytix.mixins import RequestMixin
 from analytix.shard import Shard
 from analytix.types import PathLike
