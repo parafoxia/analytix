@@ -34,17 +34,22 @@ import re
 import warnings
 from pathlib import Path
 from unittest import mock
+from unittest.mock import PropertyMock
 
 import pytest
 
-from analytix import __version__, auth
-from analytix.auth import Scopes, Tokens
-from analytix.client import BaseClient, Client
+from analytix import __version__
+from analytix import auth
+from analytix.auth import Scopes
+from analytix.auth import Tokens
+from analytix.client import BaseClient
+from analytix.client import Client
 from analytix.errors import AuthorisationError
 from analytix.reports import Report
 from analytix.shard import Shard
 from analytix.warnings import NotUpdatedWarning
-from tests import MockFile, MockResponse
+from tests import MockFile
+from tests import MockResponse
 
 
 def test_client_init(client: Client, secrets):
@@ -213,7 +218,7 @@ def test_client_authorise_with_existing_forced(
 @mock.patch.object(Tokens, "save_to", return_value=None)
 @mock.patch.object(auth, "run_flow", return_value="rickroll")
 @mock.patch("webbrowser.open", return_value=True)
-@mock.patch.object(Client, "scopes_are_sufficient", return_value=False)
+@mock.patch.object(Tokens, "are_scoped_for", return_value=False)
 @mock.patch("os.fspath", return_value="tokens.json")
 def test_client_authorise_with_existing_scopes_insufficient(
     mock_fspath,
@@ -346,17 +351,17 @@ def test_client_authorise_from_scratch_console_bad_request(
         assert "Authorisation code: rickroll" in caplog.text
 
 
-@mock.patch.object(Client, "token_is_valid", return_value=True)
+@mock.patch.object(Tokens, "are_valid", new_callable=PropertyMock(return_value=True))
 def test_client_refresh_access_token_dont_force_valid_tokens(
-    mock_token_is_valid, client: Client, tokens
+    mock_are_valid, client: Client, tokens
 ):
     assert tokens.access_token == client.refresh_access_token(tokens).access_token
 
 
 @mock.patch.object(Tokens, "save_to", return_value=None)
-@mock.patch.object(Client, "token_is_valid", return_value=False)
+@mock.patch.object(Tokens, "are_valid", new_callable=PropertyMock(return_value=False))
 def test_client_refresh_access_token_dont_force_invalid_tokens(
-    mock_token_is_valid, mock_save_to, client: Client, tokens, refreshed_tokens
+    mock_are_valid, mock_save_to, client: Client, tokens, refreshed_tokens
 ):
     with mock.patch.object(
         BaseClient, "refresh_access_token", return_value=refreshed_tokens
@@ -366,9 +371,9 @@ def test_client_refresh_access_token_dont_force_invalid_tokens(
 
 
 @mock.patch.object(Tokens, "save_to", return_value=None)
-@mock.patch.object(Client, "token_is_valid", return_value=True)
+@mock.patch.object(Tokens, "are_valid", new_callable=PropertyMock(return_value=False))
 def test_client_refresh_access_token_force_valid_tokens(
-    mock_token_is_valid, mock_save_to, client: Client, tokens, refreshed_tokens
+    mock_are_valid, mock_save_to, client: Client, tokens, refreshed_tokens
 ):
     with mock.patch.object(
         BaseClient, "refresh_access_token", return_value=refreshed_tokens

@@ -35,10 +35,14 @@ from unittest import mock
 import pytest
 
 from analytix import utils
-from analytix.auth import Scopes, Tokens
+from analytix.auth import Scopes
+from analytix.auth import Tokens
 from analytix.client import Client
-from analytix.errors import APIError, IdTokenError, MissingOptionalComponents
-from tests import CustomBaseClient, MockResponse
+from analytix.errors import APIError
+from analytix.errors import IdTokenError
+from analytix.errors import MissingOptionalComponents
+from tests import CustomBaseClient
+from tests import MockResponse
 
 
 def test_base_client_init(base_client: CustomBaseClient, secrets):
@@ -51,148 +55,6 @@ def test_base_client_context_manager(base_client: CustomBaseClient, secrets_data
         with CustomBaseClient("secrets.json") as client:
             assert client._scopes == base_client._scopes
 
-
-def test_base_client_token_is_valid_true(base_client: CustomBaseClient, caplog):
-    with caplog.at_level(logging.DEBUG):
-        with mock.patch.object(
-            CustomBaseClient, "_request", return_value=MockResponse("", 200)
-        ):
-            assert base_client.token_is_valid("rickroll")
-
-        assert "Access token does not need refreshing" in caplog.text
-
-
-def test_base_client_token_is_valid_false(base_client: CustomBaseClient, caplog):
-    with caplog.at_level(logging.DEBUG):
-        with mock.patch.object(
-            CustomBaseClient, "_request", side_effect=APIError(400, "token is dead son")
-        ):
-            assert not base_client.token_is_valid("rickroll")
-
-        assert "Access token needs refreshing" in caplog.text
-
-
-def test_base_client_scopes_are_sufficient_readonly(
-    base_client: CustomBaseClient, caplog
-):
-    with caplog.at_level(logging.DEBUG):
-        assert base_client.scopes_are_sufficient(Scopes.READONLY.formatted)
-        assert base_client.scopes_are_sufficient(Scopes.ALL.formatted)
-        assert "Stored scopes are sufficient" in caplog.text
-
-        assert not base_client.scopes_are_sufficient(Scopes.MONETARY_READONLY.formatted)
-        assert "Stored scopes are insufficient" in caplog.text
-
-
-def test_base_client_scopes_are_sufficient_monetary_readonly(
-    base_client: CustomBaseClient, caplog
-):
-    with caplog.at_level(logging.DEBUG):
-        base_client._scopes = Scopes.MONETARY_READONLY
-
-        assert base_client.scopes_are_sufficient(Scopes.MONETARY_READONLY.formatted)
-        assert base_client.scopes_are_sufficient(Scopes.ALL.formatted)
-        assert "Stored scopes are sufficient" in caplog.text
-
-        assert not base_client.scopes_are_sufficient(Scopes.READONLY.formatted)
-        assert "Stored scopes are insufficient" in caplog.text
-
-
-def test_base_client_scopes_are_sufficient_all(base_client: CustomBaseClient, caplog):
-    with caplog.at_level(logging.DEBUG):
-        base_client._scopes = Scopes.ALL
-
-        assert base_client.scopes_are_sufficient(Scopes.ALL.formatted)
-        assert "Stored scopes are sufficient" in caplog.text
-
-        assert not base_client.scopes_are_sufficient(Scopes.READONLY.formatted)
-        assert not base_client.scopes_are_sufficient(Scopes.MONETARY_READONLY.formatted)
-        assert "Stored scopes are insufficient" in caplog.text
-
-
-@mock.patch.object(utils, "can_use", return_value=False)
-def test_base_client_decode_id_token_no_jwt(
-    mock_can_use, base_client: Client, full_tokens: Tokens
-):
-    with pytest.raises(
-        MissingOptionalComponents,
-        match=re.escape(
-            "some necessary libraries are not installed (hint: pip install jwt)"
-        ),
-    ):
-        base_client.decode_id_token(full_tokens.id_token)
-
-
-@pytest.mark.skipif(not utils.can_use("jwt"), reason="jwt is not available")
-def test_base_client_decode_id_token(
-    base_client: Client, full_tokens: Tokens, public_jwks, id_token_payload
-):
-    with mock.patch.object(
-        CustomBaseClient, "_request", return_value=MockResponse(public_jwks, 200)
-    ):
-        assert base_client.decode_id_token(full_tokens.id_token) == id_token_payload
-
-
-@pytest.mark.skipif(not utils.can_use("jwt"), reason="jwt is not available")
-def test_base_client_decode_id_token(
-    base_client: Client, full_tokens: Tokens, public_jwks, id_token_payload, caplog
-):
-    with caplog.at_level(logging.DEBUG):
-        with mock.patch.object(
-            CustomBaseClient, "_request", return_value=MockResponse(public_jwks, 200)
-        ):
-            assert base_client.decode_id_token(full_tokens.id_token) == id_token_payload
-
-        assert "Fetching JWKs" in caplog.text
-        assert "Attempting decode using JWK with KID '420'"
-
-
-@pytest.mark.skipif(not utils.can_use("jwt"), reason="jwt is not available")
-def test_base_client_decode_id_token_cant_fetch_jwks(
-    base_client: Client, full_tokens: Tokens
-):
-    with mock.patch.object(
-        CustomBaseClient, "_request", return_value=MockResponse("", 400)
-    ):
-        with pytest.raises(IdTokenError, match="could not fetch Google JWKs"):
-            base_client.decode_id_token(full_tokens.id_token)
-
-
-@pytest.mark.skipif(not utils.can_use("jwt"), reason="jwt is not available")
-def test_base_client_decode_id_token_decode_error(
-    base_client: Client, full_tokens: Tokens, public_jwks, caplog
-):
-    jwks = json.loads(public_jwks)
-    jwks["keys"][0]["n"] = "rickroll"
-    public_jwks = json.dumps(jwks)
-
-    with caplog.at_level(logging.DEBUG):
-        with mock.patch.object(
-            CustomBaseClient, "_request", return_value=MockResponse(public_jwks, 200)
-        ):
-            with pytest.raises(
-                IdTokenError, match="ID token signature could not be validated"
-            ):
-                base_client.decode_id_token(full_tokens.id_token)
-
-        assert "Fetching JWKs" in caplog.text
-        assert "Attempting decode using JWK with KID '420'"
-
-
-@pytest.mark.skipif(not utils.can_use("jwt"), reason="jwt is not available")
-def test_base_client_decode_id_token_invalid_type(
-    base_client: Client, full_tokens: Tokens, public_jwks, caplog
-):
-    with caplog.at_level(logging.DEBUG):
-        with mock.patch.object(
-            CustomBaseClient, "_request", return_value=MockResponse(public_jwks, 200)
-        ):
-            with pytest.raises(
-                IdTokenError, match=re.escape("invalid ID token (see above error)")
-            ):
-                base_client.decode_id_token(full_tokens)
-
-        assert "Fetching JWKs" in caplog.text
         assert "Attempting decode using JWK with KID '420'"
 
 

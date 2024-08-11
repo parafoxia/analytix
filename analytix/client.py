@@ -261,10 +261,8 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
                 _log.debug("Access token could not be refreshed")
                 return None
 
-            for key, value in json.loads(resp.data).items():
-                setattr(tokens, key, value)
-
             _log.debug("Access token has been refreshed successfully")
+            return tokens.refresh(resp.data)
 
     @contextmanager
     def shard(

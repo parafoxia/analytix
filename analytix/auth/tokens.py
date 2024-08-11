@@ -40,14 +40,13 @@ from typing import Literal
 from typing import Optional
 from typing import Union
 
+from analytix import utils
 from analytix.errors import APIError
 from analytix.errors import IdTokenError
 from analytix.errors import MissingOptionalComponents
 from analytix.mixins import RequestMixin
 from analytix.types import PathLike
-from analytix.utils import can_use
 
-from . import utils
 from .scopes import Scopes
 
 JWKS_URI = "https://www.googleapis.com/oauth2/v3/certs"
@@ -196,6 +195,40 @@ class Tokens(RequestMixin):
         tokens_file.write_text(json.dumps(attrs))
         self._path = tokens_file
 
+    def refresh(self, data: Union[str, bytes]) -> None:
+        """Updates your tokens to match those you refreshed.
+
+        ???+ note "Changed in version 5.0"
+            This used to be `update`.
+
+        Parameters
+        ----------
+        data
+            Your refreshed tokens in JSON form. These will not entirely
+            replace your previous tokens, but instead update any
+            out-of-date keys.
+
+        Returns
+        -------
+        Tokens
+            Your refreshed tokens.
+
+        See Also
+        --------
+        * This method does not actually refresh your access token;
+          for that, you'll need to use `Client.refresh_access_token`.
+        * To save tokens, you'll need the `save_to` method.
+
+        Examples
+        --------
+        >>> Tokens.refresh('{"access_token": "abcdefghij", ...}')
+        Tokens(access_token="abcdefghij", ...)
+        """
+        attrs = json.loads(data)
+        for key, value in attrs.items():
+            setattr(self, key, value)
+        return self
+
     @property
     def are_valid(self) -> bool:
         """Whether your access token is valid.
@@ -295,7 +328,7 @@ class Tokens(RequestMixin):
         if not self.id_token:
             return None
 
-        if not can_use("jwt"):
+        if not utils.can_use("jwt"):
             raise MissingOptionalComponents("jwt")
 
         from jwt import JWT

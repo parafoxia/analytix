@@ -107,6 +107,19 @@ def tokens():
 
 
 @pytest.fixture()
+def saved_tokens():
+    t = Tokens(
+        access_token="a1b2c3d4e5",
+        expires_in=3599,
+        scope="https://www.googleapis.com/auth/yt-analytics.readonly https://www.googleapis.com/auth/yt-analytics-monetary.readonly",
+        token_type="Bearer",
+        refresh_token="f6g7h8i9j0",
+    )
+    t._path = Path("tokens.json")
+    return t
+
+
+@pytest.fixture()
 def full_tokens(id_token):
     return Tokens(
         access_token="a1b2c3d4e5",
