@@ -834,7 +834,6 @@ VALID_FILTER_OPTIONS = {
         "self",
         "thirdParty",
     ),
-    "isCurated": ("1",),  # DEPRECATED
 }
 
 ALL_FILTERS = set(VALID_FILTER_OPTIONS.keys())

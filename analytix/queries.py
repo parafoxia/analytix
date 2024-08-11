@@ -40,7 +40,6 @@ from analytix.auth import Scopes
 from analytix.errors import InvalidRequest
 from analytix.reports import data
 from analytix.reports import types as rt
-from analytix.reports import types_deprecated as drt
 from analytix.warnings import InvalidMonthFormatWarning
 
 if TYPE_CHECKING:
@@ -301,105 +300,50 @@ class ReportQuery:
 
         return rt.BasicUserActivity()
 
-    def _determine_playlist_report_type(self, *, deprecated: bool) -> "ReportType":
-        if deprecated:
-            from analytix import __docs__
-
-            warnings.warn(
-                "The 'isCurated' filter is deprecated -- use the new playlist reports "
-                f"instead ({__docs__}/guides/new-playlist-reports)",
-                DeprecationWarning,
-                stacklevel=6,
-            )
-
+    def _determine_playlist_report_type(self) -> "ReportType":
         if "playlist" in self.dimensions:
-            return drt.TopPlaylists() if deprecated else rt.TopPlaylists()
+            return rt.TopPlaylists()
 
         if "insightPlaybackLocationType" in self.dimensions:
-            return (
-                drt.PlaybackLocationPlaylist()
-                if deprecated
-                else rt.PlaybackLocationPlaylist()
-            )
+            return rt.PlaybackLocationPlaylist()
 
         if "insightPlaybackLocationDetail" in self.dimensions:
-            return (
-                drt.PlaybackLocationDetailPlaylist()
-                if deprecated
-                else rt.PlaybackLocationDetailPlaylist()
-            )
+            return rt.PlaybackLocationDetailPlaylist()
 
         if "insightTrafficSourceType" in self.dimensions:
-            return (
-                drt.TrafficSourcePlaylist()
-                if deprecated
-                else rt.TrafficSourcePlaylist()
-            )
+            return rt.TrafficSourcePlaylist()
 
         if "insightTrafficSourceDetail" in self.dimensions:
-            return (
-                drt.TrafficSourceDetailPlaylist()
-                if deprecated
-                else rt.TrafficSourceDetailPlaylist()
-            )
+            return rt.TrafficSourceDetailPlaylist()
 
         if "ageGroup" in self.dimensions or "gender" in self.dimensions:
-            return (
-                drt.ViewerDemographicsPlaylist()
-                if deprecated
-                else rt.ViewerDemographicsPlaylist()
-            )
+            return rt.ViewerDemographicsPlaylist()
 
         if "deviceType" in self.dimensions:
             if "operatingSystem" in self.dimensions:
-                return (
-                    drt.DeviceTypeAndOperatingSystemPlaylist()
-                    if deprecated
-                    else rt.DeviceTypeAndOperatingSystemPlaylist()
-                )
-            return drt.DeviceTypePlaylist() if deprecated else rt.DeviceTypePlaylist()
+                return rt.DeviceTypeAndOperatingSystemPlaylist()
+            return rt.DeviceTypePlaylist()
 
         if "operatingSystem" in self.dimensions:
-            return (
-                drt.OperatingSystemPlaylist()
-                if deprecated
-                else rt.OperatingSystemPlaylist()
-            )
+            return rt.OperatingSystemPlaylist()
 
         if "country" in self.dimensions:
-            return (
-                drt.GeographyBasedActivityPlaylist()
-                if deprecated
-                else rt.GeographyBasedActivityPlaylist()
-            )
+            return rt.GeographyBasedActivityPlaylist()
 
         if "province" in self.dimensions:
-            return (
-                drt.GeographyBasedActivityUSPlaylist()
-                if deprecated
-                else rt.GeographyBasedActivityUSPlaylist()
-            )
+            return rt.GeographyBasedActivityUSPlaylist()
 
         if "day" in self.dimensions or "month" in self.dimensions:
-            return (
-                drt.TimeBasedActivityPlaylist()
-                if deprecated
-                else rt.TimeBasedActivityPlaylist()
-            )
+            return rt.TimeBasedActivityPlaylist()
 
-        return (
-            drt.BasicUserActivityPlaylist()
-            if deprecated
-            else rt.BasicUserActivityPlaylist()
-        )
+        return rt.BasicUserActivityPlaylist()
 
     def determine_report_type(self) -> "ReportType":
-        curated = self.filters.get("isCurated", "0") == "1"
         playlist = self._is_playlist_report_type()
 
         return (
-            self._determine_playlist_report_type(deprecated=curated)
-            if curated or playlist
+            self._determine_playlist_report_type()
+            if playlist
             else self._determine_video_report_type()
         )
 
