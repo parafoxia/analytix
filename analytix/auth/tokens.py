@@ -129,9 +129,9 @@ class Tokens(RequestMixin):
         if _log.isEnabledFor(logging.DEBUG):
             _log.debug("Loading tokens from %s", tokens_file.resolve())
 
-        t = cls.from_json(tokens_file.read_text())
-        t._path = tokens_file
-        return t
+        self = cls.from_json(tokens_file.read_text())
+        self._path = tokens_file
+        return self
 
     @classmethod
     def from_json(cls, data: Union[str, bytes]) -> "Tokens":
@@ -195,7 +195,7 @@ class Tokens(RequestMixin):
         tokens_file.write_text(json.dumps(attrs))
         self._path = tokens_file
 
-    def refresh(self, data: Union[str, bytes]) -> None:
+    def refresh(self, data: Union[str, bytes]) -> "Tokens":
         """Updates your tokens to match those you refreshed.
 
         ???+ note "Changed in version 5.0"

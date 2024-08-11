@@ -28,7 +28,7 @@
 
 __all__ = (
     "auth_uri",
-    "redirect_uri",
+    "refresh_uri",
     "state_token",
     "token_uri",
 )
