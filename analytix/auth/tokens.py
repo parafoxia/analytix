@@ -28,6 +28,7 @@
 
 __all__ = ("Tokens",)
 
+import datetime as dt
 import json
 import logging
 import sys
@@ -55,12 +56,46 @@ OAUTH_CHECK_URL = "https://www.googleapis.com/oauth2/v3/tokeninfo?access_token="
 _log = logging.getLogger(__name__)
 
 
+class _ExpiresIn(RequestMixin):
+    _expires_at: dt.datetime | None = None
+
+    def __init__(self, *, default: int = 3599) -> None:
+        self._default = default
+
+    def __get__(self, obj: Union["Tokens", None], objtype: type | None = None) -> int:
+        if obj is None:
+            return self._default
+
+        if not self._expires_at:
+            _log.debug("Looking up access token expiry time")
+            with self._request(OAUTH_CHECK_URL + obj.access_token, post=True) as resp:
+                self._expires_at = dt.datetime.fromtimestamp(
+                    int(json.loads(resp.data)["exp"])
+                )
+
+        if self._expires_at < dt.datetime.now():
+            _log.debug("Access token has expired")
+            return 0
+
+        secs = (self._expires_at - dt.datetime.now()).seconds
+        _log.debug("Access token is valid for another %d seconds", secs)
+        return secs
+
+    def __set__(self, obj: "Tokens", value: int) -> None:
+        _log.warning("Setting access token expiry time is not supported")
+
+
 @dataclass(**({"slots": True} if sys.version_info >= (3, 10) else {}))
 class Tokens(RequestMixin):
     """OAuth tokens.
 
     This should always be created using one of the available
     classmethods.
+
+    ???+ note "Changed in version 6.0"
+        The `expires_in` attribute will now show an accurate figure
+        instead of `3599` perpetually. Due to the way it's been
+        implemented, it can't be updated manually.
 
     Parameters
     ----------
@@ -80,18 +115,13 @@ class Tokens(RequestMixin):
         A JWT that contains identity information about the user that is
         digitally signed by Google. This will be `None` if you did not
         specifically request JWT tokens when authorising.
-
-    Warnings
-    --------
-    The `expires_in` field is never updated by analytix, and as such
-    will always be `3599` unless you update it yourself.
     """
 
     access_token: str
-    expires_in: int
     scope: str
     token_type: Literal["Bearer"]
     refresh_token: str
+    expires_in: _ExpiresIn = _ExpiresIn()
     id_token: Optional[str] = None
     _path: Optional[Path] = field(default=None, init=False, repr=False)
 
@@ -233,9 +263,6 @@ class Tokens(RequestMixin):
     def are_valid(self) -> bool:
         """Whether your access token is valid.
 
-        The default implementation makes a call to Google's OAuth2 API
-        to determine the token's validity.
-
         !!! note "New in version 6.0"
 
         Returns
@@ -246,16 +273,10 @@ class Tokens(RequestMixin):
 
         Examples
         --------
-        >>> token.are_valid
+        >>> tokens.are_valid
         True
         """
-        try:
-            with self._request(OAUTH_CHECK_URL + self.access_token, post=True):
-                _log.debug("Access token does not need refreshing")
-                return True
-        except APIError:
-            _log.debug("Access token needs refreshing")
-            return False
+        return self.expires_in > 0
 
     def are_scoped_for(self, scopes: Scopes) -> bool:
         """Check whether your token's scopes are sufficient.
