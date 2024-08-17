@@ -26,9 +26,11 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import datetime as dt
 import json
 import logging
 import re
+import time
 from pathlib import Path
 from unittest import mock
 
@@ -37,6 +39,7 @@ import pytest
 from analytix import utils
 from analytix.auth.scopes import Scopes
 from analytix.auth.tokens import Tokens
+from analytix.auth.tokens import _ExpiresIn
 from analytix.errors import APIError
 from analytix.errors import IdTokenError
 from analytix.errors import MissingOptionalComponents
@@ -44,56 +47,109 @@ from tests import MockFile
 from tests import MockResponse
 
 
+def test_expires_in_init():
+    exp = _ExpiresIn(default=3599)
+    assert exp._default == 3599
+    assert exp._expires_at is None
+
+
+def test_expires_in_get():
+    class Test:
+        access_token = "a1b2c3d4e5"
+        expires_in = _ExpiresIn()
+
+    with mock.patch.object(
+        _ExpiresIn,
+        "_request",
+        return_value=MockResponse(json.dumps({"exp": time.time() + 3600}), 200),
+    ):
+        assert Test().expires_in == 3599
+
+
+def test_expires_in_get_invalid():
+    class Test:
+        access_token = "a1b2c3d4e5"
+        expires_in = _ExpiresIn()
+
+    with mock.patch.object(
+        _ExpiresIn,
+        "_request",
+        return_value=MockResponse(json.dumps({"exp": time.time() - 3600}), 200),
+    ):
+        assert Test().expires_in == 0
+
+
+def test_expires_in_set(caplog):
+    class Test:
+        access_token = "a1b2c3d4e5"
+        expires_in = _ExpiresIn()
+
+    with caplog.at_level(logging.WARNING):
+        Test().expires_in = 0
+
+    assert "Setting access token expiry time is not supported" in caplog.text
+
+
+def test_expires_in_set_no_warning_default(caplog):
+    class Test:
+        access_token = "a1b2c3d4e5"
+        expires_in = _ExpiresIn()
+
+    with caplog.at_level(logging.WARNING):
+        Test().expires_in = 3599
+
+    assert "Setting access token expiry time is not supported" not in caplog.text
+
+
 def test_tokens_str(tokens: Tokens):
-    assert (
-        str(tokens)
-        == "Tokens(access_token='a1b2c3d4e5', expires_in=3599, scope='https://www.googleapis.com/auth/yt-analytics.readonly https://www.googleapis.com/auth/yt-analytics-monetary.readonly', token_type='Bearer', refresh_token='f6g7h8i9j0', id_token=None)"
-    )
+    with mock.patch.object(_ExpiresIn, "__get__", return_value=3599):
+        assert (
+            str(tokens)
+            == "Tokens(access_token='a1b2c3d4e5', scope='https://www.googleapis.com/auth/yt-analytics.readonly https://www.googleapis.com/auth/yt-analytics-monetary.readonly', token_type='Bearer', refresh_token='f6g7h8i9j0', expires_in=3599, id_token=None)"
+        )
 
 
 def test_tokens_repr(tokens: Tokens):
-    assert repr(tokens) == str(tokens)
+    with mock.patch.object(_ExpiresIn, "__get__", return_value=3599):
+        assert repr(tokens) == str(tokens)
 
 
 def test_tokens_from_json(tokens: Tokens, tokens_data: str):
-    assert tokens == Tokens.from_json(tokens_data)
+    with mock.patch.object(_ExpiresIn, "__get__", return_value=3599):
+        assert tokens == Tokens.from_json(tokens_data)
 
 
 def test_tokens_load_from(saved_tokens: Tokens, tokens_data: str, caplog):
     with caplog.at_level(logging.DEBUG):
-        f = MockFile(tokens_data)
-        with mock.patch.object(Path, "open", return_value=f):
-            assert saved_tokens == Tokens.load_from("tokens.json")
+        with mock.patch.object(_ExpiresIn, "__get__", return_value=3599):
+            f = MockFile(tokens_data)
+            with mock.patch.object(Path, "open", return_value=f):
+                assert saved_tokens == Tokens.load_from("tokens.json")
 
-        assert "Loading tokens from" in caplog.text
+            assert "Loading tokens from" in caplog.text
 
 
 def test_tokens_save_to(tokens: Tokens, tokens_data: str, caplog):
     with caplog.at_level(logging.DEBUG):
-        f = MockFile()
-        with mock.patch.object(Path, "open", return_value=f):
-            tokens.save_to("tokens.json")
-            assert f.write_data == tokens_data
+        with mock.patch.object(_ExpiresIn, "__get__", return_value=3599):
+            f = MockFile()
+            with mock.patch.object(Path, "open", return_value=f):
+                tokens.save_to("tokens.json")
+                assert f.write_data == tokens_data
 
-        assert "Saving tokens to" in caplog.text
+            assert "Saving tokens to" in caplog.text
 
 
 def test_tokens_are_value_true(tokens: Tokens, caplog):
     with caplog.at_level(logging.DEBUG):
-        with mock.patch.object(Tokens, "_request", return_value=MockResponse("", 200)):
+        with mock.patch.object(_ExpiresIn, "__get__", return_value=3599):
             assert tokens.are_valid
-
-        assert "Access token does not need refreshing" in caplog.text
 
 
 def test_tokens_token_is_valid_false(tokens: Tokens, caplog):
     with caplog.at_level(logging.DEBUG):
-        with mock.patch.object(
-            Tokens, "_request", side_effect=APIError(400, "token is dead son")
-        ):
+        with mock.patch.object(_ExpiresIn, "__get__", return_value=0):
             assert not tokens.are_valid
-
-        assert "Access token needs refreshing" in caplog.text
 
 
 def test_tokens_are_scoped_for_readonly(tokens: Tokens, caplog):
@@ -224,4 +280,5 @@ def test_base_client_decode_id_token_decode_error(
             ):
                 full_tokens.decoded_id_token
 
+        assert "Fetching JWKs" in caplog.text
         assert "Fetching JWKs" in caplog.text

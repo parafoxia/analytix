@@ -31,14 +31,16 @@ import logging
 from unittest import mock
 
 from analytix.auth import Scopes
+from analytix.auth.tokens import _ExpiresIn
 from analytix.mixins import RequestMixin
 from analytix.reports import Report
 from analytix.shard import Shard
 
 
 def test_shard_init(shard: Shard, tokens):
-    assert shard._scopes == Scopes.ALL
-    assert shard._tokens == tokens
+    with mock.patch.object(_ExpiresIn, "__get__", return_value=3599):
+        assert shard._scopes == Scopes.ALL
+        assert shard._tokens == tokens
 
 
 def test_shard_fetch_report(shard: Shard, report: Report, response, caplog):
