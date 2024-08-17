@@ -31,7 +31,6 @@ __all__ = ("Tokens",)
 import datetime as dt
 import json
 import logging
-import sys
 from dataclasses import dataclass
 from dataclasses import field
 from pathlib import Path
@@ -42,7 +41,6 @@ from typing import Optional
 from typing import Union
 
 from analytix import utils
-from analytix.errors import APIError
 from analytix.errors import IdTokenError
 from analytix.errors import MissingOptionalComponents
 from analytix.mixins import RequestMixin
@@ -82,10 +80,13 @@ class _ExpiresIn(RequestMixin):
         return secs
 
     def __set__(self, obj: "Tokens", value: int) -> None:
-        _log.warning("Setting access token expiry time is not supported")
+        if value != 3599:
+            # We want to emit this warning, but not when the secrets
+            # file is being loaded.
+            _log.warning("Setting access token expiry time is not supported")
 
 
-@dataclass(**({"slots": True} if sys.version_info >= (3, 10) else {}))
+@dataclass()
 class Tokens(RequestMixin):
     """OAuth tokens.
 
