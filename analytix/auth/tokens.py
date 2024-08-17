@@ -55,12 +55,16 @@ _log = logging.getLogger(__name__)
 
 
 class _ExpiresIn(RequestMixin):
-    _expires_at: dt.datetime | None = None
+    _expires_at: Optional[dt.datetime] = None
 
     def __init__(self, *, default: int = 3599) -> None:
         self._default = default
 
-    def __get__(self, obj: Union["Tokens", None], objtype: type | None = None) -> int:
+    def __get__(
+        self,
+        obj: Union["Tokens", None],
+        objtype: Optional[type] = None,
+    ) -> int:
         if obj is None:
             return self._default
 
