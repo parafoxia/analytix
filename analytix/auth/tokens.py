@@ -68,7 +68,7 @@ class _ExpiresIn(RequestMixin):
             _log.debug("Looking up access token expiry time")
             with self._request(OAUTH_CHECK_URL + obj.access_token, post=True) as resp:
                 self._expires_at = dt.datetime.fromtimestamp(
-                    int(json.loads(resp.data)["exp"])
+                    int(json.loads(resp.data)["exp"]),
                 )
 
         if self._expires_at < dt.datetime.now():
