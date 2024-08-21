@@ -265,23 +265,23 @@ class Tokens(RequestMixin):
         return self
 
     @property
-    def are_valid(self) -> bool:
-        """Whether your access token is valid.
+    def expired(self) -> bool:
+        """Whether your access token has expired.
 
         !!! note "New in version 6.0"
 
         Returns
         -------
         bool
-            Whether the token is valid or not. If it isn't, it needs
+            Whether the token has expired or not. If it has, it needs
             refreshing.
 
         Examples
         --------
-        >>> tokens.are_valid
+        >>> tokens.expired
         True
         """
-        return self.expires_in > 0
+        return self.expires_in == 0
 
     def are_scoped_for(self, scopes: Scopes) -> bool:
         """Check whether your token's scopes are sufficient.

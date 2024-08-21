@@ -140,16 +140,16 @@ def test_tokens_save_to(tokens: Tokens, tokens_data: str, caplog):
             assert "Saving tokens to" in caplog.text
 
 
-def test_tokens_are_value_true(tokens: Tokens, caplog):
-    with caplog.at_level(logging.DEBUG):
-        with mock.patch.object(_ExpiresIn, "__get__", return_value=3599):
-            assert tokens.are_valid
-
-
-def test_tokens_token_is_valid_false(tokens: Tokens, caplog):
+def test_tokens_expired_true(tokens: Tokens, caplog):
     with caplog.at_level(logging.DEBUG):
         with mock.patch.object(_ExpiresIn, "__get__", return_value=0):
-            assert not tokens.are_valid
+            assert tokens.expired
+
+
+def test_tokens_expired_false(tokens: Tokens, caplog):
+    with caplog.at_level(logging.DEBUG):
+        with mock.patch.object(_ExpiresIn, "__get__", return_value=3599):
+            assert not tokens.expired
 
 
 def test_tokens_are_scoped_for_readonly(tokens: Tokens, caplog):

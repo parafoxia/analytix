@@ -510,7 +510,7 @@ class Client(BaseClient):
         >>> client.refresh_access_token(tokens)
         Tokens(access_token="1234567890", ...)
         """
-        if not force and tokens.are_valid:
+        if not (force or tokens.expired):
             return tokens
 
         if refreshed := super().refresh_access_token(tokens):
