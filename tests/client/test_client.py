@@ -351,17 +351,17 @@ def test_client_authorise_from_scratch_console_bad_request(
         assert "Authorisation code: rickroll" in caplog.text
 
 
-@mock.patch.object(Tokens, "are_valid", new_callable=PropertyMock(return_value=True))
+@mock.patch.object(Tokens, "expired", new_callable=PropertyMock(return_value=False))
 def test_client_refresh_access_token_dont_force_valid_tokens(
-    mock_are_valid, client: Client, tokens
+    mock_expired, client: Client, tokens
 ):
     assert tokens.access_token == client.refresh_access_token(tokens).access_token
 
 
 @mock.patch.object(Tokens, "save_to", return_value=None)
-@mock.patch.object(Tokens, "are_valid", new_callable=PropertyMock(return_value=False))
+@mock.patch.object(Tokens, "expired", new_callable=PropertyMock(return_value=True))
 def test_client_refresh_access_token_dont_force_invalid_tokens(
-    mock_are_valid, mock_save_to, client: Client, tokens, refreshed_tokens
+    mock_expired, mock_save_to, client: Client, tokens, refreshed_tokens
 ):
     with mock.patch.object(
         BaseClient, "refresh_access_token", return_value=refreshed_tokens
@@ -371,9 +371,9 @@ def test_client_refresh_access_token_dont_force_invalid_tokens(
 
 
 @mock.patch.object(Tokens, "save_to", return_value=None)
-@mock.patch.object(Tokens, "are_valid", new_callable=PropertyMock(return_value=False))
+@mock.patch.object(Tokens, "expired", new_callable=PropertyMock(return_value=True))
 def test_client_refresh_access_token_force_valid_tokens(
-    mock_are_valid, mock_save_to, client: Client, tokens, refreshed_tokens
+    mock_expired, mock_save_to, client: Client, tokens, refreshed_tokens
 ):
     with mock.patch.object(
         BaseClient, "refresh_access_token", return_value=refreshed_tokens
