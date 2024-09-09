@@ -48,11 +48,10 @@ __all__ = (
     "run_flow",
 )
 
-import hashlib
 import json
 import logging
-import os
 import re
+import secrets
 import sys
 from dataclasses import dataclass
 from enum import Flag
@@ -409,7 +408,7 @@ def state_token() -> str:
     >>> state_token()
     '385cdc1c6e9410120755ecf1c0558299be58bd3bcc6f515addaa817df5e10fd2'
     """
-    return hashlib.sha256(os.urandom(1024)).hexdigest()
+    return secrets.token_hex()
 
 
 def auth_uri(secrets: Secrets, scopes: Scopes, port: int) -> UriParams:

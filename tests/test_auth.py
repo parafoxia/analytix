@@ -28,6 +28,7 @@
 
 import json
 import logging
+import secrets
 import time
 from functools import partial
 from multiprocessing.pool import ThreadPool
@@ -37,16 +38,14 @@ from urllib.request import urlopen
 
 import pytest
 
-from analytix.auth import (
-    Scopes,
-    Secrets,
-    Tokens,
-    auth_uri,
-    refresh_uri,
-    run_flow,
-    state_token,
-    token_uri,
-)
+from analytix.auth import Scopes
+from analytix.auth import Secrets
+from analytix.auth import Tokens
+from analytix.auth import auth_uri
+from analytix.auth import refresh_uri
+from analytix.auth import run_flow
+from analytix.auth import state_token
+from analytix.auth import token_uri
 from analytix.errors import AuthorisationError
 from tests import MockFile
 
@@ -186,7 +185,10 @@ def test_tokens_refresh(tokens: Tokens):
 
 
 def test_state_token():
-    with mock.patch("os.urandom", return_value=b"rickroll"):
+    with mock.patch(
+        "secrets.token_hex",
+        return_value="34c5f166f6abb229ee092be1e7e92ca71434bcb1a27ba0664cd2fea834d85927",
+    ):
         assert (
             state_token()
             == "34c5f166f6abb229ee092be1e7e92ca71434bcb1a27ba0664cd2fea834d85927"
@@ -194,7 +196,10 @@ def test_state_token():
 
 
 def test_auth_uri_all_scopes(secrets: Secrets, auth_params):
-    with mock.patch("os.urandom", return_value=b"rickroll"):
+    with mock.patch(
+        "secrets.token_hex",
+        return_value="34c5f166f6abb229ee092be1e7e92ca71434bcb1a27ba0664cd2fea834d85927",
+    ):
         uri, params, headers = auth_uri(secrets, Scopes.ALL, 8080)
 
     assert uri == (
@@ -212,7 +217,10 @@ def test_auth_uri_all_scopes(secrets: Secrets, auth_params):
 
 
 def test_auth_uri_all_scopes_legacy_secrets(legacy_secrets: Secrets, auth_params):
-    with mock.patch("os.urandom", return_value=b"rickroll"):
+    with mock.patch(
+        "secrets.token_hex",
+        return_value="34c5f166f6abb229ee092be1e7e92ca71434bcb1a27ba0664cd2fea834d85927",
+    ):
         uri, params, headers = auth_uri(legacy_secrets, Scopes.ALL, 8080)
 
     assert uri == (
@@ -230,7 +238,10 @@ def test_auth_uri_all_scopes_legacy_secrets(legacy_secrets: Secrets, auth_params
 
 
 def test_auth_uri_readonly_scope(secrets: Secrets, auth_params_readonly):
-    with mock.patch("os.urandom", return_value=b"rickroll"):
+    with mock.patch(
+        "secrets.token_hex",
+        return_value="34c5f166f6abb229ee092be1e7e92ca71434bcb1a27ba0664cd2fea834d85927",
+    ):
         uri, params, headers = auth_uri(secrets, Scopes.READONLY, 8080)
 
     assert uri == (
@@ -248,7 +259,10 @@ def test_auth_uri_readonly_scope(secrets: Secrets, auth_params_readonly):
 
 
 def test_auth_uri_monetary_scopes(secrets: Secrets, auth_params_monetary_readonly):
-    with mock.patch("os.urandom", return_value=b"rickroll"):
+    with mock.patch(
+        "secrets.token_hex",
+        return_value="34c5f166f6abb229ee092be1e7e92ca71434bcb1a27ba0664cd2fea834d85927",
+    ):
         uri, params, headers = auth_uri(secrets, Scopes.MONETARY_READONLY, 8080)
 
     assert uri == (
@@ -266,7 +280,10 @@ def test_auth_uri_monetary_scopes(secrets: Secrets, auth_params_monetary_readonl
 
 
 def test_auth_uri_port_80(secrets: Secrets, auth_params_port_80):
-    with mock.patch("os.urandom", return_value=b"rickroll"):
+    with mock.patch(
+        "secrets.token_hex",
+        return_value="34c5f166f6abb229ee092be1e7e92ca71434bcb1a27ba0664cd2fea834d85927",
+    ):
         uri, params, headers = auth_uri(secrets, Scopes.ALL, 80)
 
     assert uri == (
