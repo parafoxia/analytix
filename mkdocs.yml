@@ -90,12 +90,12 @@ nav:
     - "starting/googleapp.md"
     - "starting/firstapp.md"
   - "Guides":
+    - "guides/troubleshooting.md"
     - "guides/dimensions.md"
     - "guides/filters.md"
     - "guides/metrics.md"
     - "guides/sort-options.md"
     - "guides/report-types.md"
-    - "guides/webapps.md"
     - "guides/new-playlist-reports.md"
     - "Migrating":
       - "guides/migrating/v4-v5.md"
