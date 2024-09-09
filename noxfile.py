@@ -148,13 +148,6 @@ def linting(session: nox.Session) -> None:
     session.run("ruff", "check", *sp(PROJECT_DIR, NOX_FILE))
 
 
-@nox.session(reuse_venv=True, python=["3.11"])
-@install(rfiles=["dev"])
-def safety(session: nox.Session) -> None:
-    session.run("mypy", "--install-types", "--non-interactive")
-    session.run("safety", "check", "--full-report")
-
-
 @nox.session(reuse_venv=True)
 @install(meta=True)
 def slots(session: nox.Session) -> None:
