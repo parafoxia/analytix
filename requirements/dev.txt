@@ -5,4 +5,4 @@
 -r ./nox.txt
 
 # Extras
-nox==2024.4.15
+nox==2024.10.9
