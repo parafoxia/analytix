@@ -8,12 +8,6 @@ A simple yet powerful SDK for the YouTube Analytics API.
 <a href="https://pypi.python.org/pypi/analytix"><img alt="PyPI - Version" src="https://img.shields.io/pypi/v/analytix"></a>
 <a href="https://pypi.python.org/pypi/analytix"><img alt="PyPI - Python Version" src="https://img.shields.io/pypi/pyversions/analytix"></a>
 <a href="https://pypi.python.org/pypi/analytix"><img alt="PyPI - Implementation" src="https://img.shields.io/pypi/implementation/analytix"></a>
-<a href="https://pepy.tech/project/analytix"><img alt="Downloads" src="https://static.pepy.tech/badge/analytix"></a>
-<br />
-<a href="https://github.com/parafoxia/analytix"><img alt="GitHub Workflow Status (CI)" src="https://img.shields.io/github/actions/workflow/status/parafoxia/analytix/ci.yml"></a>
-<a href="https://parafoxia.github.io/analytix"><img alt="GitHub Workflow Status (Publish Docs)" src="https://img.shields.io/github/actions/workflow/status/parafoxia/analytix/publish-docs.yml?label=docs"></a>
-<a href="https://github.com/parafoxia/analytix"><img alt="Code Climate coverage" src="https://img.shields.io/codeclimate/coverage/parafoxia/analytix"></a>
-<a href="https://github.com/parafoxia/analytix"><img alt="Code Climate maintainability" src="https://img.shields.io/codeclimate/maintainability/parafoxia/analytix"></a>
 <hr />
 </div>
 
