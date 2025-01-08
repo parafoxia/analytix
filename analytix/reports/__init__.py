@@ -28,7 +28,7 @@
 
 """Report interfaces for analytix."""
 
-__all__ = ("data", "features", "interfaces", "types", "Report", "ResultTable")
+__all__ = ("Report", "ResultTable", "data", "features", "interfaces", "types")
 
 from . import data
 from . import features

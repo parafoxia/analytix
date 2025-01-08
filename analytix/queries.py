@@ -26,7 +26,7 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__all__ = ("ReportQuery", "GroupQuery", "GroupItemQuery")
+__all__ = ("GroupItemQuery", "GroupQuery", "ReportQuery")
 
 import datetime as dt
 import logging
@@ -55,17 +55,17 @@ _log = logging.getLogger(__name__)
 
 class ReportQuery:
     __slots__ = (
+        "_end_date",
+        "_include_historical_data",
+        "_start_date",
+        "currency",
         "dimensions",
         "filters",
-        "metrics",
-        "sort_options",
         "max_results",
-        "_start_date",
-        "_end_date",
-        "currency",
-        "start_index",
-        "_include_historical_data",
+        "metrics",
         "rtype",
+        "sort_options",
+        "start_index",
     )
 
     def __init__(

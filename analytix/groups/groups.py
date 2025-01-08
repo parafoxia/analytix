@@ -31,7 +31,7 @@
 You should never need to create any of these yourself.
 """
 
-__all__ = ("Group", "GroupList", "GroupItem", "GroupItemList")
+__all__ = ("Group", "GroupItem", "GroupItemList", "GroupList")
 
 import datetime as dt
 from dataclasses import dataclass
@@ -48,7 +48,7 @@ if TYPE_CHECKING:
 
 @dataclass(frozen=True)
 class _Resource:
-    __slots__ = ("kind", "etag")
+    __slots__ = ("etag", "kind")
 
     kind: str
     etag: Optional[str]
@@ -79,7 +79,7 @@ class Group(_Resource):
         The shard instance used to fetch this group.
     """
 
-    __slots__ = ("id", "published_at", "title", "item_count", "item_type", "shard")
+    __slots__ = ("id", "item_count", "item_type", "published_at", "shard", "title")
 
     id: str
     published_at: dt.datetime
@@ -258,7 +258,7 @@ class GroupItemResource:
         uniquely identify the item that is being added to the group.
     """
 
-    __slots__ = ("kind", "id")
+    __slots__ = ("id", "kind")
 
     kind: str
     id: str
@@ -292,7 +292,7 @@ class GroupItem(_Resource):
     To get the actual ID of the resource, use `resource.id`.
     """
 
-    __slots__ = ("id", "group_id", "resource")
+    __slots__ = ("group_id", "id", "resource")
 
     id: str
     group_id: str

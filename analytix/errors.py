@@ -29,18 +29,18 @@
 """Exception classes for analytix."""
 
 __all__ = (
-    "AnalytixError",
-    "MissingOptionalComponents",
     "APIError",
-    "BadRequest",
-    "Unauthorised",
-    "Forbidden",
-    "NotFound",
+    "AnalytixError",
     "AuthorisationError",
-    "NotAuthorised",
-    "RefreshTokenExpired",
+    "BadRequest",
     "DataFrameConversionError",
+    "Forbidden",
     "InvalidRequest",
+    "MissingOptionalComponents",
+    "NotAuthorised",
+    "NotFound",
+    "RefreshTokenExpired",
+    "Unauthorised",
 )
 
 from typing import Set

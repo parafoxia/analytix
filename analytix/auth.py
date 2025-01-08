@@ -41,11 +41,11 @@ __all__ = (
     "Scopes",
     "Secrets",
     "Tokens",
-    "state_token",
     "auth_uri",
-    "token_uri",
     "refresh_uri",
     "run_flow",
+    "state_token",
+    "token_uri",
 )
 
 import json
@@ -157,14 +157,14 @@ class Secrets:
     """
 
     __slots__ = (
-        "type",
-        "client_id",
-        "project_id",
-        "auth_uri",
-        "token_uri",
         "auth_provider_x509_cert_url",
+        "auth_uri",
+        "client_id",
         "client_secret",
+        "project_id",
         "redirect_uris",
+        "token_uri",
+        "type",
     )
 
     type: Literal["installed", "web"]

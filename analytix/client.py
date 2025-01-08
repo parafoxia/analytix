@@ -152,7 +152,7 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
     ... )
     """
 
-    __slots__ = ("_secrets", "_scopes")
+    __slots__ = ("_scopes", "_secrets")
 
     def __init__(
         self,

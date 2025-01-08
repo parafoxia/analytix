@@ -27,11 +27,11 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 __all__ = (
-    "ReportType",
     "DetailedReportType",
     "FeatureType",
-    "SegmentedFeatureType",
     "MappingFeatureType",
+    "ReportType",
+    "SegmentedFeatureType",
     "SetType",
 )
 
@@ -53,7 +53,7 @@ if TYPE_CHECKING:
 
 @dataclass()
 class ReportType(metaclass=abc.ABCMeta):
-    __slots__ = ("name", "dimensions", "filters", "metrics", "sort_options")
+    __slots__ = ("dimensions", "filters", "metrics", "name", "sort_options")
 
     name: str
     dimensions: "Dimensions"
@@ -172,7 +172,7 @@ class MappingFeatureType(metaclass=abc.ABCMeta):
 
 
 class SetType(metaclass=abc.ABCMeta):
-    __slots__ = ("values", "expd_keys")
+    __slots__ = ("expd_keys", "values")
 
     def __init__(self, *args: str) -> None:
         self.values = set(args)

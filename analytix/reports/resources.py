@@ -32,7 +32,7 @@ These mirror YouTube Analytics API resources, but lack quality-of-life
 features that the analytix interfaces provide.
 """
 
-__all__ = ("DataType", "ColumnType", "ColumnHeader", "ResultTable")
+__all__ = ("ColumnHeader", "ColumnType", "DataType", "ResultTable")
 
 from dataclasses import dataclass
 from enum import Enum
@@ -83,7 +83,7 @@ class ColumnHeader:
         The column type.
     """
 
-    __slots__ = ("name", "data_type", "column_type")
+    __slots__ = ("column_type", "data_type", "name")
 
     name: str
     data_type: "DataType"

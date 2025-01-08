@@ -28,13 +28,13 @@
 
 __all__ = (
     "BaseClient",
-    "can_use",
     "Client",
+    "Scopes",
+    "can_use",
     "enable_logging",
     "groups",
     "process_path",
     "reports",
-    "Scopes",
 )
 
 __productname__ = "analytix"
