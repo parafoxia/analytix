@@ -61,6 +61,7 @@ import webbrowser
 from abc import ABCMeta
 from abc import abstractmethod
 from contextlib import contextmanager
+from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Any
@@ -68,6 +69,7 @@ from typing import Collection
 from typing import Dict
 from typing import Generator
 from typing import Optional
+from typing import Union
 
 from analytix import auth
 from analytix.auth import Scopes
@@ -155,9 +157,8 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
         *,
         scopes: Scopes = Scopes.READONLY,
     ) -> None:
-        self._secrets = Secrets.load_from(Path(secrets_file))
         scopes.validate()
-        self._scopes = scopes
+        self._secrets = Secrets.from_file(secrets_file, scopes)
 
         if not os.environ.get("PYTEST_CURRENT_TEST"):
             # We don't want this to run during tests.
@@ -310,213 +311,132 @@ class BaseClient(RequestMixin, metaclass=ABCMeta):
         >>> with client.shard(tokens, scopes=Scopes.ALL) as shard:
         ...     shard.fetch_groups()
         """
-        shard = Shard(scopes or self._scopes, tokens)
+        shard = Shard(scopes or self._secrets.scopes, tokens)
         yield shard
         del shard
 
 
+@dataclass()
+class SessionContext:
+    access_token: str
+
+
 class Client(BaseClient):
-    """A fully-functional client designed for use in scripts.
+    """The analytix client.
 
-    Unlike the base client, this client is capable of authorising
-    itself and provides helper methods to abstract shard management away
-    from you.
-
-    This will work as a context manager.
-
-    ???+ note "Changed in version 5.0"
-        * You should now provide a tokens file rather than a tokens
-          directory
-        * `auto_open_browser` is now set based on your OS by default
-        * Monetary data is now no longer accessible by default
+    ??? note "Changed in version 6.0"
+        Removed `ws_port` and `auto_open_browser` parameters.
 
     Parameters
     ----------
     secrets_file
         The path to your secrets file.
-    scopes
-        The scopes to allow in requests. This is used to control whether
-        or not to allow access to monetary data. If this is not
-        provided, monetary data will not be accessible.
     tokens_file
         The path to save your tokens to. This must be a JSON file, but
-        does not need to exist. If this is not provided, your tokens
-        will be saved to a file called "tokens.json" in your current
-        working directory.
-    ws_port
-        The port the client's webserver will use during authorisation.
-    auto_open_browser
-        Whether to automatically open a new browser tab when
-        authorising. If this is `False`, a link will be output to the
-        console instead. If this is not provided, its value will be set
-        based on your operating system; it will be set to `False` if you
-        use WSL, and `True` otherwise.
-
-    Raises
-    ------
-    ValueError
-        `tokens_file` is not a JSON file.
+        does not need to exist. Passing `None` will disable token
+        saving. If this is not provided, your tokens will be saved to a
+        file called "tokens.json" in your current working directory.
+    scopes
+        The scopes to allow in requests. The default scopes do not allow
+        the fetching of monetary data.
     """
 
     def __init__(
         self,
-        secrets_file: PathLike,
+        secrets_file: "PathLike",
         *,
+        tokens_file: Union[str, Path, None] = "tokens.json",
         scopes: Scopes = Scopes.READONLY,
-        tokens_file: PathLike = "tokens.json",
-        ws_port: int = 8080,
-        auto_open_browser: Optional[bool] = None,
-    ) -> None:
-        def in_wsl() -> bool:
-            return "microsoft-standard" in platform.uname().release
+    ):
+        scopes.validate()
+        self._secrets = Secrets.from_file(secrets_file, scopes)
+        self._tokens_file: Optional[Path]
+        self._session_ctx: Optional[SessionContext] = None
 
-        super().__init__(secrets_file, scopes=scopes)
-        self._ws_port = ws_port
-        self._auto_open_browser = (
-            not in_wsl() if auto_open_browser is None else auto_open_browser
-        )
-
-        self._tokens_file = Path(tokens_file)
-        if self._tokens_file.suffix != ".json":
-            raise ValueError("tokens file must be a JSON file")
+        if tokens_file:
+            self._tokens_file = Path(tokens_file)
+            if self._tokens_file.suffix != ".json":
+                raise ValueError("tokens file must be a JSON file")
+        else:
+            self._tokens_file = None
 
     def __enter__(self) -> "Client":
         return self
 
-    def authorise(self, *, force: bool = False, force_refresh: bool = False) -> Tokens:
+    def __exit__(self, *_: object) -> None:
+        pass
+
+    def _validate_tokens(self, tokens: Tokens) -> bool:
+        _log.debug("Checking validity of existing tokens")
+
+        if not tokens.are_scoped_for(self._secrets.scopes):
+            return False
+
+        refreshed = False
+        if tokens.expired and not (refreshed := tokens.refresh(self._secrets)):
+            return False
+
+        if refreshed:
+            tokens.save_to(self._tokens_file)
+
+        _log.debug("Access token OK!")
+        return True
+
+    def authorise(
+        self,
+        *,
+        force: bool = False,
+        ws_port: Optional[int] = None,
+        console: bool = False,
+    ) -> Tokens:
         """Authorise the client.
 
-        Client methods authorise the client for you, so you don't need
-        to call this manually when using those. If you plan to make
-        multiple requests in a row using the same client, it's better to
-        call this manually and create a shard with the generated tokens
-        to avoid authorising the client multiple times.
+        You only need to call this manually if you want to customise
+        the authorisation flow. The client will authorise itself
+        automatically when needed otherwise.
 
-        ???+ note "Changed in version 5.0"
-            * You can no longer pass a filename to load a specific set
-              of tokens; if you wish to change which channel is
-              authorised, you should either utilise shards or forcibly
-              reauthorise the client
-            * You can now forcibly refresh access tokens using this
-              method
+        ??? note "Changed in version 6.0"
+            * Added `ws_port` and `console` parameters.
+            * Removed `force_refresh` parameter.
 
         Parameters
         ----------
         force
-            Whether to forcibly reauthorise the client even if your
-            tokens are still valid.
-        force_refresh
-            Whether to forcibly refresh your access token even if the
-            token is still valid.
+            Whether to forcibly authorise the client. If this is not
+            provided, the client will only authorise if needed.
+        ws_port : int, optional
+            The port the client's webserver will use during
+            authorisation. If this is not provided, a sensible default
+            will be used (normally `80` or `8080`).
+        console
+            Whether to bypass the browser and authorise in the console.
+            If this is not provided, the client will try to open the
+            browser first.
 
         Returns
         -------
         Tokens
             Your tokens.
-
-        Raises
-        ------
-        RuntimeError
-            The client attempted to open a new browser tab, but failed.
-        AuthorisationError
-            Something went wrong during authorisation.
-
-        Notes
-        -----
-        This method always does the minimum possible work necessary to
-        authorise the client unless forced to do otherwise. This means
-        that stored tokens will be prioritised, and the full auth flow
-        will only trigger when necessary. Token refreshing is handled
-        automatically.
-
-        Examples
-        --------
-        >>> client.authorise()
-        Tokens(access_token="1234567890", ...)
         """
-        if not force and self._tokens_file.is_file():
+        if not force and self._tokens_file and self._tokens_file.is_file():
             tokens = Tokens.load_from(self._tokens_file)
-            if tokens.are_scoped_for(self._scopes) and (
-                refreshed := self.refresh_access_token(tokens, force=force_refresh)
-            ):
-                _log.info("Existing tokens are valid -- no authorisation necessary")
-                return refreshed
+            if self._validate_tokens(tokens):
+                return tokens
 
         _log.info("Authorisation necessary -- starting authorisation flow")
 
-        auth_uri, params, _ = auth.auth_uri(self._secrets, self._scopes, self._ws_port)
-        if self._auto_open_browser:
-            if not webbrowser.open(auth_uri, 0, autoraise=True):
-                raise RuntimeError("web browser failed to open")
-        else:
-            print(  # noqa: T201
-                "\33[38;5;45mYou need to authorise analytix.\33[0m "
-                f"\33[4m{auth_uri}\33[0m",
-            )
-
-        code = auth.run_flow(params)
-        _log.debug("Authorisation code: %s", code)
-        token_uri, data, headers = auth.token_uri(
-            self._secrets,
-            code,
-            params["redirect_uri"],
-        )
-
-        with self._request(token_uri, data=data, headers=headers) as resp:
-            if resp.status > 399:
-                error = json.loads(resp.data)
-                raise AuthorisationError(
-                    f"could not authorise: {error['error_description']} "
-                    f"({error['error']})",
+        with self._secrets.auth_context(ws_port=ws_port) as ctx:
+            if console or not ctx.open_browser():
+                print(  # noqa: T201
+                    "\33[38;5;45mYou need to authorise analytix.\33[0m "
+                    f"\33[4m{ctx.auth_uri}\33[0m",
                 )
 
-            tokens = Tokens.from_json(resp.data)
+            tokens = ctx.fetch_tokens()
+            if self._tokens_file:
+                tokens.save_to(self._tokens_file)
 
-        tokens.save_to(self._tokens_file)
-        _log.info("Authorisation complete!")
-        return tokens
-
-    def refresh_access_token(
-        self,
-        tokens: Tokens,
-        *,
-        force: bool = False,
-    ) -> Optional[Tokens]:
-        """Refresh your access token.
-
-        !!! note "New in version 5.0"
-
-        Parameters
-        ----------
-        tokens
-            Your tokens.
-        force
-            Whether to forcibly refresh your access token, even if the
-            token is still valid.
-
-        Returns
-        -------
-        Optional[Tokens]
-            Your refreshed tokens, or `None` if they could not be
-            refreshed.
-
-        Notes
-        -----
-        This method should never need to be called, as the `authorise`
-        method will call it automatically when necessary.
-
-        Examples
-        --------
-        >>> client.refresh_access_token(tokens)
-        Tokens(access_token="1234567890", ...)
-        """
-        if not (force or tokens.expired):
             return tokens
-
-        if refreshed := super().refresh_access_token(tokens):
-            refreshed.save_to(self._tokens_file)
-
-        return refreshed
 
     def fetch_report(
         self,

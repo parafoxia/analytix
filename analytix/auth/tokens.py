@@ -34,6 +34,7 @@ import logging
 from dataclasses import dataclass
 from dataclasses import field
 from pathlib import Path
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import Dict
 from typing import Literal
@@ -47,6 +48,9 @@ from analytix.mixins import RequestMixin
 from analytix.types import PathLike
 
 from .scopes import Scopes
+
+if TYPE_CHECKING:
+    from .secrets import Secrets
 
 JWKS_URI = "https://www.googleapis.com/oauth2/v3/certs"
 OAUTH_CHECK_URL = "https://www.googleapis.com/oauth2/v3/tokeninfo?access_token="
@@ -70,14 +74,18 @@ class _ExpiresIn(RequestMixin):
 
         if not self._expires_at:
             _log.debug("Looking up access token expiry time")
-            with self._request(OAUTH_CHECK_URL + obj.access_token, post=True) as resp:
+            with self._request(
+                OAUTH_CHECK_URL + obj.access_token,
+                post=True,
+                ignore_errors=True,
+            ) as resp:
+                if resp.status >= 400:
+                    _log.debug("Access token has expired")
+                    return 0
+
                 self._expires_at = dt.datetime.fromtimestamp(
                     int(json.loads(resp.data)["exp"]),
                 )
-
-        if self._expires_at < dt.datetime.now():
-            _log.debug("Access token has expired")
-            return 0
 
         secs = (self._expires_at - dt.datetime.now()).seconds
         _log.debug("Access token is valid for another %d seconds", secs)
@@ -89,6 +97,10 @@ class _ExpiresIn(RequestMixin):
             # file is being loaded.
             _log.warning("Setting access token expiry time is not supported")
 
+    def __delete__(self, obj: "Tokens") -> None:
+        # Reset the expiry time.
+        self._expires_at = None
+
 
 @dataclass()
 class Tokens(RequestMixin):
@@ -97,16 +109,16 @@ class Tokens(RequestMixin):
     This should always be created using one of the available
     classmethods.
 
-    ???+ note "Changed in version 6.0"
+    ??? note "Changed in version 6.0"
         The `expires_in` attribute will now show an accurate figure
         instead of `3599` perpetually. Due to the way it's been
         implemented, it can't be updated manually.
 
-    Parameters
+    Attributes
     ----------
     access_token
         A token that can be sent to a Google API.
-    expires_in
+    expires_in : int
         The remaining lifetime of the access token in seconds.
     scope
         The scopes of access granted by the access_token expressed as a
@@ -119,7 +131,7 @@ class Tokens(RequestMixin):
     id_token
         A JWT that contains identity information about the user that is
         digitally signed by Google. This will be `None` if you did not
-        specifically request JWT tokens when authorising.
+        provide any JWT scopes when authorising.
     """
 
     access_token: str
@@ -160,9 +172,7 @@ class Tokens(RequestMixin):
         Tokens(access_token="1234567890", ...)
         """
         tokens_file = Path(path)
-
-        if _log.isEnabledFor(logging.DEBUG):
-            _log.debug("Loading tokens from %s", tokens_file.resolve())
+        _log.debug("Loading tokens from %s", tokens_file.resolve())
 
         self = cls.from_json(tokens_file.read_text())
         self._path = tokens_file
@@ -215,9 +225,7 @@ class Tokens(RequestMixin):
         >>> Tokens.save_to("tokens.json")
         """
         tokens_file = Path(path)
-
-        if _log.isEnabledFor(logging.DEBUG):
-            _log.debug("Saving tokens to %s", tokens_file.resolve())
+        _log.debug("Saving tokens to %s", tokens_file.resolve())
 
         attrs = {
             "access_token": self.access_token,
@@ -230,39 +238,54 @@ class Tokens(RequestMixin):
         tokens_file.write_text(json.dumps(attrs))
         self._path = tokens_file
 
-    def refresh(self, data: Union[str, bytes]) -> "Tokens":
-        """Updates your tokens to match those you refreshed.
+    def refresh(self, secrets: "Secrets") -> bool:
+        """Refresh your access token.
 
-        ???+ note "Changed in version 5.0"
-            This used to be `update`.
+        ???+ note "Changed in version 6.0"
+            This now handles the refreshing of your tokens, and now
+            returns a Boolean.
 
         Parameters
         ----------
-        data
-            Your refreshed tokens in JSON form. These will not entirely
-            replace your previous tokens, but instead update any
-            out-of-date keys.
+        secrets : Secrets
+            Your secrets.
 
         Returns
         -------
-        Tokens
-            Your refreshed tokens.
-
-        See Also
-        --------
-        * This method does not actually refresh your access token;
-          for that, you'll need to use `Client.refresh_access_token`.
-        * To save tokens, you'll need the `save_to` method.
+        bool
+            Whether or not the refresh was successful.
 
         Examples
         --------
-        >>> Tokens.refresh('{"access_token": "abcdefghij", ...}')
-        Tokens(access_token="abcdefghij", ...)
+        >>> tokens.refresh(client._secrets)
+        True
         """
-        attrs = json.loads(data)
-        for key, value in attrs.items():
-            setattr(self, key, value)
-        return self
+        _log.debug("Refreshing access token")
+
+        data = {
+            "client_id": secrets.resource.client_id,
+            "client_secret": secrets.resource.client_secret,
+            "refresh_token": self.refresh_token,
+            "grant_type": "refresh_token",
+        }
+        headers = {"Content-Type": "application/x-www-form-urlencoded"}
+
+        with self._request(
+            secrets.resource.token_uri,
+            data=data,
+            headers=headers,
+            ignore_errors=True,
+        ) as resp:
+            if resp.status > 399:
+                _log.debug("Access token could not be refreshed")
+                return False
+
+            for key, value in json.loads(resp.data).items():
+                setattr(self, key, value)
+            del self.expires_in
+
+            _log.debug("Access token has been refreshed successfully")
+            return True
 
     @property
     def expired(self) -> bool:
@@ -290,10 +313,6 @@ class Tokens(RequestMixin):
         scopes your tokens are authorised with and determines whether
         your tokens provide enough access.
 
-        This is not an equality check; if your tokens are authorised
-        with all scopes, but you only passed the READONLY scope to the
-        client, this will return `True`.
-
         !!! note "New in version 6.0"
 
         Parameters
@@ -309,8 +328,7 @@ class Tokens(RequestMixin):
 
         Examples
         --------
-        >>> # This would only be used internally.
-        >>> tokens.are_scopes_for(client._scopes)
+        >>> tokens.are_scoped_for(client._scopes)
         True
         """
         sufficient = set(scopes.formatted.split(" ")) <= set(self.scope.split(" "))
@@ -348,9 +366,13 @@ class Tokens(RequestMixin):
 
         Examples
         --------
-        >>> client = BaseClient("secrets.json")
-        >>> tokens = client.authorise()  # Overloaded using your impl.
+        >>> client = Client("secrets.json")
+        >>> tokens = client.authorise()
         >>> tokens.decoded_id_token
+        {
+            "iss": "https://accounts.google.com",
+            ...,
+        }
         """
         if not self.id_token:
             return None
