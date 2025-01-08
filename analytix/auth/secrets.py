@@ -230,10 +230,10 @@ class AuthContext(RequestMixin):
             There was a problem fetching the tokens. See the error
             message for more information.
         """
-        _log.debug("Fetching access token")
-
         if code is None:
             code = self.fetch_code()
+
+        _log.debug("Fetching access token")
 
         data = {
             "code": code,
@@ -319,6 +319,8 @@ class Secrets:
     @contextmanager
     def auth_context(self, *, ws_port: Optional[int] = None) -> Iterator[AuthContext]:
         """Create an authorisation context.
+
+        This method is a context manager.
 
         Parameters
         ----------
