@@ -110,7 +110,7 @@ setuptools.setup(
         "Changelog": attrs["changelog"],
     },
     install_requires=parse_requirements("requirements/base.txt"),
-    python_requires=">=3.8.0,<3.14",
+    python_requires=">=3.8.0,<3.15",
     packages=setuptools.find_packages(),
     include_package_data=True,
 )
