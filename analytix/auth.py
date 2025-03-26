@@ -231,6 +231,9 @@ class Tokens:
     This should always be created using one of the available
     classmethods.
 
+    !!! note "Changed in version 5.5"
+        Added the `refresh_token_expires_in` attribute.
+
     Parameters
     ----------
     access_token
@@ -245,6 +248,10 @@ class Tokens:
         "Bearer".
     refresh_token
         A token that can be used to refresh your access token.
+    refresh_token_expires_in
+        The remaining lifetime of the refresh token in seconds. This
+        will be `None` if your tokens predate analytix supporting this
+        field.
     id_token
         A JWT that contains identity information about the user that is
         digitally signed by Google. This will be `None` if you did not
@@ -252,8 +259,9 @@ class Tokens:
 
     Warnings
     --------
-    The `expires_in` field is never updated by analytix, and as such
-    will always be `3599` unless you update it yourself.
+    The `expires_in` and `refresh_token_expires_in` fields are never
+    updated by analytix, and will always be the values they were on
+    boot.
     """
 
     access_token: str
@@ -261,6 +269,7 @@ class Tokens:
     scope: str
     token_type: Literal["Bearer"]
     refresh_token: str
+    refresh_token_expires_in: Optional[int] = None
     id_token: Optional[str] = None
 
     @classmethod
@@ -356,6 +365,7 @@ class Tokens:
             "scope": self.scope,
             "token_type": self.token_type,
             "refresh_token": self.refresh_token,
+            "refresh_token_expires_in": self.refresh_token_expires_in,
             **({"id_token": self.id_token} if self.id_token else {}),
         }
         tokens_file.write_text(json.dumps(attrs))

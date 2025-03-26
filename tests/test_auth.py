@@ -148,7 +148,7 @@ def test_secrets_load_from(secrets: Secrets, secrets_data: str, caplog):
 def test_tokens_str(tokens: Tokens):
     assert (
         str(tokens)
-        == "Tokens(access_token='a1b2c3d4e5', expires_in=3599, scope='https://www.googleapis.com/auth/yt-analytics.readonly https://www.googleapis.com/auth/yt-analytics-monetary.readonly', token_type='Bearer', refresh_token='f6g7h8i9j0', id_token=None)"
+        == "Tokens(access_token='a1b2c3d4e5', expires_in=3599, scope='https://www.googleapis.com/auth/yt-analytics.readonly https://www.googleapis.com/auth/yt-analytics-monetary.readonly', token_type='Bearer', refresh_token='f6g7h8i9j0', refresh_token_expires_in=604799, id_token=None)"
     )
 
 
