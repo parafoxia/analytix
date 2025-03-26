@@ -104,7 +104,6 @@ nav:
   - "Reference":
     - "reference/client.md"
     - "reference/errors.md"
-    - "reference/shard.md"
     - "reference/ux.md"
     - "reference/warnings.md"
     - "auth":

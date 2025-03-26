@@ -1,3 +1,0 @@
-# auth
-
-::: analytix.auth
