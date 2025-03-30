@@ -40,7 +40,7 @@ from urllib.parse import urlencode
 from analytix.types import UriParams
 
 from .scopes import Scopes
-from .secrets import Secrets
+from .secrets import ClientSecrets
 
 
 def state_token() -> str:
@@ -59,7 +59,7 @@ def state_token() -> str:
     return hashlib.sha256(os.urandom(1024)).hexdigest()
 
 
-def auth_uri(secrets: Secrets, scopes: Scopes, port: int) -> UriParams:
+def auth_uri(secrets: ClientSecrets, scopes: Scopes, port: int) -> UriParams:
     """Returns the authentication URI and parameters.
 
     ???+ note "Changed in version 5.0"
@@ -107,7 +107,7 @@ def auth_uri(secrets: Secrets, scopes: Scopes, port: int) -> UriParams:
     return f"{secrets.auth_uri}?{urlencode(params)}", params, {}
 
 
-def token_uri(secrets: Secrets, code: str, redirect_uri: str) -> UriParams:
+def token_uri(secrets: ClientSecrets, code: str, redirect_uri: str) -> UriParams:
     """Returns the token URI, data, and headers.
 
     Parameters
@@ -140,7 +140,7 @@ def token_uri(secrets: Secrets, code: str, redirect_uri: str) -> UriParams:
     return secrets.token_uri, data, headers
 
 
-def refresh_uri(secrets: Secrets, token: str) -> UriParams:
+def refresh_uri(secrets: ClientSecrets, token: str) -> UriParams:
     """Returns the refresh URI, data, and headers.
 
     Parameters

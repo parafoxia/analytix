@@ -149,12 +149,6 @@ def linting(session: nox.Session) -> None:
 
 
 @nox.session(reuse_venv=True)
-@install(meta=True)
-def slots(session: nox.Session) -> None:
-    session.run("slotscheck", "-m", "analytix")
-
-
-@nox.session(reuse_venv=True)
 @install()
 def spelling(session: nox.Session) -> None:
     session.run(

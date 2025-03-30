@@ -71,7 +71,7 @@ class _RequestHandler(BaseHTTPRequestHandler):
         self.end_headers()
 
         self.server: _Server
-        self.server.query_params = dict(parse_qs(self.path.split("?")[1]))
+        self.server.query_params = dict(parse_qs(self.path.split("?")[1]))  # type: ignore[arg-type]
         self.wfile.write((Path(__file__).parent / "landing.html").read_bytes())
 
 
@@ -269,7 +269,7 @@ class Secrets:
         The scopes to allow in requests.
     """
 
-    __slots__ = ("type", "resource", "scopes")
+    __slots__ = ("resource", "scopes", "type")
 
     type: Literal["installed", "web"]
     resource: ClientSecrets

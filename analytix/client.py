@@ -48,18 +48,17 @@ from typing import Union
 from analytix.auth.scopes import Scopes
 from analytix.auth.secrets import Secrets
 from analytix.auth.tokens import Tokens
+from analytix.groups import GroupItemList
+from analytix.groups import GroupList
 from analytix.mixins import RequestMixin
 from analytix.queries import GroupItemQuery
 from analytix.queries import GroupQuery
 from analytix.queries import ReportQuery
 from analytix.reports import Report
-from analytix.types import PathLike
 from analytix.warnings import NotUpdatedWarning
 
 if TYPE_CHECKING:
-    from analytix.groups import GroupItemList
-    from analytix.groups import GroupList
-    from analytix.reports import Report
+    from analytix.types import PathLike
 
 
 UPDATE_CHECK_URL = "https://pypi.org/pypi/analytix/json"
@@ -246,7 +245,9 @@ class Client(RequestMixin):
         if not refreshed:
             return None
 
-        tokens.save_to(self._tokens_file)
+        if self._tokens_file:
+            tokens.save_to(self._tokens_file)
+
         return tokens
 
     @contextmanager

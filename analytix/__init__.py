@@ -27,7 +27,6 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 __all__ = (
-    "BaseClient",
     "Client",
     "Scopes",
     "can_use",
@@ -52,7 +51,6 @@ __changelog__ = "https://github.com/parafoxia/analytix/releases"
 from . import groups
 from . import reports
 from .auth import Scopes
-from .client import BaseClient
 from .client import Client
 from .utils import can_use
 from .utils import process_path

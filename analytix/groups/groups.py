@@ -43,7 +43,7 @@ from typing import List
 from typing import Optional
 
 if TYPE_CHECKING:
-    from analytix.shard import Shard
+    from analytix.client import Client
 
 
 @dataclass(frozen=True)
@@ -75,30 +75,30 @@ class Group(_Resource):
         The number of items in the group.
     item_type
         The type of resources that the group contains.
-    shard
-        The shard instance used to fetch this group.
+    client
+        The client instance used to fetch this group.
     """
 
-    __slots__ = ("id", "item_count", "item_type", "published_at", "shard", "title")
+    __slots__ = ("client", "id", "item_count", "item_type", "published_at", "title")
 
     id: str
     published_at: dt.datetime
     title: str
     item_count: int
     item_type: str
-    shard: "Shard"
+    client: "Client"
 
     @classmethod
-    def from_json(cls, shard: "Shard", data: Dict[str, Any]) -> "Group":
+    def from_json(cls, client: "Client", data: Dict[str, Any]) -> "Group":
         """Create a new `Group` instance from JSON data.
 
         ???+ note "Changed in version 5.0"
-            This now takes the shard instance used to fetch the data.
+            This now takes the client instance used to fetch the data.
 
         Parameters
         ----------
-        shard
-            The shard instance used to fetch the data.
+        client
+            The client instance used to fetch the data.
         data
             The raw JSON data from the API.
 
@@ -117,7 +117,7 @@ class Group(_Resource):
             data["snippet"]["title"],
             int(data["contentDetails"]["itemCount"]),
             data["contentDetails"]["itemType"],
-            shard,
+            client,
         )
 
     @property
@@ -167,7 +167,7 @@ class Group(_Resource):
             your channel is not partnered, this is raised when you try
             to access monetary data.
         """
-        return self.shard.fetch_group_items(self.id)
+        return self.client.fetch_group_items(self.id)
 
 
 @dataclass(frozen=True)
@@ -201,18 +201,18 @@ class GroupList(_Resource):
         return iter(self.items)
 
     @classmethod
-    def from_json(cls, shard: "Shard", data: Dict[str, Any]) -> "GroupList":
+    def from_json(cls, client: "Client", data: Dict[str, Any]) -> "GroupList":
         """Create a new `GroupList` instance from JSON data.
 
         ???+ note "Changed in version 5.0"
-            * This now takes the shard instance used to fetch the data
+            * This now takes the client instance used to fetch the data
             * This will no longer raise an error if a channel has no
               groups
 
         Parameters
         ----------
-        shard
-            The shard instance used to fetch the data.
+        client
+            The client instance used to fetch the data.
         data
             The raw JSON data from the API.
 
@@ -224,7 +224,7 @@ class GroupList(_Resource):
         return cls(
             data["kind"],
             data.get("etag"),
-            [Group.from_json(shard, item) for item in data["items"]],
+            [Group.from_json(client, item) for item in data["items"]],
             data.get("nextPageToken"),
         )
 
