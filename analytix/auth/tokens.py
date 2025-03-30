@@ -139,6 +139,7 @@ class Tokens(RequestMixin):
     token_type: Literal["Bearer"]
     refresh_token: str
     expires_in: _ExpiresIn = _ExpiresIn()
+    refresh_token_expires_in: Optional[int] = field(default=None, repr=False)
     id_token: Optional[str] = None
     _path: Optional[Path] = field(default=None, init=False, repr=False)
 
