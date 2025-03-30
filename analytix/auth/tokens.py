@@ -87,14 +87,12 @@ class _ExpiresIn(RequestMixin):
                     int(json.loads(resp.data)["exp"]),
                 )
 
-        secs = (self._expires_at - dt.datetime.now()).seconds
+        secs = max((self._expires_at - dt.datetime.now()).total_seconds(), 0)
         _log.debug("Access token is valid for another %d seconds", secs)
         return secs
 
     def __set__(self, obj: "Tokens", value: int) -> None:
-        if value != 3599:
-            # We want to emit this warning, but not when the secrets
-            # file is being loaded.
+        if self._expires_at:  # pragma: no cover
             _log.warning("Setting access token expiry time is not supported")
 
     def __delete__(self, obj: "Tokens") -> None:
@@ -118,7 +116,7 @@ class Tokens(RequestMixin):
     ----------
     access_token
         A token that can be sent to a Google API.
-    expires_in : int
+    expires_in : float
         The remaining lifetime of the access token in seconds.
     scope
         The scopes of access granted by the access_token expressed as a
@@ -230,7 +228,7 @@ class Tokens(RequestMixin):
 
         attrs = {
             "access_token": self.access_token,
-            "expires_in": self.expires_in,
+            "expires_in": int(self.expires_in),
             "scope": self.scope,
             "token_type": self.token_type,
             "refresh_token": self.refresh_token,

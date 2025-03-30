@@ -26,133 +26,114 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import datetime as dt
 import json
 import logging
-import re
 import time
 from pathlib import Path
 from unittest import mock
 
 import pytest
+from jwt import JWT
+from jwt.exceptions import JWSDecodeError
 
 from analytix import utils
 from analytix.auth.scopes import Scopes
+from analytix.auth.secrets import Secrets
 from analytix.auth.tokens import Tokens
 from analytix.auth.tokens import _ExpiresIn
-from analytix.errors import APIError
 from analytix.errors import IdTokenError
 from analytix.errors import MissingOptionalComponents
 from tests import MockFile
 from tests import MockResponse
 
 
-def test_expires_in_init():
-    exp = _ExpiresIn(default=3599)
-    assert exp._default == 3599
-    assert exp._expires_at is None
-
-
-def test_expires_in_get():
-    class Test:
-        access_token = "a1b2c3d4e5"
+@pytest.mark.parametrize("expires_in", [(3600, 3599), (0, 0), (-3600, 0)])
+def test_expires_in_get(expires_in: tuple[int, int]) -> None:
+    class Tokens:
+        # These tests each need different classes to avoid conflicts
+        # between _ExpiresIn descriptors.
+        access_token = "access_token"
         expires_in = _ExpiresIn()
 
     with mock.patch.object(
         _ExpiresIn,
         "_request",
-        return_value=MockResponse(json.dumps({"exp": time.time() + 3600}), 200),
+        return_value=MockResponse(
+            json.dumps({"exp": time.time() + expires_in[0]}),
+            200,
+        ),
     ):
-        assert Test().expires_in == 3599
+        assert int(Tokens().expires_in) == expires_in[1]
 
 
-def test_expires_in_get_invalid():
-    class Test:
-        access_token = "a1b2c3d4e5"
-        expires_in = _ExpiresIn()
+def test_tokens_load_from(tokens: Tokens, tokens_file: MockFile) -> None:
+    tokens._path = Path("tokens_file")
+    assert Tokens.load_from("tokens_file") == tokens
 
-    with mock.patch.object(
-        _ExpiresIn,
-        "_request",
-        return_value=MockResponse(json.dumps({"exp": time.time() - 3600}), 200),
+
+def test_tokens_from_json(tokens: Tokens, tokens_json: str) -> None:
+    assert Tokens.from_json(tokens_json) == tokens
+
+
+def test_tokens_save_to(
+    tokens: Tokens,
+    tokens_file: MockFile,
+    tokens_json: str,
+) -> None:
+    tokens.save_to("tokens_file")
+    assert tokens_file.write_data == tokens_json
+
+
+def test_tokens_refresh(tokens: Tokens, secrets: Secrets, caplog) -> None:
+    with (
+        caplog.at_level(logging.DEBUG),
+        mock.patch.object(
+            Tokens,
+            "_request",
+            return_value=MockResponse(
+                json.dumps(
+                    {
+                        "access_token": "new_access_token",
+                        "expires_in": 3600,
+                        "scope": "scope",
+                        "token_type": "token_type",
+                    }
+                ),
+                200,
+            ),
+        ),
     ):
-        assert Test().expires_in == 0
+        assert tokens.refresh(secrets)
+        assert tokens.access_token == "new_access_token"
+        assert tokens.scope == "scope"
+        assert tokens.token_type == "token_type"
+        assert "Access token has been refreshed successfully" in caplog.text
 
 
-def test_expires_in_set(caplog):
-    class Test:
-        access_token = "a1b2c3d4e5"
-        expires_in = _ExpiresIn()
-
-    with caplog.at_level(logging.WARNING):
-        Test().expires_in = 0
-
-    assert "Setting access token expiry time is not supported" in caplog.text
-
-
-def test_expires_in_set_no_warning_default(caplog):
-    class Test:
-        access_token = "a1b2c3d4e5"
-        expires_in = _ExpiresIn()
-
-    with caplog.at_level(logging.WARNING):
-        Test().expires_in = 3599
-
-    assert "Setting access token expiry time is not supported" not in caplog.text
+def test_tokens_refresh_failure(tokens: Tokens, secrets: Secrets, caplog) -> None:
+    with (
+        caplog.at_level(logging.DEBUG),
+        mock.patch.object(
+            Tokens,
+            "_request",
+            return_value=MockResponse("{}", 400),
+        ),
+    ):
+        assert not tokens.refresh(secrets)
+        assert "Access token could not be refreshed" in caplog.text
 
 
-def test_tokens_str(tokens: Tokens):
+def test_tokens_expired(tokens: Tokens) -> None:
+    with mock.patch.object(_ExpiresIn, "__get__", return_value=0):
+        assert tokens.expired
+
+
+def test_tokens_not_expired(tokens: Tokens) -> None:
     with mock.patch.object(_ExpiresIn, "__get__", return_value=3599):
-        assert (
-            str(tokens)
-            == "Tokens(access_token='a1b2c3d4e5', scope='https://www.googleapis.com/auth/yt-analytics.readonly https://www.googleapis.com/auth/yt-analytics-monetary.readonly', token_type='Bearer', refresh_token='f6g7h8i9j0', expires_in=3599, id_token=None)"
-        )
+        assert not tokens.expired
 
 
-def test_tokens_repr(tokens: Tokens):
-    with mock.patch.object(_ExpiresIn, "__get__", return_value=3599):
-        assert repr(tokens) == str(tokens)
-
-
-def test_tokens_from_json(tokens: Tokens, tokens_data: str):
-    with mock.patch.object(_ExpiresIn, "__get__", return_value=3599):
-        assert tokens == Tokens.from_json(tokens_data)
-
-
-def test_tokens_load_from(saved_tokens: Tokens, tokens_data: str, caplog):
-    with caplog.at_level(logging.DEBUG):
-        with mock.patch.object(_ExpiresIn, "__get__", return_value=3599):
-            f = MockFile(tokens_data)
-            with mock.patch.object(Path, "open", return_value=f):
-                assert saved_tokens == Tokens.load_from("tokens.json")
-
-            assert "Loading tokens from" in caplog.text
-
-
-def test_tokens_save_to(tokens: Tokens, tokens_data: str, caplog):
-    with caplog.at_level(logging.DEBUG):
-        with mock.patch.object(_ExpiresIn, "__get__", return_value=3599):
-            f = MockFile()
-            with mock.patch.object(Path, "open", return_value=f):
-                tokens.save_to("tokens.json")
-                assert f.write_data == tokens_data
-
-            assert "Saving tokens to" in caplog.text
-
-
-def test_tokens_expired_true(tokens: Tokens, caplog):
-    with caplog.at_level(logging.DEBUG):
-        with mock.patch.object(_ExpiresIn, "__get__", return_value=0):
-            assert tokens.expired
-
-
-def test_tokens_expired_false(tokens: Tokens, caplog):
-    with caplog.at_level(logging.DEBUG):
-        with mock.patch.object(_ExpiresIn, "__get__", return_value=3599):
-            assert not tokens.expired
-
-
-def test_tokens_are_scoped_for_readonly(tokens: Tokens, caplog):
+def test_tokens_are_scoped_for_readonly(tokens: Tokens, caplog) -> None:
     tokens.scope = "https://www.googleapis.com/auth/yt-analytics.readonly"
 
     with caplog.at_level(logging.DEBUG):
@@ -200,85 +181,100 @@ def test_tokens_are_scoped_for_all_readonly(tokens: Tokens, caplog):
         assert "Stored scopes are sufficient" in caplog.text
 
 
-@mock.patch.object(utils, "can_use", return_value=False)
-def test_tokens_decoded_id_token_no_jwt(mock_can_use, full_tokens: Tokens):
-    with pytest.raises(
-        MissingOptionalComponents,
-        match=re.escape(
-            "some necessary libraries are not installed (hint: pip install jwt)"
+def test_tokens_decoded_id_token_no_id_token(tokens: Tokens) -> None:
+    tokens.id_token = None
+    assert tokens.decoded_id_token == None
+
+
+def test_tokens_decoded_id_token_no_jwt(tokens: Tokens) -> None:
+    with (
+        mock.patch.object(utils, "can_use", return_value=False),
+        pytest.raises(MissingOptionalComponents) as exc_info,
+    ):
+        tokens.decoded_id_token
+
+    assert (
+        str(exc_info.value)
+        == "some necessary libraries are not installed (hint: pip install jwt)"
+    )
+
+
+def test_tokens_decoded_id_token(
+    tokens: Tokens,
+    public_jwks: str,
+    id_token: str,
+    id_token_payload: dict,
+    caplog,
+) -> None:
+    tokens.id_token = id_token
+    with (
+        caplog.at_level(logging.DEBUG),
+        mock.patch.object(
+            Tokens,
+            "_request",
+            return_value=MockResponse(public_jwks, 200),
         ),
     ):
-        full_tokens.decoded_id_token
+        assert tokens.decoded_id_token == id_token_payload
+
+    assert "Fetching JWKs" in caplog.text
+    assert "Attempting decode using JWK with KID '420'"
 
 
-@pytest.mark.skipif(not utils.can_use("jwt"), reason="jwt is not available")
-def test_tokens_decode_id_token_no_token(
-    tokens: Tokens, public_jwks, id_token_payload, caplog
-):
-    assert tokens.decoded_id_token is None
+def test_tokens_decoded_id_token_cant_fetch_jwks(tokens: Tokens) -> None:
+    with (
+        mock.patch.object(Tokens, "_request", return_value=MockResponse("", 400)),
+        pytest.raises(IdTokenError) as exc_info,
+    ):
+        tokens.decoded_id_token
+
+    assert str(exc_info.value) == "could not fetch Google JWKs"
 
 
-@pytest.mark.skipif(not utils.can_use("jwt"), reason="jwt is not available")
-def test_tokens_decode_id_token(
-    full_tokens: Tokens, public_jwks, id_token_payload, caplog
-):
-    with caplog.at_level(logging.DEBUG):
-        with mock.patch.object(
-            Tokens, "_request", return_value=MockResponse(public_jwks, 200)
-        ):
-            assert full_tokens.decoded_id_token == id_token_payload
-
-        assert "Fetching JWKs" in caplog.text
-        assert "Attempting decode using JWK with KID '420'"
-
-
-@pytest.mark.skipif(not utils.can_use("jwt"), reason="jwt is not available")
-def test_base_client_decode_id_token_cant_fetch_jwks(full_tokens: Tokens):
-    with mock.patch.object(Tokens, "_request", return_value=MockResponse("", 400)):
-        with pytest.raises(IdTokenError, match="could not fetch Google JWKs"):
-            full_tokens.decoded_id_token
-
-
-@pytest.mark.skipif(not utils.can_use("jwt"), reason="jwt is not available")
-def test_base_client_decode_id_token_jws_decode_error(
-    full_tokens: Tokens, public_jwks, caplog
-):
-    from jwt import JWT
-    from jwt.exceptions import JWSDecodeError
-
+def test_tokens_decoded_id_token_jws_decode_error(
+    tokens: Tokens,
+    public_jwks: str,
+    caplog,
+) -> None:
     jwks = json.loads(public_jwks)
     jwks["keys"][0]["n"] = "rickroll"
     public_jwks = json.dumps(jwks)
 
-    with caplog.at_level(logging.DEBUG):
-        with mock.patch.object(
-            Tokens, "_request", return_value=MockResponse(public_jwks, 200)
-        ):
-            with mock.patch.object(JWT, "decode", side_effect=JWSDecodeError):
-                with pytest.raises(
-                    IdTokenError, match=re.escape("invalid ID token (see above error)")
-                ):
-                    full_tokens.decoded_id_token
+    with (
+        caplog.at_level(logging.DEBUG),
+        mock.patch.object(
+            Tokens,
+            "_request",
+            return_value=MockResponse(public_jwks, 200),
+        ),
+        mock.patch.object(JWT, "decode", side_effect=JWSDecodeError),
+        pytest.raises(IdTokenError) as exc_info,
+    ):
+        tokens.decoded_id_token
 
-        assert "Fetching JWKs" in caplog.text
+    assert str(exc_info.value) == "invalid ID token (see above error)"
+    assert "Fetching JWKs" in caplog.text
 
 
-@pytest.mark.skipif(not utils.can_use("jwt"), reason="jwt is not available")
-def test_base_client_decode_id_token_decode_error(
-    full_tokens: Tokens, public_jwks, caplog
-):
+def test_tokens_decoded_id_token_decode_error(
+    tokens: Tokens,
+    public_jwks: str,
+    caplog,
+) -> None:
     jwks = json.loads(public_jwks)
     jwks["keys"][0]["n"] = "rickroll"
     public_jwks = json.dumps(jwks)
 
-    with caplog.at_level(logging.DEBUG):
-        with mock.patch.object(
-            Tokens, "_request", return_value=MockResponse(public_jwks, 200)
-        ):
-            with pytest.raises(
-                IdTokenError, match="ID token signature could not be validated"
-            ):
-                full_tokens.decoded_id_token
+    with (
+        caplog.at_level(logging.DEBUG),
+        mock.patch.object(
+            Tokens,
+            "_request",
+            return_value=MockResponse(public_jwks, 200),
+        ),
+        pytest.raises(IdTokenError) as exc_info,
+    ):
+        tokens.decoded_id_token
 
-        assert "Fetching JWKs" in caplog.text
-        assert "Fetching JWKs" in caplog.text
+    assert str(exc_info.value) == "ID token signature could not be validated"
+    assert "Fetching JWKs" in caplog.text

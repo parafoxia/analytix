@@ -348,7 +348,7 @@ class Secrets:
         if not ws_port and self.type == "installed":
             ws_port = 8080
         if ws_port:
-            redirect_uri += f":{ws_port}"
+            redirect_uri = f"{redirect_uri.rstrip('/')}:{ws_port}"
         _log.debug("Using redirect URI: %s", redirect_uri)
 
         auth_params = {

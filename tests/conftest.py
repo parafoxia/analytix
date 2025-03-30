@@ -29,14 +29,19 @@
 import datetime as dt
 import json
 from pathlib import Path
+from typing import Any
+from typing import Iterator
 from unittest import mock
 
 import pytest
 import pytz
 
-from analytix.auth import Scopes
-from analytix.auth import Secrets
-from analytix.auth import Tokens
+from analytix.auth.scopes import Scopes
+from analytix.auth.secrets import AuthContext
+from analytix.auth.secrets import ClientSecrets
+from analytix.auth.secrets import Secrets
+from analytix.auth.tokens import Tokens
+from analytix.auth.tokens import _ExpiresIn
 from analytix.client import Client
 from analytix.groups import Group
 from analytix.groups import GroupItem
@@ -59,93 +64,105 @@ from analytix.reports.resources import ColumnType
 from analytix.reports.resources import DataType
 from analytix.reports.resources import ResultTable
 from analytix.reports.types import TimeBasedActivity
-from analytix.shard import Shard
-from tests import CustomBaseClient
+from tests import MockFile
 from tests import MockResponse
 
-# AUTH
+# NEW ------------------------------------------------------------------
 
 
 @pytest.fixture()
-def secrets():
-    return Secrets(
-        type="installed",
-        client_id="a1b2c3d4e5",
-        project_id="rickroll",
+def client_secrets() -> ClientSecrets:
+    return ClientSecrets(
+        client_id="client_id",
+        client_secret="client_secret",
+        redirect_uris=["http://localhost/"],
         auth_uri="https://accounts.google.com/o/oauth2/auth",
         token_uri="https://oauth2.googleapis.com/token",
+        client_email=None,
         auth_provider_x509_cert_url="https://www.googleapis.com/oauth2/v1/certs",
-        client_secret="f6g7h8i9j0",
-        redirect_uris=["http://localhost"],
+        client_x509_cert_url=None,
     )
 
 
 @pytest.fixture()
-def legacy_secrets():
-    return Secrets(
-        type="installed",
-        client_id="a1b2c3d4e5",
-        project_id="rickroll",
-        auth_uri="https://accounts.google.com/o/oauth2/auth",
-        token_uri="https://oauth2.googleapis.com/token",
-        auth_provider_x509_cert_url="https://www.googleapis.com/oauth2/v1/certs",
-        client_secret="f6g7h8i9j0",
-        redirect_uris=["urn:ietf:wg:oauth:2.0:oob", "http://localhost"],
+def client_secrets_file(client_secrets: ClientSecrets) -> Iterator[MockFile]:
+    data = {
+        "installed": {
+            "client_id": client_secrets.client_id,
+            "project_id": "barney-the-dinosaur",
+            "client_secret": client_secrets.client_secret,
+            "redirect_uris": client_secrets.redirect_uris,
+            "auth_uri": client_secrets.auth_uri,
+            "token_uri": client_secrets.token_uri,
+            "auth_provider_x509_cert_url": client_secrets.auth_provider_x509_cert_url,
+        }
+    }
+    file = MockFile(json.dumps(data).encode("utf-8"))
+    with mock.patch.object(Path, "open", return_value=file):
+        yield file
+
+
+@pytest.fixture()
+def auth_context(client_secrets) -> AuthContext:
+    return AuthContext(
+        client_id=client_secrets.client_id,
+        client_secret=client_secrets.client_secret,
+        redirect_uri="http://localhost:8080",
+        auth_uri=(
+            "https://accounts.google.com/o/oauth2/auth"
+            "?client_id=client_id"
+            "&nonce=token"
+            "&response_type=code"
+            "&redirect_uri=http%3A%2F%2Flocalhost%3A8080&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fyt-analytics.readonly"
+            "&state=token"
+            "&access_type=offline"
+        ),
+        token_uri=client_secrets.token_uri,
+        state="token",
     )
 
 
 @pytest.fixture()
-def tokens():
+def secrets(client_secrets: ClientSecrets) -> Secrets:
+    return Secrets(type="installed", resource=client_secrets, scopes=Scopes.READONLY)
+
+
+@pytest.fixture()
+def tokens() -> Tokens:
     return Tokens(
-        access_token="a1b2c3d4e5",
-        expires_in=3599,
-        scope="https://www.googleapis.com/auth/yt-analytics.readonly https://www.googleapis.com/auth/yt-analytics-monetary.readonly",
+        access_token="access_token",
+        expires_in=_ExpiresIn(default=3599),
+        scope="https://www.googleapis.com/auth/analytics.readonly",
         token_type="Bearer",
-        refresh_token="f6g7h8i9j0",
-        refresh_token_expires_in=604799,
+        refresh_token="refresh_token",
+        id_token="id_token",
     )
 
 
 @pytest.fixture()
-def saved_tokens():
-    t = Tokens(
-        access_token="a1b2c3d4e5",
-        expires_in=3599,
-        scope="https://www.googleapis.com/auth/yt-analytics.readonly https://www.googleapis.com/auth/yt-analytics-monetary.readonly",
-        token_type="Bearer",
-        refresh_token="f6g7h8i9j0",
-    )
-    t._path = Path("tokens.json")
-    return t
-
-
-@pytest.fixture()
-def full_tokens(id_token):
-    return Tokens(
-        access_token="a1b2c3d4e5",
-        expires_in=3599,
-        scope="https://www.googleapis.com/auth/yt-analytics.readonly https://www.googleapis.com/auth/yt-analytics-monetary.readonly",
-        token_type="Bearer",
-        refresh_token="f6g7h8i9j0",
-        refresh_token_expires_in=604799,
-        id_token=id_token,
+def tokens_json(tokens: Tokens) -> str:
+    return json.dumps(
+        {
+            "access_token": tokens.access_token,
+            "expires_in": tokens.expires_in,
+            "scope": tokens.scope,
+            "token_type": tokens.token_type,
+            "refresh_token": tokens.refresh_token,
+            "id_token": tokens.id_token,
+        }
     )
 
 
 @pytest.fixture()
-def refreshed_tokens():
-    return Tokens(
-        access_token="5e4d3c2b1a",
-        expires_in=3599,
-        scope="https://www.googleapis.com/auth/yt-analytics.readonly https://www.googleapis.com/auth/yt-analytics-monetary.readonly",
-        token_type="Bearer",
-        refresh_token="f6g7h8i9j0",
-        refresh_token_expires_in=604799,
-    )
+def tokens_file(tokens_json: str) -> Iterator[MockFile]:
+    data = json.loads(tokens_json)
+    file = MockFile(json.dumps(data).encode("utf-8"))
+    with mock.patch.object(Path, "open", return_value=file):
+        yield file
 
 
 @pytest.fixture()
-def public_jwks():
+def public_jwks() -> str:
     return json.dumps(
         {
             "keys": [
@@ -163,12 +180,12 @@ def public_jwks():
 
 
 @pytest.fixture()
-def id_token():
+def id_token() -> str:
     return "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZG1pbiI6dHJ1ZSwiaWF0IjoxNTE2MjM5MDIyLCJuYW1lIjoiQmFybmV5IHRoZSBEaW5vc2F1ciIsInN1YiI6IjEyMzQ1Njc4OTAifQ.glf1K2N9SacjpaK2W_PkqB7Ga-KwmEEpcQUFUhHmfYvd-2eWjWJN3oatXF4gkwh9O7tSqO3QW_REfpgbD-odCn3CZtZGffDEoIkujRwbr8rwnrnDK0aakspEsHBfPPctwOI6SpSqAn4LWdyK5SWzES8NnzJp6OiSXALPW92JkN9Z_pTktO1VL1IQm-NcXz3jOfqewneEkesdm8vesxd1mIeUelkKWpqg0UlT48GKZlkn08BU5GUWCLWxLj96qee4PGmfHsGb6uPx2iqL0BMI9JbKSo6MnkCmjZKwCzJdsYDYfncoDdbm3O_qUCVU4Br7T2HP3YUe-c01zwnzyXqP0A"
 
 
 @pytest.fixture()
-def id_token_payload():
+def id_token_payload() -> dict[str, Any]:
     return {
         "admin": True,
         "iat": 1516239022,
@@ -177,103 +194,7 @@ def id_token_payload():
     }
 
 
-@pytest.fixture()
-def secrets_data():
-    return json.dumps(
-        {
-            "installed": {
-                "client_id": "a1b2c3d4e5",
-                "project_id": "rickroll",
-                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-                "token_uri": "https://oauth2.googleapis.com/token",
-                "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-                "client_secret": "f6g7h8i9j0",
-                "redirect_uris": ["http://localhost"],
-            }
-        }
-    )
-
-
-@pytest.fixture()
-def tokens_data():
-    return json.dumps(
-        {
-            "access_token": "a1b2c3d4e5",
-            "expires_in": 3599,
-            "scope": "https://www.googleapis.com/auth/yt-analytics.readonly https://www.googleapis.com/auth/yt-analytics-monetary.readonly",
-            "token_type": "Bearer",
-            "refresh_token": "f6g7h8i9j0",
-            "refresh_token_expires_in": 604799,
-        }
-    )
-
-
-@pytest.fixture()
-def refreshed_tokens_data():
-    return json.dumps(
-        {
-            "access_token": "5e4d3c2b1a",
-            "expires_in": 3599,
-            "scope": "https://www.googleapis.com/auth/yt-analytics.readonly https://www.googleapis.com/auth/yt-analytics-monetary.readonly",
-            "token_type": "Bearer",
-            "refresh_token_expires_in": 604799,
-        }
-    )
-
-
-@pytest.fixture()
-def auth_params():
-    return {
-        "client_id": "a1b2c3d4e5",
-        "nonce": "34c5f166f6abb229ee092be1e7e92ca71434bcb1a27ba0664cd2fea834d85927",
-        "response_type": "code",
-        "redirect_uri": "http://localhost:8080",
-        "scope": "https://www.googleapis.com/auth/yt-analytics.readonly https://www.googleapis.com/auth/yt-analytics-monetary.readonly",
-        "state": "34c5f166f6abb229ee092be1e7e92ca71434bcb1a27ba0664cd2fea834d85927",
-        "access_type": "offline",
-    }
-
-
-@pytest.fixture()
-def auth_params_readonly():
-    return {
-        "client_id": "a1b2c3d4e5",
-        "nonce": "34c5f166f6abb229ee092be1e7e92ca71434bcb1a27ba0664cd2fea834d85927",
-        "response_type": "code",
-        "redirect_uri": "http://localhost:8080",
-        "scope": "https://www.googleapis.com/auth/yt-analytics.readonly",
-        "state": "34c5f166f6abb229ee092be1e7e92ca71434bcb1a27ba0664cd2fea834d85927",
-        "access_type": "offline",
-    }
-
-
-@pytest.fixture()
-def auth_params_monetary_readonly():
-    return {
-        "client_id": "a1b2c3d4e5",
-        "nonce": "34c5f166f6abb229ee092be1e7e92ca71434bcb1a27ba0664cd2fea834d85927",
-        "response_type": "code",
-        "redirect_uri": "http://localhost:8080",
-        "scope": "https://www.googleapis.com/auth/yt-analytics-monetary.readonly",
-        "state": "34c5f166f6abb229ee092be1e7e92ca71434bcb1a27ba0664cd2fea834d85927",
-        "access_type": "offline",
-    }
-
-
-@pytest.fixture()
-def auth_params_port_80():
-    return {
-        "client_id": "a1b2c3d4e5",
-        "nonce": "34c5f166f6abb229ee092be1e7e92ca71434bcb1a27ba0664cd2fea834d85927",
-        "response_type": "code",
-        "redirect_uri": "http://localhost",
-        "scope": "https://www.googleapis.com/auth/yt-analytics.readonly https://www.googleapis.com/auth/yt-analytics-monetary.readonly",
-        "state": "34c5f166f6abb229ee092be1e7e92ca71434bcb1a27ba0664cd2fea834d85927",
-        "access_type": "offline",
-    }
-
-
-# GROUPS
+# OLD ------------------------------------------------------------------
 
 
 @pytest.fixture()
@@ -382,9 +303,6 @@ def group_item_data():
     }
 
 
-# MIXINS
-
-
 @pytest.fixture()
 def response_data():
     return json.dumps(
@@ -436,14 +354,6 @@ def auth_error_response(auth_error_response_data):
     return MockResponse(auth_error_response_data, 403, "You ain't allowed in son.")
 
 
-# SHARD
-
-
-@pytest.fixture()
-def shard(tokens: Tokens):
-    return Shard(Scopes.ALL, tokens)
-
-
 # @pytest.fixture()
 # def report(response_data):
 #     return Report(json.loads(response_data), TimeBasedActivity())
@@ -459,26 +369,10 @@ def group_item_list_response(group_item_list_data):
     return MockResponse(json.dumps(group_item_list_data).encode("utf-8"), 200)
 
 
-# CLIENT
-
-
-@pytest.fixture()
-def base_client(secrets_data):
-    with mock.patch.object(Path, "read_text", return_value=secrets_data):
-        # We use a subclass of BaseClient as the original has an
-        # abstract method. This custom one doesn't actually implement
-        # anything, but it does allow us to split client tests into two
-        # separate files.
-        return CustomBaseClient("secrets.json")
-
-
 @pytest.fixture()
 def client(secrets_data):
     with mock.patch.object(Path, "read_text", return_value=secrets_data):
         return Client("secrets.json")
-
-
-# REPORTS
 
 
 @pytest.fixture()
@@ -662,9 +556,6 @@ def sort_options() -> SortOptions:
 @pytest.fixture()
 def sort_options_descending() -> SortOptions:
     return SortOptions("views", "likes", "comments", descending_only=True)
-
-
-# QUERIES
 
 
 @pytest.fixture()

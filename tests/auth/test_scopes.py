@@ -26,16 +26,11 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import logging
-from pathlib import Path
-from unittest import mock
 
 import pytest
 
 from analytix.auth.scopes import Scopes
-from analytix.auth.secrets import Secrets
 from analytix.errors import AuthorisationError
-from tests import MockFile
 
 
 def test_scopes_formatting_readonly():
@@ -118,23 +113,3 @@ def test_scopes_validate_invalid():
         match="the READONLY or MONETARY_READONLY scope must be provided",
     ):
         Scopes.ALL_JWT.validate()
-
-
-def test_secrets_str(secrets: Secrets):
-    assert (
-        str(secrets)
-        == "Secrets(type='installed', client_id='a1b2c3d4e5', project_id='rickroll', auth_uri='https://accounts.google.com/o/oauth2/auth', token_uri='https://oauth2.googleapis.com/token', auth_provider_x509_cert_url='https://www.googleapis.com/oauth2/v1/certs', client_secret='f6g7h8i9j0', redirect_uris=['http://localhost'])"
-    )
-
-
-def test_secrets_repr(secrets: Secrets):
-    assert repr(secrets) == str(secrets)
-
-
-def test_secrets_load_from(secrets: Secrets, secrets_data: str, caplog):
-    with caplog.at_level(logging.DEBUG):
-        f = MockFile(secrets_data)
-        with mock.patch.object(Path, "open", return_value=f):
-            assert secrets == Secrets.load_from("secrets.json")
-
-        assert "Loading secrets from" in caplog.text
