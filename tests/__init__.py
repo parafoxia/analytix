@@ -27,47 +27,62 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import json
+from typing import Any
+from typing import Literal
 
 from analytix import auth
 
 
 class MockFile:
-    def __init__(self, data=""):
+    def __init__(self, data: str = "") -> None:
         self.read_data = data
         self.write_data = ""
 
-    def __enter__(self):
+    def __enter__(self) -> "MockFile":
         return self
 
-    def __exit__(self, *args): ...
+    def __exit__(self, *args: Any) -> None:
+        pass
 
-    def read(self):
+    def read(self) -> str:
         return self.read_data
 
-    def write(self, data):
+    def write(self, data: str) -> None:
         self.write_data += data
 
-    def is_file(self):
+    def is_file(self) -> Literal[True]:
         return True
 
 
 class MockResponse:
-    def __init__(self, body, /, status, reason=None):
+    def __init__(self, body: str, /, status: str, reason: str | None = None):
         self._body = body
         self.status = status
         self.reason = reason
 
-    def __enter__(self):
+    def __enter__(self) -> "MockResponse":
         return self
 
-    def __exit__(self, *args): ...
+    def __exit__(self, *args: Any) -> None:
+        pass
 
     @property
-    def data(self):
+    def data(self) -> str:
         return self._body
 
-    def json(self):
+    def json(self) -> str:
         return self._body
+
+
+class MockContextManager:
+    def __init__(self, thing: Any) -> None:
+        self.thing = thing
+
+    def __enter__(self) -> Any:
+        return self.thing
+
+    def __exit__(self, *args: Any) -> None:
+        pass
 
 
 def create_secrets_file(other=False):

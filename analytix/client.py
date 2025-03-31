@@ -33,8 +33,6 @@ __all__ = ("Client",)
 import datetime as dt
 import json
 import logging
-import os
-import warnings
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
@@ -44,6 +42,7 @@ from typing import Dict
 from typing import Iterator
 from typing import Optional
 from typing import Union
+from typing import cast
 
 from analytix.auth.scopes import Scopes
 from analytix.auth.secrets import Secrets
@@ -55,9 +54,9 @@ from analytix.queries import GroupItemQuery
 from analytix.queries import GroupQuery
 from analytix.queries import ReportQuery
 from analytix.reports import Report
-from analytix.warnings import NotUpdatedWarning
 
 if TYPE_CHECKING:
+    from analytix.abc import ReportType
     from analytix.types import PathLike
 
 
@@ -114,35 +113,11 @@ class Client(RequestMixin):
         else:
             self._tokens_file = None
 
-        if not os.environ.get("PYTEST_CURRENT_TEST"):
-            # We don't want this to run during tests.
-            self._check_for_updates()
-
     def __enter__(self) -> "Client":
         return self
 
     def __exit__(self, *_: object) -> None:
         pass
-
-    def _check_for_updates(self) -> None:
-        _log.debug("Checking for updates")
-
-        with self._request(UPDATE_CHECK_URL, ignore_errors=True, timeout=0.5) as resp:
-            if resp.status > 399:
-                # If we can't get the info, just ignore it.
-                _log.debug("Failed to get version information")
-                return
-
-            latest = json.loads(resp.data)["info"]["version"]
-
-        from analytix import __version__
-
-        if __version__ != latest:
-            warnings.warn(
-                f"You do not have the latest stable version of analytix (v{latest})",
-                NotUpdatedWarning,
-                stacklevel=2,
-            )
 
     @property
     def secrets(self) -> Secrets:
@@ -297,7 +272,7 @@ class Client(RequestMixin):
             access_token=tokens.access_token,
             scopes=scopes or self._secrets.scopes,
         )
-        _log.debug("New session created!")
+        _log.debug("New client session created")
         yield
         self._session_ctx = None
 
@@ -439,8 +414,7 @@ class Client(RequestMixin):
         with self._request(query.url, token=access_token) as resp:
             data = json.loads(resp.data)
 
-        assert query.rtype
-        report = Report(data, query.rtype)
+        report = Report(data, cast("ReportType", query.rtype))
         _log.info("Created '%s' report of shape %s", query.rtype, report.shape)
         return report
 

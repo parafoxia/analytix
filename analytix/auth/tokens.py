@@ -68,7 +68,7 @@ class _ExpiresIn(RequestMixin):
         self,
         obj: Union["Tokens", None],
         objtype: Optional[type] = None,
-    ) -> int:
+    ) -> float:
         if obj is None:
             return self._default
 

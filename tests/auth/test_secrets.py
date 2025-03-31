@@ -32,6 +32,7 @@ import secrets as secrets_mod
 import time
 import webbrowser
 from multiprocessing.pool import ThreadPool
+from pathlib import Path
 from unittest import mock
 from urllib.request import urlopen
 
@@ -170,7 +171,8 @@ def test_auth_context_fetch_tokens_error(auth_context: AuthContext) -> None:
 
 
 def test_secrets_load_from(secrets: Secrets, client_secrets_file: MockFile) -> None:
-    assert Secrets.load_from("client_secrets_file", Scopes.READONLY) == secrets
+    with mock.patch.object(Path, "open", return_value=client_secrets_file):
+        assert Secrets.load_from("client_secrets_file", Scopes.READONLY) == secrets
 
 
 def test_secrets_auth_context(secrets: Secrets, auth_context: AuthContext) -> None:

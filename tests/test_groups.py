@@ -28,12 +28,17 @@
 
 from unittest import mock
 
-from analytix.groups import Group, GroupItem, GroupItemList, GroupList
+from analytix.auth.tokens import Tokens
+from analytix.client import Client
+from analytix.groups import Group
+from analytix.groups import GroupItem
+from analytix.groups import GroupItemList
+from analytix.groups import GroupList
 from analytix.mixins import RequestMixin
 
 
-def test_create_group_from_json(shard, group_data, group):
-    assert Group.from_json(shard, group_data) == group
+def test_create_group_from_json(client, group_data, group):
+    assert Group.from_json(client, group_data) == group
 
 
 def test_group_data_property(group_data, group):
@@ -41,20 +46,32 @@ def test_group_data_property(group_data, group):
 
 
 def test_group_data_fetch_items(
-    group: Group, group_item_list, group_item_list_response
+    group: Group,
+    group_item_list,
+    group_item_list_response,
+    tokens: Tokens,
 ):
-    with mock.patch.object(
-        RequestMixin, "_request", return_value=group_item_list_response
+    with (
+        mock.patch.object(
+            RequestMixin,
+            "_request",
+            return_value=group_item_list_response,
+        ),
+        mock.patch.object(Client, "authorise", return_value=tokens),
     ):
         assert group.fetch_items() == group_item_list
 
 
-def test_create_group_list_from_json(shard, group_list_data, group_list):
-    assert GroupList.from_json(shard, group_list_data) == group_list
+def test_create_group_list_from_json(client, group_list_data, group_list):
+    assert GroupList.from_json(client, group_list_data) == group_list
 
 
-def test_group_list_from_json_no_groups(shard, empty_group_list_data, empty_group_list):
-    assert GroupList.from_json(shard, empty_group_list_data) == empty_group_list
+def test_group_list_from_json_no_groups(
+    client,
+    empty_group_list_data,
+    empty_group_list,
+):
+    assert GroupList.from_json(client, empty_group_list_data) == empty_group_list
 
 
 def test_group_list_data_property(group_list_data, group_list):

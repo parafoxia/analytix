@@ -43,6 +43,7 @@ from analytix.auth.secrets import Secrets
 from analytix.auth.tokens import Tokens
 from analytix.auth.tokens import _ExpiresIn
 from analytix.client import Client
+from analytix.client import SessionContext
 from analytix.groups import Group
 from analytix.groups import GroupItem
 from analytix.groups import GroupItemList
@@ -97,9 +98,7 @@ def client_secrets_file(client_secrets: ClientSecrets) -> Iterator[MockFile]:
             "auth_provider_x509_cert_url": client_secrets.auth_provider_x509_cert_url,
         }
     }
-    file = MockFile(json.dumps(data).encode("utf-8"))
-    with mock.patch.object(Path, "open", return_value=file):
-        yield file
+    return MockFile(json.dumps(data).encode("utf-8"))
 
 
 @pytest.fixture()
@@ -132,7 +131,7 @@ def tokens() -> Tokens:
     return Tokens(
         access_token="access_token",
         expires_in=_ExpiresIn(default=3599),
-        scope="https://www.googleapis.com/auth/analytics.readonly",
+        scope="https://www.googleapis.com/auth/yt-analytics.readonly",
         token_type="Bearer",
         refresh_token="refresh_token",
         id_token="id_token",
@@ -194,11 +193,23 @@ def id_token_payload() -> dict[str, Any]:
     }
 
 
+@pytest.fixture()
+def session_context() -> SessionContext:
+    return SessionContext("access_token", Scopes.READONLY)
+
+
+@pytest.fixture()
+def client(client_secrets_file: MockFile) -> Client:
+    with mock.patch.object(Path, "open", return_value=client_secrets_file):
+        client = Client("secrets.json")
+    return client
+
+
 # OLD ------------------------------------------------------------------
 
 
 @pytest.fixture()
-def group(shard):
+def group(client):
     return Group(
         kind="youtube#group",
         etag="f6g7h8i9j0",
@@ -207,7 +218,7 @@ def group(shard):
         title="Barney the Dinosaur",
         item_count=69,
         item_type="youtube#video",
-        shard=shard,
+        client=client,
     )
 
 
@@ -367,12 +378,6 @@ def group_list_response(group_list_data):
 @pytest.fixture()
 def group_item_list_response(group_item_list_data):
     return MockResponse(json.dumps(group_item_list_data).encode("utf-8"), 200)
-
-
-@pytest.fixture()
-def client(secrets_data):
-    with mock.patch.object(Path, "read_text", return_value=secrets_data):
-        return Client("secrets.json")
 
 
 @pytest.fixture()

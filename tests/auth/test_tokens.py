@@ -26,6 +26,7 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import datetime as dt
 import json
 import logging
 import time
@@ -64,6 +65,38 @@ def test_expires_in_get(expires_in: tuple[int, int]) -> None:
         ),
     ):
         assert int(Tokens().expires_in) == expires_in[1]
+
+
+def test_expires_in_set_expires_at_set(caplog) -> None:
+    class Tokens:
+        # These tests each need different classes to avoid conflicts
+        # between _ExpiresIn descriptors.
+        access_token = "access_token"
+        expires_in = _ExpiresIn()
+
+    with (
+        mock.patch.object(_ExpiresIn, "_expires_at", dt.datetime.now()),
+        caplog.at_level(logging.DEBUG),
+    ):
+        Tokens().expires_in = 3600
+
+    assert "Setting access token expiry time is not supported" in caplog.text
+
+
+def test_expires_in_set_expires_at_not_set(caplog) -> None:
+    class Tokens:
+        # These tests each need different classes to avoid conflicts
+        # between _ExpiresIn descriptors.
+        access_token = "access_token"
+        expires_in = _ExpiresIn()
+
+    with (
+        mock.patch.object(_ExpiresIn, "_expires_at", None),
+        caplog.at_level(logging.DEBUG),
+    ):
+        Tokens().expires_in = 3600
+
+    assert "Setting access token expiry time is not supported" not in caplog.text
 
 
 def test_tokens_load_from(tokens: Tokens, tokens_file: MockFile) -> None:
