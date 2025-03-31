@@ -37,10 +37,7 @@ __all__ = ("ColumnHeader", "ColumnType", "DataType", "ResultTable")
 from dataclasses import dataclass
 from enum import Enum
 from typing import Any
-from typing import Dict
-from typing import List
 from typing import Literal
-from typing import Union
 
 
 class DataType(Enum):
@@ -90,7 +87,7 @@ class ColumnHeader:
     column_type: "ColumnType"
 
     @property
-    def data(self) -> Dict[str, Any]:
+    def data(self) -> dict[str, Any]:
         """The raw data for this column header in JSON format.
 
         Returns
@@ -129,11 +126,11 @@ class ResultTable:
     """
 
     kind: Literal["youtubeAnalytics#resultTable"]
-    column_headers: List["ColumnHeader"]
-    rows: List[List[Union[str, int, float]]]
+    column_headers: list["ColumnHeader"]
+    rows: list[list[str | int | float]]
 
     @classmethod
-    def from_json(cls, data: Dict[str, Any]) -> "ResultTable":
+    def from_json(cls, data: dict[str, Any]) -> "ResultTable":
         """Create a new `ResultTable` instance from JSON data.
 
         Parameters
@@ -160,7 +157,7 @@ class ResultTable:
         )
 
     @property
-    def data(self) -> Dict[str, Any]:
+    def data(self) -> dict[str, Any]:
         """The raw data for this result table in JSON format.
 
         Returns

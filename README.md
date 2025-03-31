@@ -40,7 +40,7 @@ You may need to prefix these commands with a call to the Python interpreter depe
 ### Dependencies
 
 Below is a list of analytix's dependencies.
-Note that the minimum version assumes you're using CPython 3.8.
+Note that the minimum version assumes you're using CPython 3.10.
 The latest versions of each library are always supported.
 
 | Name              | Min. version | Required? | Usage                                                         | 
@@ -119,7 +119,7 @@ To show more (or less) messages, pass a logging level as an argument.
 
 ## Compatibility
 
-CPython versions 3.8 through 3.13 and PyPy versions 3.9 and 3.10 are officially supported\*.
+CPython 3.10 through 3.13 and PyPy 3.10 are officially supported\*.
 CPython 3.14-dev is provisionally supported\*.
 Windows, MacOS, and Linux are all supported.
 

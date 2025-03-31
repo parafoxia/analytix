@@ -43,9 +43,6 @@ __all__ = (
     "Unauthorised",
 )
 
-from typing import Set
-from typing import Union
-
 
 class AnalytixError(Exception):
     """The base exception class for analytix."""
@@ -79,7 +76,7 @@ class APIError(AnalytixError):
         The error message.
     """
 
-    def __init__(self, code: Union[str, int], message: str) -> None:
+    def __init__(self, code: str | int, message: str) -> None:
         super().__init__(f"API returned {code}: {message}")
 
 
@@ -163,7 +160,7 @@ class InvalidRequest(AnalytixError):
     to the YouTube Analytics API."""
 
     @staticmethod
-    def list_of(values: Set[str]) -> str:
+    def list_of(values: set[str]) -> str:
         items = tuple(f"{v!r}" for v in sorted(values))
 
         if len(items) > 2:
@@ -172,16 +169,16 @@ class InvalidRequest(AnalytixError):
         return " and ".join(items)
 
     @classmethod
-    def invalid(cls, key: str, values: Set[str]) -> "InvalidRequest":
+    def invalid(cls, key: str, values: set[str]) -> "InvalidRequest":
         plural = "s" if len(values) > 1 else ""
         return cls(f"invalid {key}{plural} provided: {cls.list_of(values)}")
 
     @classmethod
-    def incompatible_dimensions(cls, values: Set[str]) -> "InvalidRequest":
+    def incompatible_dimensions(cls, values: set[str]) -> "InvalidRequest":
         return cls(f"dimensions {cls.list_of(values)} cannot be used together")
 
     @classmethod
-    def incompatible_filters(cls, values: Set[str]) -> "InvalidRequest":
+    def incompatible_filters(cls, values: set[str]) -> "InvalidRequest":
         return cls(f"filters {cls.list_of(values)} cannot be used together")
 
     @classmethod
@@ -196,7 +193,7 @@ class InvalidRequest(AnalytixError):
         )
 
     @classmethod
-    def incompatible_metrics(cls, values: Set[str]) -> "InvalidRequest":
+    def incompatible_metrics(cls, values: set[str]) -> "InvalidRequest":
         plural = "s" if len(values) > 1 else ""
         return cls(
             f"metric{plural} {cls.list_of(values)} cannot be used with the given "
@@ -204,7 +201,7 @@ class InvalidRequest(AnalytixError):
         )
 
     @classmethod
-    def incompatible_sort_options(cls, values: Set[str]) -> "InvalidRequest":
+    def incompatible_sort_options(cls, values: set[str]) -> "InvalidRequest":
         plural = "s" if len(values) > 1 else ""
         return cls(
             f"sort option{plural} {cls.list_of(values)} cannot be used with the given "
@@ -212,7 +209,7 @@ class InvalidRequest(AnalytixError):
         )
 
     @classmethod
-    def non_matching_sort_options(cls, values: Set[str]) -> "InvalidRequest":
+    def non_matching_sort_options(cls, values: set[str]) -> "InvalidRequest":
         plural = "s" if len(values) > 1 else ""
         isare = "are" if plural else "is"
         return cls(
@@ -224,7 +221,7 @@ class InvalidRequest(AnalytixError):
     def invalid_set(
         cls,
         key: str,
-        values: Set[str],
+        values: set[str],
         expd: str,
         recv: int,
     ) -> "InvalidRequest":

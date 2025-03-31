@@ -33,15 +33,12 @@ __all__ = ("Client",)
 import datetime as dt
 import json
 import logging
+from collections.abc import Collection
+from collections.abc import Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING
-from typing import Collection
-from typing import Dict
-from typing import Iterator
-from typing import Optional
-from typing import Union
 from typing import cast
 
 from analytix.auth.scopes import Scopes
@@ -98,13 +95,13 @@ class Client(RequestMixin):
         self,
         secrets_file: "PathLike",
         *,
-        tokens_file: Union[str, Path, None] = "tokens.json",
+        tokens_file: str | Path | None = "tokens.json",
         scopes: Scopes = Scopes.READONLY,
     ):
         scopes.validate()
         self._secrets = Secrets.load_from(secrets_file, scopes)
-        self._session_ctx: Optional[SessionContext] = None
-        self._tokens_file: Optional[Path]
+        self._session_ctx: SessionContext | None = None
+        self._tokens_file: Path | None
 
         if tokens_file:
             self._tokens_file = Path(tokens_file)
@@ -134,7 +131,7 @@ class Client(RequestMixin):
         self,
         *,
         force: bool = False,
-        ws_port: Optional[int] = None,
+        ws_port: int | None = None,
         console: bool = False,
     ) -> Tokens:
         """Authorise the client.
@@ -189,7 +186,7 @@ class Client(RequestMixin):
             _log.info("Authorisation complete!")
             return tokens
 
-    def refresh_tokens(self, tokens: Tokens) -> Optional[Tokens]:
+    def refresh_tokens(self, tokens: Tokens) -> Tokens | None:
         """Refresh and save your tokens.
 
         This is a convenience method to refresh your tokens and save
@@ -228,8 +225,8 @@ class Client(RequestMixin):
     @contextmanager
     def session(
         self,
-        tokens: Optional[Tokens] = None,
-        scopes: Optional[Scopes] = None,
+        tokens: Tokens | None = None,
+        scopes: Scopes | None = None,
     ) -> Iterator[None]:
         """Create a session.
 
@@ -279,18 +276,18 @@ class Client(RequestMixin):
     def fetch_report(
         self,
         *,
-        dimensions: Optional[Collection[str]] = None,
-        filters: Optional[Dict[str, str]] = None,
-        metrics: Optional[Collection[str]] = None,
-        start_date: Optional[dt.date] = None,
-        end_date: Optional[dt.date] = None,
-        sort_options: Optional[Collection[str]] = None,
+        dimensions: Collection[str] | None = None,
+        filters: dict[str, str] | None = None,
+        metrics: Collection[str] | None = None,
+        start_date: dt.date | None = None,
+        end_date: dt.date | None = None,
+        sort_options: Collection[str] | None = None,
         max_results: int = 0,
         currency: str = "USD",
         start_index: int = 1,
         include_historical_data: bool = False,
-        tokens: Optional[Tokens] = None,
-        scopes: Optional[Scopes] = None,
+        tokens: Tokens | None = None,
+        scopes: Scopes | None = None,
     ) -> "Report":
         """Fetch an analytics report.
 
@@ -421,9 +418,9 @@ class Client(RequestMixin):
     def fetch_groups(
         self,
         *,
-        ids: Optional[Collection[str]] = None,
-        next_page_token: Optional[str] = None,
-        tokens: Optional[Tokens] = None,
+        ids: Collection[str] | None = None,
+        next_page_token: str | None = None,
+        tokens: Tokens | None = None,
     ) -> "GroupList":
         """Fetch a list of analytics groups.
 
@@ -478,7 +475,7 @@ class Client(RequestMixin):
     def fetch_group_items(
         self,
         group_id: str,
-        tokens: Optional[Tokens] = None,
+        tokens: Tokens | None = None,
     ) -> "GroupItemList":
         """Fetch a list of all items within a group.
 

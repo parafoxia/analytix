@@ -33,17 +33,13 @@ import logging
 import re
 import secrets
 import webbrowser
+from collections.abc import Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
 from http.server import BaseHTTPRequestHandler
 from http.server import HTTPServer
 from pathlib import Path
-from typing import Dict
-from typing import Iterator
-from typing import List
 from typing import Literal
-from typing import Optional
-from typing import Union
 from urllib.parse import parse_qs
 from urllib.parse import urlencode
 
@@ -60,8 +56,8 @@ _log = logging.getLogger(__name__)
 class _RequestHandler(BaseHTTPRequestHandler):
     def log_request(
         self,
-        code: Union[int, str] = "-",
-        _: Union[int, str] = "-",
+        code: int | str = "-",
+        _: int | str = "-",
     ) -> None:
         _log.debug(f"Received request ({code})")
 
@@ -78,7 +74,7 @@ class _RequestHandler(BaseHTTPRequestHandler):
 class _Server(HTTPServer):
     def __init__(self, address: str, port: int) -> None:
         super().__init__((address, port), _RequestHandler)
-        self.query_params: Dict[str, str] = {}
+        self.query_params: dict[str, str] = {}
         _log.debug("Started webserver on %s:%d", self.server_name, self.server_port)
         _log.debug("Waiting for user to provide access...")
 
@@ -123,12 +119,12 @@ class ClientSecrets:
 
     client_id: str
     client_secret: str
-    redirect_uris: List[str]
+    redirect_uris: list[str]
     auth_uri: str
     token_uri: str
-    client_email: Optional[str] = None
-    auth_provider_x509_cert_url: Optional[str] = None
-    client_x509_cert_url: Optional[str] = None
+    client_email: str | None = None
+    auth_provider_x509_cert_url: str | None = None
+    client_x509_cert_url: str | None = None
 
 
 @dataclass(frozen=True)
@@ -210,7 +206,7 @@ class AuthContext(RequestMixin):
 
         return code
 
-    def fetch_tokens(self, code: Optional[str] = None) -> Tokens:
+    def fetch_tokens(self, code: str | None = None) -> Tokens:
         """Fetch the authorisation tokens.
 
         Parameters
@@ -276,7 +272,7 @@ class Secrets:
     scopes: Scopes
 
     @classmethod
-    def load_from(cls, path: Union[str, Path], scopes: Scopes) -> "Secrets":
+    def load_from(cls, path: str | Path, scopes: Scopes) -> "Secrets":
         """Load secrets from a JSON file.
 
         Parameters
@@ -317,7 +313,7 @@ class Secrets:
         )
 
     @contextmanager
-    def auth_context(self, *, ws_port: Optional[int] = None) -> Iterator[AuthContext]:
+    def auth_context(self, *, ws_port: int | None = None) -> Iterator[AuthContext]:
         """Create an authorisation context.
 
         This method is a context manager.

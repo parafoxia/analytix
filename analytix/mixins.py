@@ -28,11 +28,9 @@
 
 __all__ = ("RequestMixin",)
 
+from collections.abc import Generator
 from contextlib import contextmanager
 from typing import Any
-from typing import Dict
-from typing import Generator
-from typing import Optional
 from urllib.parse import urlencode
 
 import urllib3
@@ -69,12 +67,12 @@ class RequestMixin:
         self,
         url: str,
         *,
-        data: Optional[Dict[str, Any]] = None,
-        headers: Optional[Dict[str, str]] = None,
+        data: dict[str, Any] | None = None,
+        headers: dict[str, str] | None = None,
         post: bool = False,
         ignore_errors: bool = False,
-        token: Optional[str] = None,
-        timeout: Optional[float] = None,
+        token: str | None = None,
+        timeout: float | None = None,
     ) -> Generator["HTTPResponse", None, None]:
         method = "POST" if post or data else "GET"
         headers = headers or {}

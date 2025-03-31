@@ -36,9 +36,7 @@ from dataclasses import field
 from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Any
-from typing import Dict
 from typing import Literal
-from typing import Optional
 from typing import Union
 
 from analytix import utils
@@ -59,7 +57,7 @@ _log = logging.getLogger(__name__)
 
 
 class _ExpiresIn(RequestMixin):
-    _expires_at: Optional[dt.datetime] = None
+    _expires_at: dt.datetime | None = None
 
     def __init__(self, *, default: int = 3599) -> None:
         self._default = default
@@ -67,7 +65,7 @@ class _ExpiresIn(RequestMixin):
     def __get__(
         self,
         obj: Union["Tokens", None],
-        objtype: Optional[type] = None,
+        objtype: type | None = None,
     ) -> float:
         if obj is None:
             return self._default
@@ -137,9 +135,9 @@ class Tokens(RequestMixin):
     token_type: Literal["Bearer"]
     refresh_token: str
     expires_in: _ExpiresIn = _ExpiresIn()
-    refresh_token_expires_in: Optional[int] = field(default=None, repr=False)
-    id_token: Optional[str] = None
-    _path: Optional[Path] = field(default=None, init=False, repr=False)
+    refresh_token_expires_in: int | None = field(default=None, repr=False)
+    id_token: str | None = None
+    _path: Path | None = field(default=None, init=False, repr=False)
 
     @classmethod
     def load_from(cls, path: PathLike) -> "Tokens":
@@ -178,7 +176,7 @@ class Tokens(RequestMixin):
         return self
 
     @classmethod
-    def from_json(cls, data: Union[str, bytes]) -> "Tokens":
+    def from_json(cls, data: str | bytes) -> "Tokens":
         """Load tokens from raw JSON data.
 
         Parameters
@@ -335,7 +333,7 @@ class Tokens(RequestMixin):
         return sufficient
 
     @property
-    def decoded_id_token(self) -> Optional[Dict[str, Any]]:
+    def decoded_id_token(self) -> dict[str, Any] | None:
         """The decoded ID token.
 
         ID tokens are returned from the YouTube Analytics API as a JWT,

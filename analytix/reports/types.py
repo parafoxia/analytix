@@ -74,8 +74,7 @@ __all__ = (
 )
 
 import warnings
-from typing import Collection
-from typing import Dict
+from collections.abc import Collection
 
 from analytix.abc import DetailedReportType
 from analytix.abc import ReportType
@@ -205,7 +204,7 @@ class GeographyBasedActivityByCity(DetailedReportType):
     def validate(
         self,
         dimensions: Collection[str],
-        filters: Dict[str, str],
+        filters: dict[str, str],
         metrics: Collection[str],
         sort_options: Collection[str],
         max_results: int = 0,
@@ -462,7 +461,7 @@ class TrafficSourceDetail(DetailedReportType):
     def validate(
         self,
         dimensions: Collection[str],
-        filters: Dict[str, str],
+        filters: dict[str, str],
         metrics: Collection[str],
         sort_options: Collection[str],
         max_results: int = 0,
@@ -610,7 +609,7 @@ class AudienceRetention(ReportType):
     def validate(
         self,
         dimensions: Collection[str],
-        filters: Dict[str, str],
+        filters: dict[str, str],
         metrics: Collection[str],
         sort_options: Collection[str],
         max_results: int = 0,
@@ -791,7 +790,7 @@ class TrafficSourceDetailPlaylist(DetailedReportType):
     def validate(
         self,
         dimensions: Collection[str],
-        filters: Dict[str, str],
+        filters: dict[str, str],
         metrics: Collection[str],
         sort_options: Collection[str],
         max_results: int = 0,

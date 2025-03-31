@@ -38,8 +38,6 @@ import warnings
 from importlib.util import find_spec
 from typing import Optional
 from typing import TextIO
-from typing import Type
-from typing import Union
 
 import analytix
 
@@ -147,12 +145,12 @@ def enable_logging(level: int = logging.INFO) -> "logging.StreamHandler[TextIO]"
     logging.logMultiprocessing = False
 
     def showwarning(
-        message: Union[Warning, str],
-        category: Type[Warning],
+        message: Warning | str,
+        category: type[Warning],
         filename: str,
         lineno: int,
         file: Optional["TextIO"] = None,
-        line: Optional[str] = None,
+        line: str | None = None,
     ) -> None:
         for _module_name, module in sys.modules.items():
             module_path = getattr(module, "__file__", None)

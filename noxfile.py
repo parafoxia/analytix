@@ -26,11 +26,9 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+from collections.abc import Callable
 from functools import wraps
 from pathlib import Path
-from typing import Callable
-from typing import List
-from typing import Optional
 
 import nox
 
@@ -49,8 +47,8 @@ SessFT = Callable[[nox.Session], None]
 def install(
     *,
     meta: bool = False,
-    rfiles: Optional[List[str]] = None,
-    libs: Optional[List[str]] = None,
+    rfiles: list[str] | None = None,
+    libs: list[str] | None = None,
 ) -> Callable[[SessFT], SessFT]:
     def decorator(func: SessFT) -> SessFT:
         @wraps(func)
@@ -87,7 +85,7 @@ def install(
     return decorator
 
 
-def sp(*paths: Path) -> List[str]:
+def sp(*paths: Path) -> list[str]:
     return [str(p) for p in paths]
 
 

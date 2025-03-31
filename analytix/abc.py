@@ -36,11 +36,9 @@ __all__ = (
 )
 
 import abc
+from collections.abc import Collection
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
-from typing import Collection
-from typing import Dict
-from typing import Set
 
 from analytix.errors import InvalidRequest
 
@@ -67,7 +65,7 @@ class ReportType(metaclass=abc.ABCMeta):
     def validate(
         self,
         dimensions: Collection[str],
-        filters: Dict[str, str],
+        filters: dict[str, str],
         metrics: Collection[str],
         sort_options: Collection[str],
         max_results: int = 0,
@@ -88,7 +86,7 @@ class DetailedReportType(ReportType, metaclass=abc.ABCMeta):
     def validate(
         self,
         dimensions: Collection[str],
-        filters: Dict[str, str],
+        filters: dict[str, str],
         metrics: Collection[str],
         sort_options: Collection[str],
         max_results: int = 0,
@@ -135,7 +133,7 @@ class SegmentedFeatureType(metaclass=abc.ABCMeta):
         return f"{self.__class__.__name__}(values={self.values})"
 
     @property
-    def every(self) -> Set[str]:
+    def every(self) -> set[str]:
         every = set()
 
         for set_type in self.values:
@@ -158,7 +156,7 @@ class MappingFeatureType(metaclass=abc.ABCMeta):
         return f"{self.__class__.__name__}(values={self.values})"
 
     @property
-    def every(self) -> Set[str]:
+    def every(self) -> set[str]:
         every = set()
 
         for set_type in self.values:
@@ -167,7 +165,7 @@ class MappingFeatureType(metaclass=abc.ABCMeta):
         return every
 
     @abc.abstractmethod
-    def validate(self, inputs: Dict[str, str]) -> None:
+    def validate(self, inputs: dict[str, str]) -> None:
         raise NotImplementedError
 
 
@@ -182,9 +180,9 @@ class SetType(metaclass=abc.ABCMeta):
         return f"{self.__class__.__name__}(values={self.values})"
 
     @abc.abstractmethod
-    def validate_dimensions(self, inputs: Set[str]) -> None:
+    def validate_dimensions(self, inputs: set[str]) -> None:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def validate_filters(self, keys: Set[str]) -> None:
+    def validate_filters(self, keys: set[str]) -> None:
         raise NotImplementedError

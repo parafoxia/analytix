@@ -31,10 +31,8 @@ __all__ = ("GroupItemQuery", "GroupQuery", "ReportQuery")
 import datetime as dt
 import logging
 import warnings
+from collections.abc import Collection
 from typing import TYPE_CHECKING
-from typing import Collection
-from typing import Dict
-from typing import Optional
 
 from analytix.auth import Scopes
 from analytix.errors import InvalidRequest
@@ -70,13 +68,13 @@ class ReportQuery:
 
     def __init__(
         self,
-        dimensions: Optional[Collection[str]] = None,
-        filters: Optional[Dict[str, str]] = None,
-        metrics: Optional[Collection[str]] = None,
-        sort_options: Optional[Collection[str]] = None,
+        dimensions: Collection[str] | None = None,
+        filters: dict[str, str] | None = None,
+        metrics: Collection[str] | None = None,
+        sort_options: Collection[str] | None = None,
         max_results: int = 0,
-        start_date: Optional[dt.date] = None,
-        end_date: Optional[dt.date] = None,
+        start_date: dt.date | None = None,
+        end_date: dt.date | None = None,
         currency: str = "USD",
         start_index: int = 1,
         include_historical_data: bool = False,  # noqa: FBT001, FBT002
@@ -93,7 +91,7 @@ class ReportQuery:
         self.start_index = start_index
         self._include_historical_data = include_historical_data
 
-        self.rtype: Optional[ReportType] = None
+        self.rtype: ReportType | None = None
 
     @property
     def start_date(self) -> str:
@@ -357,8 +355,8 @@ class GroupQuery:
 
     def __init__(
         self,
-        ids: Optional[Collection[str]] = None,
-        next_page_token: Optional[str] = None,
+        ids: Collection[str] | None = None,
+        next_page_token: str | None = None,
     ) -> None:
         self.ids = ids or ()
         self.next_page_token = next_page_token

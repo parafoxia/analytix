@@ -29,9 +29,6 @@
 __all__ = ("PathLike", "UriParams")
 
 from pathlib import Path
-from typing import Dict
-from typing import Tuple
-from typing import Union
 
-PathLike = Union[str, Path]
-UriParams = Tuple[str, Dict[str, str], Dict[str, str]]
+PathLike = str | Path
+UriParams = tuple[str, dict[str, str], dict[str, str]]

@@ -34,13 +34,10 @@ You should never need to create any of these yourself.
 __all__ = ("Group", "GroupItem", "GroupItemList", "GroupList")
 
 import datetime as dt
+from collections.abc import Iterator
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 from typing import Any
-from typing import Dict
-from typing import Iterator
-from typing import List
-from typing import Optional
 
 if TYPE_CHECKING:
     from analytix.client import Client
@@ -51,7 +48,7 @@ class _Resource:
     __slots__ = ("etag", "kind")
 
     kind: str
-    etag: Optional[str]
+    etag: str | None
 
 
 @dataclass(frozen=True)
@@ -89,7 +86,7 @@ class Group(_Resource):
     client: "Client"
 
     @classmethod
-    def from_json(cls, client: "Client", data: Dict[str, Any]) -> "Group":
+    def from_json(cls, client: "Client", data: dict[str, Any]) -> "Group":
         """Create a new `Group` instance from JSON data.
 
         ???+ note "Changed in version 5.0"
@@ -121,7 +118,7 @@ class Group(_Resource):
         )
 
     @property
-    def data(self) -> Dict[str, Any]:
+    def data(self) -> dict[str, Any]:
         """The raw data for this group in JSON format.
 
         Returns
@@ -191,8 +188,8 @@ class GroupList(_Resource):
 
     __slots__ = ("items", "next_page_token")
 
-    items: List["Group"]
-    next_page_token: Optional[str]
+    items: list["Group"]
+    next_page_token: str | None
 
     def __getitem__(self, key: int) -> "Group":
         return self.items[key]
@@ -201,7 +198,7 @@ class GroupList(_Resource):
         return iter(self.items)
 
     @classmethod
-    def from_json(cls, client: "Client", data: Dict[str, Any]) -> "GroupList":
+    def from_json(cls, client: "Client", data: dict[str, Any]) -> "GroupList":
         """Create a new `GroupList` instance from JSON data.
 
         ???+ note "Changed in version 5.0"
@@ -229,7 +226,7 @@ class GroupList(_Resource):
         )
 
     @property
-    def data(self) -> Dict[str, Any]:
+    def data(self) -> dict[str, Any]:
         """The raw data for this group in JSON format.
 
         Returns
@@ -299,7 +296,7 @@ class GroupItem(_Resource):
     resource: "GroupItemResource"
 
     @classmethod
-    def from_json(cls, data: Dict[str, Any]) -> "GroupItem":
+    def from_json(cls, data: dict[str, Any]) -> "GroupItem":
         """Create a new `GroupItem` instance from JSON data.
 
         Parameters
@@ -324,7 +321,7 @@ class GroupItem(_Resource):
         )
 
     @property
-    def data(self) -> Dict[str, Any]:
+    def data(self) -> dict[str, Any]:
         """The raw data for this group in JSON format.
 
         Returns
@@ -362,7 +359,7 @@ class GroupItemList(_Resource):
 
     __slots__ = "items"
 
-    items: List["GroupItem"]
+    items: list["GroupItem"]
 
     def __getitem__(self, key: int) -> "GroupItem":
         return self.items[key]
@@ -371,7 +368,7 @@ class GroupItemList(_Resource):
         return iter(self.items)
 
     @classmethod
-    def from_json(cls, data: Dict[str, Any]) -> "GroupItemList":
+    def from_json(cls, data: dict[str, Any]) -> "GroupItemList":
         """Create a new `GroupItemList` instance from JSON data.
 
         Parameters
@@ -391,7 +388,7 @@ class GroupItemList(_Resource):
         )
 
     @property
-    def data(self) -> Dict[str, Any]:
+    def data(self) -> dict[str, Any]:
         """The raw data for this group in JSON format.
 
         Returns

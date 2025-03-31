@@ -41,9 +41,6 @@ import json
 import logging
 from typing import TYPE_CHECKING
 from typing import Any
-from typing import Dict
-from typing import List
-from typing import Tuple
 
 from analytix import utils
 from analytix.errors import DataFrameConversionError
@@ -88,13 +85,13 @@ class Report:
         The report type.
     """
 
-    def __init__(self, data: Dict[str, Any], type: "ReportType") -> None:
+    def __init__(self, data: dict[str, Any], type: "ReportType") -> None:
         self.resource = ResultTable.from_json(data)
         self.type = type
         self._shape = (len(data["rows"]), len(self.resource.column_headers))
 
     @property
-    def shape(self) -> Tuple[int, int]:
+    def shape(self) -> tuple[int, int]:
         """The shape of the report.
 
         This is presented in (rows, columns) format.
@@ -112,7 +109,7 @@ class Report:
         return self._shape
 
     @property
-    def columns(self) -> List[str]:
+    def columns(self) -> list[str]:
         """A list of all columns names in the report.
 
         Returns
@@ -133,7 +130,7 @@ class Report:
         return [c.name for c in self.resource.column_headers]
 
     @property
-    def dimensions(self) -> List[str]:
+    def dimensions(self) -> list[str]:
         """A list of all dimensions in the report.
 
         Returns
@@ -153,7 +150,7 @@ class Report:
         ]
 
     @property
-    def metrics(self) -> List[str]:
+    def metrics(self) -> list[str]:
         """A list of all metrics in the report.
 
         Returns

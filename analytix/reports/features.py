@@ -39,9 +39,7 @@ __all__ = (
     "ZeroOrOne",
 )
 
-from typing import Collection
-from typing import Dict
-from typing import Set
+from collections.abc import Collection
 
 from analytix import abc
 from analytix.errors import InvalidRequest
@@ -49,7 +47,7 @@ from analytix.reports import data
 
 
 class _CompareMixin:
-    values: Set[str]
+    values: set[str]
 
     def __eq__(self, other: object) -> bool:
         # sourcery skip: assign-if-exp, reintroduce-else, swap-if-expression
@@ -70,7 +68,7 @@ class _CompareMixin:
 
 
 class _NestedCompareMixin:
-    values: Set[abc.SetType]
+    values: set[abc.SetType]
 
     def __eq__(self, other: object) -> bool:
         # sourcery skip: assign-if-exp, reintroduce-else, swap-if-expression
@@ -145,11 +143,11 @@ class Dimensions(abc.SegmentedFeatureType, _NestedCompareMixin):
 
 class Filters(abc.MappingFeatureType, _NestedCompareMixin):
     @property
-    def every_key(self) -> Set[str]:
+    def every_key(self) -> set[str]:
         return {v[: v.index("=")] if "==" in v else v for v in self.every}
 
     @property
-    def locked(self) -> Dict[str, str]:
+    def locked(self) -> dict[str, str]:
         locked = {}
 
         for set_type in self.values:
@@ -159,7 +157,7 @@ class Filters(abc.MappingFeatureType, _NestedCompareMixin):
 
         return locked
 
-    def validate(self, inputs: Dict[str, str]) -> None:
+    def validate(self, inputs: dict[str, str]) -> None:
         keys = set(inputs.keys())
         locked = self.locked
 
@@ -183,7 +181,7 @@ class Filters(abc.MappingFeatureType, _NestedCompareMixin):
 
 
 class Required(abc.SetType, _CompareMixin):
-    def validate_dimensions(self, inputs: Set[str]) -> None:
+    def validate_dimensions(self, inputs: set[str]) -> None:
         if self.values & inputs == self.values:
             return
 
@@ -194,7 +192,7 @@ class Required(abc.SetType, _CompareMixin):
             len(inputs & self.values),
         )
 
-    def validate_filters(self, keys: Set[str]) -> None:
+    def validate_filters(self, keys: set[str]) -> None:
         if self.expd_keys & keys == self.expd_keys:
             return
 
@@ -207,7 +205,7 @@ class Required(abc.SetType, _CompareMixin):
 
 
 class ExactlyOne(abc.SetType, _CompareMixin):
-    def validate_dimensions(self, inputs: Set[str]) -> None:
+    def validate_dimensions(self, inputs: set[str]) -> None:
         if len(self.values & inputs) == 1:
             return
 
@@ -218,7 +216,7 @@ class ExactlyOne(abc.SetType, _CompareMixin):
             len(inputs & self.values),
         )
 
-    def validate_filters(self, keys: Set[str]) -> None:
+    def validate_filters(self, keys: set[str]) -> None:
         if len(self.expd_keys & keys) == 1:
             return
 
@@ -231,7 +229,7 @@ class ExactlyOne(abc.SetType, _CompareMixin):
 
 
 class OneOrMore(abc.SetType, _CompareMixin):
-    def validate_dimensions(self, inputs: Set[str]) -> None:
+    def validate_dimensions(self, inputs: set[str]) -> None:
         if len(self.values & inputs) > 0:
             return
 
@@ -242,7 +240,7 @@ class OneOrMore(abc.SetType, _CompareMixin):
             len(inputs & self.values),
         )
 
-    def validate_filters(self, keys: Set[str]) -> None:
+    def validate_filters(self, keys: set[str]) -> None:
         if len(self.expd_keys & keys) > 0:
             return
 
@@ -255,17 +253,17 @@ class OneOrMore(abc.SetType, _CompareMixin):
 
 
 class Optional(abc.SetType, _CompareMixin):
-    def validate_dimensions(self, _: Set[str]) -> None:
+    def validate_dimensions(self, _: set[str]) -> None:
         # No verifiction required.
         ...
 
-    def validate_filters(self, _: Set[str]) -> None:
+    def validate_filters(self, _: set[str]) -> None:
         # No verifiction required.
         ...
 
 
 class ZeroOrOne(abc.SetType, _CompareMixin):
-    def validate_dimensions(self, inputs: Set[str]) -> None:
+    def validate_dimensions(self, inputs: set[str]) -> None:
         if len(self.values & inputs) < 2:
             return
 
@@ -276,7 +274,7 @@ class ZeroOrOne(abc.SetType, _CompareMixin):
             len(inputs & self.values),
         )
 
-    def validate_filters(self, keys: Set[str]) -> None:
+    def validate_filters(self, keys: set[str]) -> None:
         if len(self.expd_keys & keys) < 2:
             return
 
@@ -289,10 +287,10 @@ class ZeroOrOne(abc.SetType, _CompareMixin):
 
 
 class ZeroOrMore(abc.SetType, _CompareMixin):
-    def validate_dimensions(self, _: Set[str]) -> None:
+    def validate_dimensions(self, _: set[str]) -> None:
         # No verifiction required.
         ...
 
-    def validate_filters(self, _: Set[str]) -> None:
+    def validate_filters(self, _: set[str]) -> None:
         # No verifiction required.
         ...

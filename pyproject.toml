@@ -33,7 +33,7 @@ exclude_lines = [
 
 [tool.ruff]
 show-fixes = true
-target-version = "py38"
+target-version = "py310"
 
 [tool.ruff.lint]
 extend-select = [
