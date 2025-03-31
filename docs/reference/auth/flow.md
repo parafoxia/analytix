@@ -1,3 +1,0 @@
-# flow
-
-::: analytix.auth.flow

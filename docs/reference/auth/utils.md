@@ -1,3 +1,0 @@
-# utils
-
-::: analytix.auth.utils
