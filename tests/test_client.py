@@ -52,15 +52,19 @@ def test_client_loads_secrets(client: Client, secrets: Secrets) -> None:
     assert client._secrets == secrets
 
 
-def test_client_invalid_tokens_file() -> None:
-    with pytest.raises(ValueError) as exc_info:
+def test_client_invalid_tokens_file(client_secrets_file: MockFile) -> None:
+    with (
+        mock.patch.object(Path, "open", return_value=client_secrets_file),
+        pytest.raises(ValueError) as exc_info,
+    ):
         Client("secrets.json", tokens_file="tokens.txt")
 
     assert str(exc_info.value) == "tokens file must be a JSON file"
 
 
-def test_client_no_tokens_file() -> None:
-    client = Client("secrets.json", tokens_file=None)
+def test_client_no_tokens_file(client_secrets_file: MockFile) -> None:
+    with mock.patch.object(Path, "open", return_value=client_secrets_file):
+        client = Client("secrets.json", tokens_file=None)
     assert client._tokens_file is None
 
 
@@ -154,9 +158,13 @@ def test_client_authorise_new_tokens(
     client: Client,
     auth_context: AuthContext,
     tokens: Tokens,
+    tokens_file: MockFile,
     caplog,
 ) -> None:
     with (
+        mock.patch.object(client, "_tokens_file", tokens_file),
+        mock.patch.object(Tokens, "load_from", return_value=tokens),
+        mock.patch.object(Tokens, "are_scoped_for", return_value=False),
         mock.patch.object(
             Secrets,
             "auth_context",
@@ -172,6 +180,37 @@ def test_client_authorise_new_tokens(
 
     assert "The client needs to be authorised, starting flow..." in caplog.text
     assert "Authorisation complete!" in caplog.text
+
+
+def test_client_authorise_new_tokens_over_console(
+    client: Client,
+    auth_context: AuthContext,
+    tokens: Tokens,
+    tokens_file: MockFile,
+    caplog,
+    capfd,
+) -> None:
+    with (
+        mock.patch.object(client, "_tokens_file", tokens_file),
+        mock.patch.object(Tokens, "load_from", return_value=tokens),
+        mock.patch.object(Tokens, "are_scoped_for", return_value=False),
+        mock.patch.object(
+            Secrets,
+            "auth_context",
+            return_value=MockContextManager(auth_context),
+        ),
+        mock.patch.object(AuthContext, "open_browser", return_value=False),
+        mock.patch.object(AuthContext, "fetch_tokens", return_value=tokens),
+        mock.patch.object(Tokens, "save_to", return_value=None) as mock_save_to,
+        caplog.at_level(logging.DEBUG),
+    ):
+        assert client.authorise() == tokens
+        mock_save_to.assert_called_once_with(client._tokens_file)
+
+    assert "The client needs to be authorised, starting flow..." in caplog.text
+    assert "Authorisation complete!" in caplog.text
+    out, _ = capfd.readouterr()
+    assert "Follow this link to authorise the client:" in out
 
 
 def test_client_authorise_new_tokens_forced(
@@ -198,33 +237,6 @@ def test_client_authorise_new_tokens_forced(
 
     assert "The client needs to be authorised, starting flow..." in caplog.text
     assert "Authorisation complete!" in caplog.text
-
-
-def test_client_authorise_new_tokens_over_console(
-    client: Client,
-    auth_context: AuthContext,
-    tokens: Tokens,
-    caplog,
-    capfd,
-) -> None:
-    with (
-        mock.patch.object(
-            Secrets,
-            "auth_context",
-            return_value=MockContextManager(auth_context),
-        ),
-        mock.patch.object(AuthContext, "open_browser", return_value=False),
-        mock.patch.object(AuthContext, "fetch_tokens", return_value=tokens),
-        mock.patch.object(Tokens, "save_to", return_value=None) as mock_save_to,
-        caplog.at_level(logging.DEBUG),
-    ):
-        assert client.authorise() == tokens
-
-    assert "The client needs to be authorised, starting flow..." in caplog.text
-    assert "Authorisation complete!" in caplog.text
-    out, _ = capfd.readouterr()
-    assert "Follow this link to authorise the client:" in out
-    mock_save_to.assert_called_once_with(client._tokens_file)
 
 
 def test_client_refresh_tokens(client: Client, tokens: Tokens) -> None:
