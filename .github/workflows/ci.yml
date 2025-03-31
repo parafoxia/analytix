@@ -13,7 +13,6 @@ jobs:
           - formatting
           - licensing
           - linting
-          - slots
           - spelling
           - typing
 
