@@ -41,18 +41,18 @@ from typing import TextIO
 
 import analytix
 
-BANNER = r"""
+BANNER = r'''
 {r}            {o}             {y}            {g}88  {b}             {i}         {v}88
 {r}            {o}             {y}            {g}88  {b}             {i}  ,d     {v}""
 {r}            {o}             {y}            {g}88  {b}             {i}  88
 {r},adPPYYba,  {o}8b,dPPYba,   {y},adPPYYba,  {g}88  {b}8b       d8  {i}MM88MMM  {v}88  {l}8b,     ,d8
-{r}""     `Y8  {o}88P'   `"8a  {y}""     `Y8  {g}88  {b}`8b     d8'  {i}  88     {v}88  {l} `Y8, ,8P'    {z}Yb    dP 888888
-{r},adPPPPP88  {o}88       88  {y},adPPPPP88  {g}88  {b} `8b   d8'   {i}  88     {v}88  {l}   )888(      {z} Yb  dP  88oo."
-{r}88,    ,88  {o}88       88  {y}88,    ,88  {g}88  {b}  `8b,d8'    {i}  88,    {v}88  {l} ,d8" "8b,    {z}  YbdP      `8b
-{r}`"8bbdP"Y8  {o}88       88  {y}`"8bbdP"Y8  {g}88  {b}    Y88'     {i}  "Y888  {v}88  {l}8P'     `Y8   {z}   YP    8888P'
+{r}""     `Y8  {o}88P'   `"8a  {y}""     `Y8  {g}88  {b}`8b     d8'  {i}  88     {v}88  {l} `Y8, ,8P'    {z}Yb    dP  dP'
+{r},adPPPPP88  {o}88       88  {y},adPPPPP88  {g}88  {b} `8b   d8'   {i}  88     {v}88  {l}   )888(      {z} Yb  dP .d8'
+{r}88,    ,88  {o}88       88  {y}88,    ,88  {g}88  {b}  `8b,d8'    {i}  88,    {v}88  {l} ,d8" "8b,    {z}  YbdP  8P"""Yb
+{r}`"8bbdP"Y8  {o}88       88  {y}`"8bbdP"Y8  {g}88  {b}    Y88'     {i}  "Y888  {v}88  {l}8P'     `Y8   {z}   YP   `YboodP
 {r}            {o}             {y}            {g}    {b}    d8'
 {r}            {o}             {y}            {g}    {b}   d8' {x}
-""".format(  # noqa: E501
+'''.format(  # noqa: E501
     r="\33[38;5;1m",
     o="\33[38;5;208m",
     y="\33[38;5;3m",
