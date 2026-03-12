@@ -27,6 +27,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import datetime as dt
+from io import StringIO
 import json
 import logging
 import time
@@ -99,22 +100,43 @@ def test_expires_in_set_expires_at_not_set(caplog) -> None:
     assert "Setting access token expiry time is not supported" not in caplog.text
 
 
-def test_tokens_load_from(tokens: Tokens, tokens_file: MockFile) -> None:
-    tokens._path = Path("tokens_file")
-    assert Tokens.load_from("tokens_file") == tokens
+def test_tokens_read_json_from_file(tokens: Tokens, tokens_file: MockFile) -> None:
+    with mock.patch.object(Path, "open", return_value=tokens_file):
+        assert Tokens.read_json("tokens_file") == tokens
 
 
-def test_tokens_from_json(tokens: Tokens, tokens_json: str) -> None:
-    assert Tokens.from_json(tokens_json) == tokens
+def test_tokens_read_json_from_string(tokens: Tokens, tokens_json: str) -> None:
+    assert Tokens.read_json(StringIO(tokens_json)) == tokens
 
 
-def test_tokens_save_to(
+def test_tokens_read_json_type_error() -> None:
+    with pytest.raises(TypeError):
+        Tokens.read_json(123)
+
+
+def test_tokens_to_json_to_file(
     tokens: Tokens,
     tokens_file: MockFile,
     tokens_json: str,
 ) -> None:
-    tokens.save_to("tokens_file")
-    assert tokens_file.write_data == tokens_json
+    with mock.patch.object(Path, "open", return_value=tokens_file):
+        assert tokens.to_json("tokens_file") is None
+        assert tokens_file.write_data == tokens_json
+
+
+def test_tokens_to_json_to_buffer(tokens: Tokens, tokens_json: str) -> None:
+    f = StringIO()
+    assert tokens.to_json(f) is None
+    assert f.getvalue() == tokens_json
+
+
+def test_tokens_to_json_to_string(tokens: Tokens, tokens_json: str) -> None:
+    assert tokens.to_json() == tokens_json
+
+
+def test_tokens_to_json_type_error(tokens: Tokens) -> None:
+    with pytest.raises(TypeError):
+        tokens.to_json(123)
 
 
 def test_tokens_refresh(tokens: Tokens, secrets: Secrets, caplog) -> None:

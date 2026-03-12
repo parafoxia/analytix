@@ -140,7 +140,7 @@ def test_auth_context_fetch_tokens(
         mock.patch.object(
             AuthContext,
             "_request",
-            return_value=MockResponse(tokens_json, 200),
+            return_value=MockResponse(tokens_json.encode("utf-8"), 200),
         ),
         mock.patch.object(AuthContext, "fetch_code", return_value="authorisationcode"),
     ):
@@ -158,7 +158,7 @@ def test_auth_context_fetch_tokens_error(auth_context: AuthContext) -> None:
                         "error": "error",
                         "error_description": "error_description",
                     },
-                ),
+                ).encode("utf-8"),
                 400,
             ),
         ),

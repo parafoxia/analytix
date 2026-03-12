@@ -33,6 +33,8 @@ import json
 import logging
 from dataclasses import dataclass
 from dataclasses import field
+from io import TextIOBase
+from os import PathLike
 from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Any
@@ -43,7 +45,6 @@ from analytix import utils
 from analytix.errors import IdTokenError
 from analytix.errors import MissingOptionalComponents
 from analytix.mixins import RequestMixin
-from analytix.types import PathLike
 
 from .scopes import Scopes
 
@@ -140,49 +141,16 @@ class Tokens(RequestMixin):
     _path: Path | None = field(default=None, init=False, repr=False)
 
     @classmethod
-    def load_from(cls, path: PathLike) -> "Tokens":
-        """Load tokens from a JSON file.
+    def read_json(cls, path_or_buf: str | PathLike[str] | TextIOBase) -> "Tokens":
+        """Convert a JSON string into a set of tokens.
 
-        ???+ note "Changed in version 5.0"
-            This used to be `from_file`.
-
-        Parameters
-        ----------
-        path
-            The path to your tokens file.
-
-        Returns
-        -------
-        Tokens
-            Your tokens.
-
-        Raises
-        ------
-        FileNotFoundError
-            No tokens file exists at the given path.
-        JSONDecodeError
-            The given file is not a valid JSON file.
-
-        Examples
-        --------
-        >>> Tokens.load_from("tokens.json")
-        Tokens(access_token="1234567890", ...)
-        """
-        tokens_file = Path(path)
-        _log.debug("Loading tokens from %s", tokens_file.resolve())
-
-        self = cls.from_json(tokens_file.read_text())
-        self._path = tokens_file
-        return self
-
-    @classmethod
-    def from_json(cls, data: str | bytes) -> "Tokens":
-        """Load tokens from raw JSON data.
+        !!! note "New in version 6.0"
 
         Parameters
         ----------
-        data
-            Your tokens in JSON form.
+        path_or_buf
+            The path to read your tokens from or a file-like object to
+            read from.
 
         Returns
         -------
@@ -196,34 +164,62 @@ class Tokens(RequestMixin):
 
         Examples
         --------
-        >>> Tokens.from_json('{"access_token": "1234567890", ...}')
+        >>> with open("tokens.json", "r") as f:
+        ...     tokens = Tokens.read_json(f)
+        >>> tokens
+        Tokens(access_token="1234567890", ...)
+
+        Loading from a file.
+
+        >>> Tokens.read_json("tokens.json")
         Tokens(access_token="1234567890", ...)
         """
+        if isinstance(path_or_buf, (str, PathLike)):
+            data = Path(path_or_buf).read_text()
+        elif isinstance(path_or_buf, TextIOBase):
+            data = path_or_buf.read()
+        else:
+            raise TypeError(
+                f"Expected str, PathLike, or TextIOBase, got {type(path_or_buf)}",
+            )
+
         return cls(**json.loads(data))
 
-    def save_to(self, path: PathLike) -> None:
-        """Save your tokens to disk.
+    def to_json(
+        self,
+        path_or_buf: str | PathLike[str] | TextIOBase | None = None,
+    ) -> str | None:
+        """Convert your tokens into a JSON string.
 
-        ???+ note "Changed in version 5.0"
-            This used to be `write`.
+        !!! note "New in version 6.0"
 
         Parameters
         ----------
-        path
-            The path to save your tokens to.
+        path_or_buf
+            The path to save your tokens to, a file-like object to write
+            to, or `None`.
 
         Returns
         -------
-        None
-            This method doesn't return anything.
+        str | None
+            The JSON string if `path_or_buf` is `None`, otherwise
+            `None`.
 
         Examples
         --------
-        >>> Tokens.save_to("tokens.json")
-        """
-        tokens_file = Path(path)
-        _log.debug("Saving tokens to %s", tokens_file.resolve())
+        >>> Tokens.to_json()
+        '{"access_token": "1234567890", ...}'
 
+        Writing to a file.
+
+        >>> Tokens.to_json("tokens.json")
+
+        Writing to a file-like object.
+
+        >>> Tokens.to_json(buf := io.StringIO())
+        >>> buf.getvalue()
+        '{"access_token": "1234567890", ...}'
+        """
         attrs = {
             "access_token": self.access_token,
             "expires_in": int(self.expires_in),
@@ -232,8 +228,23 @@ class Tokens(RequestMixin):
             "refresh_token": self.refresh_token,
             **({"id_token": self.id_token} if self.id_token else {}),
         }
-        tokens_file.write_text(json.dumps(attrs))
-        self._path = tokens_file
+
+        if path_or_buf is None:
+            return json.dumps(attrs)
+
+        if isinstance(path_or_buf, (str, PathLike)):
+            tokens_file = Path(path_or_buf)
+            tokens_file.write_text(json.dumps(attrs))
+            self._path = tokens_file
+            return None
+
+        if isinstance(path_or_buf, TextIOBase):
+            path_or_buf.write(json.dumps(attrs))
+            return None
+
+        raise TypeError(
+            f"Expected str, PathLike, or TextIOBase, got {type(path_or_buf)}",
+        )
 
     def refresh(self, secrets: "Secrets") -> bool:
         """Refresh your access token.

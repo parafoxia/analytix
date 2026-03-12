@@ -165,7 +165,7 @@ class Client(RequestMixin):
             Your tokens.
         """
         if not force and self._tokens_file and self._tokens_file.is_file():
-            tokens = Tokens.load_from(self._tokens_file)
+            tokens = Tokens.read_json(self._tokens_file)
             if tokens.are_scoped_for(self._secrets.scopes) and (
                 not tokens.expired or self.refresh_tokens(tokens)
             ):
@@ -182,7 +182,7 @@ class Client(RequestMixin):
 
             tokens = ctx.fetch_tokens()
             if self._tokens_file:
-                tokens.save_to(self._tokens_file)
+                tokens.to_json(self._tokens_file)
 
             _log.info("Authorisation complete!")
             return tokens
@@ -211,7 +211,7 @@ class Client(RequestMixin):
         See Also
         --------
         * `Tokens.refresh`
-        * `Tokens.save_to`
+        * `Tokens.to_json`
         """
         refreshed = tokens.refresh(self._secrets)
 
@@ -219,7 +219,7 @@ class Client(RequestMixin):
             return None
 
         if self._tokens_file:
-            tokens.save_to(self._tokens_file)
+            tokens.to_json(self._tokens_file)
 
         return tokens
 

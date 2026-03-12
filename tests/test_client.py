@@ -85,7 +85,7 @@ def test_client_authorise_with_existing_tokens(
 ) -> None:
     with (
         mock.patch.object(client, "_tokens_file", tokens_file),
-        mock.patch.object(Tokens, "load_from", return_value=tokens),
+        mock.patch.object(Tokens, "read_json", return_value=tokens),
         mock.patch.object(Tokens, "are_scoped_for", return_value=True),
         mock.patch.object(Tokens, "expired", PropertyMock(return_value=False)),
         mock.patch.object(Client, "refresh_tokens", return_value=tokens),
@@ -108,7 +108,7 @@ def test_client_authorise_with_existing_tokens_no_scoped(
 ) -> None:
     with (
         mock.patch.object(client, "_tokens_file", tokens_file),
-        mock.patch.object(Tokens, "load_from", return_value=tokens),
+        mock.patch.object(Tokens, "read_json", return_value=tokens),
         mock.patch.object(Tokens, "are_scoped_for", return_value=False),
         mock.patch.object(Tokens, "expired", PropertyMock(return_value=False)),
         mock.patch.object(Client, "refresh_tokens", return_value=tokens),
@@ -135,7 +135,7 @@ def test_client_authorise_with_existing_tokens_expired(
 ) -> None:
     with (
         mock.patch.object(client, "_tokens_file", tokens_file),
-        mock.patch.object(Tokens, "load_from", return_value=tokens),
+        mock.patch.object(Tokens, "read_json", return_value=tokens),
         mock.patch.object(Tokens, "are_scoped_for", return_value=True),
         mock.patch.object(Tokens, "expired", PropertyMock(return_value=True)),
         mock.patch.object(Client, "refresh_tokens", return_value=None),
@@ -163,7 +163,7 @@ def test_client_authorise_new_tokens(
 ) -> None:
     with (
         mock.patch.object(client, "_tokens_file", tokens_file),
-        mock.patch.object(Tokens, "load_from", return_value=tokens),
+        mock.patch.object(Tokens, "read_json", return_value=tokens),
         mock.patch.object(Tokens, "are_scoped_for", return_value=False),
         mock.patch.object(
             Secrets,
@@ -172,11 +172,11 @@ def test_client_authorise_new_tokens(
         ),
         mock.patch.object(AuthContext, "open_browser", return_value=True),
         mock.patch.object(AuthContext, "fetch_tokens", return_value=tokens),
-        mock.patch.object(Tokens, "save_to", return_value=None) as mock_save_to,
+        mock.patch.object(Tokens, "to_json", return_value=None) as mock_to_json,
         caplog.at_level(logging.DEBUG),
     ):
         assert client.authorise() == tokens
-        mock_save_to.assert_called_once_with(client._tokens_file)
+        mock_to_json.assert_called_once_with(client._tokens_file)
 
     assert "The client needs to be authorised, starting flow..." in caplog.text
     assert "Authorisation complete!" in caplog.text
@@ -192,7 +192,7 @@ def test_client_authorise_new_tokens_over_console(
 ) -> None:
     with (
         mock.patch.object(client, "_tokens_file", tokens_file),
-        mock.patch.object(Tokens, "load_from", return_value=tokens),
+        mock.patch.object(Tokens, "read_json", return_value=tokens),
         mock.patch.object(Tokens, "are_scoped_for", return_value=False),
         mock.patch.object(
             Secrets,
@@ -201,11 +201,11 @@ def test_client_authorise_new_tokens_over_console(
         ),
         mock.patch.object(AuthContext, "open_browser", return_value=False),
         mock.patch.object(AuthContext, "fetch_tokens", return_value=tokens),
-        mock.patch.object(Tokens, "save_to", return_value=None) as mock_save_to,
+        mock.patch.object(Tokens, "to_json", return_value=None) as mock_to_json,
         caplog.at_level(logging.DEBUG),
     ):
         assert client.authorise() == tokens
-        mock_save_to.assert_called_once_with(client._tokens_file)
+        mock_to_json.assert_called_once_with(client._tokens_file)
 
     assert "The client needs to be authorised, starting flow..." in caplog.text
     assert "Authorisation complete!" in caplog.text
@@ -229,11 +229,11 @@ def test_client_authorise_new_tokens_forced(
         ),
         mock.patch.object(AuthContext, "open_browser", return_value=True),
         mock.patch.object(AuthContext, "fetch_tokens", return_value=tokens),
-        mock.patch.object(Tokens, "save_to", return_value=None) as mock_save_to,
+        mock.patch.object(Tokens, "to_json", return_value=None) as mock_to_json,
         caplog.at_level(logging.DEBUG),
     ):
         assert client.authorise(force=True) == tokens
-        mock_save_to.assert_called_once_with(client._tokens_file)
+        mock_to_json.assert_called_once_with(client._tokens_file)
 
     assert "The client needs to be authorised, starting flow..." in caplog.text
     assert "Authorisation complete!" in caplog.text
@@ -242,11 +242,11 @@ def test_client_authorise_new_tokens_forced(
 def test_client_refresh_tokens(client: Client, tokens: Tokens) -> None:
     with (
         mock.patch.object(Tokens, "refresh", return_value=tokens),
-        mock.patch.object(Tokens, "save_to", return_value=None) as mock_save_to,
+        mock.patch.object(Tokens, "to_json", return_value=None) as mock_to_json,
     ):
         assert client.refresh_tokens(tokens) == tokens
 
-    mock_save_to.assert_called_once_with(client._tokens_file)
+    mock_to_json.assert_called_once_with(client._tokens_file)
 
 
 def test_client_refresh_tokens_failed(client: Client, tokens: Tokens) -> None:

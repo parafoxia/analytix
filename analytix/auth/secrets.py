@@ -38,6 +38,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from http.server import BaseHTTPRequestHandler
 from http.server import HTTPServer
+from io import StringIO
 from pathlib import Path
 from typing import Literal
 from urllib.parse import parse_qs
@@ -248,7 +249,7 @@ class AuthContext(RequestMixin):
                     f"({error['error']})",
                 )
 
-            return Tokens.from_json(resp.data)
+            return Tokens.read_json(StringIO(resp.data.decode("utf-8")))
 
 
 @dataclass(frozen=True)
