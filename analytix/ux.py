@@ -35,11 +35,11 @@ import os
 import platform
 import sys
 import warnings
-from importlib.util import find_spec
+from importlib import metadata, resources
 from typing import Optional
 from typing import TextIO
-
-import analytix
+from typing import Type
+from typing import Union
 
 BANNER = r'''
 {r}            {o}             {y}            {g}88  {b}             {i}         {v}88
@@ -66,13 +66,21 @@ BANNER = r'''
 )
 
 
-def _install_location() -> str:
-    spec = find_spec("analytix")
-
-    if spec and spec.submodule_search_locations:
-        return spec.submodule_search_locations[0]
-
-    return "unknown"
+def _compile_info() -> dict[str, str]:
+    md = metadata.metadata("analytix").json
+    urls = {(pair := url.split(", "))[0]: pair[1] for url in md["project_url"]}
+    return {
+        "description": md["summary"],
+        "version": metadata.version("analytix"),
+        "python_version": platform.python_version(),
+        "python_implementation": platform.python_implementation(),
+        "operating_system": platform.system(),
+        "operating_system_version": platform.release(),
+        "installed_in": resources.files("analytix"),
+        "docs": urls["Documentation"],
+        "url": urls["Homepage"],
+        "changelog": urls["Changelog"],
+    }
 
 
 def display_splash() -> None:
@@ -81,20 +89,22 @@ def display_splash() -> None:
     b = "\33[38;5;4m"
     l = "\33[38;5;219m"  # noqa: E741
 
+    info = _compile_info()
+
     # sourcery skip: use-fstring-for-concatenation
     print(  # noqa: T201
         BANNER + "\n"
-        f"\33[3m{analytix.__description__}\33[0m\n\n"
-        f"You're using version \33[1m{r}{analytix.__version__}\33[0m.\n\n"
+        f"\33[3m{info['description']}\33[0m\n\n"
+        f"You're using version \33[1m{r}{info['version']}\33[0m.\n\n"
         f"\33[1m{b}Information:\33[0m\n"
-        f" • Python version: {platform.python_version()} "
-        f"({platform.python_implementation()})\n"
-        f" • Operating system: {platform.system()} ({platform.release()})\n"
-        f" • Installed in: {_install_location()}\n\n"
+        f" • Python version: {info['python_version']} "
+        f"({info['python_implementation']})\n"
+        f" • Operating system: {info['operating_system']} ({info['operating_system_version']})\n"
+        f" • Installed in: {info['installed_in']}\n\n"
         f"\33[1m{g}Useful links:\33[0m\n"
-        f" • Documentation: \33[4m{analytix.__docs__}\33[0m\n"
-        f" • Source: \33[4m{analytix.__url__}\33[0m\n"
-        f" • Changelog: \33[4m{analytix.__changelog__}\33[0m\n\n"
+        f" • Documentation: \33[4m{info['docs']}\33[0m\n"
+        f" • Source: \33[4m{info['url']}\33[0m\n"
+        f" • Changelog: \33[4m{info['changelog']}\33[0m\n\n"
         f"\33[1m{l}Thanks for using analytix!\33[0m",
     )
 
@@ -145,12 +155,12 @@ def enable_logging(level: int = logging.INFO) -> "logging.StreamHandler[TextIO]"
     logging.logMultiprocessing = False
 
     def showwarning(
-        message: Warning | str,
-        category: type[Warning],
+        message: Union[Warning, str],
+        category: Type[Warning],
         filename: str,
         lineno: int,
         file: Optional["TextIO"] = None,
-        line: str | None = None,
+        line: Optional[str] = None,
     ) -> None:
         for _module_name, module in sys.modules.items():
             module_path = getattr(module, "__file__", None)
