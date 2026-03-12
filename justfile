@@ -29,3 +29,6 @@ check-spelling:
 # Serve the documentation.
 serve-docs:
     uv run mkdocs serve --watch analytix/
+
+# Run all checks.
+run-checks: test format lint typecheck check-slots check-spelling
