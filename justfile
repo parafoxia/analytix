@@ -25,3 +25,7 @@ check-slots:
 # Check spelling.
 check-spelling:
     uvx codespell analytix/ tests/ examples/ -S "analytix/reports/data.py"
+
+# Serve the documentation.
+serve-docs:
+    uv run mkdocs serve
