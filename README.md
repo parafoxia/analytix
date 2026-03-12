@@ -1,5 +1,3 @@
-#
-
 <div align="center">
 <img alt="analytix logo" src="https://raw.githubusercontent.com/parafoxia/analytix/main/assets/logo.png" width="400px">
 <br /><br />

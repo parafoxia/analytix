@@ -1,7 +1,5 @@
 graft analytix
-graft requirements
 include LICENSE
 include README.md
 include pyproject.toml
-include setup.py
 global-exclude *.py[cod]

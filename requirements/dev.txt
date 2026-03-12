@@ -1,8 +1,0 @@
-# Meta
--e .
--r ./base.txt
--r ./docs.txt
--r ./nox.txt
-
-# Extras
-nox==2025.2.9
