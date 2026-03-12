@@ -161,6 +161,9 @@ class Tokens(RequestMixin):
         ------
         JSONDecodeError
             The given file is not a valid JSON file.
+        TypeError
+            You tried to load tokens from something that is not a
+            file-like object.
 
         Examples
         --------
@@ -180,7 +183,8 @@ class Tokens(RequestMixin):
             data = path_or_buf.read()
         else:
             raise TypeError(
-                f"Expected str, PathLike, or TextIOBase, got {type(path_or_buf)}",
+                "Expected str, PathLike, or TextIOBase, "
+                f"got {type(path_or_buf).__name__}",
             )
 
         return cls(**json.loads(data))

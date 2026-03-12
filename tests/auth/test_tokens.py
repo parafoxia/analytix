@@ -110,8 +110,10 @@ def test_tokens_read_json_from_string(tokens: Tokens, tokens_json: str) -> None:
 
 
 def test_tokens_read_json_type_error() -> None:
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeError) as exc_info:
         Tokens.read_json(123)
+
+    assert exc_info.value.args[0] == "Expected str, PathLike, or TextIOBase, got int"
 
 
 def test_tokens_to_json_to_file(
