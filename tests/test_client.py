@@ -33,12 +33,11 @@ from unittest.mock import PropertyMock
 
 import pytest
 
-from analytix.auth.scopes import Scopes
 from analytix.auth.secrets import AuthContext
 from analytix.auth.secrets import Secrets
 from analytix.auth.tokens import Tokens
 from analytix.client import Client
-from analytix.client import SessionContext
+from analytix.client import Session
 from analytix.groups.groups import GroupItemList
 from analytix.groups.groups import GroupList
 from analytix.queries import ReportQuery
@@ -261,9 +260,9 @@ def test_client_session_use_existing_tokens(
 ) -> None:
     with caplog.at_level(logging.DEBUG):
         with client.session(tokens=tokens):
-            assert client._session_ctx.access_token == tokens.access_token
+            assert client._session.access_token == tokens.access_token
 
-        assert client._session_ctx is None
+        assert client._session is None
 
     assert "New client session created" in caplog.text
 
@@ -278,9 +277,9 @@ def test_client_session_create_new_tokens(
         mock.patch.object(Client, "authorise", return_value=tokens),
     ):
         with client.session():
-            assert client._session_ctx.access_token == tokens.access_token
+            assert client._session.access_token == tokens.access_token
 
-        assert client._session_ctx is None
+        assert client._session is None
 
     assert "New client session created" in caplog.text
 

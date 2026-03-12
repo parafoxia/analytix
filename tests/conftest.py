@@ -43,7 +43,7 @@ from analytix.auth.secrets import Secrets
 from analytix.auth.tokens import Tokens
 from analytix.auth.tokens import _ExpiresIn
 from analytix.client import Client
-from analytix.client import SessionContext
+from analytix.client import Session
 from analytix.groups import Group
 from analytix.groups import GroupItem
 from analytix.groups import GroupItemList
@@ -210,8 +210,8 @@ def id_token_payload() -> dict[str, Any]:
 
 
 @pytest.fixture()
-def session_context() -> SessionContext:
-    return SessionContext("access_token", Scopes.READONLY)
+def session() -> Session:
+    return Session("default", "access_token", Scopes.READONLY)
 
 
 @pytest.fixture()

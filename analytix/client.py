@@ -64,7 +64,8 @@ _log = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
-class SessionContext:
+class Session:
+    key: str
     access_token: str
     scopes: Scopes
 
@@ -74,7 +75,6 @@ class Client(RequestMixin):
 
     ??? note "Changed in version 6.0"
         * Removed `ws_port` and `auto_open_browser` parameters
-        * This is now the only client class
 
     Parameters
     ----------
@@ -90,7 +90,7 @@ class Client(RequestMixin):
         the fetching of monetary data.
     """
 
-    __slots__ = ("_secrets", "_session_ctx", "_tokens_file")
+    __slots__ = ("_secrets", "_session", "_tokens_file")
 
     def __init__(
         self,
@@ -101,7 +101,7 @@ class Client(RequestMixin):
     ):
         scopes.validate()
         self._secrets = Secrets.read_json(secrets_file, scopes)
-        self._session_ctx: SessionContext | None = None
+        self._session: Session | None = None
         self._tokens_file: Path | None
 
         if tokens_file:
@@ -142,8 +142,8 @@ class Client(RequestMixin):
         automatically when needed otherwise.
 
         ??? note "Changed in version 6.0"
-            * Added `ws_port` and `console` parameters.
-            * Removed `force_refresh` parameter.
+            * Added `ws_port` and `console` parameters
+            * Removed `force_refresh` parameter
 
         Parameters
         ----------
@@ -223,12 +223,28 @@ class Client(RequestMixin):
 
         return tokens
 
+    def _create_session(
+        self,
+        key: str = "default",
+        tokens: Tokens | None = None,
+        scopes: Scopes | None = None,
+    ) -> Session:
+        if not tokens:
+            tokens = self.authorise()
+
+        return Session(
+            key=key,
+            access_token=tokens.access_token,
+            scopes=scopes or self._secrets.scopes,
+        )
+
     @contextmanager
     def session(
         self,
+        key: str = "default",
         tokens: Tokens | None = None,
         scopes: Scopes | None = None,
-    ) -> Iterator[None]:
+    ) -> Iterator[Session]:
         """Create a session.
 
         When you create a session, the client will authorise the session
@@ -236,12 +252,23 @@ class Client(RequestMixin):
         helps reduce the amount of times the client needs to authorise
         itself.
 
+        The default behaviour is to create a session which is then
+        destroyed when the context manager exits. If you wish to create
+        and manage multiple persistent sessions, you can override this
+        method to provide that functionality.
+
+        Generally speaking, sessions should not live for too long as
+        they are not able to refresh their own tokens.
+
         This method is a context manager.
 
         !!! note "New in version 6.0"
 
         Parameters
         ----------
+        key
+            The key to use for this session. This is useful when
+            managing multiple sessions.
         tokens
             Your tokens. If this is not provided, the client will
             authorise itself.
@@ -251,8 +278,9 @@ class Client(RequestMixin):
 
         Yields
         ------
-        None
-            This method doesn't yield anything.
+        Session
+            The created session. This is useful when managing multiple
+            sessions.
 
         Examples
         --------
@@ -263,16 +291,11 @@ class Client(RequestMixin):
         ...             end_date=dt.date(year, 12, 31),
         ...         )
         """
-        if not tokens:
-            tokens = self.authorise()
 
-        self._session_ctx = SessionContext(
-            access_token=tokens.access_token,
-            scopes=scopes or self._secrets.scopes,
-        )
         _log.debug("New client session created")
-        yield
-        self._session_ctx = None
+        self._session = self._create_session(key, tokens, scopes)
+        yield self._session
+        self._session = None
 
     def fetch_report(
         self,
@@ -287,15 +310,13 @@ class Client(RequestMixin):
         currency: str = "USD",
         start_index: int = 1,
         include_historical_data: bool = False,
-        tokens: Tokens | None = None,
-        scopes: Scopes | None = None,
+        session: Session | None = None,
     ) -> "Report":
         """Fetch an analytics report.
 
         ??? note "Changed in version 6.0"
-            You can now pass tokens and scopes directly to this method.
-            To customise the authorisation flow, you should pass tokens
-            directly instead of kwargs for the `authorise` method.
+            You can now pass a session to this method. This is useful
+            when managing multiple sessions.
 
         Parameters
         ----------
@@ -336,12 +357,11 @@ class Client(RequestMixin):
 
         Other Parameters
         ----------------
-        tokens
-            Your tokens. If this is not provided, session tokens will be
-            used if present, otherwise the client will authorise itself.
-        scopes
-            The scopes to use for this request. If this is not provided,
-            the scopes given to the client will be used.
+        session
+            The session to use for this request. This is useful when
+            managing multiple sessions. If this is not provided, the
+            client will either use an available session or create a
+            default one.
 
         Raises
         ------
@@ -394,7 +414,8 @@ class Client(RequestMixin):
         ...     max_results=10,
         ... )
         """
-        access_token = (tokens or self._session_ctx or self.authorise()).access_token
+        session = session or self._session or self._create_session()
+
         query = ReportQuery(
             dimensions,
             filters,
@@ -407,9 +428,9 @@ class Client(RequestMixin):
             start_index,
             include_historical_data,
         )
-        query.validate(scopes or self._secrets.scopes)
+        query.validate(session.scopes or self._secrets.scopes)
 
-        with self._request(query.url, token=access_token) as resp:
+        with self._request(query.url, token=session.access_token) as resp:
             data = json.loads(resp.data)
 
         report = Report(data, cast("ReportType", query.rtype))
@@ -421,14 +442,13 @@ class Client(RequestMixin):
         *,
         ids: Collection[str] | None = None,
         next_page_token: str | None = None,
-        tokens: Tokens | None = None,
+        session: Session | None = None,
     ) -> "GroupList":
         """Fetch a list of analytics groups.
 
         ??? note "Changed in version 6.0"
-            You can now pass tokens directly to this method. To
-            customise the authorisation flow, you should pass tokens
-            directly instead of kwargs for the `authorise` method.
+            You can now pass a session to this method. This is useful
+            when managing multiple sessions.
 
         Parameters
         ----------
@@ -443,9 +463,11 @@ class Client(RequestMixin):
 
         Other Parameters
         ----------------
-        tokens
-            Your tokens. If this is not provided, session tokens will be
-            used if present, otherwise the client will authorise itself.
+        session
+            The session to use for this request. This is useful when
+            managing multiple sessions. If this is not provided, the
+            client will either use an available session or create a
+            default one.
 
         Returns
         -------
@@ -468,22 +490,21 @@ class Client(RequestMixin):
         AuthorisationError
             Something went wrong during authorisation.
         """
-        access_token = (tokens or self._session_ctx or self.authorise()).access_token
+        session = session or self._session or self._create_session()
         query = GroupQuery(ids, next_page_token)
-        with self._request(query.url, token=access_token) as resp:
+        with self._request(query.url, token=session.access_token) as resp:
             return GroupList.from_json(self, json.loads(resp.data))
 
     def fetch_group_items(
         self,
         group_id: str,
-        tokens: Tokens | None = None,
+        session: Session | None = None,
     ) -> "GroupItemList":
         """Fetch a list of all items within a group.
 
         ??? note "Changed in version 6.0"
-            You can now pass tokens directly to this method. To
-            customise the authorisation flow, you should pass tokens
-            directly instead of kwargs for the `authorise` method.
+            You can now pass a session to this method. This is useful
+            when managing multiple sessions.
 
         Parameters
         ----------
@@ -492,9 +513,11 @@ class Client(RequestMixin):
 
         Other Parameters
         ----------------
-        tokens
-            Your tokens. If this is not provided, session tokens will be
-            used if present, otherwise the client will authorise itself.
+        session
+            The session to use for this request. This is useful when
+            managing multiple sessions. If this is not provided, the
+            client will either use an available session or create a
+            default one.
 
         Returns
         -------
@@ -517,7 +540,7 @@ class Client(RequestMixin):
         AuthorisationError
             Something went wrong during authorisation.
         """
-        access_token = (tokens or self._session_ctx or self.authorise()).access_token
+        session = session or self._session or self._create_session()
         query = GroupItemQuery(group_id)
-        with self._request(query.url, token=access_token) as resp:
+        with self._request(query.url, token=session.access_token) as resp:
             return GroupItemList.from_json(json.loads(resp.data))

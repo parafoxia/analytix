@@ -36,11 +36,11 @@ import webbrowser
 from collections.abc import Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
-from io import TextIOBase
-from os import PathLike
 from http.server import BaseHTTPRequestHandler
 from http.server import HTTPServer
 from io import StringIO
+from io import TextIOBase
+from os import PathLike
 from pathlib import Path
 from typing import Literal
 from urllib.parse import parse_qs
