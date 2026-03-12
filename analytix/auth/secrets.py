@@ -61,7 +61,7 @@ class _RequestHandler(BaseHTTPRequestHandler):
     ) -> None:
         _log.debug(f"Received request ({code})")
 
-    def do_GET(self) -> None:  # noqa: N802
+    def do_GET(self) -> None:
         self.send_response(200)
         self.send_header("Content-Type", "text/html")
         self.end_headers()

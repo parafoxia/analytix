@@ -35,11 +35,10 @@ import os
 import platform
 import sys
 import warnings
-from importlib import metadata, resources
+from importlib import metadata
+from importlib import resources
 from typing import Optional
 from typing import TextIO
-from typing import Type
-from typing import Union
 
 BANNER = r'''
 {r}            {o}             {y}            {g}88  {b}             {i}         {v}88
@@ -99,7 +98,7 @@ def display_splash() -> None:
         f"\33[1m{b}Information:\33[0m\n"
         f" • Python version: {info['python_version']} "
         f"({info['python_implementation']})\n"
-        f" • Operating system: {info['operating_system']} ({info['operating_system_version']})\n"
+        f" • Operating system: {info['operating_system']} ({info['operating_system_version']})\n"  # noqa: E501
         f" • Installed in: {info['installed_in']}\n\n"
         f"\33[1m{g}Useful links:\33[0m\n"
         f" • Documentation: \33[4m{info['docs']}\33[0m\n"
@@ -155,12 +154,12 @@ def enable_logging(level: int = logging.INFO) -> "logging.StreamHandler[TextIO]"
     logging.logMultiprocessing = False
 
     def showwarning(
-        message: Union[Warning, str],
-        category: Type[Warning],
+        message: Warning | str,
+        category: type[Warning],
         filename: str,
         lineno: int,
         file: Optional["TextIO"] = None,
-        line: Optional[str] = None,
+        line: str | None = None,
     ) -> None:
         for _module_name, module in sys.modules.items():
             module_path = getattr(module, "__file__", None)

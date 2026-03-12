@@ -39,6 +39,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING
+from typing import Self
 from typing import cast
 
 from analytix.auth.scopes import Scopes
@@ -110,7 +111,7 @@ class Client(RequestMixin):
         else:
             self._tokens_file = None
 
-    def __enter__(self) -> "Client":
+    def __enter__(self) -> Self:
         return self
 
     def __exit__(self, *_: object) -> None:

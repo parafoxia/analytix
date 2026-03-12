@@ -8,11 +8,11 @@ test:
 
 # Format code (currently only checks).
 format:
-    uvx black --check analytix/ tests/ examples/
+    uvx black analytix/ tests/ examples/
 
 # Lint code.
 lint:
-    uvx ruff check analytix/
+    uvx ruff check analytix/ --fix
 
 # Check typing.
 typecheck:
