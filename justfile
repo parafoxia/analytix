@@ -4,7 +4,7 @@ default:
 
 # Run all tests.
 test:
-    uv run pytest --disable-warnings --log-level=1
+    uv run pytest --disable-warnings --log-level=1 --cov=analytix --cov-report=term-missing
 
 # Format code (currently only checks).
 format:
@@ -28,4 +28,4 @@ check-spelling:
 
 # Serve the documentation.
 serve-docs:
-    uv run mkdocs serve
+    uv run mkdocs serve --watch analytix/
