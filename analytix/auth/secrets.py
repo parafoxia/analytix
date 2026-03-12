@@ -36,6 +36,8 @@ import webbrowser
 from collections.abc import Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
+from io import TextIOBase
+from os import PathLike
 from http.server import BaseHTTPRequestHandler
 from http.server import HTTPServer
 from io import StringIO
@@ -273,13 +275,20 @@ class Secrets:
     scopes: Scopes
 
     @classmethod
-    def load_from(cls, path: str | Path, scopes: Scopes) -> "Secrets":
-        """Load secrets from a JSON file.
+    def read_json(
+        cls,
+        path_or_buf: str | PathLike[str] | TextIOBase,
+        scopes: Scopes,
+    ) -> "Secrets":
+        """Convert a JSON string into a set of secrets.
+
+        !!! note "New in version 6.0"
 
         Parameters
         ----------
-        path
-            The path to your secrets file.
+        path_or_buf
+            The path to your secrets file or a file-like object to
+            read from.
         scopes : Scopes
             The scopes to allow in requests.
 
@@ -290,12 +299,32 @@ class Secrets:
 
         Examples
         --------
-        >>> secrets = Secrets.load_from("secrets.json")
+        >>> with open("secrets.json", "r") as f:
+        ...     secrets = Secrets.read_json(f)
+        >>> secrets
         Secrets(type="installed", ...)
+
+        Loading from a file.
+
+        >>> Secrets.read_json("secrets.json")
+        Secrets(type="installed", ...)
+
+        Providing custom scopes.
+
+        >>> Secrets.read_json("secrets.json", scopes=Scopes.ALL_READONLY)
+        Secrets(type="installed", resource=..., scopes=Scopes.ALL_READONLY)
         """
-        secrets_file = Path(path)
-        _log.debug("Loading secrets from %s", secrets_file.resolve())
-        data = json.loads(secrets_file.read_text())
+        if isinstance(path_or_buf, (str, PathLike)):
+            data = Path(path_or_buf).read_text()
+        elif isinstance(path_or_buf, TextIOBase):
+            data = path_or_buf.read()
+        else:
+            raise TypeError(
+                "Expected str, PathLike, or TextIOBase, "
+                f"got {type(path_or_buf).__name__}",
+            )
+
+        data = json.loads(data)
         typ = next(iter(data.keys()))
         params = data[typ]
         return cls(

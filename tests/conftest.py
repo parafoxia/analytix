@@ -86,6 +86,22 @@ def client_secrets() -> ClientSecrets:
 
 
 @pytest.fixture()
+def client_secrets_json(client_secrets: ClientSecrets) -> str:
+    return json.dumps(
+        {
+            "installed": {
+                "client_id": client_secrets.client_id,
+                "client_secret": client_secrets.client_secret,
+                "redirect_uris": client_secrets.redirect_uris,
+                "auth_uri": client_secrets.auth_uri,
+                "token_uri": client_secrets.token_uri,
+                "auth_provider_x509_cert_url": client_secrets.auth_provider_x509_cert_url,
+            },
+        },
+    )
+
+
+@pytest.fixture()
 def client_secrets_file(client_secrets: ClientSecrets) -> Iterator[MockFile]:
     data = {
         "installed": {

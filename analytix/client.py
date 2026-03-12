@@ -100,7 +100,7 @@ class Client(RequestMixin):
         scopes: Scopes = Scopes.READONLY,
     ):
         scopes.validate()
-        self._secrets = Secrets.load_from(secrets_file, scopes)
+        self._secrets = Secrets.read_json(secrets_file, scopes)
         self._session_ctx: SessionContext | None = None
         self._tokens_file: Path | None
 

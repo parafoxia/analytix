@@ -31,6 +31,7 @@ import logging
 import secrets as secrets_mod
 import time
 import webbrowser
+from io import StringIO
 from multiprocessing.pool import ThreadPool
 from pathlib import Path
 from unittest import mock
@@ -170,9 +171,26 @@ def test_auth_context_fetch_tokens_error(auth_context: AuthContext) -> None:
     assert str(exc_info.value) == "could not authorise: error_description (error)"
 
 
-def test_secrets_load_from(secrets: Secrets, client_secrets_file: MockFile) -> None:
+def test_secrets_read_json_from_file(
+    secrets: Secrets,
+    client_secrets_file: MockFile,
+) -> None:
     with mock.patch.object(Path, "open", return_value=client_secrets_file):
-        assert Secrets.load_from("client_secrets_file", Scopes.READONLY) == secrets
+        assert Secrets.read_json("client_secrets_file", Scopes.READONLY) == secrets
+
+
+def test_secrets_read_json_from_string(
+    secrets: Secrets,
+    client_secrets_json: str,
+) -> None:
+    assert Secrets.read_json(StringIO(client_secrets_json), Scopes.READONLY) == secrets
+
+
+def test_secrets_read_json_type_error() -> None:
+    with pytest.raises(TypeError) as exc_info:
+        Secrets.read_json(123, Scopes.READONLY)
+
+    assert exc_info.value.args[0] == "Expected str, PathLike, or TextIOBase, got int"
 
 
 def test_secrets_auth_context(secrets: Secrets, auth_context: AuthContext) -> None:
