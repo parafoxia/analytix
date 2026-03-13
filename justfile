@@ -8,7 +8,7 @@ test:
 
 # Format code (currently only checks).
 format:
-    uvx black analytix/ tests/ examples/
+    uvx black analytix/ tests/
 
 # Lint code.
 lint:
@@ -16,7 +16,7 @@ lint:
 
 # Check typing.
 typecheck:
-    uvx --with ".[dev]" --with pip mypy --install-types --non-interactive analytix/ examples/
+    uvx --with ".[dev]" --with pip mypy --install-types --non-interactive analytix/
 
 # Check slots are set up correctly.
 check-slots:
@@ -24,7 +24,7 @@ check-slots:
 
 # Check spelling.
 check-spelling:
-    uvx codespell analytix/ tests/ examples/ -S "analytix/reports/data.py"
+    uvx codespell analytix/ tests/ -S "analytix/reports/data.py"
 
 # Serve the documentation.
 serve-docs:
