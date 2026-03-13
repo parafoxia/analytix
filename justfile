@@ -16,7 +16,7 @@ lint:
 
 # Check typing.
 typecheck:
-    uvx --with ".[dev]" --with pip mypy --install-types --non-interactive analytix/
+    uv run mypy analytix/
 
 # Check slots are set up correctly.
 check-slots:

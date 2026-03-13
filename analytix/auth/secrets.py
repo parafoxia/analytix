@@ -70,7 +70,7 @@ class _RequestHandler(BaseHTTPRequestHandler):
         self.end_headers()
 
         self.server: _Server
-        self.server.query_params = dict(parse_qs(self.path.split("?")[1]))  # type: ignore[arg-type]
+        self.server.query_params = dict(parse_qs(self.path.split("?")[1]))
         self.wfile.write((Path(__file__).parent / "landing.html").read_bytes())
 
 

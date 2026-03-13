@@ -34,7 +34,6 @@ from typing import Any
 from urllib.parse import urlencode
 
 import urllib3
-from urllib3 import HTTPResponse
 from urllib3.exceptions import MaxRetryError
 
 from analytix.errors import APIError
@@ -42,6 +41,13 @@ from analytix.errors import BadRequest
 from analytix.errors import Forbidden
 from analytix.errors import NotFound
 from analytix.errors import Unauthorised
+
+try:
+    from urllib3 import BaseHTTPResponse as HTTPResponse
+except ImportError:
+    # urllib3 < 2.0 doesn't have the BaseHTTPResponse, so this is
+    # done for compatibility with older versions.
+    from urllib3 import HTTPResponse
 
 ERROR_MAPPING = {
     400: BadRequest,
@@ -67,7 +73,7 @@ class RequestMixin:
         ignore_errors: bool = False,
         token: str | None = None,
         timeout: float | None = None,
-    ) -> Generator["HTTPResponse", None, None]:
+    ) -> Generator[HTTPResponse, None, None]:
         method = "POST" if post or data else "GET"
         headers = headers or {}
 

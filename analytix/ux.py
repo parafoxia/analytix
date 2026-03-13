@@ -37,6 +37,7 @@ import sys
 import warnings
 from importlib import metadata
 from importlib import resources
+from importlib.resources.abc import Traversable
 from typing import Optional
 from typing import TextIO
 
@@ -65,7 +66,7 @@ BANNER = r'''
 )
 
 
-def _compile_info() -> dict[str, str]:
+def _compile_info() -> dict[str, str | list[str] | Traversable]:
     md = metadata.metadata("analytix").json
     urls = {(pair := url.split(", "))[0]: pair[1] for url in md["project_url"]}
     return {

@@ -316,7 +316,7 @@ class Report:
 
         path = process_path(path, ".xlsx", overwrite=overwrite)
         wb = Workbook()
-        ws = wb.active
+        ws = wb.active or wb.create_sheet()
         ws.title = sheet_name
 
         ws.append(self.columns)
