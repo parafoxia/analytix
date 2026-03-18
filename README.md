@@ -1,3 +1,6 @@
+<!-- SPDX-FileCopyrightText: 2021-2026 Ethan Henderson -->
+<!-- SPDX-License-Identifier: BSD-3-Clause -->
+
 <div align="center">
 <img alt="analytix logo" src="https://raw.githubusercontent.com/parafoxia/analytix/main/assets/logo.png" width="400px">
 <br /><br />
@@ -35,21 +38,6 @@ pip install git+https://github.com/parafoxia/analytix
 
 You may need to prefix these commands with a call to the Python interpreter depending on your OS and Python configuration.
 
-### Dependencies
-
-Below is a list of analytix's dependencies.
-Note that the minimum version assumes you're using CPython 3.10.
-The latest versions of each library are always supported.
-
-| Name              | Min. version | Required? | Usage                                                         | 
-|-------------------|--------------|-----------|---------------------------------------------------------------|
-| `urllib3`         | 2.2.0        | Yes       | Making HTTP requests                                          |
-| `jwt`             | 1.2.0        | No        | Decoding JWT ID tokens (from v5.1)                            |
-| `openpyxl`        | 3.0.0        | No        | Exporting report data to Excel spreadsheets                   |
-| `pandas`          | ~1.3.0       | No        | Exporting report data to pandas DataFrames                    |
-| `polars`          | 0.15.17      | No        | Exporting report data to Polars DataFrames                    |
-| `pyarrow`         | ~5.0.0       | No        | Exporting report data to Apache Arrow tables and file formats |
-
 ## OAuth authentication
 
 All requests to the YouTube Analytics API need to be authorised through OAuth 2.
@@ -62,74 +50,20 @@ More details regarding how and when refresh tokens expire can be found on the [G
 
 ## Usage
 
-### Retrieving reports
-
-The following example creates a CSV file containing basic info for the 10 most viewed videos, from most to least viewed, in the US in 2022:
-
-```py
-from datetime import date
-
-from analytix import Client
-
-client = Client("secrets.json")
-report = client.fetch_report(
-    dimensions=("video",),
-    filters={"country": "US"},
-    metrics=("estimatedMinutesWatched", "views", "likes", "comments"),
-    sort_options=("-estimatedMinutesWatched",),
-    start_date=date(2022, 1, 1),
-    end_date=date(2022, 12, 31),
-    max_results=10,
-)
-report.to_csv("analytics.csv")
-```
-
-If you want to analyse this data using additional tools such as *pandas*, you can directly export the report as a DataFrame or table using the `to_pandas()`, `to_arrow()`, and `to_polars()` methods of the report instance.
-You can also save the report as a `.tsv`, `.json`, `.xlsx`, `.parquet`, or `.feather` file.
-
-There are more examples in the [GitHub repository](https://github.com/parafoxia/analytix/tree/main/examples).
-
-### Fetching group information
-
-You can also fetch groups and group items:
-
-```py
-from analytix import Client
-
-# You can also use the client as context manager!
-with Client("secrets.json") as client:
-    groups = client.fetch_groups()
-    group_items = client.fetch_group_items(groups[0].id)
-```
-
-### Logging
-
-If you want to see what analytix is doing, you can enable the packaged logger:
-
-```py
-import analytix
-
-analytix.enable_logging()
-```
-
-This defaults to showing all log messages of level INFO and above.
-To show more (or less) messages, pass a logging level as an argument.
+This is an alpha version, and is subject to change.
 
 ## Compatibility
 
-CPython 3.10 through 3.13 and PyPy 3.10 are officially supported\*.
-CPython 3.14-dev is provisionally supported\*.
+Python 3.11 or above is required.
+The CPython and PyPy implementations are both officially supported.
 Windows, MacOS, and Linux are all supported.
 
-*For base analytix functionality; support cannot be guaranteed for functionality requiring external libraries.
+Support for other configurations or functionality requiring optional libraries cannot be guaranteed.
 
 ## Contributing
 
-Contributions are very much welcome! To get started:
-
-* Familiarise yourself with the [code of conduct](https://github.com/parafoxia/analytix/blob/main/CODE_OF_CONDUCT.md)
-* Have a look at the [contributing guide](https://github.com/parafoxia/analytix/blob/main/CONTRIBUTING.md)
+Contributions are very much welcome! Have a look at the [contributing guide](https://github.com/parafoxia/analytix/blob/main/CONTRIBUTING.md) to get started.
 
 ## License
 
-The analytix module for Python is licensed under the [BSD 3-Clause License](https://github.com/parafoxia/analytix/blob/main/LICENSE).
+This project is licensed under the [BSD 3-Clause "New" or "Revised" License](https://github.com/parafoxia/analytix/blob/main/LICENSES/BSD-3-Clause.txt).

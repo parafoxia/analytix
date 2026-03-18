@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2021-2026 Ethan Henderson
+# SPDX-License-Identifier: BSD-3-Clause
+
 [project]
 name = "analytix"
 version = "6.0.0a2"
@@ -36,7 +39,7 @@ classifiers = [
 authors = [
     { name = "Ethan Henderson", email = "ethan.henderson.1998@gmail.com" }
 ]
-license = { text = "BSD 3-Clause 'New' or 'Revised' License" }
+license = "BSD-3-Clause"
 
 [project.urls]
 Homepage = "https://github.com/parafoxia/analytix"
@@ -110,7 +113,7 @@ extend-select = [
     "SLOT",
     "T10",
     "T20",
-    "TCH",
+    # "TCH",
     "TID",
     "UP",
     "YTT",

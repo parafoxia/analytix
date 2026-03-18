@@ -1,30 +1,6 @@
-# Copyright (c) 2021-present, Ethan Henderson
-# All rights reserved.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#
-# 1. Redistributions of source code must retain the above copyright notice, this
-#    list of conditions and the following disclaimer.
-#
-# 2. Redistributions in binary form must reproduce the above copyright notice,
-#    this list of conditions and the following disclaimer in the documentation
-#    and/or other materials provided with the distribution.
-#
-# 3. Neither the name of the copyright holder nor the names of its
-#    contributors may be used to endorse or promote products derived from
-#    this software without specific prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# SPDX-FileCopyrightText: 2021-2026 Ethan Henderson
+# SPDX-FileCopyrightText: 2022 Jonxslays
+# SPDX-License-Identifier: BSD-3-Clause
 
 import datetime as dt
 import json
@@ -36,7 +12,8 @@ import pytest
 from openpyxl import Workbook
 
 from analytix import utils
-from analytix.errors import DataFrameConversionError, MissingOptionalComponents
+from analytix.errors import DataFrameConversionError
+from analytix.errors import MissingOptionalComponents
 from analytix.reports.interfaces import Report
 from analytix.reports.resources import ResultTable
 from tests import MockFile
@@ -66,7 +43,10 @@ def test_report_metrics_property(report: Report):
 
 @mock.patch("builtins.open")
 def test_report_to_json_no_indent(
-    mock_open, response_data: bytes, report: Report, caplog
+    mock_open,
+    response_data: bytes,
+    report: Report,
+    caplog,
 ):
     f = MockFile(response_data.decode("utf-8"))
     mock_open.return_value = f
@@ -77,7 +57,10 @@ def test_report_to_json_no_indent(
 
 @mock.patch("builtins.open")
 def test_report_to_json_with_indent_4(
-    mock_open, response_data: bytes, report: Report, caplog
+    mock_open,
+    response_data: bytes,
+    report: Report,
+    caplog,
 ):
     f = MockFile(json.dumps(json.loads(response_data), indent=4))
     mock_open.return_value = f
@@ -136,7 +119,7 @@ def test_report_to_excel_without_openpyxl(_, report: Report):
     with pytest.raises(
         MissingOptionalComponents,
         match=re.escape(
-            "some necessary libraries are not installed (hint: pip install openpyxl)"
+            "some necessary libraries are not installed (hint: pip install openpyxl)",
         ),
     ):
         report.to_excel("report.xlsx")
@@ -182,7 +165,7 @@ def test_report_to_pandas_without_pandas(_, report: Report):
     with pytest.raises(
         MissingOptionalComponents,
         match=re.escape(
-            "some necessary libraries are not installed (hint: pip install pandas)"
+            "some necessary libraries are not installed (hint: pip install pandas)",
         ),
     ):
         report.to_pandas()
@@ -238,7 +221,7 @@ def test_report_to_arrow_without_pyarrow(_, report: Report):
     with pytest.raises(
         MissingOptionalComponents,
         match=re.escape(
-            "some necessary libraries are not installed (hint: pip install pyarrow)"
+            "some necessary libraries are not installed (hint: pip install pyarrow)",
         ),
     ):
         report.to_arrow()
@@ -282,7 +265,7 @@ def test_report_to_polars_without_polars(_, report: Report):
     with pytest.raises(
         MissingOptionalComponents,
         match=re.escape(
-            "some necessary libraries are not installed (hint: pip install polars)"
+            "some necessary libraries are not installed (hint: pip install polars)",
         ),
     ):
         report.to_polars()
@@ -307,7 +290,7 @@ def test_report_to_feather_without_pyarrow(_, report: Report):
     with pytest.raises(
         MissingOptionalComponents,
         match=re.escape(
-            "some necessary libraries are not installed (hint: pip install pyarrow)"
+            "some necessary libraries are not installed (hint: pip install pyarrow)",
         ),
     ):
         report.to_feather("report.feather")
@@ -332,7 +315,7 @@ def test_report_to_parquet_without_pyarrow(_, report: Report):
     with pytest.raises(
         MissingOptionalComponents,
         match=re.escape(
-            "some necessary libraries are not installed (hint: pip install pyarrow)"
+            "some necessary libraries are not installed (hint: pip install pyarrow)",
         ),
     ):
         report.to_parquet("report.parquet")
