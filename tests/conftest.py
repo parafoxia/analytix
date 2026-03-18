@@ -1,36 +1,11 @@
-# Copyright (c) 2021-present, Ethan Henderson
-# All rights reserved.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#
-# 1. Redistributions of source code must retain the above copyright notice, this
-#    list of conditions and the following disclaimer.
-#
-# 2. Redistributions in binary form must reproduce the above copyright notice,
-#    this list of conditions and the following disclaimer in the documentation
-#    and/or other materials provided with the distribution.
-#
-# 3. Neither the name of the copyright holder nor the names of its
-#    contributors may be used to endorse or promote products derived from
-#    this software without specific prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# SPDX-FileCopyrightText: 2021-2026 Ethan Henderson
+# SPDX-License-Identifier: BSD-3-Clause
 
 import datetime as dt
 import json
+from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
-from typing import Iterator
 from unittest import mock
 
 import pytest
@@ -112,7 +87,7 @@ def client_secrets_file(client_secrets: ClientSecrets) -> Iterator[MockFile]:
             "auth_uri": client_secrets.auth_uri,
             "token_uri": client_secrets.token_uri,
             "auth_provider_x509_cert_url": client_secrets.auth_provider_x509_cert_url,
-        }
+        },
     }
     return MockFile(json.dumps(data).encode("utf-8"))
 
@@ -164,7 +139,7 @@ def tokens_json(tokens: Tokens) -> str:
             "token_type": tokens.token_type,
             "refresh_token": tokens.refresh_token,
             "id_token": tokens.id_token,
-        }
+        },
     )
 
 
@@ -188,9 +163,9 @@ def public_jwks() -> str:
                     "kid": "420",
                     "n": "3O1ym3_YzGYXHm-Pd6toEDvCx_KsL-68m3N8dOf9bb17GnRoUfUL4HLBFCnpqcmmwqT9Cm9TWuskyynht0c1AWFsW6a8eDeJu_lTwFnydgzQn4EU-yeIE82GbvriC-3SmPLUApNALZCgWmWjDlAFB94SybR9TA3Qqb9IPc0c5QXTCeBmJzhfOBJ5VlMwYsWnftuGxjT4lvlGNO1Ifqa09CedKr5TuNS7L3joMI4RRtejuC_p3LsBgnZ_7kV5C4t4n8USBBnyNms6GQvBoqHLctL56fNHva7vY-dsEZ4VNUeYRjIIuQ6BaAoCZQbbhTfJDBsRBRdq41aOw92xSlGA4Q",
                     "e": "AQAB",
-                }
-            ]
-        }
+                },
+            ],
+        },
     )
 
 
@@ -348,21 +323,21 @@ def response_data():
                 ["2022-06-25", 1005],
                 ["2022-06-26", 888],
             ],
-        }
+        },
     ).encode("utf-8")
 
 
 @pytest.fixture()
 def error_response_data():
     return json.dumps(
-        {"error": {"code": 403, "message": "You ain't allowed, son."}}
+        {"error": {"code": 403, "message": "You ain't allowed, son."}},
     ).encode("utf-8")
 
 
 @pytest.fixture()
 def auth_error_response_data():
     return json.dumps(
-        {"error": "403", "error_description": "You ain't allowed, son."}
+        {"error": "403", "error_description": "You ain't allowed, son."},
     ).encode("utf-8")
 
 

@@ -1,30 +1,5 @@
-# Copyright (c) 2021-present, Ethan Henderson
-# All rights reserved.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#
-# 1. Redistributions of source code must retain the above copyright notice, this
-#    list of conditions and the following disclaimer.
-#
-# 2. Redistributions in binary form must reproduce the above copyright notice,
-#    this list of conditions and the following disclaimer in the documentation
-#    and/or other materials provided with the distribution.
-#
-# 3. Neither the name of the copyright holder nor the names of its
-#    contributors may be used to endorse or promote products derived from
-#    this software without specific prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# SPDX-FileCopyrightText: 2021-2026 Ethan Henderson
+# SPDX-License-Identifier: BSD-3-Clause
 
 import json
 from typing import Any
@@ -41,7 +16,7 @@ class MockFile:
     def __enter__(self) -> "MockFile":
         return self
 
-    def __exit__(self, *args: Any) -> None:
+    def __exit__(self, *args: object) -> None:
         pass
 
     def read(self) -> str:
@@ -63,7 +38,7 @@ class MockResponse:
     def __enter__(self) -> "MockResponse":
         return self
 
-    def __exit__(self, *args: Any) -> None:
+    def __exit__(self, *args: object) -> None:
         pass
 
     @property
@@ -81,7 +56,7 @@ class MockContextManager:
     def __enter__(self) -> Any:
         return self.thing
 
-    def __exit__(self, *args: Any) -> None:
+    def __exit__(self, *args: object) -> None:
         pass
 
 
@@ -96,8 +71,8 @@ def create_secrets_file(other=False):
                 "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
                 "client_secret": "f6g7h8i9j0",
                 "redirect_uris": ["http://localhost"],
-            }
-        }
+            },
+        },
     )
 
 
@@ -122,7 +97,7 @@ def create_tokens_file():
             "scope": "https://www.googleapis.com/auth/yt-analytics.readonly https://www.googleapis.com/auth/yt-analytics-monetary.readonly",
             "token_type": "Bearer",
             "refresh_token": "f6g7h8i9j0",
-        }
+        },
     )
 
 
@@ -168,7 +143,7 @@ def create_request_data():
                 ["2022-06-25", 1005, 31, 6, 4.316],
                 ["2022-06-26", 888, 12, 1, 4.206],
             ],
-        }
+        },
     )
 
 
@@ -186,7 +161,7 @@ def create_group_data():
                 "itemCount": "69",
                 "itemType": "youtube#video",
             },
-        }
+        },
     )
 
 
@@ -197,7 +172,7 @@ def create_group_list_data():
             "etag": "f6g7h8i9j0",
             "items": [json.loads(create_group_data())],
             "nextPageToken": "a1b2c3d4e5",
-        }
+        },
     )
 
 
@@ -212,7 +187,7 @@ def create_group_item_data():
                 "kind": "youtube#video",
                 "id": "j0i9h8g7f6",
             },
-        }
+        },
     )
 
 
@@ -222,5 +197,5 @@ def create_group_item_list_data():
             "kind": "youtube#groupItemListResponse",
             "etag": "a1b2c3d4e5",
             "items": [json.loads(create_group_item_data())],
-        }
+        },
     )

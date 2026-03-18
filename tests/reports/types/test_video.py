@@ -1,35 +1,8 @@
-# Copyright (c) 2021-present, Ethan Henderson
-# All rights reserved.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#
-# 1. Redistributions of source code must retain the above copyright notice, this
-#    list of conditions and the following disclaimer.
-#
-# 2. Redistributions in binary form must reproduce the above copyright notice,
-#    this list of conditions and the following disclaimer in the documentation
-#    and/or other materials provided with the distribution.
-#
-# 3. Neither the name of the copyright holder nor the names of its
-#    contributors may be used to endorse or promote products derived from
-#    this software without specific prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# SPDX-FileCopyrightText: 2021-2026 Ethan Henderson
+# SPDX-License-Identifier: BSD-3-Clause
 
 import random
 import warnings
-from typing import List
-from typing import Set
 
 import pytest
 
@@ -54,7 +27,7 @@ def select_sort_options(metrics, descending_only=False):
     return [(m[0], f"-{m[0]}") for m in metrics[1:]]
 
 
-def sample(s: Set[str], n: int = 3) -> List[str]:
+def sample(s: set[str], n: int = 3) -> list[str]:
     return s if len(s) < n else random.sample(list(s), n)
 
 
@@ -298,7 +271,8 @@ def test_geography_based_activity_us(dimensions, filters, metrics, sort_options)
     ],
 )
 @pytest.mark.parametrize(
-    "metrics", m := select_metrics(rt.GeographyBasedActivityByCity())
+    "metrics",
+    m := select_metrics(rt.GeographyBasedActivityByCity()),
 )
 @pytest.mark.parametrize("sort_options", select_sort_options(m, descending_only=True))
 def test_geography_based_activity_by_city(dimensions, filters, metrics, sort_options):
@@ -322,7 +296,8 @@ def test_geography_based_activity_by_city_warning():
 
     with warnings.catch_warnings(record=True) as warns:
         with pytest.raises(
-            InvalidRequest, match="expected no more than 25 results, got 26"
+            InvalidRequest,
+            match="expected no more than 25 results, got 26",
         ):
             report.validate(d, f, m, s, 26)
 
@@ -350,11 +325,15 @@ def test_geography_based_activity_by_city_warning():
     ],
 )
 @pytest.mark.parametrize(
-    "metrics", m := select_metrics(rt.GeographyBasedActivityByCity())
+    "metrics",
+    m := select_metrics(rt.GeographyBasedActivityByCity()),
 )
 @pytest.mark.parametrize("sort_options", select_sort_options(m, descending_only=True))
 def test_geography_based_activity_by_city_with_province(
-    dimensions, filters, metrics, sort_options
+    dimensions,
+    filters,
+    metrics,
+    sort_options,
 ):
     report = rt.GeographyBasedActivityByCity()
     assert report.name == "Geography-based activity (by city)"
@@ -378,11 +357,15 @@ def test_geography_based_activity_by_city_with_province(
     ],
 )
 @pytest.mark.parametrize(
-    "metrics", m := select_metrics(rt.GeographyBasedActivityByCity())
+    "metrics",
+    m := select_metrics(rt.GeographyBasedActivityByCity()),
 )
 @pytest.mark.parametrize("sort_options", select_sort_options(m, descending_only=True))
 def test_geography_based_activity_by_city_with_province_errors(
-    dimensions, filters, metrics, sort_options
+    dimensions,
+    filters,
+    metrics,
+    sort_options,
 ):
     report = rt.GeographyBasedActivityByCity()
     assert report.name == "Geography-based activity (by city)"
@@ -432,7 +415,8 @@ def test_geography_based_activity_by_city_with_province_errors(
     ],
 )
 @pytest.mark.parametrize(
-    "metrics", m := select_metrics(rt.PlaybackDetailsSubscribedStatus())
+    "metrics",
+    m := select_metrics(rt.PlaybackDetailsSubscribedStatus()),
 )
 @pytest.mark.parametrize("sort_options", select_sort_options(m))
 def test_playback_details_subscribed_status(dimensions, filters, metrics, sort_options):
@@ -474,11 +458,15 @@ def test_playback_details_subscribed_status(dimensions, filters, metrics, sort_o
     ],
 )
 @pytest.mark.parametrize(
-    "metrics", m := select_metrics(rt.PlaybackDetailsSubscribedStatusUS())
+    "metrics",
+    m := select_metrics(rt.PlaybackDetailsSubscribedStatusUS()),
 )
 @pytest.mark.parametrize("sort_options", select_sort_options(m))
 def test_playback_details_subscribed_status_us(
-    dimensions, filters, metrics, sort_options
+    dimensions,
+    filters,
+    metrics,
+    sort_options,
 ):
     report = rt.PlaybackDetailsSubscribedStatusUS()
     assert report.name == "User activity by subscribed status (US)"
@@ -554,7 +542,8 @@ def test_playback_details_subscribed_status_us(
     ],
 )
 @pytest.mark.parametrize(
-    "metrics", m := select_metrics(rt.PlaybackDetailsLiveTimeBased())
+    "metrics",
+    m := select_metrics(rt.PlaybackDetailsLiveTimeBased()),
 )
 @pytest.mark.parametrize("sort_options", select_sort_options(m))
 def test_playback_details_live_time_based(dimensions, filters, metrics, sort_options):
@@ -624,11 +613,15 @@ def test_playback_details_live_time_based(dimensions, filters, metrics, sort_opt
     ],
 )
 @pytest.mark.parametrize(
-    "metrics", m := select_metrics(rt.PlaybackDetailsViewPercentageTimeBased())
+    "metrics",
+    m := select_metrics(rt.PlaybackDetailsViewPercentageTimeBased()),
 )
 @pytest.mark.parametrize("sort_options", select_sort_options(m))
 def test_playback_details_view_percentage_time_based(
-    dimensions, filters, metrics, sort_options
+    dimensions,
+    filters,
+    metrics,
+    sort_options,
 ):
     report = rt.PlaybackDetailsViewPercentageTimeBased()
     assert report.name == "Time-based playback details (view percentage)"
@@ -679,11 +672,15 @@ def test_playback_details_view_percentage_time_based(
     ],
 )
 @pytest.mark.parametrize(
-    "metrics", m := select_metrics(rt.PlaybackDetailsLiveGeographyBased())
+    "metrics",
+    m := select_metrics(rt.PlaybackDetailsLiveGeographyBased()),
 )
 @pytest.mark.parametrize("sort_options", select_sort_options(m))
 def test_playback_details_live_geography_based(
-    dimensions, filters, metrics, sort_options
+    dimensions,
+    filters,
+    metrics,
+    sort_options,
 ):
     report = rt.PlaybackDetailsLiveGeographyBased()
     assert report.name == "Geography-based playback details (live)"
@@ -730,11 +727,15 @@ def test_playback_details_live_geography_based(
     ],
 )
 @pytest.mark.parametrize(
-    "metrics", m := select_metrics(rt.PlaybackDetailsViewPercentageGeographyBased())
+    "metrics",
+    m := select_metrics(rt.PlaybackDetailsViewPercentageGeographyBased()),
 )
 @pytest.mark.parametrize("sort_options", select_sort_options(m))
 def test_playback_details_view_percentage_geography_based(
-    dimensions, filters, metrics, sort_options
+    dimensions,
+    filters,
+    metrics,
+    sort_options,
 ):
     report = rt.PlaybackDetailsViewPercentageGeographyBased()
     assert report.name == "Geography-based playback details (view percentage)"
@@ -776,11 +777,15 @@ def test_playback_details_view_percentage_geography_based(
     ],
 )
 @pytest.mark.parametrize(
-    "metrics", m := select_metrics(rt.PlaybackDetailsLiveGeographyBasedUS())
+    "metrics",
+    m := select_metrics(rt.PlaybackDetailsLiveGeographyBasedUS()),
 )
 @pytest.mark.parametrize("sort_options", select_sort_options(m))
 def test_playback_details_live_geography_based_us(
-    dimensions, filters, metrics, sort_options
+    dimensions,
+    filters,
+    metrics,
+    sort_options,
 ):
     report = rt.PlaybackDetailsLiveGeographyBasedUS()
     assert report.name == "Geography-based playback details (live, US)"
@@ -818,11 +823,15 @@ def test_playback_details_live_geography_based_us(
     ],
 )
 @pytest.mark.parametrize(
-    "metrics", m := select_metrics(rt.PlaybackDetailsViewPercentageGeographyBasedUS())
+    "metrics",
+    m := select_metrics(rt.PlaybackDetailsViewPercentageGeographyBasedUS()),
 )
 @pytest.mark.parametrize("sort_options", select_sort_options(m))
 def test_playback_details_view_percentage_geography_based_us(
-    dimensions, filters, metrics, sort_options
+    dimensions,
+    filters,
+    metrics,
+    sort_options,
 ):
     report = rt.PlaybackDetailsViewPercentageGeographyBasedUS()
     assert report.name == "Geography-based playback details (view percentage, US)"
@@ -1360,7 +1369,8 @@ def test_operating_system(dimensions, filters, metrics, sort_options):
     ],
 )
 @pytest.mark.parametrize(
-    "metrics", m := select_metrics(rt.DeviceTypeAndOperatingSystem())
+    "metrics",
+    m := select_metrics(rt.DeviceTypeAndOperatingSystem()),
 )
 @pytest.mark.parametrize("sort_options", select_sort_options(m))
 def test_device_type_and_operating_system(dimensions, filters, metrics, sort_options):
@@ -1450,7 +1460,8 @@ def test_viewer_demographics(dimensions, filters, metrics, sort_options):
     ],
 )
 @pytest.mark.parametrize(
-    "metrics", m := select_metrics(rt.EngagementAndContentSharing())
+    "metrics",
+    m := select_metrics(rt.EngagementAndContentSharing()),
 )
 @pytest.mark.parametrize("sort_options", select_sort_options(m))
 def test_engagement_and_content_sharing(dimensions, filters, metrics, sort_options):

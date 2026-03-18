@@ -1,45 +1,18 @@
-# Copyright (c) 2021-present, Ethan Henderson
-# All rights reserved.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#
-# 1. Redistributions of source code must retain the above copyright notice, this
-#    list of conditions and the following disclaimer.
-#
-# 2. Redistributions in binary form must reproduce the above copyright notice,
-#    this list of conditions and the following disclaimer in the documentation
-#    and/or other materials provided with the distribution.
-#
-# 3. Neither the name of the copyright holder nor the names of its
-#    contributors may be used to endorse or promote products derived from
-#    this software without specific prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# SPDX-FileCopyrightText: 2021-2026 Ethan Henderson
+# SPDX-License-Identifier: BSD-3-Clause
 
 import re
 
 import pytest
 
 from analytix.errors import InvalidRequest
-from analytix.reports.features import (
-    Dimensions,
-    ExactlyOne,
-    OneOrMore,
-    Optional,
-    Required,
-    ZeroOrMore,
-    ZeroOrOne,
-)
+from analytix.reports.features import Dimensions
+from analytix.reports.features import ExactlyOne
+from analytix.reports.features import OneOrMore
+from analytix.reports.features import Optional
+from analytix.reports.features import Required
+from analytix.reports.features import ZeroOrMore
+from analytix.reports.features import ZeroOrOne
 
 
 def test_dimensions_every(dimensions_required):
@@ -66,7 +39,7 @@ def test_dimensions_unsupported(dimensions_required):
     with pytest.raises(
         InvalidRequest,
         match=re.escape(
-            "dimensions 'country', 'day', and 'month' cannot be used together"
+            "dimensions 'country', 'day', and 'month' cannot be used together",
         ),
     ):
         dimensions_required.validate(["day", "month", "country"])
@@ -258,7 +231,8 @@ def test_dimensions_zero_or_more_equal(dimensions_zero_or_more):
 
 
 def test_dimensions_zero_or_more_not_equal(
-    dimensions_required, dimensions_zero_or_more
+    dimensions_required,
+    dimensions_zero_or_more,
 ):
     assert dimensions_required != dimensions_zero_or_more
 
