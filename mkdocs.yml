@@ -81,7 +81,7 @@ repo_name: parafoxia/analytix
 repo_url: https://github.com/parafoxia/analytix
 
 watch:
-  - "analytix"
+  - "src/analytix"
 
 nav:
   - "index.md"
