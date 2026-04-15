@@ -18,9 +18,16 @@ __all__ = (
     "Unauthorised",
 )
 
+from typing import Any
+from typing import Self
+
 
 class AnalytixError(Exception):
     """The base exception class for analytix."""
+
+
+class AnalytixExceptionGroup(ExceptionGroup):
+    """The base exception group class for analytix."""
 
 
 class MissingOptionalComponents(AnalytixError):
@@ -204,3 +211,27 @@ class InvalidRequest(AnalytixError):
         return cls(
             f"expected {expd} {key}{plural} from {cls.list_of(values)}, got {recv}",
         )
+
+
+class ValidationExceptionGroup(AnalytixExceptionGroup):
+    pass
+
+
+class ValidationError(AnalytixError):
+    value = 1
+
+    @classmethod
+    def format(cls, message: str, **kwargs: Any) -> Self:
+        return cls(message.format(**kwargs))
+
+
+class InputValidationError(ValidationError):
+    pass
+
+
+class ParameterError(ValidationError):
+    value = 10
+
+
+class ConstraintError(ValidationError):
+    value = 20

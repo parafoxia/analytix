@@ -11,38 +11,30 @@ import logging
 from collections.abc import Collection
 from collections.abc import Iterator
 from contextlib import contextmanager
-from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Self
-from typing import cast
 
-from analytix.auth.scopes import Scopes
-from analytix.auth.secrets import Secrets
-from analytix.auth.tokens import Tokens
-from analytix.groups import GroupItemList
-from analytix.groups import GroupList
-from analytix.mixins import RequestMixin
-from analytix.queries import GroupItemQuery
-from analytix.queries import GroupQuery
-from analytix.queries import ReportQuery
-from analytix.reports import Report
+from .auth.scopes import Scopes
+from .auth.secrets import Secrets
+from .auth.tokens import Tokens
+from .groups import GroupItemList
+from .groups import GroupList
+from .mixins import RequestMixin
+from .queries import GroupItemQuery
+from .queries import GroupQuery
+from .reports.builder import ReportBuilder
+from .reports.interfaces import Report
+from .reports.types import ReportType
+from .session import Session
 
 if TYPE_CHECKING:
-    from analytix.abc import ReportType
     from analytix.types import PathLike
 
 
 UPDATE_CHECK_URL = "https://pypi.org/pypi/analytix/json"
 
 _log = logging.getLogger(__name__)
-
-
-@dataclass(frozen=True)
-class Session:
-    key: str
-    access_token: str
-    scopes: Scopes
 
 
 class Client(RequestMixin):
@@ -286,6 +278,8 @@ class Client(RequestMixin):
         start_index: int = 1,
         include_historical_data: bool = False,
         session: Session | None = None,
+        report_type: type[ReportType] | None = None,
+        display_nested_exceptions: bool = False,
     ) -> "Report":
         """Fetch an analytics report.
 
@@ -337,6 +331,20 @@ class Client(RequestMixin):
             managing multiple sessions. If this is not provided, the
             client will either use an available session or create a
             default one.
+        report_type
+            The type of report this request is for. If this is not
+            provided, analytix will validate across all report types.
+            This is useful if you know what kind of report you want
+            ahead of time, and don't want analytix to assume.
+        display_nested_exceptions
+            Whether to allow errors from multiple report types to be
+            displayed at once. If this is `True`, analytix will display
+            all errors from all report types with the fewest errors.
+            Otherwise, it will only display errors from what it believes
+            to be the best candidate. This is `False` by default as
+            nested exception groups can look quite messy, but can lead
+            to analytix making incorrect assumptions. If `report_type`
+            is set, this is ignored.
 
         Raises
         ------
@@ -390,27 +398,19 @@ class Client(RequestMixin):
         ... )
         """
         session = session or self._session or self._create_session()
-
-        query = ReportQuery(
-            dimensions,
-            filters,
-            metrics,
-            sort_options,
-            max_results,
-            start_date,
-            end_date,
-            currency,
-            start_index,
-            include_historical_data,
-        )
-        query.validate(session.scopes or self._secrets.scopes)
-
-        with self._request(query.url, token=session.access_token) as resp:
-            data = json.loads(resp.data)
-
-        report = Report(data, cast("ReportType", query.rtype))
-        _log.info("Created '%s' report of shape %s", query.rtype, report.shape)
-        return report
+        return ReportBuilder(
+            dimensions=dimensions,
+            filters=filters,
+            metrics=metrics,
+            sort_options=sort_options,
+            max_results=max_results,
+            start_date=start_date,
+            end_date=end_date,
+            currency=currency,
+            start_index=start_index,
+            include_historical_data=include_historical_data,
+            display_nested_exceptions=display_nested_exceptions,
+        ).build(report_type_cls=report_type, session=session)
 
     def fetch_groups(
         self,

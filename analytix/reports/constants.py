@@ -7,24 +7,27 @@ __all__ = (
     "ALL_METRICS",
     "ALL_METRICS_ORDERED",
     "ALL_PLAYLIST_METRICS",
-    "ALL_PLAYLIST_METRICS_DEPRECATED",
     "ALL_PROVINCE_METRICS",
     "ALL_VIDEO_METRICS",
+    "ANNOTATION_AND_CARD_METRICS",
+    "CITY_METRICS",
     "CONTENT_OWNER_DIMENSIONS",
     "CORE_DIMENSIONS",
     "CORE_METRICS",
     "COUNTRIES",
     "CURRENCIES",
     "DEPRECATED_DIMENSIONS",
-    "LESSER_SUBSCRIPTION_METRICS",
+    "ENGAGEMENT_METRICS",
+    "GEOGRAPHICAL_PLAYLIST_METRICS",
     "LIVE_PLAYBACK_DETAIL_METRICS",
     "LOCATION_AND_TRAFFIC_METRICS",
-    "LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED",
     "LOCATION_AND_TRAFFIC_PLAYLIST_SORT_OPTIONS",
-    "LOCATION_AND_TRAFFIC_PLAYLIST_SORT_OPTIONS_DEPRECATED",
     "LOCATION_AND_TRAFFIC_SORT_OPTIONS",
+    "LOCATION_PLAYLIST_METRICS",
+    "REVENUE_METRICS",
     "SUBDIVISIONS",
     "SUBSCRIPTION_METRICS",
+    "TOP_PLAYLIST_METRICS",
     "TOP_VIDEOS_EXTRA_SORT_OPTIONS",
     "TOP_VIDEOS_SORT_OPTIONS",
     "VALID_FILTER_OPTIONS",
@@ -343,6 +346,39 @@ SUBDIVISIONS = {
     "US-NY",
 }
 
+CONTINENTS = {
+    "002",
+    "019",
+    "142",
+    "150",
+    "009",
+}
+
+SUBCONTINENTS = {
+    "014",
+    "017",
+    "015",
+    "018",
+    "011",
+    "029",
+    "013",
+    "021",
+    "005",
+    "143",
+    "030",
+    "034",
+    "035",
+    "145",
+    "151",
+    "154",
+    "039",
+    "155",
+    "053",
+    "054",
+    "057",
+    "061",
+}
+
 CURRENCIES = {
     "AED",
     "AFN",
@@ -575,37 +611,8 @@ VALID_FILTER_OPTIONS = {
     "country": COUNTRIES,
     "province": SUBDIVISIONS,
     "city": (),
-    "continent": (
-        "002",
-        "019",
-        "142",
-        "150",
-        "009",
-    ),
-    "subContinent": (
-        "014",
-        "017",
-        "015",
-        "018",
-        "011",
-        "029",
-        "013",
-        "021",
-        "005",
-        "143",
-        "030",
-        "034",
-        "035",
-        "145",
-        "151",
-        "154",
-        "039",
-        "155",
-        "053",
-        "054",
-        "057",
-        "061",
-    ),
+    "continent": CONTINENTS,
+    "subContinent": SUBCONTINENTS,
     "day": (),
     "month": (),
     "insightPlaybackLocationType": (
@@ -879,135 +886,75 @@ ALL_METRICS_ORDERED = (
 
 ALL_METRICS = set(ALL_METRICS_ORDERED)
 
-ALL_VIDEO_METRICS = {
-    "views",
-    "redViews",
-    "comments",
-    "likes",
-    "dislikes",
-    "videosAddedToPlaylists",
-    "videosRemovedFromPlaylists",
-    "shares",
-    "estimatedMinutesWatched",
-    "estimatedRedMinutesWatched",
-    "averageViewDuration",
-    "averageViewPercentage",
-    "annotationClickThroughRate",
-    "annotationCloseRate",
-    "annotationImpressions",
-    "annotationClickableImpressions",
-    "annotationClosableImpressions",
-    "annotationClicks",
-    "annotationCloses",
-    "cardClickRate",
-    "cardTeaserClickRate",
-    "cardImpressions",
-    "cardTeaserImpressions",
-    "cardClicks",
-    "cardTeaserClicks",
-    "subscribersGained",
-    "subscribersLost",
-    "estimatedRevenue",
-    "estimatedAdRevenue",
-    "grossRevenue",
-    "estimatedRedPartnerRevenue",
-    "monetizedPlaybacks",
-    "playbackBasedCpm",
-    "adImpressions",
-    "cpm",
-}
-
-ALL_PROVINCE_METRICS = {
-    "views",
-    "redViews",
-    "estimatedMinutesWatched",
-    "estimatedRedMinutesWatched",
-    "averageViewDuration",
-    "averageViewPercentage",
-    "annotationClickThroughRate",
-    "annotationCloseRate",
-    "annotationImpressions",
-    "annotationClickableImpressions",
-    "annotationClosableImpressions",
-    "annotationClicks",
-    "annotationCloses",
-    "cardClickRate",
-    "cardTeaserClickRate",
-    "cardImpressions",
-    "cardTeaserImpressions",
-    "cardClicks",
-    "cardTeaserClicks",
-}
-
-SUBSCRIPTION_METRICS = {
-    "views",
-    "redViews",
-    "likes",
-    "dislikes",
-    "videosAddedToPlaylists",
-    "videosRemovedFromPlaylists",
-    "shares",
-    "estimatedMinutesWatched",
-    "estimatedRedMinutesWatched",
-    "averageViewDuration",
-    "averageViewPercentage",
-    "annotationClickThroughRate",
-    "annotationCloseRate",
-    "annotationImpressions",
-    "annotationClickableImpressions",
-    "annotationClosableImpressions",
-    "annotationClicks",
-    "annotationCloses",
-    "cardClickRate",
-    "cardTeaserClickRate",
-    "cardImpressions",
-    "cardTeaserImpressions",
-    "cardClicks",
-    "cardTeaserClicks",
-}
-
-LESSER_SUBSCRIPTION_METRICS = {
-    "views",
-    "redViews",
-    "estimatedMinutesWatched",
-    "estimatedRedMinutesWatched",
-    "averageViewDuration",
-    "averageViewPercentage",
-    "annotationClickThroughRate",
-    "annotationCloseRate",
-    "annotationImpressions",
-    "annotationClickableImpressions",
-    "annotationClosableImpressions",
-    "annotationClicks",
-    "annotationCloses",
-    "cardClickRate",
-    "cardTeaserClickRate",
-    "cardImpressions",
-    "cardTeaserImpressions",
-    "cardClicks",
-    "cardTeaserClicks",
-}
-
-LIVE_PLAYBACK_DETAIL_METRICS = {
-    "views",
-    "redViews",
-    "estimatedMinutesWatched",
-    "estimatedRedMinutesWatched",
-    "averageViewDuration",
-}
-
-VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS = {
-    "views",
-    "redViews",
-    "estimatedMinutesWatched",
-    "estimatedRedMinutesWatched",
-    "averageViewDuration",
-    "averageViewPercentage",
-}
-
 LOCATION_AND_TRAFFIC_METRICS = {
     "views",
     "estimatedMinutesWatched",
+}
+
+LIVE_PLAYBACK_DETAIL_METRICS = LOCATION_AND_TRAFFIC_METRICS | {
+    "redViews",
+    "estimatedRedMinutesWatched",
+    "averageViewDuration",
+}
+
+VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS = LIVE_PLAYBACK_DETAIL_METRICS | {
+    "averageViewPercentage",
+}
+
+ANNOTATION_AND_CARD_METRICS = {
+    "annotationClickThroughRate",
+    "annotationCloseRate",
+    "annotationImpressions",
+    "annotationClickableImpressions",
+    "annotationClosableImpressions",
+    "annotationClicks",
+    "annotationCloses",
+    "cardClickRate",
+    "cardTeaserClickRate",
+    "cardImpressions",
+    "cardTeaserImpressions",
+    "cardClicks",
+    "cardTeaserClicks",
+}
+
+ALL_PROVINCE_METRICS = (
+    VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS | ANNOTATION_AND_CARD_METRICS
+)
+
+ENGAGEMENT_METRICS = {
+    "likes",
+    "dislikes",
+    "videosAddedToPlaylists",
+    "videosRemovedFromPlaylists",
+    "shares",
+}
+
+SUBSCRIPTION_METRICS = ALL_PROVINCE_METRICS | ENGAGEMENT_METRICS
+
+REVENUE_METRICS = {
+    "estimatedAdRevenue",
+    "estimatedRedPartnerRevenue",
+    "adImpressions",
+    "grossRevenue",
+    "estimatedRevenue",
+    "monetizedPlaybacks",
+    "cpm",
+    "playbackBasedCpm",
+}
+
+ALL_VIDEO_METRICS = (
+    SUBSCRIPTION_METRICS
+    | REVENUE_METRICS
+    | {
+        "comments",
+        "subscribersGained",
+        "subscribersLost",
+    }
+)
+
+CITY_METRICS = LOCATION_AND_TRAFFIC_METRICS | {
+    "averageViewDuration",
+    "averageViewPercentage",
 }
 
 ALL_PLAYLIST_METRICS = {
@@ -1023,72 +970,23 @@ ALL_PLAYLIST_METRICS = {
     "viewsPerPlaylistStart",
 }
 
-ALL_PLAYLIST_METRICS_DEPRECATED = {
-    "views",
-    "redViews",
-    "estimatedMinutesWatched",
-    "estimatedRedMinutesWatched",
-    "averageViewDuration",
-    "playlistStarts",
-    "viewsPerPlaylistStart",
-    "averageTimeInPlaylist",
-}
-
-GEOGRAPHICAL_PLAYLIST_METRICS = {
+TOP_PLAYLIST_METRICS = ALL_PLAYLIST_METRICS - {
     "views",
     "estimatedMinutesWatched",
     "averageViewDuration",
 }
 
-LOCATION_PLAYLIST_METRICS = {
-    "views",
-    "estimatedMinutesWatched",
-    "averageViewDuration",
-    "averageTimeInPlaylist",
-    "playlistAverageViewDuration",
-    "playlistEstimatedMinutesWatched",
-    "playlistStarts",
-    "playlistViews",
-    "viewsPerPlaylistStart",
-}
+GEOGRAPHICAL_PLAYLIST_METRICS = ALL_PLAYLIST_METRICS - TOP_PLAYLIST_METRICS
 
-LOCATION_AND_TRAFFIC_PLAYLIST_METRICS_DEPRECATED = {
-    "views",
-    "estimatedMinutesWatched",
-    "playlistStarts",
-    "viewsPerPlaylistStart",
-    "averageTimeInPlaylist",
-}
+LOCATION_PLAYLIST_METRICS = ALL_PLAYLIST_METRICS - {"playlistSaves"}
 
-TOP_PLAYLIST_METRICS = {
-    "averageTimeInPlaylist",
-    "playlistAverageViewDuration",
-    "playlistEstimatedMinutesWatched",
-    "playlistSaves",
-    "playlistStarts",
-    "playlistViews",
-    "viewsPerPlaylistStart",
-}
+LOCATION_AND_TRAFFIC_SORT_OPTIONS = LOCATION_AND_TRAFFIC_METRICS
 
-LOCATION_AND_TRAFFIC_SORT_OPTIONS = {
-    "views",
-    "estimatedMinutesWatched",
-}
+TOP_VIDEOS_SORT_OPTIONS = LIVE_PLAYBACK_DETAIL_METRICS - {"averageViewDuration"}
 
-TOP_VIDEOS_SORT_OPTIONS = {
-    "views",
-    "redViews",
-    "estimatedMinutesWatched",
-    "estimatedRedMinutesWatched",
-}
-
-TOP_VIDEOS_EXTRA_SORT_OPTIONS = {
-    "views",
-    "redViews",
+TOP_VIDEOS_EXTRA_SORT_OPTIONS = TOP_VIDEOS_SORT_OPTIONS | {
     "estimatedRevenue",
     "estimatedRedPartnerRevenue",
-    "estimatedMinutesWatched",
-    "estimatedRedMinutesWatched",
     "subscribersGained",
     "subscribersLost",
 }
@@ -1097,21 +995,4 @@ LOCATION_AND_TRAFFIC_PLAYLIST_SORT_OPTIONS = {
     "playlistViews",
     "playlistEstimatedMinutesWatched",
     "playlistStarts",
-}
-
-LOCATION_AND_TRAFFIC_PLAYLIST_SORT_OPTIONS_DEPRECATED = {
-    "views",
-    "estimatedMinutesWatched",
-    "playlistStarts",
-}
-
-REVENUE_METRICS = {
-    "estimatedAdRevenue",
-    "estimatedRedPartnerRevenue",
-    "adImpressions",
-    "grossRevenue",
-    "estimatedRevenue",
-    "monetizedPlaybacks",
-    "cpm",
-    "playbackBasedCpm",
 }
