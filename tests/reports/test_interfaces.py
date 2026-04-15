@@ -4,6 +4,7 @@
 
 import datetime as dt
 import json
+import logging
 import re
 from pathlib import Path
 from unittest import mock
@@ -42,6 +43,10 @@ def test_report_metrics_property(report: Report):
 
 
 @mock.patch("builtins.open")
+@pytest.mark.skipif(
+    not logging.getLogger().isEnabledFor(logging.DEBUG),
+    reason="DEBUG level logging is not enabled",
+)
 def test_report_to_json_no_indent(
     mock_open,
     response_data: bytes,
@@ -56,6 +61,10 @@ def test_report_to_json_no_indent(
 
 
 @mock.patch("builtins.open")
+@pytest.mark.skipif(
+    not logging.getLogger().isEnabledFor(logging.DEBUG),
+    reason="DEBUG level logging is not enabled",
+)
 def test_report_to_json_with_indent_4(
     mock_open,
     response_data: bytes,
@@ -70,6 +79,10 @@ def test_report_to_json_with_indent_4(
 
 
 @mock.patch("builtins.open")
+@pytest.mark.skipif(
+    not logging.getLogger().isEnabledFor(logging.DEBUG),
+    reason="DEBUG level logging is not enabled",
+)
 def test_report_to_csv(mock_open, report_csv, report: Report, caplog):
     f = MockFile(report_csv)
     mock_open.return_value = f
@@ -80,6 +93,10 @@ def test_report_to_csv(mock_open, report_csv, report: Report, caplog):
 
 
 @mock.patch("builtins.open")
+@pytest.mark.skipif(
+    not logging.getLogger().isEnabledFor(logging.DEBUG),
+    reason="DEBUG level logging is not enabled",
+)
 def test_report_to_tsv(mock_open, report_tsv, report: Report, caplog):
     f = MockFile(report_tsv)
     mock_open.return_value = f
@@ -90,6 +107,10 @@ def test_report_to_tsv(mock_open, report_tsv, report: Report, caplog):
 
 
 @pytest.mark.skipif(not utils.can_use("openpyxl"), reason="openpyxl is not available")
+@pytest.mark.skipif(
+    not logging.getLogger().isEnabledFor(logging.DEBUG),
+    reason="DEBUG level logging is not enabled",
+)
 @mock.patch.object(Workbook, "save", return_value=None)
 @mock.patch.object(Workbook, "active", new_callable=mock.PropertyMock)
 def test_report_to_excel(mock_active, mock_save, report: Report, caplog):
