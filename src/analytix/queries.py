@@ -11,8 +11,11 @@ from typing import TYPE_CHECKING
 
 from analytix.auth import Scopes
 from analytix.errors import InvalidRequest
-from analytix.reports import data
 from analytix.reports import types as rt
+from analytix.reports.constants import ALL_METRICS_ORDERED
+from analytix.reports.constants import ALL_PLAYLIST_METRICS
+from analytix.reports.constants import CURRENCIES
+from analytix.reports.constants import REVENUE_METRICS
 from analytix.warnings import InvalidMonthFormatWarning
 
 if TYPE_CHECKING:
@@ -128,7 +131,7 @@ class ReportQuery:
 
         _log.debug(f"Getting data between {self.start_date} and {self.end_date}")
 
-        if self.currency not in data.CURRENCIES:
+        if self.currency not in CURRENCIES:
             raise InvalidRequest(
                 f"expected a valid ISO 4217 currency code, got {self.currency!r}",
             )
@@ -141,13 +144,13 @@ class ReportQuery:
 
         if not self.metrics:
             self.metrics = [
-                m for m in data.ALL_METRICS_ORDERED if m in self.rtype.metrics.values
+                m for m in ALL_METRICS_ORDERED if m in self.rtype.metrics.values
             ]
 
         if not scopes & Scopes.MONETARY_READONLY:
-            self.metrics = [m for m in self.metrics if m not in data.REVENUE_METRICS]
+            self.metrics = [m for m in self.metrics if m not in REVENUE_METRICS]
         elif not scopes & Scopes.READONLY:
-            self.metrics = [m for m in self.metrics if m in data.REVENUE_METRICS]
+            self.metrics = [m for m in self.metrics if m in REVENUE_METRICS]
 
         _log.debug("Metrics set to: " + ", ".join(self.metrics))
 
@@ -175,7 +178,7 @@ class ReportQuery:
 
         return bool(
             self.filters.get("group")
-            and any(m in data.ALL_PLAYLIST_METRICS for m in self.metrics),
+            and any(m in ALL_PLAYLIST_METRICS for m in self.metrics),
         )
 
     def _determine_video_report_type(self) -> "ReportType":

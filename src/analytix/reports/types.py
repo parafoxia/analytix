@@ -54,7 +54,21 @@ from collections.abc import Collection
 from analytix.abc import DetailedReportType
 from analytix.abc import ReportType
 from analytix.errors import InvalidRequest
-from analytix.reports import data
+from analytix.reports.constants import ALL_PLAYLIST_METRICS
+from analytix.reports.constants import ALL_PROVINCE_METRICS
+from analytix.reports.constants import ALL_VIDEO_METRICS
+from analytix.reports.constants import GEOGRAPHICAL_PLAYLIST_METRICS
+from analytix.reports.constants import LIVE_PLAYBACK_DETAIL_METRICS
+from analytix.reports.constants import LOCATION_AND_TRAFFIC_METRICS
+from analytix.reports.constants import LOCATION_AND_TRAFFIC_PLAYLIST_SORT_OPTIONS
+from analytix.reports.constants import LOCATION_AND_TRAFFIC_SORT_OPTIONS
+from analytix.reports.constants import LOCATION_PLAYLIST_METRICS
+from analytix.reports.constants import SUBSCRIPTION_METRICS
+from analytix.reports.constants import TOP_PLAYLIST_METRICS
+from analytix.reports.constants import TOP_VIDEOS_EXTRA_SORT_OPTIONS
+from analytix.reports.constants import TOP_VIDEOS_SORT_OPTIONS
+from analytix.reports.constants import VALID_FILTER_OPTIONS
+from analytix.reports.constants import VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS
 from analytix.reports.features import Dimensions
 from analytix.reports.features import ExactlyOne
 from analytix.reports.features import Filters
@@ -76,7 +90,7 @@ class BasicUserActivity(ReportType):
             ZeroOrOne("country", "continent", "subContinent"),
             ZeroOrOne("video", "group"),
         )
-        self.metrics = Metrics(*data.ALL_VIDEO_METRICS)
+        self.metrics = Metrics(*ALL_VIDEO_METRICS)
         self.sort_options = SortOptions(*self.metrics.values)
 
 
@@ -88,7 +102,7 @@ class BasicUserActivityUS(ReportType):
             Required("province"),
             ZeroOrOne("video", "group"),
         )
-        self.metrics = Metrics(*data.ALL_PROVINCE_METRICS)
+        self.metrics = Metrics(*ALL_PROVINCE_METRICS)
         self.sort_options = SortOptions(*self.metrics.values)
 
 
@@ -103,7 +117,7 @@ class TimeBasedActivity(ReportType):
             ZeroOrOne("country", "continent", "subContinent"),
             ZeroOrOne("video", "group"),
         )
-        self.metrics = Metrics(*data.ALL_VIDEO_METRICS)
+        self.metrics = Metrics(*ALL_VIDEO_METRICS)
         self.sort_options = SortOptions(*self.metrics.values)
 
 
@@ -118,7 +132,7 @@ class TimeBasedActivityUS(ReportType):
             Required("province"),
             ZeroOrOne("video", "group"),
         )
-        self.metrics = Metrics(*data.ALL_PROVINCE_METRICS)
+        self.metrics = Metrics(*ALL_PROVINCE_METRICS)
         self.sort_options = SortOptions(*self.metrics.values)
 
 
@@ -133,7 +147,7 @@ class GeographyBasedActivity(ReportType):
             ZeroOrOne("continent", "subContinent"),
             ZeroOrOne("video", "group"),
         )
-        self.metrics = Metrics(*data.ALL_VIDEO_METRICS)
+        self.metrics = Metrics(*ALL_VIDEO_METRICS)
         self.sort_options = SortOptions(*self.metrics.values)
 
 
@@ -148,7 +162,7 @@ class GeographyBasedActivityUS(ReportType):
             Required("country==US"),
             ZeroOrOne("video", "group"),
         )
-        self.metrics = Metrics(*data.ALL_PROVINCE_METRICS)
+        self.metrics = Metrics(*ALL_PROVINCE_METRICS)
         self.sort_options = SortOptions(*self.metrics.values)
 
 
@@ -171,7 +185,7 @@ class GeographyBasedActivityByCity(DetailedReportType):
             "averageViewPercentage",
         )
         self.sort_options = SortOptions(
-            *data.LOCATION_AND_TRAFFIC_SORT_OPTIONS,
+            *LOCATION_AND_TRAFFIC_SORT_OPTIONS,
             descending_only=True,
         )
         self.max_results = 25
@@ -220,7 +234,7 @@ class PlaybackDetailsSubscribedStatus(ReportType):
             ZeroOrOne("video", "group"),
             Optional("subscribedStatus"),
         )
-        self.metrics = Metrics(*data.SUBSCRIPTION_METRICS)
+        self.metrics = Metrics(*SUBSCRIPTION_METRICS)
         self.sort_options = SortOptions(*self.metrics.values)
 
 
@@ -235,7 +249,7 @@ class PlaybackDetailsSubscribedStatusUS(ReportType):
             ZeroOrOne("video", "group"),
             ZeroOrMore("province", "subscribedStatus"),
         )
-        self.metrics = Metrics(*data.LESSER_SUBSCRIPTION_METRICS)
+        self.metrics = Metrics(*ALL_PROVINCE_METRICS)
         self.sort_options = SortOptions(*self.metrics.values)
 
 
@@ -256,7 +270,7 @@ class PlaybackDetailsLiveTimeBased(ReportType):
             ZeroOrOne("video", "group"),
             ZeroOrMore("liveOrOnDemand", "subscribedStatus", "youtubeProduct"),
         )
-        self.metrics = Metrics(*data.LIVE_PLAYBACK_DETAIL_METRICS)
+        self.metrics = Metrics(*LIVE_PLAYBACK_DETAIL_METRICS)
         self.sort_options = SortOptions(*self.metrics.values)
 
 
@@ -272,7 +286,7 @@ class PlaybackDetailsViewPercentageTimeBased(ReportType):
             ZeroOrOne("video", "group"),
             ZeroOrMore("subscribedStatus", "youtubeProduct"),
         )
-        self.metrics = Metrics(*data.VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS)
+        self.metrics = Metrics(*VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS)
         self.sort_options = SortOptions(*self.metrics.values)
 
 
@@ -293,7 +307,7 @@ class PlaybackDetailsLiveGeographyBased(ReportType):
             ZeroOrOne("video", "group"),
             ZeroOrMore("liveOrOnDemand", "subscribedStatus", "youtubeProduct"),
         )
-        self.metrics = Metrics(*data.LIVE_PLAYBACK_DETAIL_METRICS)
+        self.metrics = Metrics(*LIVE_PLAYBACK_DETAIL_METRICS)
         self.sort_options = SortOptions(*self.metrics.values)
 
 
@@ -309,7 +323,7 @@ class PlaybackDetailsViewPercentageGeographyBased(ReportType):
             ZeroOrOne("video", "group"),
             ZeroOrMore("subscribedStatus", "youtubeProduct"),
         )
-        self.metrics = Metrics(*data.VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS)
+        self.metrics = Metrics(*VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS)
         self.sort_options = SortOptions(*self.metrics.values)
 
 
@@ -330,7 +344,7 @@ class PlaybackDetailsLiveGeographyBasedUS(ReportType):
             ZeroOrOne("video", "group"),
             ZeroOrMore("liveOrOnDemand", "subscribedStatus", "youtubeProduct"),
         )
-        self.metrics = Metrics(*data.LIVE_PLAYBACK_DETAIL_METRICS)
+        self.metrics = Metrics(*LIVE_PLAYBACK_DETAIL_METRICS)
         self.sort_options = SortOptions(*self.metrics.values)
 
 
@@ -346,7 +360,7 @@ class PlaybackDetailsViewPercentageGeographyBasedUS(ReportType):
             ZeroOrOne("video", "group"),
             ZeroOrMore("subscribedStatus", "youtubeProduct"),
         )
-        self.metrics = Metrics(*data.VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS)
+        self.metrics = Metrics(*VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS)
         self.sort_options = SortOptions(*self.metrics.values)
 
 
@@ -367,7 +381,7 @@ class PlaybackLocation(ReportType):
             ZeroOrOne("video", "group"),
             ZeroOrMore("liveOrOnDemand", "subscribedStatus"),
         )
-        self.metrics = Metrics(*data.LOCATION_AND_TRAFFIC_METRICS)
+        self.metrics = Metrics(*LOCATION_AND_TRAFFIC_METRICS)
         self.sort_options = SortOptions(*self.metrics.values)
 
 
@@ -384,9 +398,9 @@ class PlaybackLocationDetail(DetailedReportType):
             ZeroOrOne("video", "group"),
             ZeroOrMore("liveOrOnDemand", "subscribedStatus"),
         )
-        self.metrics = Metrics(*data.LOCATION_AND_TRAFFIC_METRICS)
+        self.metrics = Metrics(*LOCATION_AND_TRAFFIC_METRICS)
         self.sort_options = SortOptions(
-            *data.LOCATION_AND_TRAFFIC_SORT_OPTIONS,
+            *LOCATION_AND_TRAFFIC_SORT_OPTIONS,
             descending_only=True,
         )
         self.max_results = 25
@@ -409,7 +423,7 @@ class TrafficSource(ReportType):
             ZeroOrOne("video", "group"),
             ZeroOrMore("liveOrOnDemand", "subscribedStatus"),
         )
-        self.metrics = Metrics(*data.LOCATION_AND_TRAFFIC_METRICS)
+        self.metrics = Metrics(*LOCATION_AND_TRAFFIC_METRICS)
         self.sort_options = SortOptions(*self.metrics.values)
 
 
@@ -426,9 +440,9 @@ class TrafficSourceDetail(DetailedReportType):
             ZeroOrOne("video", "group"),
             ZeroOrMore("liveOrOnDemand", "subscribedStatus"),
         )
-        self.metrics = Metrics(*data.LOCATION_AND_TRAFFIC_METRICS)
+        self.metrics = Metrics(*LOCATION_AND_TRAFFIC_METRICS)
         self.sort_options = SortOptions(
-            *data.LOCATION_AND_TRAFFIC_SORT_OPTIONS,
+            *LOCATION_AND_TRAFFIC_SORT_OPTIONS,
             descending_only=True,
         )
         self.max_results = 25
@@ -452,7 +466,7 @@ class TrafficSourceDetail(DetailedReportType):
         )
 
         itst = filters["insightTrafficSourceType"]
-        if itst not in data.VALID_FILTER_OPTIONS["insightTrafficSourceDetail"]:
+        if itst not in VALID_FILTER_OPTIONS["insightTrafficSourceDetail"]:
             raise InvalidRequest.incompatible_filter_value(
                 "insightTrafficSourceType",
                 itst,
@@ -482,7 +496,7 @@ class DeviceType(ReportType):
                 "youtubeProduct",
             ),
         )
-        self.metrics = Metrics(*data.LOCATION_AND_TRAFFIC_METRICS)
+        self.metrics = Metrics(*LOCATION_AND_TRAFFIC_METRICS)
         self.sort_options = SortOptions(*self.metrics.values)
 
 
@@ -509,7 +523,7 @@ class OperatingSystem(ReportType):
                 "youtubeProduct",
             ),
         )
-        self.metrics = Metrics(*data.LOCATION_AND_TRAFFIC_METRICS)
+        self.metrics = Metrics(*LOCATION_AND_TRAFFIC_METRICS)
         self.sort_options = SortOptions(*self.metrics.values)
 
 
@@ -531,7 +545,7 @@ class DeviceTypeAndOperatingSystem(ReportType):
             ZeroOrOne("video", "group"),
             ZeroOrMore("liveOrOnDemand", "subscribedStatus", "youtubeProduct"),
         )
-        self.metrics = Metrics(*data.LOCATION_AND_TRAFFIC_METRICS)
+        self.metrics = Metrics(*LOCATION_AND_TRAFFIC_METRICS)
         self.sort_options = SortOptions(*self.metrics.values)
 
 
@@ -605,9 +619,9 @@ class TopVideosRegional(DetailedReportType):
         self.name = "Top videos by region"
         self.dimensions = Dimensions(Required("video"), Optional("creatorContentType"))
         self.filters = Filters(ZeroOrOne("country", "continent", "subContinent"))
-        self.metrics = Metrics(*data.ALL_VIDEO_METRICS)
+        self.metrics = Metrics(*ALL_VIDEO_METRICS)
         self.sort_options = SortOptions(
-            *data.TOP_VIDEOS_EXTRA_SORT_OPTIONS,
+            *TOP_VIDEOS_EXTRA_SORT_OPTIONS,
             descending_only=True,
         )
         self.max_results = 200
@@ -618,9 +632,9 @@ class TopVideosUS(DetailedReportType):
         self.name = "Top videos by state"
         self.dimensions = Dimensions(Required("video"), Optional("creatorContentType"))
         self.filters = Filters(Required("province"), Optional("subscribedStatus"))
-        self.metrics = Metrics(*data.ALL_PROVINCE_METRICS)
+        self.metrics = Metrics(*ALL_PROVINCE_METRICS)
         self.sort_options = SortOptions(
-            *data.TOP_VIDEOS_SORT_OPTIONS,
+            *TOP_VIDEOS_SORT_OPTIONS,
             descending_only=True,
         )
         self.max_results = 200
@@ -634,9 +648,9 @@ class TopVideosSubscribed(DetailedReportType):
             Optional("subscribedStatus"),
             ZeroOrOne("country", "continent", "subContinent"),
         )
-        self.metrics = Metrics(*data.SUBSCRIPTION_METRICS)
+        self.metrics = Metrics(*SUBSCRIPTION_METRICS)
         self.sort_options = SortOptions(
-            *data.TOP_VIDEOS_SORT_OPTIONS,
+            *TOP_VIDEOS_SORT_OPTIONS,
             descending_only=True,
         )
         self.max_results = 200
@@ -650,9 +664,9 @@ class TopVideosYouTubeProduct(DetailedReportType):
             ZeroOrOne("country", "province", "continent", "subContinent"),
             ZeroOrMore("subscribedStatus", "youtubeProduct"),
         )
-        self.metrics = Metrics(*data.VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS)
+        self.metrics = Metrics(*VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS)
         self.sort_options = SortOptions(
-            *data.TOP_VIDEOS_SORT_OPTIONS,
+            *TOP_VIDEOS_SORT_OPTIONS,
             descending_only=True,
         )
         self.max_results = 200
@@ -666,9 +680,9 @@ class TopVideosPlaybackDetail(DetailedReportType):
             ZeroOrOne("country", "province", "continent", "subContinent"),
             ZeroOrMore("liveOrOnDemand", "subscribedStatus", "youtubeProduct"),
         )
-        self.metrics = Metrics(*data.VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS)
+        self.metrics = Metrics(*VIEW_PERCENTAGE_PLAYBACK_DETAIL_METRICS)
         self.sort_options = SortOptions(
-            *data.TOP_VIDEOS_SORT_OPTIONS,
+            *TOP_VIDEOS_SORT_OPTIONS,
             descending_only=True,
         )
         self.max_results = 200
@@ -679,7 +693,7 @@ class BasicUserActivityPlaylist(ReportType):
         self.name = "Basic user activity for playlists"
         self.dimensions = Dimensions()
         self.filters = Filters(ExactlyOne("playlist", "group"))
-        self.metrics = Metrics(*data.ALL_PLAYLIST_METRICS)
+        self.metrics = Metrics(*ALL_PLAYLIST_METRICS)
         self.sort_options = SortOptions(*self.metrics.values)
 
 
@@ -688,7 +702,7 @@ class TimeBasedActivityPlaylist(ReportType):
         self.name = "Time-based activity for playlists"
         self.dimensions = Dimensions(ExactlyOne("day", "month"))
         self.filters = Filters(ExactlyOne("playlist", "group"))
-        self.metrics = Metrics(*data.ALL_PLAYLIST_METRICS)
+        self.metrics = Metrics(*ALL_PLAYLIST_METRICS)
         self.sort_options = SortOptions(*self.metrics.values)
 
 
@@ -700,7 +714,7 @@ class GeographyBasedActivityPlaylist(ReportType):
             ExactlyOne("playlist", "group"),
             ZeroOrOne("continent", "subContinent"),
         )
-        self.metrics = Metrics(*data.GEOGRAPHICAL_PLAYLIST_METRICS)
+        self.metrics = Metrics(*GEOGRAPHICAL_PLAYLIST_METRICS)
         self.sort_options = SortOptions(*self.metrics.values)
 
 
@@ -709,7 +723,7 @@ class GeographyBasedActivityUSPlaylist(ReportType):
         self.name = "Geography-based activity for playlists (US)"
         self.dimensions = Dimensions(Required("province"))
         self.filters = Filters(Required("country==US"), ExactlyOne("playlist", "group"))
-        self.metrics = Metrics(*data.GEOGRAPHICAL_PLAYLIST_METRICS)
+        self.metrics = Metrics(*GEOGRAPHICAL_PLAYLIST_METRICS)
         self.sort_options = SortOptions(*self.metrics.values)
 
 
@@ -718,7 +732,7 @@ class PlaybackLocationPlaylist(ReportType):
         self.name = "Playback locations for playlists"
         self.dimensions = Dimensions(Required("insightPlaybackLocationType"))
         self.filters = Filters(ExactlyOne("playlist", "group"))
-        self.metrics = Metrics(*data.LOCATION_PLAYLIST_METRICS)
+        self.metrics = Metrics(*LOCATION_PLAYLIST_METRICS)
         self.sort_options = SortOptions(*self.metrics.values)
 
 
@@ -730,9 +744,9 @@ class PlaybackLocationDetailPlaylist(DetailedReportType):
             Required("insightPlaybackLocationType==EMBEDDED"),
             ExactlyOne("playlist", "group"),
         )
-        self.metrics = Metrics(*data.LOCATION_PLAYLIST_METRICS)
+        self.metrics = Metrics(*LOCATION_PLAYLIST_METRICS)
         self.sort_options = SortOptions(
-            *data.LOCATION_AND_TRAFFIC_PLAYLIST_SORT_OPTIONS,
+            *LOCATION_AND_TRAFFIC_PLAYLIST_SORT_OPTIONS,
             descending_only=True,
         )
         self.max_results = 25
@@ -743,7 +757,7 @@ class TrafficSourcePlaylist(ReportType):
         self.name = "Traffic sources for playlists"
         self.dimensions = Dimensions(Required("insightTrafficSourceType"))
         self.filters = Filters(ExactlyOne("playlist", "group"))
-        self.metrics = Metrics(*data.ALL_PLAYLIST_METRICS)
+        self.metrics = Metrics(*ALL_PLAYLIST_METRICS)
         self.sort_options = SortOptions(*self.metrics.values)
 
 
@@ -755,9 +769,9 @@ class TrafficSourceDetailPlaylist(DetailedReportType):
             Required("insightTrafficSourceType"),
             ExactlyOne("playlist", "group"),
         )
-        self.metrics = Metrics(*data.ALL_PLAYLIST_METRICS)
+        self.metrics = Metrics(*ALL_PLAYLIST_METRICS)
         self.sort_options = SortOptions(
-            *data.LOCATION_AND_TRAFFIC_PLAYLIST_SORT_OPTIONS,
+            *LOCATION_AND_TRAFFIC_PLAYLIST_SORT_OPTIONS,
             descending_only=True,
         )
         self.max_results = 25
@@ -781,7 +795,7 @@ class TrafficSourceDetailPlaylist(DetailedReportType):
         )
 
         src_type = filters["insightTrafficSourceType"]
-        if src_type not in data.VALID_FILTER_OPTIONS["insightTrafficSourceDetail"]:
+        if src_type not in VALID_FILTER_OPTIONS["insightTrafficSourceDetail"]:
             raise InvalidRequest.incompatible_filter_value(
                 "insightTrafficSourceType",
                 src_type,
@@ -793,7 +807,7 @@ class DeviceTypePlaylist(ReportType):
         self.name = "Device types for playlists"
         self.dimensions = Dimensions(Required("deviceType"))
         self.filters = Filters(ExactlyOne("playlist", "group"))
-        self.metrics = Metrics(*data.LOCATION_PLAYLIST_METRICS)
+        self.metrics = Metrics(*LOCATION_PLAYLIST_METRICS)
         self.sort_options = SortOptions(*self.metrics.values)
 
 
@@ -802,7 +816,7 @@ class OperatingSystemPlaylist(ReportType):
         self.name = "Operating systems for playlists"
         self.dimensions = Dimensions(Required("operatingSystem"))
         self.filters = Filters(ExactlyOne("playlist", "group"))
-        self.metrics = Metrics(*data.LOCATION_PLAYLIST_METRICS)
+        self.metrics = Metrics(*LOCATION_PLAYLIST_METRICS)
         self.sort_options = SortOptions(*self.metrics.values)
 
 
@@ -811,7 +825,7 @@ class DeviceTypeAndOperatingSystemPlaylist(ReportType):
         self.name = "Device types and operating systems for playlists"
         self.dimensions = Dimensions(Required("deviceType", "operatingSystem"))
         self.filters = Filters(ExactlyOne("playlist", "group"))
-        self.metrics = Metrics(*data.LOCATION_PLAYLIST_METRICS)
+        self.metrics = Metrics(*LOCATION_PLAYLIST_METRICS)
         self.sort_options = SortOptions(*self.metrics.values)
 
 
@@ -829,9 +843,9 @@ class TopPlaylists(DetailedReportType):
         self.name = "Top playlists"
         self.dimensions = Dimensions(Required("playlist"))
         self.filters = Filters()
-        self.metrics = Metrics(*data.TOP_PLAYLIST_METRICS)
+        self.metrics = Metrics(*TOP_PLAYLIST_METRICS)
         self.sort_options = SortOptions(
-            *data.LOCATION_AND_TRAFFIC_PLAYLIST_SORT_OPTIONS,
+            *LOCATION_AND_TRAFFIC_PLAYLIST_SORT_OPTIONS,
             descending_only=True,
         )
         self.max_results = 200

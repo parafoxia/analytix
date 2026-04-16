@@ -3,9 +3,9 @@
 
 """Report interfaces for analytix."""
 
-__all__ = ("Report", "ResultTable", "data", "features", "interfaces", "types")
+__all__ = ("Report", "ResultTable", "constants", "features", "interfaces", "types")
 
-from . import data
+from . import constants
 from . import features
 from . import interfaces
 from . import types

@@ -7,8 +7,8 @@ import pytest
 
 from analytix.abc import ReportType
 from analytix.errors import InvalidRequest
-from analytix.reports import data
 from analytix.reports import types as rt
+from analytix.reports.constants import VALID_FILTER_OPTIONS
 
 
 def select_metrics(rtype: ReportType):
@@ -57,19 +57,16 @@ def test_time_based_activity_playlist(dimensions, filters, metrics, sort_options
         {"group": "b2"},
         *[
             {"playlist": "a1", "continent": x}
-            for x in data.VALID_FILTER_OPTIONS["continent"]
+            for x in VALID_FILTER_OPTIONS["continent"]
         ],
-        *[
-            {"group": "b2", "continent": x}
-            for x in data.VALID_FILTER_OPTIONS["continent"]
-        ],
+        *[{"group": "b2", "continent": x} for x in VALID_FILTER_OPTIONS["continent"]],
         *[
             {"playlist": "a1", "subContinent": x}
-            for x in data.VALID_FILTER_OPTIONS["subContinent"]
+            for x in VALID_FILTER_OPTIONS["subContinent"]
         ],
         *[
             {"group": "b2", "subContinent": x}
-            for x in data.VALID_FILTER_OPTIONS["subContinent"]
+            for x in VALID_FILTER_OPTIONS["subContinent"]
         ],
     ],
 )
@@ -177,11 +174,11 @@ def test_traffic_source_playlist(dimensions, filters, metrics, sort_options):
     [
         *[
             {"insightTrafficSourceType": x, "playlist": "a1"}
-            for x in data.VALID_FILTER_OPTIONS["insightTrafficSourceDetail"]
+            for x in VALID_FILTER_OPTIONS["insightTrafficSourceDetail"]
         ],
         *[
             {"insightTrafficSourceType": x, "group": "b2"}
-            for x in data.VALID_FILTER_OPTIONS["insightTrafficSourceDetail"]
+            for x in VALID_FILTER_OPTIONS["insightTrafficSourceDetail"]
         ],
     ],
 )

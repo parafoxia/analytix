@@ -18,7 +18,10 @@ from collections.abc import Collection
 
 from analytix import abc
 from analytix.errors import InvalidRequest
-from analytix.reports import data
+from analytix.reports.constants import ALL_DIMENSIONS
+from analytix.reports.constants import ALL_FILTERS
+from analytix.reports.constants import ALL_METRICS
+from analytix.reports.constants import VALID_FILTER_OPTIONS
 
 
 class _CompareMixin:
@@ -71,7 +74,7 @@ class Metrics(abc.FeatureType, _CompareMixin):
         if not isinstance(inputs, set):
             inputs = set(inputs)
 
-        if diff := inputs - data.ALL_METRICS:
+        if diff := inputs - ALL_METRICS:
             raise InvalidRequest.invalid("metric", diff)
 
         if diff := inputs - self.values:
@@ -88,7 +91,7 @@ class SortOptions(abc.FeatureType, _CompareMixin):
         if not isinstance(inputs, set):
             inputs = set(inputs)
 
-        if diff := raw_inputs - data.ALL_METRICS:
+        if diff := raw_inputs - ALL_METRICS:
             raise InvalidRequest.invalid("sort option", diff)
 
         if diff := raw_inputs - self.values:
@@ -106,7 +109,7 @@ class Dimensions(abc.SegmentedFeatureType, _NestedCompareMixin):
         if not isinstance(inputs, set):
             inputs = set(inputs)
 
-        if diff := inputs - data.ALL_DIMENSIONS:
+        if diff := inputs - ALL_DIMENSIONS:
             raise InvalidRequest.invalid("dimension", diff)
 
         if inputs - self.every:
@@ -136,11 +139,11 @@ class Filters(abc.MappingFeatureType, _NestedCompareMixin):
         keys = set(inputs.keys())
         locked = self.locked
 
-        if diff := keys - data.ALL_FILTERS:
+        if diff := keys - ALL_FILTERS:
             raise InvalidRequest.invalid("filter", diff)
 
         for k, v in inputs.items():
-            valid = data.VALID_FILTER_OPTIONS[k]
+            valid = VALID_FILTER_OPTIONS[k]
 
             if valid and (v not in valid):
                 raise InvalidRequest.invalid_filter_value(k, v)

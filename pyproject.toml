@@ -92,7 +92,7 @@ format = "black src/analytix/ tests/"
 lint = "ruff check src/analytix/ --fix"
 typecheck = "mypy src/analytix/"
 check-slots = "slotscheck -m analytix"
-check-spelling = "codespell src/analytix/ tests/ -S \"src/analytix/reports/data.py\""
+check-spelling = "codespell src/analytix/ tests/ -S \"src/analytix/reports/constants.py\""
 serve-docs = "mkdocs serve --watch src/analytix/"
 all-checks = ["format", "lint", "typecheck", "check-slots", "check-spelling"]
 

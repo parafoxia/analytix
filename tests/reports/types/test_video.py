@@ -8,8 +8,11 @@ import pytest
 
 from analytix.abc import ReportType
 from analytix.errors import InvalidRequest
-from analytix.reports import data
 from analytix.reports import types as rt
+from analytix.reports.constants import COUNTRIES
+from analytix.reports.constants import LOCATION_AND_TRAFFIC_SORT_OPTIONS
+from analytix.reports.constants import SUBDIVISIONS
+from analytix.reports.constants import VALID_FILTER_OPTIONS
 
 
 def select_metrics(rtype: ReportType):
@@ -36,12 +39,9 @@ def sample(s: set[str], n: int = 3) -> list[str]:
     "filters",
     [
         {},
-        *[{"country": x} for x in sample(data.COUNTRIES)],
-        *[{"continent": x} for x in sample(data.VALID_FILTER_OPTIONS["continent"])],
-        *[
-            {"subContinent": x}
-            for x in sample(data.VALID_FILTER_OPTIONS["subContinent"])
-        ],
+        *[{"country": x} for x in sample(COUNTRIES)],
+        *[{"continent": x} for x in sample(VALID_FILTER_OPTIONS["continent"])],
+        *[{"subContinent": x} for x in sample(VALID_FILTER_OPTIONS["subContinent"])],
         {"video": "rickroll"},
         {"group": "rickroll"},
         {"video": "rickroll", "country": "US"},
@@ -85,7 +85,7 @@ def test_basic_user_activity_errors(dimensions, filters, metrics, sort_options):
 @pytest.mark.parametrize(
     "filters",
     [
-        *[{"province": x} for x in sample(data.SUBDIVISIONS)],
+        *[{"province": x} for x in sample(SUBDIVISIONS)],
         {"province": "US-OH", "video": "rickroll"},
         {"province": "US-OH", "group": "rickroll"},
     ],
@@ -128,12 +128,9 @@ def test_basic_user_activity_us_errors(dimensions, filters, metrics, sort_option
     "filters",
     [
         {},
-        *[{"country": x} for x in sample(data.COUNTRIES)],
-        *[{"continent": x} for x in sample(data.VALID_FILTER_OPTIONS["continent"])],
-        *[
-            {"subContinent": x}
-            for x in sample(data.VALID_FILTER_OPTIONS["subContinent"])
-        ],
+        *[{"country": x} for x in sample(COUNTRIES)],
+        *[{"continent": x} for x in sample(VALID_FILTER_OPTIONS["continent"])],
+        *[{"subContinent": x} for x in sample(VALID_FILTER_OPTIONS["subContinent"])],
         {"video": "rickroll"},
         {"group": "rickroll"},
         {"video": "rickroll", "country": "US"},
@@ -164,7 +161,7 @@ def test_time_based_activity(dimensions, filters, metrics, sort_options):
 @pytest.mark.parametrize(
     "filters",
     [
-        *[{"province": x} for x in sample(data.SUBDIVISIONS)],
+        *[{"province": x} for x in sample(SUBDIVISIONS)],
         {"province": "US-OH", "video": "rickroll"},
         {"province": "US-OH", "group": "rickroll"},
     ],
@@ -185,11 +182,8 @@ def test_time_based_activity_us(dimensions, filters, metrics, sort_options):
     "filters",
     [
         {},
-        *[{"continent": x} for x in sample(data.VALID_FILTER_OPTIONS["continent"])],
-        *[
-            {"subContinent": x}
-            for x in sample(data.VALID_FILTER_OPTIONS["subContinent"])
-        ],
+        *[{"continent": x} for x in sample(VALID_FILTER_OPTIONS["continent"])],
+        *[{"subContinent": x} for x in sample(VALID_FILTER_OPTIONS["subContinent"])],
         {"video": "rickroll"},
         {"group": "rickroll"},
         {"video": "rickroll", "continent": "002"},
@@ -251,13 +245,10 @@ def test_geography_based_activity_us(dimensions, filters, metrics, sort_options)
     "filters",
     [
         {},
-        *[{"country": x} for x in sample(data.COUNTRIES)],
-        *[{"province": x} for x in sample(data.SUBDIVISIONS)],
-        *[{"continent": x} for x in sample(data.VALID_FILTER_OPTIONS["continent"])],
-        *[
-            {"subContinent": x}
-            for x in sample(data.VALID_FILTER_OPTIONS["subContinent"])
-        ],
+        *[{"country": x} for x in sample(COUNTRIES)],
+        *[{"province": x} for x in sample(SUBDIVISIONS)],
+        *[{"continent": x} for x in sample(VALID_FILTER_OPTIONS["continent"])],
+        *[{"subContinent": x} for x in sample(VALID_FILTER_OPTIONS["subContinent"])],
         {"video": "rickroll"},
         {"group": "rickroll"},
         {"video": "rickroll", "country": "US"},
@@ -292,7 +283,7 @@ def test_geography_based_activity_by_city_warning():
         "averageViewDuration",
         "averageViewPercentage",
     )
-    s = [f"-{o}" for o in data.LOCATION_AND_TRAFFIC_SORT_OPTIONS]
+    s = [f"-{o}" for o in LOCATION_AND_TRAFFIC_SORT_OPTIONS]
 
     with warnings.catch_warnings(record=True) as warns:
         with pytest.raises(
@@ -393,12 +384,9 @@ def test_geography_based_activity_by_city_with_province_errors(
     "filters",
     [
         {},
-        *[{"country": x} for x in sample(data.COUNTRIES)],
-        *[{"continent": x} for x in sample(data.VALID_FILTER_OPTIONS["continent"])],
-        *[
-            {"subContinent": x}
-            for x in sample(data.VALID_FILTER_OPTIONS["subContinent"])
-        ],
+        *[{"country": x} for x in sample(COUNTRIES)],
+        *[{"continent": x} for x in sample(VALID_FILTER_OPTIONS["continent"])],
+        *[{"subContinent": x} for x in sample(VALID_FILTER_OPTIONS["subContinent"])],
         {"video": "rickroll"},
         {"group": "rickroll"},
         {"video": "rickroll", "country": "US"},
@@ -445,7 +433,7 @@ def test_playback_details_subscribed_status(dimensions, filters, metrics, sort_o
     "filters",
     [
         {},
-        *[{"province": x} for x in sample(data.SUBDIVISIONS)],
+        *[{"province": x} for x in sample(SUBDIVISIONS)],
         {"video": "rickroll"},
         {"group": "rickroll"},
         {"video": "rickroll", "province": "US-OH"},
@@ -511,13 +499,10 @@ def test_playback_details_subscribed_status_us(
     "filters",
     [
         {},
-        *[{"country": x} for x in sample(data.COUNTRIES)],
-        *[{"province": x} for x in sample(data.SUBDIVISIONS)],
-        *[{"continent": x} for x in sample(data.VALID_FILTER_OPTIONS["continent"])],
-        *[
-            {"subContinent": x}
-            for x in sample(data.VALID_FILTER_OPTIONS["subContinent"])
-        ],
+        *[{"country": x} for x in sample(COUNTRIES)],
+        *[{"province": x} for x in sample(SUBDIVISIONS)],
+        *[{"continent": x} for x in sample(VALID_FILTER_OPTIONS["continent"])],
+        *[{"subContinent": x} for x in sample(VALID_FILTER_OPTIONS["subContinent"])],
         {"video": "rickroll"},
         {"group": "rickroll"},
         {"video": "rickroll", "country": "US"},
@@ -534,7 +519,7 @@ def test_playback_details_subscribed_status_us(
         {"group": "rickroll", "liveOrOnDemand": "ON_DEMAND"},
         *[
             {"video": "rickroll", "youtubeProduct": x}
-            for x in sample(data.VALID_FILTER_OPTIONS["youtubeProduct"])
+            for x in sample(VALID_FILTER_OPTIONS["youtubeProduct"])
         ],
         {"group": "rickroll", "youtubeProduct": "CORE"},
         {"video": "rickroll", "country": "US", "subscribedStatus": "SUBSCRIBED"},
@@ -585,13 +570,10 @@ def test_playback_details_live_time_based(dimensions, filters, metrics, sort_opt
     "filters",
     [
         {},
-        *[{"country": x} for x in sample(data.COUNTRIES)],
-        *[{"province": x} for x in sample(data.SUBDIVISIONS)],
-        *[{"continent": x} for x in sample(data.VALID_FILTER_OPTIONS["continent"])],
-        *[
-            {"subContinent": x}
-            for x in sample(data.VALID_FILTER_OPTIONS["subContinent"])
-        ],
+        *[{"country": x} for x in sample(COUNTRIES)],
+        *[{"province": x} for x in sample(SUBDIVISIONS)],
+        *[{"continent": x} for x in sample(VALID_FILTER_OPTIONS["continent"])],
+        *[{"subContinent": x} for x in sample(VALID_FILTER_OPTIONS["subContinent"])],
         {"video": "rickroll"},
         {"group": "rickroll"},
         {"video": "rickroll", "country": "US"},
@@ -606,7 +588,7 @@ def test_playback_details_live_time_based(dimensions, filters, metrics, sort_opt
         {"group": "rickroll", "subscribedStatus": "UNSUBSCRIBED"},
         *[
             {"video": "rickroll", "youtubeProduct": x}
-            for x in sample(data.VALID_FILTER_OPTIONS["youtubeProduct"])
+            for x in sample(VALID_FILTER_OPTIONS["youtubeProduct"])
         ],
         {"video": "rickroll", "country": "US", "subscribedStatus": "SUBSCRIBED"},
         {"video": "rickroll", "province": "US-OH", "subscribedStatus": "SUBSCRIBED"},
@@ -649,11 +631,8 @@ def test_playback_details_view_percentage_time_based(
     "filters",
     [
         {},
-        *[{"continent": x} for x in sample(data.VALID_FILTER_OPTIONS["continent"])],
-        *[
-            {"subContinent": x}
-            for x in sample(data.VALID_FILTER_OPTIONS["subContinent"])
-        ],
+        *[{"continent": x} for x in sample(VALID_FILTER_OPTIONS["continent"])],
+        *[{"subContinent": x} for x in sample(VALID_FILTER_OPTIONS["subContinent"])],
         {"video": "rickroll"},
         {"group": "rickroll"},
         {"video": "rickroll", "continent": "002"},
@@ -666,7 +645,7 @@ def test_playback_details_view_percentage_time_based(
         {"group": "rickroll", "liveOrOnDemand": "ON_DEMAND"},
         *[
             {"video": "rickroll", "youtubeProduct": x}
-            for x in sample(data.VALID_FILTER_OPTIONS["youtubeProduct"])
+            for x in sample(VALID_FILTER_OPTIONS["youtubeProduct"])
         ],
         {"group": "rickroll", "youtubeProduct": "CORE"},
     ],
@@ -706,11 +685,8 @@ def test_playback_details_live_geography_based(
     "filters",
     [
         {},
-        *[{"continent": x} for x in sample(data.VALID_FILTER_OPTIONS["continent"])],
-        *[
-            {"subContinent": x}
-            for x in sample(data.VALID_FILTER_OPTIONS["subContinent"])
-        ],
+        *[{"continent": x} for x in sample(VALID_FILTER_OPTIONS["continent"])],
+        *[{"subContinent": x} for x in sample(VALID_FILTER_OPTIONS["subContinent"])],
         {"video": "rickroll"},
         {"group": "rickroll"},
         {"video": "rickroll", "continent": "002"},
@@ -721,7 +697,7 @@ def test_playback_details_live_geography_based(
         {"group": "rickroll", "subscribedStatus": "UNSUBSCRIBED"},
         *[
             {"video": "rickroll", "youtubeProduct": x}
-            for x in sample(data.VALID_FILTER_OPTIONS["youtubeProduct"])
+            for x in sample(VALID_FILTER_OPTIONS["youtubeProduct"])
         ],
         {"group": "rickroll", "youtubeProduct": "CORE"},
     ],
@@ -771,7 +747,7 @@ def test_playback_details_view_percentage_geography_based(
         {"country": "US", "group": "rickroll", "liveOrOnDemand": "ON_DEMAND"},
         *[
             {"country": "US", "video": "rickroll", "youtubeProduct": x}
-            for x in sample(data.VALID_FILTER_OPTIONS["youtubeProduct"])
+            for x in sample(VALID_FILTER_OPTIONS["youtubeProduct"])
         ],
         {"country": "US", "group": "rickroll", "youtubeProduct": "CORE"},
     ],
@@ -817,7 +793,7 @@ def test_playback_details_live_geography_based_us(
         {"country": "US", "group": "rickroll", "subscribedStatus": "UNSUBSCRIBED"},
         *[
             {"country": "US", "video": "rickroll", "youtubeProduct": x}
-            for x in sample(data.VALID_FILTER_OPTIONS["youtubeProduct"])
+            for x in sample(VALID_FILTER_OPTIONS["youtubeProduct"])
         ],
         {"country": "US", "group": "rickroll", "youtubeProduct": "CORE"},
     ],
@@ -859,13 +835,10 @@ def test_playback_details_view_percentage_geography_based_us(
     "filters",
     [
         {},
-        *[{"country": x} for x in sample(data.COUNTRIES)],
-        *[{"province": x} for x in sample(data.SUBDIVISIONS)],
-        *[{"continent": x} for x in sample(data.VALID_FILTER_OPTIONS["continent"])],
-        *[
-            {"subContinent": x}
-            for x in sample(data.VALID_FILTER_OPTIONS["subContinent"])
-        ],
+        *[{"country": x} for x in sample(COUNTRIES)],
+        *[{"province": x} for x in sample(SUBDIVISIONS)],
+        *[{"continent": x} for x in sample(VALID_FILTER_OPTIONS["continent"])],
+        *[{"subContinent": x} for x in sample(VALID_FILTER_OPTIONS["subContinent"])],
         {"video": "rickroll"},
         {"group": "rickroll"},
         {"video": "rickroll", "country": "US"},
@@ -905,19 +878,19 @@ def test_playback_location(dimensions, filters, metrics, sort_options):
         {"insightPlaybackLocationType": "EMBEDDED"},
         *[
             {"insightPlaybackLocationType": "EMBEDDED", "country": x}
-            for x in sample(data.COUNTRIES)
+            for x in sample(COUNTRIES)
         ],
         *[
             {"insightPlaybackLocationType": "EMBEDDED", "province": x}
-            for x in sample(data.SUBDIVISIONS)
+            for x in sample(SUBDIVISIONS)
         ],
         *[
             {"insightPlaybackLocationType": "EMBEDDED", "continent": x}
-            for x in sample(data.VALID_FILTER_OPTIONS["continent"])
+            for x in sample(VALID_FILTER_OPTIONS["continent"])
         ],
         *[
             {"insightPlaybackLocationType": "EMBEDDED", "subContinent": x}
-            for x in sample(data.VALID_FILTER_OPTIONS["subContinent"])
+            for x in sample(VALID_FILTER_OPTIONS["subContinent"])
         ],
         {"insightPlaybackLocationType": "EMBEDDED", "video": "rickroll"},
         {"insightPlaybackLocationType": "EMBEDDED", "group": "rickroll"},
@@ -1024,13 +997,10 @@ def test_playback_location_detail(dimensions, filters, metrics, sort_options):
     "filters",
     [
         {},
-        *[{"country": x} for x in sample(data.COUNTRIES)],
-        *[{"province": x} for x in sample(data.SUBDIVISIONS)],
-        *[{"continent": x} for x in sample(data.VALID_FILTER_OPTIONS["continent"])],
-        *[
-            {"subContinent": x}
-            for x in sample(data.VALID_FILTER_OPTIONS["subContinent"])
-        ],
+        *[{"country": x} for x in sample(COUNTRIES)],
+        *[{"province": x} for x in sample(SUBDIVISIONS)],
+        *[{"continent": x} for x in sample(VALID_FILTER_OPTIONS["continent"])],
+        *[{"subContinent": x} for x in sample(VALID_FILTER_OPTIONS["subContinent"])],
         {"video": "rickroll"},
         {"group": "rickroll"},
         {"video": "rickroll", "country": "US"},
@@ -1069,23 +1039,23 @@ def test_traffic_source(dimensions, filters, metrics, sort_options):
     [
         *[
             {"insightTrafficSourceType": x}
-            for x in data.VALID_FILTER_OPTIONS["insightTrafficSourceDetail"]
+            for x in VALID_FILTER_OPTIONS["insightTrafficSourceDetail"]
         ],
         *[
             {"insightTrafficSourceType": "ADVERTISING", "country": x}
-            for x in sample(data.COUNTRIES)
+            for x in sample(COUNTRIES)
         ],
         *[
             {"insightTrafficSourceType": "ADVERTISING", "province": x}
-            for x in sample(data.SUBDIVISIONS)
+            for x in sample(SUBDIVISIONS)
         ],
         *[
             {"insightTrafficSourceType": "ADVERTISING", "continent": x}
-            for x in sample(data.VALID_FILTER_OPTIONS["continent"])
+            for x in sample(VALID_FILTER_OPTIONS["continent"])
         ],
         *[
             {"insightTrafficSourceType": "ADVERTISING", "subContinent": x}
-            for x in sample(data.VALID_FILTER_OPTIONS["subContinent"])
+            for x in sample(VALID_FILTER_OPTIONS["subContinent"])
         ],
         {"insightTrafficSourceType": "ADVERTISING", "video": "rickroll"},
         {"insightTrafficSourceType": "ADVERTISING", "group": "rickroll"},
@@ -1183,8 +1153,8 @@ def test_traffic_source_detail(dimensions, filters, metrics, sort_options):
     [
         *[
             {"insightTrafficSourceType": x}
-            for x in set(data.VALID_FILTER_OPTIONS["insightTrafficSourceType"])
-            - set(data.VALID_FILTER_OPTIONS["insightTrafficSourceDetail"])
+            for x in set(VALID_FILTER_OPTIONS["insightTrafficSourceType"])
+            - set(VALID_FILTER_OPTIONS["insightTrafficSourceDetail"])
         ],
     ],
 )
@@ -1220,13 +1190,10 @@ def test_traffic_source_detail_errors(dimensions, filters, metrics, sort_options
     "filters",
     [
         {},
-        *[{"country": x} for x in sample(data.COUNTRIES)],
-        *[{"province": x} for x in sample(data.SUBDIVISIONS)],
-        *[{"continent": x} for x in sample(data.VALID_FILTER_OPTIONS["continent"])],
-        *[
-            {"subContinent": x}
-            for x in sample(data.VALID_FILTER_OPTIONS["subContinent"])
-        ],
+        *[{"country": x} for x in sample(COUNTRIES)],
+        *[{"province": x} for x in sample(SUBDIVISIONS)],
+        *[{"continent": x} for x in sample(VALID_FILTER_OPTIONS["continent"])],
+        *[{"subContinent": x} for x in sample(VALID_FILTER_OPTIONS["subContinent"])],
         {"video": "rickroll"},
         {"group": "rickroll"},
         {"video": "rickroll", "country": "US"},
@@ -1280,13 +1247,10 @@ def test_device_type(dimensions, filters, metrics, sort_options):
     "filters",
     [
         {},
-        *[{"country": x} for x in sample(data.COUNTRIES)],
-        *[{"province": x} for x in sample(data.SUBDIVISIONS)],
-        *[{"continent": x} for x in sample(data.VALID_FILTER_OPTIONS["continent"])],
-        *[
-            {"subContinent": x}
-            for x in sample(data.VALID_FILTER_OPTIONS["subContinent"])
-        ],
+        *[{"country": x} for x in sample(COUNTRIES)],
+        *[{"province": x} for x in sample(SUBDIVISIONS)],
+        *[{"continent": x} for x in sample(VALID_FILTER_OPTIONS["continent"])],
+        *[{"subContinent": x} for x in sample(VALID_FILTER_OPTIONS["subContinent"])],
         {"video": "rickroll"},
         {"group": "rickroll"},
         {"video": "rickroll", "country": "US"},
@@ -1341,13 +1305,10 @@ def test_operating_system(dimensions, filters, metrics, sort_options):
     "filters",
     [
         {},
-        *[{"country": x} for x in sample(data.COUNTRIES)],
-        *[{"province": x} for x in sample(data.SUBDIVISIONS)],
-        *[{"continent": x} for x in sample(data.VALID_FILTER_OPTIONS["continent"])],
-        *[
-            {"subContinent": x}
-            for x in sample(data.VALID_FILTER_OPTIONS["subContinent"])
-        ],
+        *[{"country": x} for x in sample(COUNTRIES)],
+        *[{"province": x} for x in sample(SUBDIVISIONS)],
+        *[{"continent": x} for x in sample(VALID_FILTER_OPTIONS["continent"])],
+        *[{"subContinent": x} for x in sample(VALID_FILTER_OPTIONS["subContinent"])],
         {"video": "rickroll"},
         {"group": "rickroll"},
         {"video": "rickroll", "country": "US"},
@@ -1394,13 +1355,10 @@ def test_device_type_and_operating_system(dimensions, filters, metrics, sort_opt
     "filters",
     [
         {},
-        *[{"country": x} for x in sample(data.COUNTRIES)],
-        *[{"province": x} for x in sample(data.SUBDIVISIONS)],
-        *[{"continent": x} for x in sample(data.VALID_FILTER_OPTIONS["continent"])],
-        *[
-            {"subContinent": x}
-            for x in sample(data.VALID_FILTER_OPTIONS["subContinent"])
-        ],
+        *[{"country": x} for x in sample(COUNTRIES)],
+        *[{"province": x} for x in sample(SUBDIVISIONS)],
+        *[{"continent": x} for x in sample(VALID_FILTER_OPTIONS["continent"])],
+        *[{"subContinent": x} for x in sample(VALID_FILTER_OPTIONS["subContinent"])],
         {"video": "rickroll"},
         {"group": "rickroll"},
         {"video": "rickroll", "country": "US"},
@@ -1440,12 +1398,9 @@ def test_viewer_demographics(dimensions, filters, metrics, sort_options):
     "filters",
     [
         {},
-        *[{"country": x} for x in sample(data.COUNTRIES)],
-        *[{"continent": x} for x in sample(data.VALID_FILTER_OPTIONS["continent"])],
-        *[
-            {"subContinent": x}
-            for x in sample(data.VALID_FILTER_OPTIONS["subContinent"])
-        ],
+        *[{"country": x} for x in sample(COUNTRIES)],
+        *[{"continent": x} for x in sample(VALID_FILTER_OPTIONS["continent"])],
+        *[{"subContinent": x} for x in sample(VALID_FILTER_OPTIONS["subContinent"])],
         {"video": "rickroll"},
         {"group": "rickroll"},
         {"video": "rickroll", "country": "US"},
@@ -1519,12 +1474,9 @@ def test_audience_retention_invalid_video_filters():
     "filters",
     [
         {},
-        *[{"country": x} for x in sample(data.COUNTRIES)],
-        *[{"continent": x} for x in sample(data.VALID_FILTER_OPTIONS["continent"])],
-        *[
-            {"subContinent": x}
-            for x in sample(data.VALID_FILTER_OPTIONS["subContinent"])
-        ],
+        *[{"country": x} for x in sample(COUNTRIES)],
+        *[{"continent": x} for x in sample(VALID_FILTER_OPTIONS["continent"])],
+        *[{"subContinent": x} for x in sample(VALID_FILTER_OPTIONS["subContinent"])],
     ],
 )
 @pytest.mark.parametrize("metrics", m := select_metrics(rt.TopVideosRegional()))
@@ -1545,7 +1497,7 @@ def test_top_videos_regional(dimensions, filters, metrics, sort_options):
 @pytest.mark.parametrize(
     "filters",
     [
-        *[{"province": x} for x in sample(data.SUBDIVISIONS)],
+        *[{"province": x} for x in sample(SUBDIVISIONS)],
         {"province": "US-OH", "subscribedStatus": "SUBSCRIBED"},
     ],
 )
@@ -1569,17 +1521,14 @@ def test_top_videos_us(dimensions, filters, metrics, sort_options):
     [
         {},
         {"subscribedStatus": "SUBSCRIBED"},
-        *[
-            {"subscribedStatus": "SUBSCRIBED", "country": x}
-            for x in sample(data.COUNTRIES)
-        ],
+        *[{"subscribedStatus": "SUBSCRIBED", "country": x} for x in sample(COUNTRIES)],
         *[
             {"subscribedStatus": "SUBSCRIBED", "continent": x}
-            for x in sample(data.VALID_FILTER_OPTIONS["continent"])
+            for x in sample(VALID_FILTER_OPTIONS["continent"])
         ],
         *[
             {"subscribedStatus": "SUBSCRIBED", "subContinent": x}
-            for x in sample(data.VALID_FILTER_OPTIONS["subContinent"])
+            for x in sample(VALID_FILTER_OPTIONS["subContinent"])
         ],
     ],
 )
@@ -1604,15 +1553,15 @@ def test_top_videos_subscribed(dimensions, filters, metrics, sort_options):
         {},
         {"youtubeProduct": "CORE"},
         {"subscribedStatus": "SUBSCRIBED"},
-        *[{"youtubeProduct": "CORE", "country": x} for x in sample(data.COUNTRIES)],
-        *[{"youtubeProduct": "CORE", "province": x} for x in sample(data.SUBDIVISIONS)],
+        *[{"youtubeProduct": "CORE", "country": x} for x in sample(COUNTRIES)],
+        *[{"youtubeProduct": "CORE", "province": x} for x in sample(SUBDIVISIONS)],
         *[
             {"youtubeProduct": "CORE", "continent": x}
-            for x in sample(data.VALID_FILTER_OPTIONS["continent"])
+            for x in sample(VALID_FILTER_OPTIONS["continent"])
         ],
         *[
             {"youtubeProduct": "CORE", "subContinent": x}
-            for x in sample(data.VALID_FILTER_OPTIONS["subContinent"])
+            for x in sample(VALID_FILTER_OPTIONS["subContinent"])
         ],
     ],
 )
@@ -1638,15 +1587,15 @@ def test_top_videos_youtube_product(dimensions, filters, metrics, sort_options):
         {"liveOrOnDemand": "LIVE"},
         {"youtubeProduct": "CORE"},
         {"subscribedStatus": "SUBSCRIBED"},
-        *[{"liveOrOnDemand": "LIVE", "country": x} for x in sample(data.COUNTRIES)],
-        *[{"liveOrOnDemand": "LIVE", "province": x} for x in sample(data.SUBDIVISIONS)],
+        *[{"liveOrOnDemand": "LIVE", "country": x} for x in sample(COUNTRIES)],
+        *[{"liveOrOnDemand": "LIVE", "province": x} for x in sample(SUBDIVISIONS)],
         *[
             {"liveOrOnDemand": "LIVE", "continent": x}
-            for x in sample(data.VALID_FILTER_OPTIONS["continent"])
+            for x in sample(VALID_FILTER_OPTIONS["continent"])
         ],
         *[
             {"liveOrOnDemand": "LIVE", "subContinent": x}
-            for x in sample(data.VALID_FILTER_OPTIONS["subContinent"])
+            for x in sample(VALID_FILTER_OPTIONS["subContinent"])
         ],
     ],
 )
