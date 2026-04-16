@@ -11,7 +11,50 @@ from analytix.auth import Scopes
 from analytix.errors import InvalidRequest
 from analytix.queries import API_REPORTS_URL
 from analytix.queries import ReportQuery
-from analytix.reports import types as rt
+from analytix.reports.types.ad import AdPerformance
+from analytix.reports.types.playlist import BasicUserActivityPlaylist
+from analytix.reports.types.playlist import DeviceTypeAndOperatingSystemPlaylist
+from analytix.reports.types.playlist import DeviceTypePlaylist
+from analytix.reports.types.playlist import GeographyBasedActivityPlaylist
+from analytix.reports.types.playlist import GeographyBasedActivityUSPlaylist
+from analytix.reports.types.playlist import OperatingSystemPlaylist
+from analytix.reports.types.playlist import PlaybackLocationDetailPlaylist
+from analytix.reports.types.playlist import PlaybackLocationPlaylist
+from analytix.reports.types.playlist import TimeBasedActivityPlaylist
+from analytix.reports.types.playlist import TopPlaylists
+from analytix.reports.types.playlist import TrafficSourceDetailPlaylist
+from analytix.reports.types.playlist import TrafficSourcePlaylist
+from analytix.reports.types.playlist import ViewerDemographicsPlaylist
+from analytix.reports.types.video import AudienceRetention
+from analytix.reports.types.video import BasicUserActivity
+from analytix.reports.types.video import BasicUserActivityUS
+from analytix.reports.types.video import DeviceType
+from analytix.reports.types.video import DeviceTypeAndOperatingSystem
+from analytix.reports.types.video import EngagementAndContentSharing
+from analytix.reports.types.video import GeographyBasedActivity
+from analytix.reports.types.video import GeographyBasedActivityByCity
+from analytix.reports.types.video import GeographyBasedActivityUS
+from analytix.reports.types.video import OperatingSystem
+from analytix.reports.types.video import PlaybackDetailsLiveGeographyBased
+from analytix.reports.types.video import PlaybackDetailsLiveGeographyBasedUS
+from analytix.reports.types.video import PlaybackDetailsLiveTimeBased
+from analytix.reports.types.video import PlaybackDetailsSubscribedStatus
+from analytix.reports.types.video import PlaybackDetailsSubscribedStatusUS
+from analytix.reports.types.video import PlaybackDetailsViewPercentageGeographyBased
+from analytix.reports.types.video import PlaybackDetailsViewPercentageGeographyBasedUS
+from analytix.reports.types.video import PlaybackDetailsViewPercentageTimeBased
+from analytix.reports.types.video import PlaybackLocation
+from analytix.reports.types.video import PlaybackLocationDetail
+from analytix.reports.types.video import TimeBasedActivity
+from analytix.reports.types.video import TimeBasedActivityUS
+from analytix.reports.types.video import TopVideosPlaybackDetail
+from analytix.reports.types.video import TopVideosRegional
+from analytix.reports.types.video import TopVideosSubscribed
+from analytix.reports.types.video import TopVideosUS
+from analytix.reports.types.video import TopVideosYouTubeProduct
+from analytix.reports.types.video import TrafficSource
+from analytix.reports.types.video import TrafficSourceDetail
+from analytix.reports.types.video import ViewerDemographics
 from analytix.warnings import InvalidMonthFormatWarning
 
 
@@ -215,32 +258,32 @@ def test_determine_is_new_playlist_report_group_filter_no_playlist_metrics():
 
 def test_determine_ad_performance():
     query = ReportQuery(dimensions=["adType"])
-    assert isinstance(query.determine_report_type(), rt.AdPerformance)
+    assert isinstance(query.determine_report_type(), AdPerformance)
 
 
 def test_determine_engagement_and_content_sharing():
     query = ReportQuery(dimensions=["sharingService"])
-    assert isinstance(query.determine_report_type(), rt.EngagementAndContentSharing)
+    assert isinstance(query.determine_report_type(), EngagementAndContentSharing)
 
 
 def test_determine_audience_retention():
     query = ReportQuery(dimensions=["elapsedVideoTimeRatio"])
-    assert isinstance(query.determine_report_type(), rt.AudienceRetention)
+    assert isinstance(query.determine_report_type(), AudienceRetention)
 
 
 def test_determine_top_playlists_deprecated():
     query = ReportQuery(dimensions=["playlist"], filters={"playlist": "a1b2c3d4e5"})
-    assert isinstance(query.determine_report_type(), rt.TopPlaylists)
+    assert isinstance(query.determine_report_type(), TopPlaylists)
 
 
 def test_determine_geography_based_activity_by_city():
     query = ReportQuery(dimensions=["city"])
-    assert isinstance(query.determine_report_type(), rt.GeographyBasedActivityByCity)
+    assert isinstance(query.determine_report_type(), GeographyBasedActivityByCity)
 
 
 def test_determine_playback_location():
     query = ReportQuery(dimensions=["insightPlaybackLocationType"])
-    assert isinstance(query.determine_report_type(), rt.PlaybackLocation)
+    assert isinstance(query.determine_report_type(), PlaybackLocation)
 
 
 def test_determine_playback_location_playlist_deprecated():
@@ -248,12 +291,12 @@ def test_determine_playback_location_playlist_deprecated():
         dimensions=["insightPlaybackLocationType"],
         filters={"playlist": "a1b2c3d4e5"},
     )
-    assert isinstance(query.determine_report_type(), rt.PlaybackLocationPlaylist)
+    assert isinstance(query.determine_report_type(), PlaybackLocationPlaylist)
 
 
 def test_determine_playback_location_detail():
     query = ReportQuery(dimensions=["insightPlaybackLocationDetail"])
-    assert isinstance(query.determine_report_type(), rt.PlaybackLocationDetail)
+    assert isinstance(query.determine_report_type(), PlaybackLocationDetail)
 
 
 def test_determine_playback_location_detail_playlist_deprecated():
@@ -261,12 +304,12 @@ def test_determine_playback_location_detail_playlist_deprecated():
         dimensions=["insightPlaybackLocationDetail"],
         filters={"playlist": "a1b2c3d4e5"},
     )
-    assert isinstance(query.determine_report_type(), rt.PlaybackLocationDetailPlaylist)
+    assert isinstance(query.determine_report_type(), PlaybackLocationDetailPlaylist)
 
 
 def test_determine_traffic_source():
     query = ReportQuery(dimensions=["insightTrafficSourceType"])
-    assert isinstance(query.determine_report_type(), rt.TrafficSource)
+    assert isinstance(query.determine_report_type(), TrafficSource)
 
 
 def test_determine_traffic_source_playlist_deprecated():
@@ -274,12 +317,12 @@ def test_determine_traffic_source_playlist_deprecated():
         dimensions=["insightTrafficSourceType"],
         filters={"playlist": "a1b2c3d4e5"},
     )
-    assert isinstance(query.determine_report_type(), rt.TrafficSourcePlaylist)
+    assert isinstance(query.determine_report_type(), TrafficSourcePlaylist)
 
 
 def test_determine_traffic_source_detail():
     query = ReportQuery(dimensions=["insightTrafficSourceDetail"])
-    assert isinstance(query.determine_report_type(), rt.TrafficSourceDetail)
+    assert isinstance(query.determine_report_type(), TrafficSourceDetail)
 
 
 def test_determine_traffic_source_detail_playlist_deprecated():
@@ -287,32 +330,32 @@ def test_determine_traffic_source_detail_playlist_deprecated():
         dimensions=["insightTrafficSourceDetail"],
         filters={"playlist": "a1b2c3d4e5"},
     )
-    assert isinstance(query.determine_report_type(), rt.TrafficSourceDetailPlaylist)
+    assert isinstance(query.determine_report_type(), TrafficSourceDetailPlaylist)
 
 
 def test_determine_viewer_demographics():
     query = ReportQuery(dimensions=["ageGroup"])
-    assert isinstance(query.determine_report_type(), rt.ViewerDemographics)
+    assert isinstance(query.determine_report_type(), ViewerDemographics)
 
 
 def test_determine_viewer_demographics_playlist_deprecated():
     query = ReportQuery(dimensions=["gender"], filters={"playlist": "a1b2c3d4e5"})
-    assert isinstance(query.determine_report_type(), rt.ViewerDemographicsPlaylist)
+    assert isinstance(query.determine_report_type(), ViewerDemographicsPlaylist)
 
 
 def test_determine_device_type():
     query = ReportQuery(dimensions=["deviceType"])
-    assert isinstance(query.determine_report_type(), rt.DeviceType)
+    assert isinstance(query.determine_report_type(), DeviceType)
 
 
 def test_determine_device_type_playlist_deprecated():
     query = ReportQuery(dimensions=["deviceType"], filters={"playlist": "a1b2c3d4e5"})
-    assert isinstance(query.determine_report_type(), rt.DeviceTypePlaylist)
+    assert isinstance(query.determine_report_type(), DeviceTypePlaylist)
 
 
 def test_determine_operating_system():
     query = ReportQuery(dimensions=["operatingSystem"])
-    assert isinstance(query.determine_report_type(), rt.OperatingSystem)
+    assert isinstance(query.determine_report_type(), OperatingSystem)
 
 
 def test_determine_operating_system_playlist_deprecated():
@@ -320,12 +363,12 @@ def test_determine_operating_system_playlist_deprecated():
         dimensions=["operatingSystem"],
         filters={"playlist": "a1b2c3d4e5"},
     )
-    assert isinstance(query.determine_report_type(), rt.OperatingSystemPlaylist)
+    assert isinstance(query.determine_report_type(), OperatingSystemPlaylist)
 
 
 def test_determine_device_type_and_operating_system():
     query = ReportQuery(dimensions=["deviceType", "operatingSystem"])
-    assert isinstance(query.determine_report_type(), rt.DeviceTypeAndOperatingSystem)
+    assert isinstance(query.determine_report_type(), DeviceTypeAndOperatingSystem)
 
 
 def test_determine_device_type_and_operating_system_playlist_deprecated():
@@ -335,13 +378,13 @@ def test_determine_device_type_and_operating_system_playlist_deprecated():
     )
     assert isinstance(
         query.determine_report_type(),
-        rt.DeviceTypeAndOperatingSystemPlaylist,
+        DeviceTypeAndOperatingSystemPlaylist,
     )
 
 
 def test_determine_top_videos_us():
     query = ReportQuery(dimensions=["video"], filters={"province": "US-OH"})
-    assert isinstance(query.determine_report_type(), rt.TopVideosUS)
+    assert isinstance(query.determine_report_type(), TopVideosUS)
 
 
 def test_determine_top_videos_youtube_product():
@@ -350,7 +393,7 @@ def test_determine_top_videos_youtube_product():
         filters={"subscribedStatus": "SUBSCRIBED", "youtubeProduct": "CORE"},
         metrics=["averageViewPercentage"],
     )
-    assert isinstance(query.determine_report_type(), rt.TopVideosYouTubeProduct)
+    assert isinstance(query.determine_report_type(), TopVideosYouTubeProduct)
 
 
 def test_determine_top_videos_subscribed():
@@ -358,12 +401,12 @@ def test_determine_top_videos_subscribed():
         dimensions=["video"],
         filters={"subscribedStatus": "SUBSCRIBED"},
     )
-    assert isinstance(query.determine_report_type(), rt.TopVideosSubscribed)
+    assert isinstance(query.determine_report_type(), TopVideosSubscribed)
 
 
 def test_determine_top_videos_regional():
     query = ReportQuery(dimensions=["video"])
-    assert isinstance(query.determine_report_type(), rt.TopVideosRegional)
+    assert isinstance(query.determine_report_type(), TopVideosRegional)
 
 
 def test_determine_top_videos_playback_detail():
@@ -371,14 +414,14 @@ def test_determine_top_videos_playback_detail():
         dimensions=["video"],
         filters={"subscribedStatus": "SUBSCRIBED", "youtubeProduct": "CORE"},
     )
-    assert isinstance(query.determine_report_type(), rt.TopVideosPlaybackDetail)
+    assert isinstance(query.determine_report_type(), TopVideosPlaybackDetail)
 
 
 def test_determine_playback_details_live_geography_based_1():
     query = ReportQuery(dimensions=["country", "liveOrOnDemand"])
     assert isinstance(
         query.determine_report_type(),
-        rt.PlaybackDetailsLiveGeographyBased,
+        PlaybackDetailsLiveGeographyBased,
     )
 
 
@@ -386,20 +429,20 @@ def test_determine_playback_details_live_geography_based_2():
     query = ReportQuery(dimensions=["country"], filters={"liveOrOnDemand": "LIVE"})
     assert isinstance(
         query.determine_report_type(),
-        rt.PlaybackDetailsLiveGeographyBased,
+        PlaybackDetailsLiveGeographyBased,
     )
 
 
 def test_determine_geography_based_activity_playlist_deprecated():
     query = ReportQuery(dimensions=["country"], filters={"playlist": "a1b2c3d4e5"})
-    assert isinstance(query.determine_report_type(), rt.GeographyBasedActivityPlaylist)
+    assert isinstance(query.determine_report_type(), GeographyBasedActivityPlaylist)
 
 
 def test_determine_playback_details_view_percentage_geography_based_1():
     query = ReportQuery(dimensions=["country", "subscribedStatus"])
     assert isinstance(
         query.determine_report_type(),
-        rt.PlaybackDetailsViewPercentageGeographyBased,
+        PlaybackDetailsViewPercentageGeographyBased,
     )
 
 
@@ -410,7 +453,7 @@ def test_determine_playback_details_view_percentage_geography_based_2():
     )
     assert isinstance(
         query.determine_report_type(),
-        rt.PlaybackDetailsViewPercentageGeographyBased,
+        PlaybackDetailsViewPercentageGeographyBased,
     )
 
 
@@ -418,7 +461,7 @@ def test_determine_playback_details_view_percentage_geography_based_3():
     query = ReportQuery(dimensions=["country", "youtubeProduct"])
     assert isinstance(
         query.determine_report_type(),
-        rt.PlaybackDetailsViewPercentageGeographyBased,
+        PlaybackDetailsViewPercentageGeographyBased,
     )
 
 
@@ -426,20 +469,20 @@ def test_determine_playback_details_view_percentage_geography_based_4():
     query = ReportQuery(dimensions=["country"], filters={"youtubeProduct": "CORE"})
     assert isinstance(
         query.determine_report_type(),
-        rt.PlaybackDetailsViewPercentageGeographyBased,
+        PlaybackDetailsViewPercentageGeographyBased,
     )
 
 
 def test_determine_geography_based_activity():
     query = ReportQuery(dimensions=["country"])
-    assert isinstance(query.determine_report_type(), rt.GeographyBasedActivity)
+    assert isinstance(query.determine_report_type(), GeographyBasedActivity)
 
 
 def test_determine_playback_details_live_geography_based_us_1():
     query = ReportQuery(dimensions=["province", "liveOrOnDemand"])
     assert isinstance(
         query.determine_report_type(),
-        rt.PlaybackDetailsLiveGeographyBasedUS,
+        PlaybackDetailsLiveGeographyBasedUS,
     )
 
 
@@ -447,7 +490,7 @@ def test_determine_playback_details_live_geography_based_us_2():
     query = ReportQuery(dimensions=["province"], filters={"liveOrOnDemand": "LIVE"})
     assert isinstance(
         query.determine_report_type(),
-        rt.PlaybackDetailsLiveGeographyBasedUS,
+        PlaybackDetailsLiveGeographyBasedUS,
     )
 
 
@@ -455,7 +498,7 @@ def test_determine_geography_based_activity_us_playlist_deprecated():
     query = ReportQuery(dimensions=["province"], filters={"playlist": "a1b2c3d4e5"})
     assert isinstance(
         query.determine_report_type(),
-        rt.GeographyBasedActivityUSPlaylist,
+        GeographyBasedActivityUSPlaylist,
     )
 
 
@@ -463,7 +506,7 @@ def test_determine_playback_details_view_percentage_geography_based_us_1():
     query = ReportQuery(dimensions=["province", "subscribedStatus"])
     assert isinstance(
         query.determine_report_type(),
-        rt.PlaybackDetailsViewPercentageGeographyBasedUS,
+        PlaybackDetailsViewPercentageGeographyBasedUS,
     )
 
 
@@ -474,7 +517,7 @@ def test_determine_playback_details_view_percentage_geography_based_us_2():
     )
     assert isinstance(
         query.determine_report_type(),
-        rt.PlaybackDetailsViewPercentageGeographyBasedUS,
+        PlaybackDetailsViewPercentageGeographyBasedUS,
     )
 
 
@@ -482,7 +525,7 @@ def test_determine_playback_details_view_percentage_geography_based_us_3():
     query = ReportQuery(dimensions=["province", "youtubeProduct"])
     assert isinstance(
         query.determine_report_type(),
-        rt.PlaybackDetailsViewPercentageGeographyBasedUS,
+        PlaybackDetailsViewPercentageGeographyBasedUS,
     )
 
 
@@ -490,20 +533,20 @@ def test_determine_playback_details_view_percentage_geography_based_us_4():
     query = ReportQuery(dimensions=["province"], filters={"youtubeProduct": "CORE"})
     assert isinstance(
         query.determine_report_type(),
-        rt.PlaybackDetailsViewPercentageGeographyBasedUS,
+        PlaybackDetailsViewPercentageGeographyBasedUS,
     )
 
 
 def test_determine_geography_based_activity_us():
     query = ReportQuery(dimensions=["province"])
-    assert isinstance(query.determine_report_type(), rt.GeographyBasedActivityUS)
+    assert isinstance(query.determine_report_type(), GeographyBasedActivityUS)
 
 
 def test_determine_playback_details_view_percentage_time_based_1():
     query = ReportQuery(dimensions=["youtubeProduct"])
     assert isinstance(
         query.determine_report_type(),
-        rt.PlaybackDetailsViewPercentageTimeBased,
+        PlaybackDetailsViewPercentageTimeBased,
     )
 
 
@@ -511,83 +554,83 @@ def test_determine_playback_details_view_percentage_time_based_2():
     query = ReportQuery(filters={"youtubeProduct": "CORE"})
     assert isinstance(
         query.determine_report_type(),
-        rt.PlaybackDetailsViewPercentageTimeBased,
+        PlaybackDetailsViewPercentageTimeBased,
     )
 
 
 def test_determine_playback_details_live_time_based_1():
     query = ReportQuery(dimensions=["youtubeProduct", "liveOrOnDemand"])
-    assert isinstance(query.determine_report_type(), rt.PlaybackDetailsLiveTimeBased)
+    assert isinstance(query.determine_report_type(), PlaybackDetailsLiveTimeBased)
 
 
 def test_determine_playback_details_live_time_based_2():
     query = ReportQuery(filters={"youtubeProduct": "CORE", "liveOrOnDemand": "LIVE"})
-    assert isinstance(query.determine_report_type(), rt.PlaybackDetailsLiveTimeBased)
+    assert isinstance(query.determine_report_type(), PlaybackDetailsLiveTimeBased)
 
 
 def test_determine_playback_details_live_time_based_3():
     query = ReportQuery(dimensions=["liveOrOnDemand"])
-    assert isinstance(query.determine_report_type(), rt.PlaybackDetailsLiveTimeBased)
+    assert isinstance(query.determine_report_type(), PlaybackDetailsLiveTimeBased)
 
 
 def test_determine_playback_details_live_time_based_4():
     query = ReportQuery(filters={"liveOrOnDemand": "LIVE"})
-    assert isinstance(query.determine_report_type(), rt.PlaybackDetailsLiveTimeBased)
+    assert isinstance(query.determine_report_type(), PlaybackDetailsLiveTimeBased)
 
 
 def test_determine_subscribed_status():
     query = ReportQuery(dimensions=["subscribedStatus"])
-    assert isinstance(query.determine_report_type(), rt.PlaybackDetailsSubscribedStatus)
+    assert isinstance(query.determine_report_type(), PlaybackDetailsSubscribedStatus)
 
 
 def test_determine_subscribed_status_us():
     query = ReportQuery(dimensions=["subscribedStatus"], filters={"province": "US-OH"})
     assert isinstance(
         query.determine_report_type(),
-        rt.PlaybackDetailsSubscribedStatusUS,
+        PlaybackDetailsSubscribedStatusUS,
     )
 
 
 def test_determine_time_based_activity_1():
     query = ReportQuery(dimensions=["day"])
-    assert isinstance(query.determine_report_type(), rt.TimeBasedActivity)
+    assert isinstance(query.determine_report_type(), TimeBasedActivity)
 
 
 def test_determine_time_based_activity_2():
     query = ReportQuery(dimensions=["month"])
-    assert isinstance(query.determine_report_type(), rt.TimeBasedActivity)
+    assert isinstance(query.determine_report_type(), TimeBasedActivity)
 
 
 def test_determine_time_based_activity_playlist_1_deprecated():
     query = ReportQuery(dimensions=["day"], filters={"playlist": "a1b2c3d4e5"})
-    assert isinstance(query.determine_report_type(), rt.TimeBasedActivityPlaylist)
+    assert isinstance(query.determine_report_type(), TimeBasedActivityPlaylist)
 
 
 def test_determine_time_based_activity_playlist_2_deprecated():
     query = ReportQuery(dimensions=["month"], filters={"playlist": "a1b2c3d4e5"})
-    assert isinstance(query.determine_report_type(), rt.TimeBasedActivityPlaylist)
+    assert isinstance(query.determine_report_type(), TimeBasedActivityPlaylist)
 
 
 def test_determine_time_based_activity_us_1():
     query = ReportQuery(dimensions=["day"], filters={"province": "US-OH"})
-    assert isinstance(query.determine_report_type(), rt.TimeBasedActivityUS)
+    assert isinstance(query.determine_report_type(), TimeBasedActivityUS)
 
 
 def test_determine_time_based_activity_us_2():
     query = ReportQuery(dimensions=["month"], filters={"province": "US-OH"})
-    assert isinstance(query.determine_report_type(), rt.TimeBasedActivityUS)
+    assert isinstance(query.determine_report_type(), TimeBasedActivityUS)
 
 
 def test_determine_basic_user_activity_playlist_deprecated():
     query = ReportQuery(filters={"playlist": "a1b2c3d4e5"})
-    assert isinstance(query.determine_report_type(), rt.BasicUserActivityPlaylist)
+    assert isinstance(query.determine_report_type(), BasicUserActivityPlaylist)
 
 
 def test_determine_basic_user_activity_us():
     query = ReportQuery(filters={"province": "US-OH"})
-    assert isinstance(query.determine_report_type(), rt.BasicUserActivityUS)
+    assert isinstance(query.determine_report_type(), BasicUserActivityUS)
 
 
 def test_determine_basic_user_activity():
     query = ReportQuery()
-    assert isinstance(query.determine_report_type(), rt.BasicUserActivity)
+    assert isinstance(query.determine_report_type(), BasicUserActivity)

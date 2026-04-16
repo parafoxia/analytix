@@ -39,7 +39,7 @@ from analytix.reports.resources import ColumnHeader
 from analytix.reports.resources import ColumnType
 from analytix.reports.resources import DataType
 from analytix.reports.resources import ResultTable
-from analytix.reports.types import TimeBasedActivity
+from analytix.reports.types.video import TimeBasedActivity
 from tests import MockFile
 from tests import MockResponse
 

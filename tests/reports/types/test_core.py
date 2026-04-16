@@ -4,18 +4,19 @@
 import pytest
 
 from analytix.errors import InvalidRequest
-from analytix.reports import types as rt
 from analytix.reports.constants import LOCATION_AND_TRAFFIC_METRICS
 from analytix.reports.constants import LOCATION_AND_TRAFFIC_SORT_OPTIONS
+from analytix.reports.types.video import BasicUserActivity
+from analytix.reports.types.video import PlaybackLocationDetail
 
 
 def test_str_output():
-    report = rt.BasicUserActivity()
+    report = BasicUserActivity()
     assert str(report) == "Basic user activity"
 
 
 def test_detailed_report_no_max_results():
-    report = rt.PlaybackLocationDetail()
+    report = PlaybackLocationDetail()
     assert report.name == "Playback locations (detailed)"
     d = ["insightPlaybackLocationDetail"]
     f = {
@@ -32,7 +33,7 @@ def test_detailed_report_no_max_results():
 
 
 def test_detailed_report_too_high_max_results():
-    report = rt.PlaybackLocationDetail()
+    report = PlaybackLocationDetail()
     assert report.name == "Playback locations (detailed)"
     d = ["insightPlaybackLocationDetail"]
     f = {
@@ -49,7 +50,7 @@ def test_detailed_report_too_high_max_results():
 
 
 def test_detailed_report_start_index_too_high():
-    report = rt.PlaybackLocationDetail()
+    report = PlaybackLocationDetail()
     assert report.name == "Playback locations (detailed)"
     d = ["insightPlaybackLocationDetail"]
     f = {
@@ -66,7 +67,7 @@ def test_detailed_report_start_index_too_high():
 
 
 def test_detailed_report_no_sort_options():
-    report = rt.PlaybackLocationDetail()
+    report = PlaybackLocationDetail()
     assert report.name == "Playback locations (detailed)"
     d = ["insightPlaybackLocationDetail"]
     f = {

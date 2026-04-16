@@ -7,8 +7,20 @@ import pytest
 
 from analytix.abc import ReportType
 from analytix.errors import InvalidRequest
-from analytix.reports import types as rt
 from analytix.reports.constants import VALID_FILTER_OPTIONS
+from analytix.reports.types.playlist import BasicUserActivityPlaylist
+from analytix.reports.types.playlist import DeviceTypeAndOperatingSystemPlaylist
+from analytix.reports.types.playlist import DeviceTypePlaylist
+from analytix.reports.types.playlist import GeographyBasedActivityPlaylist
+from analytix.reports.types.playlist import GeographyBasedActivityUSPlaylist
+from analytix.reports.types.playlist import OperatingSystemPlaylist
+from analytix.reports.types.playlist import PlaybackLocationDetailPlaylist
+from analytix.reports.types.playlist import PlaybackLocationPlaylist
+from analytix.reports.types.playlist import TimeBasedActivityPlaylist
+from analytix.reports.types.playlist import TopPlaylists
+from analytix.reports.types.playlist import TrafficSourceDetailPlaylist
+from analytix.reports.types.playlist import TrafficSourcePlaylist
+from analytix.reports.types.playlist import ViewerDemographicsPlaylist
 
 
 def select_metrics(rtype: ReportType):
@@ -31,20 +43,20 @@ def select_sort_options(metrics, descending_only=False):
 
 @pytest.mark.parametrize("dimensions", [()])
 @pytest.mark.parametrize("filters", [{"playlist": "a1"}, {"group": "b2"}])
-@pytest.mark.parametrize("metrics", m := select_metrics(rt.BasicUserActivityPlaylist()))
+@pytest.mark.parametrize("metrics", m := select_metrics(BasicUserActivityPlaylist()))
 @pytest.mark.parametrize("sort_options", select_sort_options(m))
 def test_basic_user_activity_playlist(dimensions, filters, metrics, sort_options):
-    report = rt.BasicUserActivityPlaylist()
+    report = BasicUserActivityPlaylist()
     assert report.name == "Basic user activity for playlists"
     report.validate(dimensions, filters, metrics, sort_options)
 
 
 @pytest.mark.parametrize("dimensions", [("day",), ("month",)])
 @pytest.mark.parametrize("filters", [{"playlist": "a1"}, {"group": "b2"}])
-@pytest.mark.parametrize("metrics", m := select_metrics(rt.TimeBasedActivityPlaylist()))
+@pytest.mark.parametrize("metrics", m := select_metrics(TimeBasedActivityPlaylist()))
 @pytest.mark.parametrize("sort_options", select_sort_options(m))
 def test_time_based_activity_playlist(dimensions, filters, metrics, sort_options):
-    report = rt.TimeBasedActivityPlaylist()
+    report = TimeBasedActivityPlaylist()
     assert report.name == "Time-based activity for playlists"
     report.validate(dimensions, filters, metrics, sort_options)
 
@@ -72,11 +84,11 @@ def test_time_based_activity_playlist(dimensions, filters, metrics, sort_options
 )
 @pytest.mark.parametrize(
     "metrics",
-    m := select_metrics(rt.GeographyBasedActivityPlaylist()),
+    m := select_metrics(GeographyBasedActivityPlaylist()),
 )
 @pytest.mark.parametrize("sort_options", select_sort_options(m))
 def test_geography_based_activity_playlist(dimensions, filters, metrics, sort_options):
-    report = rt.GeographyBasedActivityPlaylist()
+    report = GeographyBasedActivityPlaylist()
     assert report.name == "Geography-based activity for playlists"
     report.validate(dimensions, filters, metrics, sort_options)
 
@@ -93,7 +105,7 @@ def test_geography_based_activity_playlist(dimensions, filters, metrics, sort_op
 )
 @pytest.mark.parametrize(
     "metrics",
-    m := select_metrics(rt.GeographyBasedActivityPlaylist()),
+    m := select_metrics(GeographyBasedActivityPlaylist()),
 )
 @pytest.mark.parametrize("sort_options", select_sort_options(m))
 def test_geography_based_activity_playlist_errors(
@@ -102,7 +114,7 @@ def test_geography_based_activity_playlist_errors(
     metrics,
     sort_options,
 ):
-    report = rt.GeographyBasedActivityPlaylist()
+    report = GeographyBasedActivityPlaylist()
     assert report.name == "Geography-based activity for playlists"
     with pytest.raises(InvalidRequest):
         report.validate(dimensions, filters, metrics, sort_options)
@@ -115,7 +127,7 @@ def test_geography_based_activity_playlist_errors(
 )
 @pytest.mark.parametrize(
     "metrics",
-    m := select_metrics(rt.GeographyBasedActivityUSPlaylist()),
+    m := select_metrics(GeographyBasedActivityUSPlaylist()),
 )
 @pytest.mark.parametrize("sort_options", select_sort_options(m))
 def test_geography_based_activity_us_playlist(
@@ -124,17 +136,17 @@ def test_geography_based_activity_us_playlist(
     metrics,
     sort_options,
 ):
-    report = rt.GeographyBasedActivityUSPlaylist()
+    report = GeographyBasedActivityUSPlaylist()
     assert report.name == "Geography-based activity for playlists (US)"
     report.validate(dimensions, filters, metrics, sort_options)
 
 
 @pytest.mark.parametrize("dimensions", [("insightPlaybackLocationType",)])
 @pytest.mark.parametrize("filters", [{"playlist": "a1"}, {"group": "b2"}])
-@pytest.mark.parametrize("metrics", m := select_metrics(rt.PlaybackLocationPlaylist()))
+@pytest.mark.parametrize("metrics", m := select_metrics(PlaybackLocationPlaylist()))
 @pytest.mark.parametrize("sort_options", select_sort_options(m))
 def test_playback_location_playlist(dimensions, filters, metrics, sort_options):
-    report = rt.PlaybackLocationPlaylist()
+    report = PlaybackLocationPlaylist()
     assert report.name == "Playback locations for playlists"
     report.validate(dimensions, filters, metrics, sort_options)
 
@@ -149,21 +161,21 @@ def test_playback_location_playlist(dimensions, filters, metrics, sort_options):
 )
 @pytest.mark.parametrize(
     "metrics",
-    m := select_metrics(rt.PlaybackLocationDetailPlaylist()),
+    m := select_metrics(PlaybackLocationDetailPlaylist()),
 )
 @pytest.mark.parametrize("sort_options", select_sort_options(m, descending_only=True))
 def test_playback_location_detail_playlist(dimensions, filters, metrics, sort_options):
-    report = rt.PlaybackLocationDetailPlaylist()
+    report = PlaybackLocationDetailPlaylist()
     assert report.name == "Playback locations for playlists (detailed)"
     report.validate(dimensions, filters, metrics, sort_options, max_results=25)
 
 
 @pytest.mark.parametrize("dimensions", [("insightTrafficSourceType",)])
 @pytest.mark.parametrize("filters", [{"playlist": "a1"}, {"group": "b2"}])
-@pytest.mark.parametrize("metrics", m := select_metrics(rt.TrafficSourcePlaylist()))
+@pytest.mark.parametrize("metrics", m := select_metrics(TrafficSourcePlaylist()))
 @pytest.mark.parametrize("sort_options", select_sort_options(m))
 def test_traffic_source_playlist(dimensions, filters, metrics, sort_options):
-    report = rt.TrafficSourcePlaylist()
+    report = TrafficSourcePlaylist()
     assert report.name == "Traffic sources for playlists"
     report.validate(dimensions, filters, metrics, sort_options)
 
@@ -184,11 +196,11 @@ def test_traffic_source_playlist(dimensions, filters, metrics, sort_options):
 )
 @pytest.mark.parametrize(
     "metrics",
-    m := select_metrics(rt.TrafficSourceDetailPlaylist()),
+    m := select_metrics(TrafficSourceDetailPlaylist()),
 )
 @pytest.mark.parametrize("sort_options", select_sort_options(m, descending_only=True))
 def test_traffic_source_detail_playlist(dimensions, filters, metrics, sort_options):
-    report = rt.TrafficSourceDetailPlaylist()
+    report = TrafficSourceDetailPlaylist()
     assert report.name == "Traffic sources for playlists (detailed)"
     report.validate(dimensions, filters, metrics, sort_options, 25)
 
@@ -215,7 +227,7 @@ def test_traffic_source_detail_playlist(dimensions, filters, metrics, sort_optio
 )
 @pytest.mark.parametrize(
     "metrics",
-    m := select_metrics(rt.TrafficSourceDetailPlaylist()),
+    m := select_metrics(TrafficSourceDetailPlaylist()),
 )
 @pytest.mark.parametrize("sort_options", select_sort_options(m, descending_only=True))
 def test_traffic_source_detail_playlist_errors(
@@ -224,7 +236,7 @@ def test_traffic_source_detail_playlist_errors(
     metrics,
     sort_options,
 ):
-    report = rt.TrafficSourceDetailPlaylist()
+    report = TrafficSourceDetailPlaylist()
     assert report.name == "Traffic sources for playlists (detailed)"
     with pytest.raises(InvalidRequest) as exc:
         report.validate(dimensions, filters, metrics, sort_options, 25)
@@ -232,20 +244,20 @@ def test_traffic_source_detail_playlist_errors(
 
 @pytest.mark.parametrize("dimensions", [("deviceType",)])
 @pytest.mark.parametrize("filters", [{"playlist": "a1"}, {"group": "b2"}])
-@pytest.mark.parametrize("metrics", m := select_metrics(rt.DeviceTypePlaylist()))
+@pytest.mark.parametrize("metrics", m := select_metrics(DeviceTypePlaylist()))
 @pytest.mark.parametrize("sort_options", select_sort_options(m))
 def test_device_type_playlist(dimensions, filters, metrics, sort_options):
-    report = rt.DeviceTypePlaylist()
+    report = DeviceTypePlaylist()
     assert report.name == "Device types for playlists"
     report.validate(dimensions, filters, metrics, sort_options)
 
 
 @pytest.mark.parametrize("dimensions", [("operatingSystem",)])
 @pytest.mark.parametrize("filters", [{"playlist": "a1"}, {"group": "b2"}])
-@pytest.mark.parametrize("metrics", m := select_metrics(rt.OperatingSystemPlaylist()))
+@pytest.mark.parametrize("metrics", m := select_metrics(OperatingSystemPlaylist()))
 @pytest.mark.parametrize("sort_options", select_sort_options(m))
 def test_operating_system_playlist(dimensions, filters, metrics, sort_options):
-    report = rt.OperatingSystemPlaylist()
+    report = OperatingSystemPlaylist()
     assert report.name == "Operating systems for playlists"
     report.validate(dimensions, filters, metrics, sort_options)
 
@@ -254,7 +266,7 @@ def test_operating_system_playlist(dimensions, filters, metrics, sort_options):
 @pytest.mark.parametrize("filters", [{"playlist": "a1"}, {"group": "b2"}])
 @pytest.mark.parametrize(
     "metrics",
-    m := select_metrics(rt.DeviceTypeAndOperatingSystemPlaylist()),
+    m := select_metrics(DeviceTypeAndOperatingSystemPlaylist()),
 )
 @pytest.mark.parametrize("sort_options", select_sort_options(m))
 def test_device_type_and_operating_system_playlist(
@@ -263,7 +275,7 @@ def test_device_type_and_operating_system_playlist(
     metrics,
     sort_options,
 ):
-    report = rt.DeviceTypeAndOperatingSystemPlaylist()
+    report = DeviceTypeAndOperatingSystemPlaylist()
     assert report.name == "Device types and operating systems for playlists"
     report.validate(dimensions, filters, metrics, sort_options)
 
@@ -275,20 +287,20 @@ def test_device_type_and_operating_system_playlist(
 @pytest.mark.parametrize("filters", [{"playlist": "a1"}, {"group": "b2"}])
 @pytest.mark.parametrize(
     "metrics",
-    m := select_metrics(rt.ViewerDemographicsPlaylist()),
+    m := select_metrics(ViewerDemographicsPlaylist()),
 )
 @pytest.mark.parametrize("sort_options", select_sort_options(m))
 def test_viewer_demographics_playlist(dimensions, filters, metrics, sort_options):
-    report = rt.ViewerDemographicsPlaylist()
+    report = ViewerDemographicsPlaylist()
     assert report.name == "Viewer demographics for playlists"
     report.validate(dimensions, filters, metrics, sort_options)
 
 
 @pytest.mark.parametrize("dimensions", [("playlist",)])
 @pytest.mark.parametrize("filters", [{}])
-@pytest.mark.parametrize("metrics", m := select_metrics(rt.TopPlaylists()))
+@pytest.mark.parametrize("metrics", m := select_metrics(TopPlaylists()))
 @pytest.mark.parametrize("sort_options", select_sort_options(m, descending_only=True))
 def test_top_playlists(dimensions, filters, metrics, sort_options):
-    report = rt.TopPlaylists()
+    report = TopPlaylists()
     assert report.name == "Top playlists"
     report.validate(dimensions, filters, metrics, sort_options, 200)

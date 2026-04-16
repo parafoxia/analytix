@@ -8,11 +8,40 @@ import pytest
 
 from analytix.abc import ReportType
 from analytix.errors import InvalidRequest
-from analytix.reports import types as rt
 from analytix.reports.constants import COUNTRIES
 from analytix.reports.constants import LOCATION_AND_TRAFFIC_SORT_OPTIONS
 from analytix.reports.constants import SUBDIVISIONS
 from analytix.reports.constants import VALID_FILTER_OPTIONS
+from analytix.reports.types.video import AudienceRetention
+from analytix.reports.types.video import BasicUserActivity
+from analytix.reports.types.video import BasicUserActivityUS
+from analytix.reports.types.video import DeviceType
+from analytix.reports.types.video import DeviceTypeAndOperatingSystem
+from analytix.reports.types.video import EngagementAndContentSharing
+from analytix.reports.types.video import GeographyBasedActivity
+from analytix.reports.types.video import GeographyBasedActivityByCity
+from analytix.reports.types.video import GeographyBasedActivityUS
+from analytix.reports.types.video import OperatingSystem
+from analytix.reports.types.video import PlaybackDetailsLiveGeographyBased
+from analytix.reports.types.video import PlaybackDetailsLiveGeographyBasedUS
+from analytix.reports.types.video import PlaybackDetailsLiveTimeBased
+from analytix.reports.types.video import PlaybackDetailsSubscribedStatus
+from analytix.reports.types.video import PlaybackDetailsSubscribedStatusUS
+from analytix.reports.types.video import PlaybackDetailsViewPercentageGeographyBased
+from analytix.reports.types.video import PlaybackDetailsViewPercentageGeographyBasedUS
+from analytix.reports.types.video import PlaybackDetailsViewPercentageTimeBased
+from analytix.reports.types.video import PlaybackLocation
+from analytix.reports.types.video import PlaybackLocationDetail
+from analytix.reports.types.video import TimeBasedActivity
+from analytix.reports.types.video import TimeBasedActivityUS
+from analytix.reports.types.video import TopVideosPlaybackDetail
+from analytix.reports.types.video import TopVideosRegional
+from analytix.reports.types.video import TopVideosSubscribed
+from analytix.reports.types.video import TopVideosUS
+from analytix.reports.types.video import TopVideosYouTubeProduct
+from analytix.reports.types.video import TrafficSource
+from analytix.reports.types.video import TrafficSourceDetail
+from analytix.reports.types.video import ViewerDemographics
 
 
 def select_metrics(rtype: ReportType):
@@ -52,10 +81,10 @@ def sample(s: set[str], n: int = 3) -> list[str]:
         {"group": "rickroll", "subContinent": "015"},
     ],
 )
-@pytest.mark.parametrize("metrics", m := select_metrics(rt.BasicUserActivity()))
+@pytest.mark.parametrize("metrics", m := select_metrics(BasicUserActivity()))
 @pytest.mark.parametrize("sort_options", select_sort_options(m))
 def test_basic_user_activity(dimensions, filters, metrics, sort_options):
-    report = rt.BasicUserActivity()
+    report = BasicUserActivity()
     assert report.name == "Basic user activity"
     report.validate(dimensions, filters, metrics, sort_options)
 
@@ -72,10 +101,10 @@ def test_basic_user_activity(dimensions, filters, metrics, sort_options):
         {"subContinent": "002", "group": "rickroll"},
     ],
 )
-@pytest.mark.parametrize("metrics", m := select_metrics(rt.BasicUserActivity()))
+@pytest.mark.parametrize("metrics", m := select_metrics(BasicUserActivity()))
 @pytest.mark.parametrize("sort_options", select_sort_options(m))
 def test_basic_user_activity_errors(dimensions, filters, metrics, sort_options):
-    report = rt.BasicUserActivity()
+    report = BasicUserActivity()
     assert report.name == "Basic user activity"
     with pytest.raises(InvalidRequest):
         report.validate(dimensions, filters, metrics, sort_options)
@@ -90,10 +119,10 @@ def test_basic_user_activity_errors(dimensions, filters, metrics, sort_options):
         {"province": "US-OH", "group": "rickroll"},
     ],
 )
-@pytest.mark.parametrize("metrics", m := select_metrics(rt.BasicUserActivityUS()))
+@pytest.mark.parametrize("metrics", m := select_metrics(BasicUserActivityUS()))
 @pytest.mark.parametrize("sort_options", select_sort_options(m))
 def test_basic_user_activity_us(dimensions, filters, metrics, sort_options):
-    report = rt.BasicUserActivityUS()
+    report = BasicUserActivityUS()
     assert report.name == "Basic user activity (US)"
     report.validate(dimensions, filters, metrics, sort_options)
 
@@ -106,10 +135,10 @@ def test_basic_user_activity_us(dimensions, filters, metrics, sort_options):
         {"province": "US-XX", "group": "rickroll"},
     ],
 )
-@pytest.mark.parametrize("metrics", m := select_metrics(rt.BasicUserActivityUS()))
+@pytest.mark.parametrize("metrics", m := select_metrics(BasicUserActivityUS()))
 @pytest.mark.parametrize("sort_options", select_sort_options(m))
 def test_basic_user_activity_us_errors(dimensions, filters, metrics, sort_options):
-    report = rt.BasicUserActivityUS()
+    report = BasicUserActivityUS()
     assert report.name == "Basic user activity (US)"
     with pytest.raises(InvalidRequest):
         report.validate(dimensions, filters, metrics, sort_options)
@@ -141,10 +170,10 @@ def test_basic_user_activity_us_errors(dimensions, filters, metrics, sort_option
         {"group": "rickroll", "subContinent": "015"},
     ],
 )
-@pytest.mark.parametrize("metrics", m := select_metrics(rt.TimeBasedActivity()))
+@pytest.mark.parametrize("metrics", m := select_metrics(TimeBasedActivity()))
 @pytest.mark.parametrize("sort_options", select_sort_options(m))
 def test_time_based_activity(dimensions, filters, metrics, sort_options):
-    report = rt.TimeBasedActivity()
+    report = TimeBasedActivity()
     assert report.name == "Time-based activity"
     report.validate(dimensions, filters, metrics, sort_options)
 
@@ -166,10 +195,10 @@ def test_time_based_activity(dimensions, filters, metrics, sort_options):
         {"province": "US-OH", "group": "rickroll"},
     ],
 )
-@pytest.mark.parametrize("metrics", m := select_metrics(rt.TimeBasedActivityUS()))
+@pytest.mark.parametrize("metrics", m := select_metrics(TimeBasedActivityUS()))
 @pytest.mark.parametrize("sort_options", select_sort_options(m))
 def test_time_based_activity_us(dimensions, filters, metrics, sort_options):
-    report = rt.TimeBasedActivityUS()
+    report = TimeBasedActivityUS()
     assert report.name == "Time-based activity (US)"
     report.validate(dimensions, filters, metrics, sort_options)
 
@@ -192,10 +221,10 @@ def test_time_based_activity_us(dimensions, filters, metrics, sort_options):
         {"group": "rickroll", "subContinent": "015"},
     ],
 )
-@pytest.mark.parametrize("metrics", m := select_metrics(rt.GeographyBasedActivity()))
+@pytest.mark.parametrize("metrics", m := select_metrics(GeographyBasedActivity()))
 @pytest.mark.parametrize("sort_options", select_sort_options(m))
 def test_geography_based_activity(dimensions, filters, metrics, sort_options):
-    report = rt.GeographyBasedActivity()
+    report = GeographyBasedActivity()
     assert report.name == "Geography-based activity"
     report.validate(dimensions, filters, metrics, sort_options)
 
@@ -208,10 +237,10 @@ def test_geography_based_activity(dimensions, filters, metrics, sort_options):
     "filters",
     [{"country": "US", "video": "rickroll"}, {"country": "US", "group": "rickroll"}],
 )
-@pytest.mark.parametrize("metrics", m := select_metrics(rt.GeographyBasedActivityUS()))
+@pytest.mark.parametrize("metrics", m := select_metrics(GeographyBasedActivityUS()))
 @pytest.mark.parametrize("sort_options", select_sort_options(m))
 def test_geography_based_activity_us(dimensions, filters, metrics, sort_options):
-    report = rt.GeographyBasedActivityUS()
+    report = GeographyBasedActivityUS()
     assert report.name == "Geography-based activity (US)"
     report.validate(dimensions, filters, metrics, sort_options)
 
@@ -263,17 +292,17 @@ def test_geography_based_activity_us(dimensions, filters, metrics, sort_options)
 )
 @pytest.mark.parametrize(
     "metrics",
-    m := select_metrics(rt.GeographyBasedActivityByCity()),
+    m := select_metrics(GeographyBasedActivityByCity()),
 )
 @pytest.mark.parametrize("sort_options", select_sort_options(m, descending_only=True))
 def test_geography_based_activity_by_city(dimensions, filters, metrics, sort_options):
-    report = rt.GeographyBasedActivityByCity()
+    report = GeographyBasedActivityByCity()
     assert report.name == "Geography-based activity (by city)"
     report.validate(dimensions, filters, metrics, sort_options, max_results=25)
 
 
 def test_geography_based_activity_by_city_warning():
-    report = rt.GeographyBasedActivityByCity()
+    report = GeographyBasedActivityByCity()
     assert report.name == "Geography-based activity (by city)"
     d = ["city"]
     f = {}
@@ -317,7 +346,7 @@ def test_geography_based_activity_by_city_warning():
 )
 @pytest.mark.parametrize(
     "metrics",
-    m := select_metrics(rt.GeographyBasedActivityByCity()),
+    m := select_metrics(GeographyBasedActivityByCity()),
 )
 @pytest.mark.parametrize("sort_options", select_sort_options(m, descending_only=True))
 def test_geography_based_activity_by_city_with_province(
@@ -326,7 +355,7 @@ def test_geography_based_activity_by_city_with_province(
     metrics,
     sort_options,
 ):
-    report = rt.GeographyBasedActivityByCity()
+    report = GeographyBasedActivityByCity()
     assert report.name == "Geography-based activity (by city)"
     report.validate(dimensions, filters, metrics, sort_options, max_results=25)
 
@@ -349,7 +378,7 @@ def test_geography_based_activity_by_city_with_province(
 )
 @pytest.mark.parametrize(
     "metrics",
-    m := select_metrics(rt.GeographyBasedActivityByCity()),
+    m := select_metrics(GeographyBasedActivityByCity()),
 )
 @pytest.mark.parametrize("sort_options", select_sort_options(m, descending_only=True))
 def test_geography_based_activity_by_city_with_province_errors(
@@ -358,7 +387,7 @@ def test_geography_based_activity_by_city_with_province_errors(
     metrics,
     sort_options,
 ):
-    report = rt.GeographyBasedActivityByCity()
+    report = GeographyBasedActivityByCity()
     assert report.name == "Geography-based activity (by city)"
     with pytest.raises(InvalidRequest):
         report.validate(dimensions, filters, metrics, sort_options, max_results=25)
@@ -404,11 +433,11 @@ def test_geography_based_activity_by_city_with_province_errors(
 )
 @pytest.mark.parametrize(
     "metrics",
-    m := select_metrics(rt.PlaybackDetailsSubscribedStatus()),
+    m := select_metrics(PlaybackDetailsSubscribedStatus()),
 )
 @pytest.mark.parametrize("sort_options", select_sort_options(m))
 def test_playback_details_subscribed_status(dimensions, filters, metrics, sort_options):
-    report = rt.PlaybackDetailsSubscribedStatus()
+    report = PlaybackDetailsSubscribedStatus()
     assert report.name == "User activity by subscribed status"
     report.validate(dimensions, filters, metrics, sort_options)
 
@@ -447,7 +476,7 @@ def test_playback_details_subscribed_status(dimensions, filters, metrics, sort_o
 )
 @pytest.mark.parametrize(
     "metrics",
-    m := select_metrics(rt.PlaybackDetailsSubscribedStatusUS()),
+    m := select_metrics(PlaybackDetailsSubscribedStatusUS()),
 )
 @pytest.mark.parametrize("sort_options", select_sort_options(m))
 def test_playback_details_subscribed_status_us(
@@ -456,7 +485,7 @@ def test_playback_details_subscribed_status_us(
     metrics,
     sort_options,
 ):
-    report = rt.PlaybackDetailsSubscribedStatusUS()
+    report = PlaybackDetailsSubscribedStatusUS()
     assert report.name == "User activity by subscribed status (US)"
     report.validate(dimensions, filters, metrics, sort_options)
 
@@ -528,11 +557,11 @@ def test_playback_details_subscribed_status_us(
 )
 @pytest.mark.parametrize(
     "metrics",
-    m := select_metrics(rt.PlaybackDetailsLiveTimeBased()),
+    m := select_metrics(PlaybackDetailsLiveTimeBased()),
 )
 @pytest.mark.parametrize("sort_options", select_sort_options(m))
 def test_playback_details_live_time_based(dimensions, filters, metrics, sort_options):
-    report = rt.PlaybackDetailsLiveTimeBased()
+    report = PlaybackDetailsLiveTimeBased()
     assert report.name == "Time-based playback details (live)"
     report.validate(dimensions, filters, metrics, sort_options)
 
@@ -596,7 +625,7 @@ def test_playback_details_live_time_based(dimensions, filters, metrics, sort_opt
 )
 @pytest.mark.parametrize(
     "metrics",
-    m := select_metrics(rt.PlaybackDetailsViewPercentageTimeBased()),
+    m := select_metrics(PlaybackDetailsViewPercentageTimeBased()),
 )
 @pytest.mark.parametrize("sort_options", select_sort_options(m))
 def test_playback_details_view_percentage_time_based(
@@ -605,7 +634,7 @@ def test_playback_details_view_percentage_time_based(
     metrics,
     sort_options,
 ):
-    report = rt.PlaybackDetailsViewPercentageTimeBased()
+    report = PlaybackDetailsViewPercentageTimeBased()
     assert report.name == "Time-based playback details (view percentage)"
     report.validate(dimensions, filters, metrics, sort_options)
 
@@ -652,7 +681,7 @@ def test_playback_details_view_percentage_time_based(
 )
 @pytest.mark.parametrize(
     "metrics",
-    m := select_metrics(rt.PlaybackDetailsLiveGeographyBased()),
+    m := select_metrics(PlaybackDetailsLiveGeographyBased()),
 )
 @pytest.mark.parametrize("sort_options", select_sort_options(m))
 def test_playback_details_live_geography_based(
@@ -661,7 +690,7 @@ def test_playback_details_live_geography_based(
     metrics,
     sort_options,
 ):
-    report = rt.PlaybackDetailsLiveGeographyBased()
+    report = PlaybackDetailsLiveGeographyBased()
     assert report.name == "Geography-based playback details (live)"
     report.validate(dimensions, filters, metrics, sort_options)
 
@@ -704,7 +733,7 @@ def test_playback_details_live_geography_based(
 )
 @pytest.mark.parametrize(
     "metrics",
-    m := select_metrics(rt.PlaybackDetailsViewPercentageGeographyBased()),
+    m := select_metrics(PlaybackDetailsViewPercentageGeographyBased()),
 )
 @pytest.mark.parametrize("sort_options", select_sort_options(m))
 def test_playback_details_view_percentage_geography_based(
@@ -713,7 +742,7 @@ def test_playback_details_view_percentage_geography_based(
     metrics,
     sort_options,
 ):
-    report = rt.PlaybackDetailsViewPercentageGeographyBased()
+    report = PlaybackDetailsViewPercentageGeographyBased()
     assert report.name == "Geography-based playback details (view percentage)"
     report.validate(dimensions, filters, metrics, sort_options)
 
@@ -754,7 +783,7 @@ def test_playback_details_view_percentage_geography_based(
 )
 @pytest.mark.parametrize(
     "metrics",
-    m := select_metrics(rt.PlaybackDetailsLiveGeographyBasedUS()),
+    m := select_metrics(PlaybackDetailsLiveGeographyBasedUS()),
 )
 @pytest.mark.parametrize("sort_options", select_sort_options(m))
 def test_playback_details_live_geography_based_us(
@@ -763,7 +792,7 @@ def test_playback_details_live_geography_based_us(
     metrics,
     sort_options,
 ):
-    report = rt.PlaybackDetailsLiveGeographyBasedUS()
+    report = PlaybackDetailsLiveGeographyBasedUS()
     assert report.name == "Geography-based playback details (live, US)"
     report.validate(dimensions, filters, metrics, sort_options)
 
@@ -800,7 +829,7 @@ def test_playback_details_live_geography_based_us(
 )
 @pytest.mark.parametrize(
     "metrics",
-    m := select_metrics(rt.PlaybackDetailsViewPercentageGeographyBasedUS()),
+    m := select_metrics(PlaybackDetailsViewPercentageGeographyBasedUS()),
 )
 @pytest.mark.parametrize("sort_options", select_sort_options(m))
 def test_playback_details_view_percentage_geography_based_us(
@@ -809,7 +838,7 @@ def test_playback_details_view_percentage_geography_based_us(
     metrics,
     sort_options,
 ):
-    report = rt.PlaybackDetailsViewPercentageGeographyBasedUS()
+    report = PlaybackDetailsViewPercentageGeographyBasedUS()
     assert report.name == "Geography-based playback details (view percentage, US)"
     report.validate(dimensions, filters, metrics, sort_options)
 
@@ -857,10 +886,10 @@ def test_playback_details_view_percentage_geography_based_us(
         {"video": "rickroll", "province": "US-OH", "subscribedStatus": "SUBSCRIBED"},
     ],
 )
-@pytest.mark.parametrize("metrics", m := select_metrics(rt.PlaybackLocation()))
+@pytest.mark.parametrize("metrics", m := select_metrics(PlaybackLocation()))
 @pytest.mark.parametrize("sort_options", select_sort_options(m))
 def test_playback_location(dimensions, filters, metrics, sort_options):
-    report = rt.PlaybackLocation()
+    report = PlaybackLocation()
     assert report.name == "Playback locations"
     report.validate(dimensions, filters, metrics, sort_options)
 
@@ -968,10 +997,10 @@ def test_playback_location(dimensions, filters, metrics, sort_options):
         },
     ],
 )
-@pytest.mark.parametrize("metrics", m := select_metrics(rt.PlaybackLocationDetail()))
+@pytest.mark.parametrize("metrics", m := select_metrics(PlaybackLocationDetail()))
 @pytest.mark.parametrize("sort_options", select_sort_options(m, descending_only=True))
 def test_playback_location_detail(dimensions, filters, metrics, sort_options):
-    report = rt.PlaybackLocationDetail()
+    report = PlaybackLocationDetail()
     assert report.name == "Playback locations (detailed)"
     report.validate(dimensions, filters, metrics, sort_options, max_results=25)
 
@@ -1019,10 +1048,10 @@ def test_playback_location_detail(dimensions, filters, metrics, sort_options):
         {"video": "rickroll", "province": "US-OH", "subscribedStatus": "SUBSCRIBED"},
     ],
 )
-@pytest.mark.parametrize("metrics", m := select_metrics(rt.TrafficSource()))
+@pytest.mark.parametrize("metrics", m := select_metrics(TrafficSource()))
 @pytest.mark.parametrize("sort_options", select_sort_options(m))
 def test_traffic_source(dimensions, filters, metrics, sort_options):
-    report = rt.TrafficSource()
+    report = TrafficSource()
     assert report.name == "Traffic sources"
     report.validate(dimensions, filters, metrics, sort_options)
 
@@ -1133,10 +1162,10 @@ def test_traffic_source(dimensions, filters, metrics, sort_options):
         },
     ],
 )
-@pytest.mark.parametrize("metrics", m := select_metrics(rt.TrafficSourceDetail()))
+@pytest.mark.parametrize("metrics", m := select_metrics(TrafficSourceDetail()))
 @pytest.mark.parametrize("sort_options", select_sort_options(m, descending_only=True))
 def test_traffic_source_detail(dimensions, filters, metrics, sort_options):
-    report = rt.TrafficSourceDetail()
+    report = TrafficSourceDetail()
     assert report.name == "Traffic sources (detailed)"
     report.validate(dimensions, filters, metrics, sort_options, max_results=25)
 
@@ -1158,10 +1187,10 @@ def test_traffic_source_detail(dimensions, filters, metrics, sort_options):
         ],
     ],
 )
-@pytest.mark.parametrize("metrics", m := select_metrics(rt.TrafficSourceDetail()))
+@pytest.mark.parametrize("metrics", m := select_metrics(TrafficSourceDetail()))
 @pytest.mark.parametrize("sort_options", select_sort_options(m, descending_only=True))
 def test_traffic_source_detail_errors(dimensions, filters, metrics, sort_options):
-    report = rt.TrafficSourceDetail()
+    report = TrafficSourceDetail()
     assert report.name == "Traffic sources (detailed)"
     with pytest.raises(InvalidRequest):
         report.validate(dimensions, filters, metrics, sort_options, max_results=25)
@@ -1216,10 +1245,10 @@ def test_traffic_source_detail_errors(dimensions, filters, metrics, sort_options
         {"video": "rickroll", "province": "US-OH", "subscribedStatus": "SUBSCRIBED"},
     ],
 )
-@pytest.mark.parametrize("metrics", m := select_metrics(rt.DeviceType()))
+@pytest.mark.parametrize("metrics", m := select_metrics(DeviceType()))
 @pytest.mark.parametrize("sort_options", select_sort_options(m))
 def test_device_type(dimensions, filters, metrics, sort_options):
-    report = rt.DeviceType()
+    report = DeviceType()
     assert report.name == "Device types"
     report.validate(dimensions, filters, metrics, sort_options)
 
@@ -1273,10 +1302,10 @@ def test_device_type(dimensions, filters, metrics, sort_options):
         {"video": "rickroll", "province": "US-OH", "subscribedStatus": "SUBSCRIBED"},
     ],
 )
-@pytest.mark.parametrize("metrics", m := select_metrics(rt.OperatingSystem()))
+@pytest.mark.parametrize("metrics", m := select_metrics(OperatingSystem()))
 @pytest.mark.parametrize("sort_options", select_sort_options(m))
 def test_operating_system(dimensions, filters, metrics, sort_options):
-    report = rt.OperatingSystem()
+    report = OperatingSystem()
     assert report.name == "Operating systems"
     report.validate(dimensions, filters, metrics, sort_options)
 
@@ -1331,11 +1360,11 @@ def test_operating_system(dimensions, filters, metrics, sort_options):
 )
 @pytest.mark.parametrize(
     "metrics",
-    m := select_metrics(rt.DeviceTypeAndOperatingSystem()),
+    m := select_metrics(DeviceTypeAndOperatingSystem()),
 )
 @pytest.mark.parametrize("sort_options", select_sort_options(m))
 def test_device_type_and_operating_system(dimensions, filters, metrics, sort_options):
-    report = rt.DeviceTypeAndOperatingSystem()
+    report = DeviceTypeAndOperatingSystem()
     assert report.name == "Device types and operating systems"
     report.validate(dimensions, filters, metrics, sort_options)
 
@@ -1377,10 +1406,10 @@ def test_device_type_and_operating_system(dimensions, filters, metrics, sort_opt
         {"video": "rickroll", "province": "US-OH", "subscribedStatus": "SUBSCRIBED"},
     ],
 )
-@pytest.mark.parametrize("metrics", m := select_metrics(rt.ViewerDemographics()))
+@pytest.mark.parametrize("metrics", m := select_metrics(ViewerDemographics()))
 @pytest.mark.parametrize("sort_options", select_sort_options(m))
 def test_viewer_demographics(dimensions, filters, metrics, sort_options):
-    report = rt.ViewerDemographics()
+    report = ViewerDemographics()
     assert report.name == "Viewer demographics"
     report.validate(dimensions, filters, metrics, sort_options)
 
@@ -1416,11 +1445,11 @@ def test_viewer_demographics(dimensions, filters, metrics, sort_options):
 )
 @pytest.mark.parametrize(
     "metrics",
-    m := select_metrics(rt.EngagementAndContentSharing()),
+    m := select_metrics(EngagementAndContentSharing()),
 )
 @pytest.mark.parametrize("sort_options", select_sort_options(m))
 def test_engagement_and_content_sharing(dimensions, filters, metrics, sort_options):
-    report = rt.EngagementAndContentSharing()
+    report = EngagementAndContentSharing()
     assert report.name == "Engagement and content sharing"
     report.validate(dimensions, filters, metrics, sort_options)
 
@@ -1441,16 +1470,16 @@ def test_engagement_and_content_sharing(dimensions, filters, metrics, sort_optio
         {"video": "rickroll", "youtubeProduct": "CORE"},
     ],
 )
-@pytest.mark.parametrize("metrics", m := select_metrics(rt.AudienceRetention()))
+@pytest.mark.parametrize("metrics", m := select_metrics(AudienceRetention()))
 @pytest.mark.parametrize("sort_options", select_sort_options(m))
 def test_audience_retention(dimensions, filters, metrics, sort_options):
-    report = rt.AudienceRetention()
+    report = AudienceRetention()
     assert report.name == "Audience retention"
     report.validate(dimensions, filters, metrics, sort_options)
 
 
 def test_audience_retention_invalid_video_filters():
-    report = rt.AudienceRetention()
+    report = AudienceRetention()
     assert report.name == "Audience retention"
     d = ["elapsedVideoTimeRatio"]
     f = {"video": "fn849bng984b,f327b98g3b8g"}
@@ -1479,10 +1508,10 @@ def test_audience_retention_invalid_video_filters():
         *[{"subContinent": x} for x in sample(VALID_FILTER_OPTIONS["subContinent"])],
     ],
 )
-@pytest.mark.parametrize("metrics", m := select_metrics(rt.TopVideosRegional()))
+@pytest.mark.parametrize("metrics", m := select_metrics(TopVideosRegional()))
 @pytest.mark.parametrize("sort_options", select_sort_options(m, descending_only=True))
 def test_top_videos_regional(dimensions, filters, metrics, sort_options):
-    report = rt.TopVideosRegional()
+    report = TopVideosRegional()
     assert report.name == "Top videos by region"
     report.validate(dimensions, filters, metrics, sort_options, max_results=200)
 
@@ -1501,10 +1530,10 @@ def test_top_videos_regional(dimensions, filters, metrics, sort_options):
         {"province": "US-OH", "subscribedStatus": "SUBSCRIBED"},
     ],
 )
-@pytest.mark.parametrize("metrics", m := select_metrics(rt.TopVideosUS()))
+@pytest.mark.parametrize("metrics", m := select_metrics(TopVideosUS()))
 @pytest.mark.parametrize("sort_options", select_sort_options(m, descending_only=True))
 def test_top_videos_us(dimensions, filters, metrics, sort_options):
-    report = rt.TopVideosUS()
+    report = TopVideosUS()
     assert report.name == "Top videos by state"
     report.validate(dimensions, filters, metrics, sort_options, max_results=200)
 
@@ -1532,10 +1561,10 @@ def test_top_videos_us(dimensions, filters, metrics, sort_options):
         ],
     ],
 )
-@pytest.mark.parametrize("metrics", m := select_metrics(rt.TopVideosSubscribed()))
+@pytest.mark.parametrize("metrics", m := select_metrics(TopVideosSubscribed()))
 @pytest.mark.parametrize("sort_options", select_sort_options(m, descending_only=True))
 def test_top_videos_subscribed(dimensions, filters, metrics, sort_options):
-    report = rt.TopVideosSubscribed()
+    report = TopVideosSubscribed()
     assert report.name == "Top videos by subscription status"
     report.validate(dimensions, filters, metrics, sort_options, max_results=200)
 
@@ -1565,10 +1594,10 @@ def test_top_videos_subscribed(dimensions, filters, metrics, sort_options):
         ],
     ],
 )
-@pytest.mark.parametrize("metrics", m := select_metrics(rt.TopVideosYouTubeProduct()))
+@pytest.mark.parametrize("metrics", m := select_metrics(TopVideosYouTubeProduct()))
 @pytest.mark.parametrize("sort_options", select_sort_options(m, descending_only=True))
 def test_top_videos_youtube_product(dimensions, filters, metrics, sort_options):
-    report = rt.TopVideosYouTubeProduct()
+    report = TopVideosYouTubeProduct()
     assert report.name == "Top videos by YouTube product"
     report.validate(dimensions, filters, metrics, sort_options, max_results=200)
 
@@ -1599,9 +1628,9 @@ def test_top_videos_youtube_product(dimensions, filters, metrics, sort_options):
         ],
     ],
 )
-@pytest.mark.parametrize("metrics", m := select_metrics(rt.TopVideosPlaybackDetail()))
+@pytest.mark.parametrize("metrics", m := select_metrics(TopVideosPlaybackDetail()))
 @pytest.mark.parametrize("sort_options", select_sort_options(m, descending_only=True))
 def test_top_videos_playback_detail(dimensions, filters, metrics, sort_options):
-    report = rt.TopVideosPlaybackDetail()
+    report = TopVideosPlaybackDetail()
     assert report.name == "Top videos by playback detail"
     report.validate(dimensions, filters, metrics, sort_options, max_results=200)

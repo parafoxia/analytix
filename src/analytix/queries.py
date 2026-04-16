@@ -11,11 +11,54 @@ from typing import TYPE_CHECKING
 
 from analytix.auth import Scopes
 from analytix.errors import InvalidRequest
-from analytix.reports import types as rt
 from analytix.reports.constants import ALL_METRICS_ORDERED
 from analytix.reports.constants import ALL_PLAYLIST_METRICS
 from analytix.reports.constants import CURRENCIES
 from analytix.reports.constants import REVENUE_METRICS
+from analytix.reports.types.ad import AdPerformance
+from analytix.reports.types.playlist import BasicUserActivityPlaylist
+from analytix.reports.types.playlist import DeviceTypeAndOperatingSystemPlaylist
+from analytix.reports.types.playlist import DeviceTypePlaylist
+from analytix.reports.types.playlist import GeographyBasedActivityPlaylist
+from analytix.reports.types.playlist import GeographyBasedActivityUSPlaylist
+from analytix.reports.types.playlist import OperatingSystemPlaylist
+from analytix.reports.types.playlist import PlaybackLocationDetailPlaylist
+from analytix.reports.types.playlist import PlaybackLocationPlaylist
+from analytix.reports.types.playlist import TimeBasedActivityPlaylist
+from analytix.reports.types.playlist import TopPlaylists
+from analytix.reports.types.playlist import TrafficSourceDetailPlaylist
+from analytix.reports.types.playlist import TrafficSourcePlaylist
+from analytix.reports.types.playlist import ViewerDemographicsPlaylist
+from analytix.reports.types.video import AudienceRetention
+from analytix.reports.types.video import BasicUserActivity
+from analytix.reports.types.video import BasicUserActivityUS
+from analytix.reports.types.video import DeviceType
+from analytix.reports.types.video import DeviceTypeAndOperatingSystem
+from analytix.reports.types.video import EngagementAndContentSharing
+from analytix.reports.types.video import GeographyBasedActivity
+from analytix.reports.types.video import GeographyBasedActivityByCity
+from analytix.reports.types.video import GeographyBasedActivityUS
+from analytix.reports.types.video import OperatingSystem
+from analytix.reports.types.video import PlaybackDetailsLiveGeographyBased
+from analytix.reports.types.video import PlaybackDetailsLiveGeographyBasedUS
+from analytix.reports.types.video import PlaybackDetailsLiveTimeBased
+from analytix.reports.types.video import PlaybackDetailsSubscribedStatus
+from analytix.reports.types.video import PlaybackDetailsSubscribedStatusUS
+from analytix.reports.types.video import PlaybackDetailsViewPercentageGeographyBased
+from analytix.reports.types.video import PlaybackDetailsViewPercentageGeographyBasedUS
+from analytix.reports.types.video import PlaybackDetailsViewPercentageTimeBased
+from analytix.reports.types.video import PlaybackLocation
+from analytix.reports.types.video import PlaybackLocationDetail
+from analytix.reports.types.video import TimeBasedActivity
+from analytix.reports.types.video import TimeBasedActivityUS
+from analytix.reports.types.video import TopVideosPlaybackDetail
+from analytix.reports.types.video import TopVideosRegional
+from analytix.reports.types.video import TopVideosSubscribed
+from analytix.reports.types.video import TopVideosUS
+from analytix.reports.types.video import TopVideosYouTubeProduct
+from analytix.reports.types.video import TrafficSource
+from analytix.reports.types.video import TrafficSourceDetail
+from analytix.reports.types.video import ViewerDemographics
 from analytix.warnings import InvalidMonthFormatWarning
 
 if TYPE_CHECKING:
@@ -184,135 +227,135 @@ class ReportQuery:
     def _determine_video_report_type(self) -> "ReportType":
         # sourcery skip: low-code-quality
         if "adType" in self.dimensions:
-            return rt.AdPerformance()
+            return AdPerformance()
 
         if "sharingService" in self.dimensions:
-            return rt.EngagementAndContentSharing()
+            return EngagementAndContentSharing()
 
         if "elapsedVideoTimeRatio" in self.dimensions:
-            return rt.AudienceRetention()
+            return AudienceRetention()
 
         if "city" in self.dimensions:
-            return rt.GeographyBasedActivityByCity()
+            return GeographyBasedActivityByCity()
 
         if "insightPlaybackLocationType" in self.dimensions:
-            return rt.PlaybackLocation()
+            return PlaybackLocation()
 
         if "insightPlaybackLocationDetail" in self.dimensions:
-            return rt.PlaybackLocationDetail()
+            return PlaybackLocationDetail()
 
         if "insightTrafficSourceType" in self.dimensions:
-            return rt.TrafficSource()
+            return TrafficSource()
 
         if "insightTrafficSourceDetail" in self.dimensions:
-            return rt.TrafficSourceDetail()
+            return TrafficSourceDetail()
 
         if "ageGroup" in self.dimensions or "gender" in self.dimensions:
-            return rt.ViewerDemographics()
+            return ViewerDemographics()
 
         if "deviceType" in self.dimensions:
             if "operatingSystem" in self.dimensions:
-                return rt.DeviceTypeAndOperatingSystem()
-            return rt.DeviceType()
+                return DeviceTypeAndOperatingSystem()
+            return DeviceType()
 
         if "operatingSystem" in self.dimensions:
-            return rt.OperatingSystem()
+            return OperatingSystem()
 
         if "video" in self.dimensions:
             if "province" in self.filters:
-                return rt.TopVideosUS()
+                return TopVideosUS()
             if "subscribedStatus" not in self.filters:
-                return rt.TopVideosRegional()
+                return TopVideosRegional()
             if "province" not in self.filters and "youtubeProduct" not in self.filters:
-                return rt.TopVideosSubscribed()
+                return TopVideosSubscribed()
             if "averageViewPercentage" in self.metrics:
-                return rt.TopVideosYouTubeProduct()
-            return rt.TopVideosPlaybackDetail()
+                return TopVideosYouTubeProduct()
+            return TopVideosPlaybackDetail()
 
         if "country" in self.dimensions:
             if "liveOrOnDemand" in self.dimensions or "liveOrOnDemand" in self.filters:
-                return rt.PlaybackDetailsLiveGeographyBased()
+                return PlaybackDetailsLiveGeographyBased()
             if (
                 "subscribedStatus" in self.dimensions
                 or "subscribedStatus" in self.filters
                 or "youtubeProduct" in self.dimensions
                 or "youtubeProduct" in self.filters
             ):
-                return rt.PlaybackDetailsViewPercentageGeographyBased()
-            return rt.GeographyBasedActivity()
+                return PlaybackDetailsViewPercentageGeographyBased()
+            return GeographyBasedActivity()
 
         if "province" in self.dimensions:
             if "liveOrOnDemand" in self.dimensions or "liveOrOnDemand" in self.filters:
-                return rt.PlaybackDetailsLiveGeographyBasedUS()
+                return PlaybackDetailsLiveGeographyBasedUS()
             if (
                 "subscribedStatus" in self.dimensions
                 or "subscribedStatus" in self.filters
                 or "youtubeProduct" in self.dimensions
                 or "youtubeProduct" in self.filters
             ):
-                return rt.PlaybackDetailsViewPercentageGeographyBasedUS()
-            return rt.GeographyBasedActivityUS()
+                return PlaybackDetailsViewPercentageGeographyBasedUS()
+            return GeographyBasedActivityUS()
 
         if "youtubeProduct" in self.dimensions or "youtubeProduct" in self.filters:
             if "liveOrOnDemand" in self.dimensions or "liveOrOnDemand" in self.filters:
-                return rt.PlaybackDetailsLiveTimeBased()
-            return rt.PlaybackDetailsViewPercentageTimeBased()
+                return PlaybackDetailsLiveTimeBased()
+            return PlaybackDetailsViewPercentageTimeBased()
 
         if "liveOrOnDemand" in self.dimensions or "liveOrOnDemand" in self.filters:
-            return rt.PlaybackDetailsLiveTimeBased()
+            return PlaybackDetailsLiveTimeBased()
 
         if "subscribedStatus" in self.dimensions:
             if "province" in self.filters:
-                return rt.PlaybackDetailsSubscribedStatusUS()
-            return rt.PlaybackDetailsSubscribedStatus()
+                return PlaybackDetailsSubscribedStatusUS()
+            return PlaybackDetailsSubscribedStatus()
 
         if "day" in self.dimensions or "month" in self.dimensions:
             if "province" in self.filters:
-                return rt.TimeBasedActivityUS()
-            return rt.TimeBasedActivity()
+                return TimeBasedActivityUS()
+            return TimeBasedActivity()
 
         if "province" in self.filters:
-            return rt.BasicUserActivityUS()
+            return BasicUserActivityUS()
 
-        return rt.BasicUserActivity()
+        return BasicUserActivity()
 
     def _determine_playlist_report_type(self) -> "ReportType":
         if "playlist" in self.dimensions:
-            return rt.TopPlaylists()
+            return TopPlaylists()
 
         if "insightPlaybackLocationType" in self.dimensions:
-            return rt.PlaybackLocationPlaylist()
+            return PlaybackLocationPlaylist()
 
         if "insightPlaybackLocationDetail" in self.dimensions:
-            return rt.PlaybackLocationDetailPlaylist()
+            return PlaybackLocationDetailPlaylist()
 
         if "insightTrafficSourceType" in self.dimensions:
-            return rt.TrafficSourcePlaylist()
+            return TrafficSourcePlaylist()
 
         if "insightTrafficSourceDetail" in self.dimensions:
-            return rt.TrafficSourceDetailPlaylist()
+            return TrafficSourceDetailPlaylist()
 
         if "ageGroup" in self.dimensions or "gender" in self.dimensions:
-            return rt.ViewerDemographicsPlaylist()
+            return ViewerDemographicsPlaylist()
 
         if "deviceType" in self.dimensions:
             if "operatingSystem" in self.dimensions:
-                return rt.DeviceTypeAndOperatingSystemPlaylist()
-            return rt.DeviceTypePlaylist()
+                return DeviceTypeAndOperatingSystemPlaylist()
+            return DeviceTypePlaylist()
 
         if "operatingSystem" in self.dimensions:
-            return rt.OperatingSystemPlaylist()
+            return OperatingSystemPlaylist()
 
         if "country" in self.dimensions:
-            return rt.GeographyBasedActivityPlaylist()
+            return GeographyBasedActivityPlaylist()
 
         if "province" in self.dimensions:
-            return rt.GeographyBasedActivityUSPlaylist()
+            return GeographyBasedActivityUSPlaylist()
 
         if "day" in self.dimensions or "month" in self.dimensions:
-            return rt.TimeBasedActivityPlaylist()
+            return TimeBasedActivityPlaylist()
 
-        return rt.BasicUserActivityPlaylist()
+        return BasicUserActivityPlaylist()
 
     def determine_report_type(self) -> "ReportType":
         playlist = self._is_playlist_report_type()

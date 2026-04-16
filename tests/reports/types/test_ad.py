@@ -1,13 +1,13 @@
 # SPDX-FileCopyrightText: 2021-2026 Ethan Henderson
 # SPDX-License-Identifier: BSD-3-Clause
 
-from analytix.reports import types as rt
+from analytix.reports.types.ad import AdPerformance
 
 # AD PERFORMANCE
 
 
 def test_ad_performance_1():
-    report = rt.AdPerformance()
+    report = AdPerformance()
     assert report.name == "Ad performance"
     d = ["adType", "day"]
     f = {"video": "nf97ng98bg9", "country": "US"}
@@ -17,7 +17,7 @@ def test_ad_performance_1():
 
 
 def test_ad_performance_2():
-    report = rt.AdPerformance()
+    report = AdPerformance()
     assert report.name == "Ad performance"
     d = ["adType"]
     f = {"group": "nf97ng98bg9", "continent": "002"}
@@ -27,7 +27,7 @@ def test_ad_performance_2():
 
 
 def test_ad_performance_3():
-    report = rt.AdPerformance()
+    report = AdPerformance()
     assert report.name == "Ad performance"
     d = ["adType"]
     f = {"subContinent": "014"}
@@ -37,7 +37,7 @@ def test_ad_performance_3():
 
 
 def test_ad_performance_4():
-    report = rt.AdPerformance()
+    report = AdPerformance()
     assert report.name == "Ad performance"
     d = ["adType"]
     f = {}
