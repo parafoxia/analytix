@@ -1,6 +1,8 @@
 # SPDX-FileCopyrightText: 2021-2026 Ethan Henderson
 # SPDX-License-Identifier: BSD-3-Clause
 
+#:tombi schema.strict = false
+
 [project]
 name = "analytix"
 version = "6.0.0a2"
