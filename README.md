@@ -66,4 +66,4 @@ Contributions are very much welcome! Have a look at the [contributing guide](htt
 
 ## License
 
-This project is licensed under the [BSD 3-Clause "New" or "Revised" License](https://github.com/parafoxia/analytix/blob/main/LICENSES/BSD-3-Clause.txt).
+This project is licensed under the [BSD 3-Clause "New" or "Revised" License](https://github.com/parafoxia/analytix/blob/main/LICENSES/BSD-3-Clause.txt), except for the [examples](https://github.com/parafoxia/analytix/tree/main/examples), which are licensed under the [BSD Zero Clause License](https://github.com/parafoxia/analytix/blob/main/LICENSES/0BSD.txt).
