@@ -5,28 +5,26 @@
 import datetime as dt
 import json
 import logging
-import re
-from pathlib import Path
+from io import BytesIO
+from io import StringIO
 from unittest import mock
 
 import pytest
-from openpyxl import Workbook
 
 from analytix import utils
 from analytix.errors import DataFrameConversionError
 from analytix.errors import MissingOptionalComponents
 from analytix.reports.interfaces import Report
 from analytix.reports.resources import ResultTable
-from tests import MockFile
 
 
 def test_report_init(report: Report, report_type, result_table: ResultTable):
     assert report.resource == result_table
     assert report.type == report_type
-    assert report._shape == (7, 2)
+    assert report.shape == (7, 2)
 
 
-def test_report_shape_property(report: Report):
+def test_reportshape_property(report: Report):
     assert report.shape == (7, 2)
 
 
@@ -42,108 +40,218 @@ def test_report_metrics_property(report: Report):
     assert report.metrics == ["views"]
 
 
-@mock.patch("builtins.open")
+def test_report_to_json(report: Report, response_data: bytes):
+    assert report.to_json() == response_data.decode("utf-8")
+
+
 @pytest.mark.skipif(
     not logging.getLogger().isEnabledFor(logging.DEBUG),
     reason="DEBUG level logging is not enabled",
 )
-def test_report_to_json_no_indent(
-    mock_open,
-    response_data: bytes,
-    report: Report,
-    caplog,
-):
-    f = MockFile(response_data.decode("utf-8"))
-    mock_open.return_value = f
-    report.to_json("report.json")
-    assert f.read_data == f.write_data
-    assert "Saved report as JSON" in caplog.text
+def test_report_to_json_to_path(report: Report, response_data: bytes, caplog):
+    output = StringIO()
 
-
-@mock.patch("builtins.open")
-@pytest.mark.skipif(
-    not logging.getLogger().isEnabledFor(logging.DEBUG),
-    reason="DEBUG level logging is not enabled",
-)
-def test_report_to_json_with_indent_4(
-    mock_open,
-    response_data: bytes,
-    report: Report,
-    caplog,
-):
-    f = MockFile(json.dumps(json.loads(response_data), indent=4))
-    mock_open.return_value = f
-    report.to_json("report.json", indent=4)
-    assert f.read_data == f.write_data
-    assert "Saved report as JSON" in caplog.text
-
-
-@mock.patch("builtins.open")
-@pytest.mark.skipif(
-    not logging.getLogger().isEnabledFor(logging.DEBUG),
-    reason="DEBUG level logging is not enabled",
-)
-def test_report_to_csv(mock_open, report_csv, report: Report, caplog):
-    f = MockFile(report_csv)
-    mock_open.return_value = f
-
-    report.to_csv("report.csv")
-    assert f.read_data == f.write_data
-    assert "Saved report as CSV" in caplog.text
-
-
-@mock.patch("builtins.open")
-@pytest.mark.skipif(
-    not logging.getLogger().isEnabledFor(logging.DEBUG),
-    reason="DEBUG level logging is not enabled",
-)
-def test_report_to_tsv(mock_open, report_tsv, report: Report, caplog):
-    f = MockFile(report_tsv)
-    mock_open.return_value = f
-
-    report.to_csv("report.tsv", delimiter="\t")
-    assert f.read_data == f.write_data
-    assert "Saved report as TSV" in caplog.text
-
-
-@pytest.mark.skipif(not utils.can_use("openpyxl"), reason="openpyxl is not available")
-@pytest.mark.skipif(
-    not logging.getLogger().isEnabledFor(logging.DEBUG),
-    reason="DEBUG level logging is not enabled",
-)
-@mock.patch.object(Workbook, "save", return_value=None)
-@mock.patch.object(Workbook, "active", new_callable=mock.PropertyMock)
-def test_report_to_excel(mock_active, mock_save, report: Report, caplog):
-    # This needs Workbook to be imported globally, otherwise things
-    # aren't mocked properly.
-    wb = Workbook()
-    mock_active.return_value = wb.create_sheet()
-
-    report.to_excel("report.xlsx")
-    mock_save.assert_called_with("report.xlsx")
-    assert "Saved report as spreadsheet" in caplog.text
-
-    ws = wb.active
-    assert ws.title == "Analytics"
-    assert len(list(ws.rows)) == 8
-
-    for i, row in enumerate(ws.rows, start=-1):
-        for j, cell in enumerate(row):
-            if i == -1:
-                assert cell.value == report.columns[j]
-            else:
-                assert cell.value == report.resource.rows[i][j]
-
-
-@mock.patch.object(utils, "can_use", return_value=False)
-def test_report_to_excel_without_openpyxl(_, report: Report):
-    with pytest.raises(
-        MissingOptionalComponents,
-        match=re.escape(
-            "some necessary libraries are not installed (hint: pip install openpyxl)",
+    with (
+        mock.patch("analytix.reports.interfaces.Path.exists", return_value=False),
+        mock.patch(
+            "analytix.reports.interfaces.Path.write_text",
+            lambda self, data: output.write(data),
+        ),
+        mock.patch(
+            "analytix.reports.interfaces.Path.resolve",
+            return_value="report.json",
         ),
     ):
+        assert report.to_json("report.json") is None
+
+    assert output.getvalue() == response_data.decode("utf-8")
+    assert "Saved report to report.json" in caplog.text
+
+
+def test_report_to_json_to_path_file_exists(report: Report):
+    with (
+        mock.patch("analytix.reports.interfaces.Path.exists", return_value=True),
+        pytest.raises(FileExistsError) as exc_info,
+    ):
+        report.to_json("report.json")
+
+    assert str(exc_info.value) == "file already exists and `overwrite` is set to False"
+
+
+def test_report_to_json_to_buffer(report: Report, response_data: bytes):
+    output = StringIO()
+    assert report.to_json(output) is None
+    assert output.getvalue() == response_data.decode("utf-8")
+
+
+def test_report_to_json_to_invalid_object(report: Report):
+    with pytest.raises(TypeError) as exc_info:
+        report.to_json(123)
+
+    assert str(exc_info.value) == "Expected str, PathLike, or TextIOBase, got int"
+
+
+def test_report_to_csv(report: Report, report_csv: str):
+    assert report.to_csv() == report_csv
+
+
+@pytest.mark.skipif(
+    not logging.getLogger().isEnabledFor(logging.DEBUG),
+    reason="DEBUG level logging is not enabled",
+)
+def test_report_to_csv_to_path(report: Report, report_csv: str, caplog):
+    output = StringIO()
+
+    with (
+        mock.patch("analytix.reports.interfaces.Path.exists", return_value=False),
+        mock.patch(
+            "analytix.reports.interfaces.Path.write_text",
+            lambda self, data: output.write(data),
+        ),
+        mock.patch(
+            "analytix.reports.interfaces.Path.resolve",
+            return_value="report.csv",
+        ),
+    ):
+        assert report.to_csv("report.csv") is None
+
+    assert output.getvalue() == report_csv
+    assert "Saved report to report.csv" in caplog.text
+
+
+def test_report_to_csv_to_path_file_exists(report: Report):
+    with (
+        mock.patch("analytix.reports.interfaces.Path.exists", return_value=True),
+        pytest.raises(FileExistsError) as exc_info,
+    ):
+        report.to_csv("report.csv")
+
+    assert str(exc_info.value) == "file already exists and `overwrite` is set to False"
+
+
+def test_report_to_csv_to_buffer(report: Report, report_csv: str):
+    output = StringIO()
+    assert report.to_csv(output) is None
+    assert output.getvalue() == report_csv
+
+
+def test_report_to_csv_to_invalid_object(report: Report):
+    with pytest.raises(TypeError) as exc_info:
+        report.to_csv(123)
+
+    assert str(exc_info.value) == "Expected str, PathLike, or TextIOBase, got int"
+
+
+def test_report_to_excel_no_openpyxl(report: Report):
+    with (
+        mock.patch("analytix.reports.interfaces.utils.can_use", return_value=False),
+        pytest.raises(MissingOptionalComponents) as exc_info,
+    ):
         report.to_excel("report.xlsx")
+
+    assert (
+        str(exc_info.value)
+        == "some necessary libraries are not installed (hint: pip install openpyxl)"
+    )
+
+
+def test_report_to_excel_to_invalid_object(report: Report):
+    with pytest.raises(TypeError) as exc_info:
+        report.to_excel(123)
+
+    assert str(exc_info.value) == "Expected str or PathLike, got int"
+
+
+@pytest.mark.skipif(not utils.can_use("openpyxl"), reason="openpyxl is not installed")
+@pytest.mark.skipif(
+    not logging.getLogger().isEnabledFor(logging.DEBUG),
+    reason="DEBUG level logging is not enabled",
+)
+def test_report_to_excel_create_new(report: Report):
+    from openpyxl import Workbook
+
+    output = BytesIO()
+
+    class MockWorkbook(Workbook):
+        instance: "MockWorkbook"
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            MockWorkbook.instance = self
+
+        def save(self, path):
+            super().save(output)
+
+    with (
+        mock.patch("openpyxl.Workbook", MockWorkbook),
+        mock.patch("analytix.reports.interfaces.Path.exists", return_value=False),
+    ):
+        report.to_excel("report.xlsx")
+
+    assert output.getvalue().startswith(b"\x50\x4b\x03\x04")
+
+    wb = MockWorkbook.instance
+    assert len(wb.sheetnames) == 1
+    assert wb.sheetnames[0] == "Analytics"
+
+
+@pytest.mark.skipif(not utils.can_use("openpyxl"), reason="openpyxl is not installed")
+@pytest.mark.skipif(
+    not logging.getLogger().isEnabledFor(logging.DEBUG),
+    reason="DEBUG level logging is not enabled",
+)
+def test_report_to_excel_append_to_existing(report: Report):
+    from openpyxl import Workbook
+
+    output = BytesIO()
+
+    class MockWorkbook(Workbook):
+        instance: "MockWorkbook"
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            MockWorkbook.instance = self
+
+        def save(self, path):
+            super().save(output)
+
+    with (
+        mock.patch("openpyxl.load_workbook", return_value=MockWorkbook()),
+        mock.patch("analytix.reports.interfaces.Path.exists", return_value=True),
+    ):
+        report.to_excel("report.xlsx")
+
+    assert output.getvalue().startswith(b"\x50\x4b\x03\x04")
+
+    wb = MockWorkbook.instance
+    assert len(wb.sheetnames) == 2
+    assert wb.sheetnames[1] == "Analytics"
+
+
+def test_report_to_pandas_without_pandas(report: Report):
+    with (
+        mock.patch("analytix.reports.interfaces.utils.can_use", return_value=False),
+        pytest.raises(MissingOptionalComponents) as exc_info,
+    ):
+        report.to_pandas()
+
+    assert (
+        str(exc_info.value)
+        == "some necessary libraries are not installed (hint: pip install pandas)"
+    )
+
+
+@pytest.mark.skipif(not utils.can_use("pandas"), reason="pandas is not available")
+def test_report_to_pandas_empty_df(empty_report: Report):
+    assert empty_report.shape == (0, 2)
+
+    with pytest.raises(DataFrameConversionError) as exc_info:
+        empty_report.to_pandas()
+
+    assert (
+        str(exc_info.value)
+        == "cannot convert to DataFrame as the returned data has no rows"
+    )
 
 
 @pytest.mark.skipif(not utils.can_use("pandas"), reason="pandas is not available")
@@ -159,93 +267,28 @@ def test_report_to_pandas(response_data, report: Report):
         assert list(row)[1:] == json.loads(response_data)["rows"][i][1:]
 
 
-@pytest.mark.skipif(not utils.can_use("pandas"), reason="pandas is not available")
-def test_report_to_pandas_skip_conversions(response_data, report: Report):
-    df = report.to_pandas(skip_date_conversion=True)
-    assert df.shape == (7, 2)
-    assert list(df.columns) == report.columns
+@mock.patch.object(utils, "can_use", return_value=False)
+def test_report_to_polars_without_polars(_, report: Report):
+    with pytest.raises(MissingOptionalComponents) as exc_info:
+        report.to_polars()
 
-    assert df["day"][0] == "2022-06-20"
-    for i, row in df.iterrows():
-        assert list(row)[1:] == json.loads(response_data)["rows"][i][1:]
+    assert (
+        str(exc_info.value)
+        == "some necessary libraries are not installed (hint: pip install polars)"
+    )
 
 
-@pytest.mark.skipif(not utils.can_use("pandas"), reason="pandas is not available")
-def test_report_to_pandas_empty_df(empty_report: Report):
+@pytest.mark.skipif(not utils.can_use("polars"), reason="polars is not available")
+def test_report_to_polars_empty_df(empty_report: Report):
     assert empty_report.shape == (0, 2)
 
-    with pytest.raises(
-        DataFrameConversionError,
-        match="cannot convert to DataFrame as the returned data has no rows",
-    ):
-        empty_report.to_pandas()
+    with pytest.raises(DataFrameConversionError) as exc_info:
+        empty_report.to_polars()
 
-
-@mock.patch.object(utils, "can_use", return_value=False)
-def test_report_to_pandas_without_pandas(_, report: Report):
-    with pytest.raises(
-        MissingOptionalComponents,
-        match=re.escape(
-            "some necessary libraries are not installed (hint: pip install pandas)",
-        ),
-    ):
-        report.to_pandas()
-
-
-@pytest.mark.skipif(not utils.can_use("pyarrow"), reason="PyArrow is not available")
-def test_report_to_arrow(report: Report):
-    import pandas as pd
-
-    table = report.to_arrow()
-    assert table.shape == (7, 2)
-    assert table.column_names == report.columns
-
-    assert table["day"][0].as_py() == pd.Timestamp(year=2022, month=6, day=20)
-    columns = list(zip(*report.resource.rows))
-
-    for i, col in enumerate(table.itercolumns()):
-        if i == 0:
-            continue
-
-        assert col.to_pylist() == list(columns[i])
-
-
-@pytest.mark.skipif(not utils.can_use("pyarrow"), reason="PyArrow is not available")
-def test_report_to_arrow_skip_conversions(report: Report):
-    table = report.to_arrow(skip_date_conversion=True)
-    assert table.shape == (7, 2)
-    assert table.column_names == report.columns
-
-    assert table["day"][0].as_py() == "2022-06-20"
-    columns = list(zip(*report.resource.rows))
-
-    for i, col in enumerate(table.itercolumns()):
-        if i == 0:
-            continue
-
-        assert col.to_pylist() == list(columns[i])
-
-
-@pytest.mark.skipif(not utils.can_use("pyarrow"), reason="PyArrow is not available")
-def test_report_to_arrow_empty_df(empty_report: Report):
-    assert empty_report.shape == (0, 2)
-
-    with pytest.raises(
-        DataFrameConversionError,
-        match="cannot convert to Arrow table as the returned data has no rows",
-    ):
-        empty_report.to_arrow()
-
-
-@mock.patch.object(utils, "can_use", return_value=False)
-def test_report_to_arrow_without_pyarrow(_, report: Report):
-    with pytest.raises(
-        MissingOptionalComponents,
-        match=re.escape(
-            "some necessary libraries are not installed (hint: pip install pyarrow)",
-        ),
-    ):
-        report.to_arrow()
+    assert (
+        str(exc_info.value)
+        == "cannot convert to DataFrame as the returned data has no rows"
+    )
 
 
 @pytest.mark.skipif(not utils.can_use("polars"), reason="Polars is not available")
@@ -257,86 +300,3 @@ def test_report_to_polars(response_data, report: Report):
     assert df["day"][0] == dt.date(2022, 6, 20)
     for i, row in enumerate(df.rows()):
         assert list(row)[1:] == json.loads(response_data)["rows"][i][1:]
-
-
-@pytest.mark.skipif(not utils.can_use("polars"), reason="Polars is not available")
-def test_report_to_polars_skip_conversions(response_data, report: Report):
-    df = report.to_polars(skip_date_conversion=True)
-    assert df.shape == (7, 2)
-    assert list(df.columns) == report.columns
-
-    assert df["day"][0] == "2022-06-20"
-    for i, row in enumerate(df.rows()):
-        assert list(row)[1:] == json.loads(response_data)["rows"][i][1:]
-
-
-@pytest.mark.skipif(not utils.can_use("polars"), reason="polars is not available")
-def test_report_to_polars_empty_df(empty_report: Report):
-    assert empty_report.shape == (0, 2)
-
-    with pytest.raises(
-        DataFrameConversionError,
-        match="cannot convert to DataFrame as the returned data has no rows",
-    ):
-        empty_report.to_polars()
-
-
-@mock.patch.object(utils, "can_use", return_value=False)
-def test_report_to_polars_without_polars(_, report: Report):
-    with pytest.raises(
-        MissingOptionalComponents,
-        match=re.escape(
-            "some necessary libraries are not installed (hint: pip install polars)",
-        ),
-    ):
-        report.to_polars()
-
-
-@pytest.mark.skipif(not utils.can_use("pyarrow"), reason="PyArrow is not available")
-def test_report_to_feather(report: Report):
-    # The `to_feather` method uses the `to_arrow` method internally, and
-    # additionally calls a PyArrow function to write the file. For this
-    # reason, testing the write functionality seems largely unnecessary,
-    # as any issues are likely outside of analytix's control.
-
-    import pyarrow.feather as pf
-
-    with mock.patch.object(pf, "write_feather") as mock_write:
-        report.to_feather("report.feather")
-        mock_write.assert_called_with(report.to_arrow(), Path("report.feather"))
-
-
-@mock.patch.object(utils, "can_use", return_value=False)
-def test_report_to_feather_without_pyarrow(_, report: Report):
-    with pytest.raises(
-        MissingOptionalComponents,
-        match=re.escape(
-            "some necessary libraries are not installed (hint: pip install pyarrow)",
-        ),
-    ):
-        report.to_feather("report.feather")
-
-
-@pytest.mark.skipif(not utils.can_use("pyarrow"), reason="PyArrow is not available")
-def test_report_to_parquet(report: Report):
-    # The `to_parquet` method uses the `to_arrow` method internally, and
-    # additionally calls a PyArrow function to write the file. For this
-    # reason, testing the write functionality seems largely unnecessary,
-    # as any issues are likely outside of analytix's control.
-
-    import pyarrow.parquet as pq
-
-    with mock.patch.object(pq, "write_table") as mock_write:
-        report.to_parquet("report.parquet")
-        mock_write.assert_called_with(report.to_arrow(), Path("report.parquet"))
-
-
-@mock.patch.object(utils, "can_use", return_value=False)
-def test_report_to_parquet_without_pyarrow(_, report: Report):
-    with pytest.raises(
-        MissingOptionalComponents,
-        match=re.escape(
-            "some necessary libraries are not installed (hint: pip install pyarrow)",
-        ),
-    ):
-        report.to_parquet("report.parquet")

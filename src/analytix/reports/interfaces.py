@@ -15,6 +15,9 @@ __all__ = ("Report",)
 
 import json
 import logging
+from io import TextIOBase
+from os import PathLike
+from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Any
 
@@ -23,15 +26,12 @@ from analytix.errors import DataFrameConversionError
 from analytix.errors import MissingOptionalComponents
 from analytix.reports.resources import ColumnType
 from analytix.reports.resources import ResultTable
-from analytix.utils import process_path
 
 if TYPE_CHECKING:
     import pandas as pd
     import polars as pl
-    import pyarrow as pa
 
     from analytix.abc import ReportType
-    from analytix.types import PathLike
 
 _log = logging.getLogger(__name__)
 
@@ -64,7 +64,6 @@ class Report:
     def __init__(self, data: dict[str, Any], type: "ReportType") -> None:
         self.resource = ResultTable.from_json(data)
         self.type = type
-        self._shape = (len(data["rows"]), len(self.resource.column_headers))
 
     @property
     def shape(self) -> tuple[int, int]:
@@ -82,7 +81,7 @@ class Report:
         >>> report.shape
         (120, 42)
         """
-        return self._shape
+        return (len(self.resource.rows), len(self.resource.column_headers))
 
     @property
     def columns(self) -> list[str]:
@@ -147,120 +146,143 @@ class Report:
 
     def to_json(
         self,
-        path: "PathLike",
+        path_or_buf: str | PathLike[str] | TextIOBase | None = None,
         *,
         overwrite: bool = False,
         **kwargs: Any,
-    ) -> None:
-        """Save this report in JSON format.
+    ) -> str | None:
+        """Convert this report to a JSON string.
 
         This saves the data as it arrived from the YouTube Analytics
         API.
 
-        ???+ note "Changed in version 5.0"
-            * `indent` is no longer an argument, but can still be
-              provided as part of the `**kwargs`; as such, JSON exports
-              are no longer indented by default
-            * This will no longer overwrite existing files by default
-            * You can now pass additional keyword arguments to be passed
-              to the `json.dump` function
-
         Parameters
         ----------
-        path
-            The path to save the file to.
+        path_of_buf
+            The path to save the report to, a file-like object to write
+            to, or `None`.
         overwrite
             Whether to overwrite an existing file.
         **kwargs
-            Additional arguments to pass to `json.dump`. This includes
-            `indent`.
+            Additional arguments to pass to `json.dumps()`
 
         Returns
         -------
-        None
-            This method doesn't return anything.
+        str | None
+            The JSON string if `path_or_buf` is `None`, otherwise
+            `None`.
 
         Examples
         --------
-        >>> report.to_json("output.json")
+        >>> report.to_json()
+        {"kind": "youtubeAnalytics#resultTable", ...}
 
-        Saving in a pretty format.
+        Writing to a file.
 
-        >>> report.to_json("output.json", indent=4)
+        >>> report.to_json("report.json", indent=4)
+
+        Writing to a file-like object.
+
+        >>> report.to_json(buf := io.StringIO())
+        >>> buf.getvalue()
+        '{"kind": "youtubeAnalytics#resultTable", ...}'
         """
-        path = process_path(path, ".json", overwrite=overwrite)
-        data = self.resource.data
+        if path_or_buf is None:
+            return json.dumps(self.resource.data, **kwargs)
 
-        with open(path, "w") as f:
-            json.dump(data, f, **kwargs)
+        if isinstance(path_or_buf, (str, PathLike)):
+            output_path = Path(path_or_buf)
+            if (not overwrite) and output_path.exists():
+                raise FileExistsError(
+                    "file already exists and `overwrite` is set to False",
+                )
+            output_path.write_text(json.dumps(self.resource.data, **kwargs))
+            _log.debug("Saved report to %s", output_path.resolve())
+            return None
 
-        _log.info(f"Saved report as JSON to {path.resolve()}")
+        if isinstance(path_or_buf, TextIOBase):
+            path_or_buf.write(json.dumps(self.resource.data, **kwargs))
+            return None
+
+        raise TypeError(
+            f"Expected str, PathLike, or TextIOBase, got {type(path_or_buf).__name__}",
+        )
 
     def to_csv(
         self,
-        path: "PathLike",
+        path_or_buf: str | PathLike[str] | TextIOBase | None = None,
         *,
         delimiter: str = ",",
         overwrite: bool = False,
-    ) -> None:
-        """Save this report as a CSV or TSV file.
-
-        The filetype is dependent on the delimiter you provide — if you
-        pass a tab character as a delimiter, the file will be saved as
-        a TSV. It will be saved as a CSV in all other instances.
-
-        ???+ note "Changed in version 5.0"
-            This will no longer overwrite existing files by default.
+    ) -> str | None:
+        """Convert this report to a CSV or TSV string.
 
         Parameters
         ----------
-        path
-            The path to save the file to.
+        path_of_buf
+            The path to save the report to, a file-like object to write
+            to, or `None`.
         delimiter
-            The character to use as a delimiter. If this is `\\t`, the
-            report will be saved as a TSV.
+            The character to use as a delimiter.
         overwrite
             Whether to overwrite an existing file.
 
         Returns
         -------
-        None
-            This method doesn't return anything.
+        str | None
+            The CSV string if `path_or_buf` is `None`, otherwise `None`.
 
         Examples
         --------
-        >>> report.to_csv("output.csv")
+        >>> report.to_csv()
+        'views,redViews,comments,likes,dislikes,...'
 
-        Saving as a TSV.
+        Writing to a file.
 
-        >>> report.to_csv("output.tsv", delimiter="\\t")
+        >>> report.to_csv("report.csv")
+
+        Writing to a file-like object.
+
+        >>> report.to_csv(buf := io.StringIO())
+        >>> buf.getvalue()
+        'views,redViews,comments,likes,dislikes,...'
         """
-        extension = ".tsv" if delimiter == "\t" else ".csv"
-        path = process_path(path, extension, overwrite=overwrite)
+        output = f"{delimiter.join(self.columns)}\n"
+        for row in self.resource.rows:
+            line = delimiter.join(f"{v}" for v in row)
+            output += f"{line}\n"
 
-        with open(path, "w") as f:
-            f.write(f"{delimiter.join(self.columns)}\n")
-            for row in self.resource.rows:
-                line = delimiter.join(f"{v}" for v in row)
-                f.write(f"{line}\n")
+        if path_or_buf is None:
+            return output
 
-        _log.info(f"Saved report as {extension[1:].upper()} to {path.resolve()}")
+        if isinstance(path_or_buf, (str, PathLike)):
+            output_path = Path(path_or_buf)
+            if (not overwrite) and output_path.exists():
+                raise FileExistsError(
+                    "file already exists and `overwrite` is set to False",
+                )
+            output_path.write_text(output)
+            _log.debug("Saved report to %s", output_path.resolve())
+            return None
+
+        if isinstance(path_or_buf, TextIOBase):
+            path_or_buf.write(output)
+            return None
+
+        raise TypeError(
+            f"Expected str, PathLike, or TextIOBase, got {type(path_or_buf).__name__}",
+        )
 
     def to_excel(
         self,
-        path: "PathLike",
+        path: str | PathLike[str],
         *,
         sheet_name: str = "Analytics",
-        overwrite: bool = False,
     ) -> None:
         """Save this report as an Excel spreadsheet.
 
-        The data cannot be saved to a new sheet in an existing workbook.
-        If you wish to do this, you will need to save the data to a new
-        spreadsheet file, then copy the data over.
-
-        ???+ note "Changed in version 5.0"
-            This will no longer overwrite existing files by default.
+        If a workbook already exists in the given path, the data will be
+        inserted into a new sheet with the given name.
 
         Parameters
         ----------
@@ -268,13 +290,6 @@ class Report:
             The path to save the spreadsheet to.
         sheet_name
             The name to give the sheet the data will be inserted into.
-        overwrite
-            Whether to overwrite an existing file.
-
-        Returns
-        -------
-        None
-            This method doesn't return anything.
 
         Notes
         -----
@@ -288,21 +303,32 @@ class Report:
         if not utils.can_use("openpyxl"):
             raise MissingOptionalComponents("openpyxl")
 
-        from openpyxl import Workbook
+        if not isinstance(path, (str, PathLike)):
+            raise TypeError(f"Expected str or PathLike, got {type(path).__name__}")
 
-        path = process_path(path, ".xlsx", overwrite=overwrite)
-        wb = Workbook()
-        ws = wb.active or wb.create_sheet()
-        ws.title = sheet_name
+        output_path = Path(path)
+        if output_path.exists():
+            _log.debug("Workbook already exists; adding new sheet")
+            from openpyxl import load_workbook
+
+            wb = load_workbook(output_path)
+            ws = wb.create_sheet(sheet_name)
+        else:
+            _log.debug("Workbook does not exist; creating new workbook")
+            from openpyxl import Workbook
+
+            wb = Workbook()
+            ws = wb.active or wb.create_sheet()
+            ws.title = sheet_name
 
         ws.append(self.columns)
         for row in self.resource.rows:
             ws.append(row)
 
-        wb.save(str(path))
-        _log.info(f"Saved report as spreadsheet to {path.resolve()}")
+        wb.save(str(output_path))
+        _log.debug("Saved report to %s", output_path.resolve())
 
-    def to_pandas(self, *, skip_date_conversion: bool = False) -> "pd.DataFrame":
+    def to_pandas(self) -> "pd.DataFrame":
         """Return this report as a pandas DataFrame.
 
         Parameters
@@ -344,7 +370,7 @@ class Report:
         if not utils.can_use("pandas"):
             raise MissingOptionalComponents("pandas")
 
-        if not self._shape[0]:
+        if not self.shape[0]:
             raise DataFrameConversionError(
                 "cannot convert to DataFrame as the returned data has no rows",
             )
@@ -353,7 +379,7 @@ class Report:
 
         df = pd.DataFrame(self.resource.rows, columns=self.columns)
 
-        if not skip_date_conversion and len(s := {"day", "month"} & set(df.columns)):
+        if len(s := {"day", "month"} & set(df.columns)):
             col = next(iter(s))
             fmt = {"day": "%Y-%m-%d", "month": "%Y-%m"}[col]
             df[col] = pd.to_datetime(df[col], format=fmt)
@@ -361,75 +387,7 @@ class Report:
 
         return df
 
-    def to_arrow(self, *, skip_date_conversion: bool = False) -> "pa.Table":
-        """Export this report as an Apache Arrow table.
-
-        Parameters
-        ----------
-        skip_date_conversion
-            Whether or not to skip the conversion of "day" and "month"
-            columns into a datetime format. If you choose to skip this,
-            these columns will be left as strings.
-
-        Returns
-        -------
-        PyArrow Table
-            An Apache Arrow table.
-
-        Raises
-        ------
-        MissingOptionalComponents
-            PyArrow is not installed.
-        DataFrameConversionError
-            There is no data from which to create an Arrow table.
-
-        Notes
-        -----
-        This requires `pyarrow` to be installed to use, which is an
-        optional dependency.
-
-        Examples
-        --------
-        >>> table = report.to_arrow()
-        >>> table.slice(length=3)
-        pyarrow.Table
-        day: timestamp[ns]
-        views: int64
-        likes: int64
-        comments: int64
-        grossRevenue: double
-        ----
-        day: [[2022-06-20 00:00:00.000000000,...]]
-        views: [[778,1062,946,5107,2137]]
-        likes: [[8,32,38,199,61]]
-        comments: [[0,8,6,15,2]]
-        grossRevenue: [[2.249,3.558,2.91,24.428,6.691]]
-        """
-        if not utils.can_use("pyarrow"):
-            raise MissingOptionalComponents("pyarrow")
-
-        if not self._shape[0]:
-            raise DataFrameConversionError(
-                "cannot convert to Arrow table as the returned data has no rows",
-            )
-
-        import pyarrow as pa
-        import pyarrow.compute as pc
-
-        table = pa.table(list(zip(*self.resource.rows)), names=self.columns)
-
-        if not skip_date_conversion and len(
-            s := {"day", "month"} & set(table.column_names),
-        ):
-            col = next(iter(s))
-            fmt = {"day": "%Y-%m-%d", "month": "%Y-%m"}[col]
-            dt_series = pc.strptime(table.column(col), format=fmt, unit="ns")
-            table = table.set_column(0, "day", dt_series)
-            _log.debug(f"Converted {col!r} column to datetime format")
-
-        return table
-
-    def to_polars(self, *, skip_date_conversion: bool = False) -> "pl.DataFrame":
+    def to_polars(self) -> "pl.DataFrame":
         """Return the data as a Polars DataFrame.
 
         Parameters
@@ -480,7 +438,7 @@ class Report:
         if not utils.can_use("polars"):
             raise MissingOptionalComponents("polars")
 
-        if not self._shape[0]:
+        if not self.shape[0]:
             raise DataFrameConversionError(
                 "cannot convert to DataFrame as the returned data has no rows",
             )
@@ -489,131 +447,10 @@ class Report:
 
         df = pl.DataFrame(self.resource.rows, schema=self.columns)
 
-        if not skip_date_conversion and len(s := {"day", "month"} & set(df.columns)):
+        if len(s := {"day", "month"} & set(df.columns)):
             col = next(iter(s))
             fmt = {"day": "%Y-%m-%d", "month": "%Y-%m"}[col]
             df = df.with_columns(pl.col(col).str.strptime(pl.Date, fmt))
             _log.debug(f"Converted {col!r} column to date format")
 
         return df
-
-    def to_feather(
-        self,
-        path: "PathLike",
-        *,
-        skip_date_conversion: bool = False,
-        overwrite: bool = False,
-        **kwargs: Any,
-    ) -> None:
-        """Save this report as an Apache Feather file.
-
-        ???+ note "Changed in version 5.0"
-            * This will no longer overwrite existing files by default
-            * You can now pass additional keyword arguments to be passed
-              to the `pf.write_feather` function
-            * This no longer returns a PyArrow table
-
-        Parameters
-        ----------
-        path
-            The path to save the file to.
-        skip_date_conversion
-            Whether or not to skip the conversion of "day" and "month"
-            columns into a datetime format. If you choose to skip this,
-            these columns will be left as strings.
-        overwrite
-            Whether to overwrite an existing file.
-
-        Returns
-        -------
-        None
-            This method doesn't return anything.
-
-        Other Parameters
-        ----------------
-        **kwargs
-            Additional arguments to pass to `pf.write_feather`.
-
-        Notes
-        -----
-        This requires `pyarrow` to be installed to use, which is an
-        optional dependency.
-
-        Examples
-        --------
-        >>> report.to_feather("output.feather")
-        """
-        if not utils.can_use("pyarrow"):
-            raise MissingOptionalComponents("pyarrow")
-
-        import pyarrow.feather as pf
-
-        path = process_path(path, ".feather", overwrite=overwrite)
-        pf.write_feather(
-            self.to_arrow(skip_date_conversion=skip_date_conversion),
-            path,
-            **kwargs,
-        )
-
-        _log.info(f"Saved report as Apache Feather file to {path.resolve()}")
-
-    def to_parquet(
-        self,
-        path: "PathLike",
-        *,
-        skip_date_conversion: bool = False,
-        overwrite: bool = False,
-        **kwargs: Any,
-    ) -> None:
-        """Save this report as an Apache Parquet file.
-
-        ???+ note "Changed in version 5.0"
-            * This will no longer overwrite existing files by default
-            * You can now pass additional keyword arguments to be passed
-              to the `pq.write_table` function
-            * This no longer returns a PyArrow table
-
-        Parameters
-        ----------
-        path
-            The path to save the file to.
-        skip_date_conversion
-            Whether or not to skip the conversion of "day" and "month"
-            columns into a datetime format. If you choose to skip this,
-            these columns will be left as strings.
-        overwrite
-            Whether to overwrite an existing file.
-
-        Returns
-        -------
-        None
-            This method doesn't return anything.
-
-        Other Parameters
-        ----------------
-        **kwargs
-            Additional arguments to pass to `pq.write_table`.
-
-        Notes
-        -----
-        This requires `pyarrow` to be installed to use, which is an
-        optional dependency.
-
-        Examples
-        --------
-        >>> report.to_parquet("output.parquet")
-        """
-
-        if not utils.can_use("pyarrow"):
-            raise MissingOptionalComponents("pyarrow")
-
-        import pyarrow.parquet as pq
-
-        path = process_path(path, ".parquet", overwrite=overwrite)
-        pq.write_table(
-            self.to_arrow(skip_date_conversion=skip_date_conversion),
-            path,
-            **kwargs,
-        )
-
-        _log.info(f"Saved report as Apache Parquet file to {path.resolve()}")
